@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Ficha</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#141414;color:white;}
+header{background:#0f0f0f;padding:10px;display:flex;justify-content:space-between;border-bottom:2px solid #6a1b9a;}
+button{background:#6a1b9a;border:none;color:white;padding:6px 12px;cursor:pointer}
+main{display:flex;height:calc(100vh - 60px);}
+.left{width:300px;border-right:2px solid #222;padding:12px}
+.right{flex:1;padding:12px}
+.box{border:1px solid #333;padding:10px;margin-bottom:12px;background:#1a1a1a}
+.tabs button{margin-right:6px}
+.tab{display:none}
+.tab.active{display:block}
+input,textarea{width:100%;background:#1f1f1f;border:1px solid #444;color:white;margin-top:4px}
+</style>
+</head>
+
+<body>
+
+<header>
+<div>
+<select id="versaoSelect"></select>
+<button onclick="novaVersao()">Nova versão</button>
+</div>
+
+<div class="tabs">
+<button onclick="trocarTab('pericias')">Perícias</button>
+<button onclick="trocarTab('combate')">Combate</button>
+<button onclick="trocarTab('habilidades')">Habilidades</button>
+<button onclick="trocarTab('rituais')">Rituais</button>
+<button onclick="trocarTab('inventario')">Inventário</button>
+<button onclick="trocarTab('descricao')">Descrição</button>
+</div>
+</header>
+
+<main>
+
+<div class="left">
+
+<div class="box">
+Nome <input id="nome">
+</div>
+
+<div class="box">
+Atributos
+AGI<input id="agi">
+FOR<input id="for">
+INT<input id="int">
+PRE<input id="pre">
+VIG<input id="vig">
+</div>
+
+<div class="box">
+Vida<input id="vida">
+Sanidade<input id="sanidade">
+Esforço<input id="esforco">
+</div>
+
+</div>
+
+<div class="right">
+
+<div id="pericias" class="tab active box">
+Acrobacia<input id="acro">
+Atletismo<input id="atle">
+Investigação<input id="invest">
+Ocultismo<input id="ocult">
+Percepção<input id="perc">
+Pontaria<input id="pont">
+Reflexos<input id="ref">
+</div>
+
+<div id="combate" class="tab box">
+Ataques<textarea id="ataques"></textarea>
+</div>
+
+<div id="habilidades" class="tab box">
+<textarea id="habilidades_txt"></textarea>
+</div>
+
+<div id="rituais" class="tab box">
+<textarea id="rituais_txt"></textarea>
+</div>
+
+<div id="inventario" class="tab box">
+<textarea id="inventario_txt"></textarea>
+</div>
+
+<div id="descricao" class="tab box">
+<textarea id="descricao_txt"></textarea>
+</div>
+
+</div>
+</main>
+
+<script>
+let fichas=JSON.parse(localStorage.getItem("fichas"))||{versoes:{Original:{}},atual:"Original"};
+
+function salvar(){
+ let ids=document.querySelectorAll("input,textarea");
+ fichas.versoes[fichas.atual]={};
+ ids.forEach(i=>fichas.versoes[fichas.atual][i.id]=i.value);
+ localStorage.setItem("fichas",JSON.stringify(fichas));
+}
+
+function carregar(){
+ let f=fichas.versoes[fichas.atual]||{};
+ document.querySelectorAll("input,textarea").forEach(i=>i.value=f[i.id]||"");
+}
+
+function atualizarSelect(){
+ versaoSelect.innerHTML="";
+ Object.keys(fichas.versoes).forEach(v=>{
+  let o=document.createElement("option");
+  o.value=v;o.textContent=v;
+  versaoSelect.appendChild(o);
+ });
+ versaoSelect.value=fichas.atual;
+}
+
+function novaVersao(){
+ let n=prompt("Nome:");
+ if(!n)return;
+ fichas.versoes[n]=JSON.parse(JSON.stringify(fichas.versoes[fichas.atual]));
+ fichas.atual=n;
+ atualizarSelect();
+ carregar();
+ salvar();
+}
+
+versaoSelect.onchange=()=>{fichas.atual=versaoSelect.value;carregar();}
+
+function trocarTab(t){
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+ document.getElementById(t).classList.add("active");
+}
+
+document.querySelectorAll("input,textarea").forEach(i=>i.oninput=salvar);
+
+atualizarSelect();
+carregar();
+</script>
+
+</body>
+</html>
