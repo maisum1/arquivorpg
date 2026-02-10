@@ -1,437 +1,267 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Sistema de Rituais C.R.I.S.</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C.R.I.S. - Sistema de Rituais</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBO3ytDF4stqlHA2h7qUP8fLcLsEwB3jNI",
-    authDomain: "fichasrpg-7fc69.firebaseapp.com",
-    projectId: "fichasrpg-7fc69",
-    storageBucket: "fichasrpg-7fc69.firebasestorage.app",
-    messagingSenderId: "758802032764",
-    appId: "1:758802032764:web:40467e15fdc24c570081f9",
-    measurementId: "G-0LQNEFTCB5"
-  };
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@400;700&display=swap');
 
-  // Inicializa o Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: 'Roboto', sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
 
-  // --- IMPORTANTE: DEFINA O ID DA FICHA AQUI ---
-  // Se o seu site já define 'atual' em outro lugar, pode remover esta linha.
-  // Caso contrário, coloque o ID da ficha entre aspas abaixo para testar.
-  var atual = "ID_DA_SUA_FICHA_AQUI"; 
-</script>
+        /* Interface C.R.I.S */
+        #rit {
+            max-width: 800px;
+            margin: 20px auto;
+        }
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@400;700&display=swap');
+        .rit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
 
-body {
-    background-color: #050505;
-    color: #e0e0e0;
-    font-family: 'Roboto', sans-serif;
-    padding: 20px;
-}
+        .dt-container { display: flex; align-items: center; gap: 10px; }
+        .dt-label { font-family: 'Special Elite', cursive; font-size: 1.1em; color: #aaa; }
+        .dt-box { 
+            background: #111; border: 1px solid #555; color: #fff; 
+            padding: 5px 15px; border-radius: 4px; font-family: 'Special Elite', cursive; 
+        }
 
-/* Área Principal */
-#rit {
-    max-width: 800px;
-    margin: 0 auto;
-}
+        .cris-btn {
+            background: transparent; border: 1px solid #fff; color: #fff;
+            padding: 8px 16px; text-transform: uppercase; font-weight: bold;
+            cursor: pointer; font-family: 'Special Elite', cursive; transition: 0.2s;
+        }
+        .cris-btn:hover { background: #fff; color: #000; }
+        .cris-btn.danger { border-color: #ff4444; color: #ff4444; }
+        .cris-btn.danger:hover { background: #ff4444; color: #fff; }
+        .cris-btn.save { border-color: #00e676; color: #00e676; margin-right: 10px;}
+        .cris-btn.save:hover { background: #00e676; color: #000; }
 
-/* Header DT */
-.rit-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #333;
-    padding-bottom: 10px;
-}
+        /* Cards */
+        .ritual-card {
+            background: #121212; border-left: 5px solid #555; border-radius: 4px;
+            margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
 
-.dt-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+        /* Element Colors */
+        .ritual-card[data-elem="Conhecimento"] { border-left-color: #d4af37; }
+        .ritual-card[data-elem="Energia"] { border-left-color: #9b59b6; }
+        .ritual-card[data-elem="Morte"] { border-left-color: #555; }
+        .ritual-card[data-elem="Sangue"] { border-left-color: #bf1e1e; }
+        .ritual-card[data-elem="Medo"] { border-left-color: #fff; }
 
-.dt-label {
-    font-family: 'Special Elite', cursive;
-    font-size: 1.2em;
-    letter-spacing: 1px;
-}
+        .card-header {
+            padding: 12px 15px; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03);
+        }
+        .card-title { font-family: 'Special Elite', cursive; text-transform: uppercase; }
+        .card-body { display: none; padding: 15px; border-top: 1px solid #333; }
 
-.dt-box {
-    background: #111;
-    border: 1px solid #555;
-    color: #fff;
-    font-size: 1.2em;
-    padding: 5px 15px;
-    border-radius: 4px;
-    font-family: 'Special Elite', cursive;
-}
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px; margin-bottom: 15px; background: #0a0a0a; padding: 12px;
+        }
 
-/* Botões */
-.cris-btn {
-    background: transparent;
-    border: 1px solid #fff;
-    color: #fff;
-    padding: 8px 16px;
-    text-transform: uppercase;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-    font-family: 'Special Elite', cursive;
-}
-.cris-btn:hover { background: #fff; color: #000; }
-.cris-btn.danger { border-color: #ff4444; color: #ff4444; }
-.cris-btn.danger:hover { background: #ff4444; color: #fff; }
-.cris-btn.save { border-color: #00e676; color: #00e676; margin-right: 10px;}
-.cris-btn.save:hover { background: #00e676; color: #000; }
+        .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+        
+        .cris-input, .cris-select, .cris-textarea {
+            background: transparent; border: none; border-bottom: 1px solid #444;
+            color: #fff; width: 100%; padding: 5px 0; font-family: 'Roboto', sans-serif;
+        }
+        .cris-textarea { min-height: 80px; border: 1px solid #333; padding: 8px; margin-top: 5px; }
 
-/* Card Ritual */
-.ritual-card {
-    background: #121212;
-    border-left: 5px solid #555;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-    transition: all 0.3s ease;
-}
+        .upgrade-section { margin-top: 15px; padding: 10px; border: 1px dashed #444; }
+        .upgrade-title { font-size: 0.8em; color: #aaa; font-weight: bold; margin-bottom: 5px; }
 
-/* Cores por Elemento */
-.ritual-card[data-elem="Conhecimento"] { border-left-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.1); }
-.ritual-card[data-elem="Energia"] { border-left-color: #9b59b6; box-shadow: 0 0 8px rgba(155, 89, 182, 0.1); }
-.ritual-card[data-elem="Morte"] { border-left-color: #555; box-shadow: 0 0 8px rgba(85, 85, 85, 0.1); }
-.ritual-card[data-elem="Sangue"] { border-left-color: #bf1e1e; box-shadow: 0 0 8px rgba(191, 30, 30, 0.1); }
-.ritual-card[data-elem="Medo"] { border-left-color: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
-
-/* Título do Card */
-.card-header {
-    padding: 12px 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,255,255,0.03);
-}
-
-.card-title {
-    font-family: 'Special Elite', cursive;
-    font-size: 1.1em;
-    text-transform: uppercase;
-}
-
-.card-circle {
-    font-size: 0.8em;
-    opacity: 0.8;
-    background: #000;
-    padding: 2px 8px;
-    border-radius: 10px;
-}
-
-/* Conteúdo */
-.card-body {
-    display: none;
-    padding: 15px;
-    border-top: 1px solid #333;
-}
-
-/* Grid de Status */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
-    background: #0a0a0a;
-    padding: 15px;
-    border-radius: 4px;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-label {
-    font-size: 0.7em;
-    color: #888;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-}
-
-/* Inputs Customizados */
-.cris-input, .cris-select, .cris-textarea {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #444;
-    color: #fff;
-    width: 100%;
-    padding: 6px 0;
-    font-family: 'Roboto', sans-serif;
-}
-.cris-input:focus, .cris-select:focus, .cris-textarea:focus {
-    outline: none;
-    border-bottom-color: #fff;
-    background: #1a1a1a;
-}
-.cris-select option { background: #222; }
-
-.cris-textarea {
-    min-height: 60px;
-    resize: vertical;
-    border: 1px solid #333;
-    padding: 8px;
-    margin-top: 5px;
-}
-
-/* Áreas de Upgrade (Discente/Verdadeiro) */
-.upgrade-section {
-    margin-top: 15px;
-    padding: 10px;
-    border: 1px dashed #444;
-    border-radius: 4px;
-}
-.upgrade-title {
-    font-size: 0.85em;
-    color: #aaa;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.acoes-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-}
-</style>
+        .acoes-container { margin-top: 20px; display: flex; justify-content: flex-end; }
+        
+        #link-compartilhar {
+            font-size: 0.8em; color: #666; text-align: center; margin-top: 40px;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="section" id="rit">
-  
-  <div class="rit-header">
-    <div class="dt-container">
-      <span class="dt-label">DT RITUAIS</span>
-      <div id="dtRituais" class="dt-box">0</div>
+    <div id="rit">
+        <div class="rit-header">
+            <div class="dt-container">
+                <span class="dt-label">DT RITUAIS</span>
+                <div id="dtRituais" class="dt-box">0</div>
+            </div>
+            <button class="cris-btn" onclick="novoRitual()">+ ADICIONAR RITUAL</button>
+        </div>
+
+        <div id="listaRituais">
+            <p style="text-align:center; color:#555;">Iniciando sistema...</p>
+        </div>
+
+        <div id="link-compartilhar"></div>
     </div>
-    <button class="cris-btn" onclick="novoRitual()">+ ADICIONAR RITUAL</button>
-  </div>
 
-  <div id="listaRituais" class="rit-list">
-    <p style="text-align:center; color:#555;">Carregando grimório...</p>
-  </div>
-</div>
+    <script>
+        // --- 1. CONFIGURAÇÃO ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBO3ytDF4stqlHA2h7qUP8fLcLsEwB3jNI",
+            authDomain: "fichasrpg-7fc69.firebaseapp.com",
+            projectId: "fichasrpg-7fc69",
+            storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+            messagingSenderId: "758802032764",
+            appId: "1:758802032764:web:40467e15fdc24c570081f9",
+            measurementId: "G-0LQNEFTCB5"
+        };
 
-<script>
-// Monitora a coleção de rituais em tempo real
-function carregarRituais() {
-  const container = document.getElementById("listaRituais");
-  
-  if (!atual || atual === "ID_DA_SUA_FICHA_AQUI") {
-    container.innerHTML = "<p style='text-align:center; color:#ff4444;'>Erro: ID da ficha não definido no código.</p>";
-    return;
-  }
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-  db.collection("fichas").doc(atual).collection("rituais")
-    .orderBy("circulo", "asc")
-    .onSnapshot((snapshot) => {
-      container.innerHTML = "";
-      document.getElementById("dtRituais").textContent = snapshot.size;
+        // --- 2. LÓGICA DE FICHA ---
+        const urlParams = new URLSearchParams(window.location.search);
+        let atual = urlParams.get('id');
 
-      if(snapshot.empty){
-        container.innerHTML = "<div style='text-align:center; padding:20px; color:#555;'>Nenhum ritual aprendido.</div>";
-        return;
-      }
+        async function inicializarFicha() {
+            if (!atual) {
+                // Se não houver ID, cria uma nova ficha
+                const ref = db.collection("fichas").doc();
+                atual = ref.id;
+                await ref.set({ criadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+                // Atualiza a URL sem recarregar totalmente, ou recarrega para limpar
+                window.location.search = `?id=${atual}`;
+            } else {
+                document.getElementById('link-compartilhar').innerText = "Seu link único: " + window.location.href;
+                carregarRituais();
+            }
+        }
 
-      snapshot.forEach(doc => {
-        const r = doc.data();
-        const id = doc.id;
-        const elemento = r.elemento || "Outro";
+        function carregarRituais() {
+            db.collection("fichas").doc(atual).collection("rituais")
+              .orderBy("circulo", "asc")
+              .onSnapshot(snapshot => {
+                const container = document.getElementById("listaRituais");
+                container.innerHTML = "";
+                document.getElementById("dtRituais").textContent = snapshot.size;
 
-        const card = document.createElement("div");
-        card.className = "ritual-card";
-        card.setAttribute("data-elem", elemento);
-        card.id = `card-${id}`;
+                if(snapshot.empty) {
+                    container.innerHTML = "<p style='text-align:center; color:#444;'>Seu grimório está vazio.</p>";
+                    return;
+                }
 
-        card.innerHTML = `
-          <div class="card-header" onclick="toggleRitual('${id}')">
-            <span class="card-title">
-              ${r.circulo || 1}º - ${r.nome || "Novo Ritual"}
-            </span>
-            <span class="card-circle">${elemento}</span>
-          </div>
+                snapshot.forEach(doc => {
+                    renderizarCard(doc.id, doc.data(), container);
+                });
+            });
+        }
 
-          <div class="card-body" id="body-${id}">
-            <div style="margin-bottom:15px;">
-                <label class="stat-label">Nome do Ritual</label>
-                <input type="text" class="cris-input" style="font-weight:bold; font-size:1.1em;" id="nome-${id}" value="${r.nome || ''}" placeholder="Nome do Ritual">
-            </div>
+        function renderizarCard(id, data, container) {
+            const card = document.createElement("div");
+            card.className = "ritual-card";
+            card.setAttribute("data-elem", data.elemento || "Morte");
+            card.id = `card-${id}`;
 
-            <div class="stats-grid">
-               <div class="stat-item">
-                  <span class="stat-label">Elemento</span>
-                  <select class="cris-select" id="elem-${id}" onchange="atualizarCorCard('${id}', this.value)">
-                    <option value="Conhecimento" ${r.elemento === 'Conhecimento' ? 'selected' : ''}>Conhecimento</option>
-                    <option value="Energia" ${r.elemento === 'Energia' ? 'selected' : ''}>Energia</option>
-                    <option value="Morte" ${r.elemento === 'Morte' ? 'selected' : ''}>Morte</option>
-                    <option value="Sangue" ${r.elemento === 'Sangue' ? 'selected' : ''}>Sangue</option>
-                    <option value="Medo" ${r.elemento === 'Medo' ? 'selected' : ''}>Medo</option>
-                  </select>
-               </div>
-               <div class="stat-item">
-                  <span class="stat-label">Círculo</span>
-                  <select class="cris-select" id="circ-${id}">
-                    <option value="1" ${r.circulo == 1 ? 'selected' : ''}>1º Círculo</option>
-                    <option value="2" ${r.circulo == 2 ? 'selected' : ''}>2º Círculo</option>
-                    <option value="3" ${r.circulo == 3 ? 'selected' : ''}>3º Círculo</option>
-                    <option value="4" ${r.circulo == 4 ? 'selected' : ''}>4º Círculo</option>
-                  </select>
-               </div>
-               <div class="stat-item">
-                  <span class="stat-label">Execução</span>
-                  <input type="text" class="cris-input" id="exec-${id}" value="${r.execucao || 'Padrão'}">
-               </div>
-               <div class="stat-item">
-                  <span class="stat-label">Alcance</span>
-                  <input type="text" class="cris-input" id="alc-${id}" value="${r.alcance || 'Curto'}">
-               </div>
-               <div class="stat-item">
-                  <span class="stat-label">Alvo/Área</span>
-                  <input type="text" class="cris-input" id="alvo-${id}" value="${r.alvo || '1 ser'}">
-               </div>
-               <div class="stat-item">
-                  <span class="stat-label">Duração</span>
-                  <input type="text" class="cris-input" id="dur-${id}" value="${r.duracao || 'Instantânea'}">
-               </div>
-               <div class="stat-item">
-                  <span class="stat-label">Resistência</span>
-                  <input type="text" class="cris-input" id="res-${id}" value="${r.resistencia || '-'}">
-               </div>
-            </div>
+            card.innerHTML = `
+                <div class="card-header" onclick="toggleRitual('${id}')">
+                    <span class="card-title">${data.circulo}º - ${data.nome || 'Novo Ritual'}</span>
+                    <span style="font-size:0.8em; opacity:0.6">${data.elemento}</span>
+                </div>
+                <div class="card-body" id="body-${id}">
+                    <div style="margin-bottom:15px;">
+                        <span class="stat-label">Nome</span>
+                        <input type="text" class="cris-input" id="nome-${id}" value="${data.nome || ''}">
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Elemento</span>
+                            <select class="cris-select" id="elem-${id}" onchange="atualizarCor('${id}', this.value)">
+                                <option value="Conhecimento" ${data.elemento == 'Conhecimento' ? 'selected' : ''}>Conhecimento</option>
+                                <option value="Energia" ${data.elemento == 'Energia' ? 'selected' : ''}>Energia</option>
+                                <option value="Morte" ${data.elemento == 'Morte' ? 'selected' : ''}>Morte</option>
+                                <option value="Sangue" ${data.elemento == 'Sangue' ? 'selected' : ''}>Sangue</option>
+                                <option value="Medo" ${data.elemento == 'Medo' ? 'selected' : ''}>Medo</option>
+                            </select>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Círculo</span>
+                            <input type="number" class="cris-input" id="circ-${id}" value="${data.circulo || 1}">
+                        </div>
+                        <div class="stat-item"><span class="stat-label">Execução</span><input type="text" class="cris-input" id="exec-${id}" value="${data.execucao || ''}"></div>
+                        <div class="stat-item"><span class="stat-label">Alcance</span><input type="text" class="cris-input" id="alc-${id}" value="${data.alcance || ''}"></div>
+                    </div>
+                    <span class="stat-label">Efeito</span>
+                    <textarea class="cris-textarea" id="desc-${id}">${data.descricao || ''}</textarea>
+                    
+                    <div class="upgrade-section">
+                        <div class="upgrade-title">DISCENTE (+${data.peDisc || 2} PE)</div>
+                        <textarea class="cris-textarea" id="disc-${id}">${data.discente || ''}</textarea>
+                    </div>
 
-            <div class="stat-item">
-               <span class="stat-label">Efeito (Normal)</span>
-               <textarea class="cris-textarea" id="desc-${id}" placeholder="Descrição do efeito padrão...">${r.descricao || ''}</textarea>
-            </div>
+                    <div class="acoes-container">
+                        <button class="cris-btn save" onclick="salvar('${id}')">Salvar</button>
+                        <button class="cris-btn danger" onclick="remover('${id}')">Apagar</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
 
-            <div class="upgrade-section">
-               <div class="upgrade-title">DISCENTE (+<input type="number" id="peDisc-${id}" value="${r.peDisc || 0}" style="width:30px; background:none; border:none; color:#aaa; text-align:center;"> PE)</div>
-               <textarea class="cris-textarea" id="descDisc-${id}" placeholder="Efeito discente...">${r.discente || ''}</textarea>
-            </div>
+        // --- 3. AÇÕES ---
+        async function novoRitual() {
+            await db.collection("fichas").doc(atual).collection("rituais").add({
+                nome: "Novo Ritual",
+                elemento: "Morte",
+                circulo: 1,
+                execucao: "Padrão",
+                alcance: "Curto",
+                descricao: "",
+                discente: "",
+                peDisc: 2
+            });
+        }
 
-            <div class="upgrade-section">
-               <div class="upgrade-title">VERDADEIRO (+<input type="number" id="peVerd-${id}" value="${r.peVerd || 0}" style="width:30px; background:none; border:none; color:#aaa; text-align:center;"> PE)</div>
-               <textarea class="cris-textarea" id="descVerd-${id}" placeholder="Efeito verdadeiro...">${r.verdadeiro || ''}</textarea>
-            </div>
+        async function salvar(id) {
+            const updates = {
+                nome: document.getElementById(`nome-${id}`).value,
+                elemento: document.getElementById(`elem-${id}`).value,
+                circulo: parseInt(document.getElementById(`circ-${id}`).value),
+                execucao: document.getElementById(`exec-${id}`).value,
+                alcance: document.getElementById(`alc-${id}`).value,
+                descricao: document.getElementById(`desc-${id}`).value,
+                discente: document.getElementById(`disc-${id}`).value
+            };
+            await db.collection("fichas").doc(atual).collection("rituais").doc(id).update(updates);
+            alert("Salvo com sucesso!");
+        }
 
-            <div class="acoes-container">
-              <button class="cris-btn save" onclick="salvarRitual('${id}')">Salvar</button>
-              <button class="cris-btn danger" onclick="removerRitual('${id}')">Excluir</button>
-            </div>
+        async function remover(id) {
+            if(confirm("Excluir ritual?")) {
+                await db.collection("fichas").doc(atual).collection("rituais").doc(id).delete();
+            }
+        }
 
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }, (error) => {
-        console.error("Erro ao buscar rituais:", error);
-        container.innerHTML = "<p>Erro de permissão ou conexão.</p>";
-    });
-}
+        function toggleRitual(id) {
+            const b = document.getElementById(`body-${id}`);
+            b.style.display = b.style.display === "block" ? "none" : "block";
+        }
 
-// Abre e fecha o acordeão
-function toggleRitual(id) {
-  const body = document.getElementById(`body-${id}`);
-  const display = window.getComputedStyle(body).display;
-  body.style.display = display === 'none' ? 'block' : 'none';
-}
+        function atualizarCor(id, val) {
+            document.getElementById(`card-${id}`).setAttribute("data-elem", val);
+        }
 
-// Muda a cor da borda ao trocar o select
-function atualizarCorCard(id, elemento) {
-  const card = document.getElementById(`card-${id}`);
-  card.setAttribute("data-elem", elemento);
-}
-
-// Cria um novo ritual no banco
-async function novoRitual() {
-  if (!atual) return alert("Ficha não selecionada!");
-  try {
-    await db.collection("fichas").doc(atual).collection("rituais").add({
-      nome: "Novo Ritual",
-      elemento: "Conhecimento",
-      circulo: 1,
-      execucao: "Padrão",
-      alcance: "Curto",
-      alvo: "-",
-      duracao: "Instantânea",
-      resistencia: "-",
-      descricao: "",
-      discente: "",
-      peDisc: 2,
-      verdadeiro: "",
-      peVerd: 5
-    });
-  } catch (e) {
-    console.error("Erro ao criar:", e);
-    alert("Erro ao criar ritual: " + e.message);
-  }
-}
-
-// Salva as alterações do ritual no banco
-async function salvarRitual(id) {
-  if (!atual) return;
-  
-  const updates = {
-    nome: document.getElementById(`nome-${id}`).value,
-    elemento: document.getElementById(`elem-${id}`).value,
-    circulo: document.getElementById(`circ-${id}`).value,
-    execucao: document.getElementById(`exec-${id}`).value,
-    alcance: document.getElementById(`alc-${id}`).value,
-    alvo: document.getElementById(`alvo-${id}`).value,
-    duracao: document.getElementById(`dur-${id}`).value,
-    resistencia: document.getElementById(`res-${id}`).value,
-    descricao: document.getElementById(`desc-${id}`).value,
-    discente: document.getElementById(`descDisc-${id}`).value,
-    peDisc: document.getElementById(`peDisc-${id}`).value,
-    verdadeiro: document.getElementById(`descVerd-${id}`).value,
-    peVerd: document.getElementById(`peVerd-${id}`).value
-  };
-
-  try {
-    await db.collection("fichas").doc(atual).collection("rituais").doc(id).update(updates);
-    
-    // Feedback visual
-    const btn = document.querySelector(`#card-${id} .save`);
-    const original = btn.innerText;
-    btn.innerText = "SALVO!";
-    setTimeout(() => btn.innerText = original, 2000);
-  } catch (e) {
-    console.error("Erro ao salvar:", e);
-    alert("Erro ao salvar.");
-  }
-}
-
-// Remove o ritual
-async function removerRitual(id) {
-  if (!atual) return;
-  if(confirm("Deseja realmente esquecer este ritual?")){
-    await db.collection("fichas").doc(atual).collection("rituais").doc(id).delete();
-  }
-}
-
-// Inicia o carregamento assim que a página abrir
-document.addEventListener("DOMContentLoaded", () => {
-    // Pequeno delay para garantir conexão
-    setTimeout(carregarRituais, 500); 
-});
-</script>
-
+        // Iniciar
+        inicializarFicha();
+    </script>
 </body>
 </html>
