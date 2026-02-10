@@ -1,277 +1,144 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Ficha RPG</title>
+<div class="section" id="rit" style="display:none">
+  <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:10px;">
+    <div style="font-weight:bold; color:white;">DT DE RITUAIS</div>
+    <div id="dtRituais" style="background:#111; border:1px solid #fff; padding:4px 8px; border-radius:4px;">0</div>
+    <button onclick="novoRitual()">Novo Ritual</button>
+  </div>
+  <div id="listaRituais"></div>
+</div>
 
 <style>
-body{
-  background:#0f0f0f;
-  color:white;
-  font-family:Arial;
-  margin:0;
-  padding:10px;
-}
-
-.topbar{
-  background:#161616;
-  padding:10px;
-  display:flex;
-  gap:10px;
-}
-
-button{
-  background:#6d28d9;
-  border:none;
-  color:white;
-  padding:8px 12px;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.tabs{
-  display:flex;
-  background:#1a1a1a;
-  margin-top:10px;
-}
-
-.tab{
-  flex:1;
-  padding:10px;
-  text-align:center;
-  cursor:pointer;
-}
-
-.tab.active{ background:#6d28d9; }
-
-.section{ padding:12px; }
-
-.card{
+.ritual-card{
   background:#1c1c1c;
-  padding:10px;
+  border:1px solid #6d28d9;
   border-radius:8px;
+  padding:10px;
   margin-bottom:10px;
-}
-
-.stat{
-  margin-bottom:12px;
-}
-
-.stat div{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.bar{
-  height:18px;
-  background:#333;
-  border-radius:6px;
-  overflow:hidden;
-  flex:1;
-}
-
-.fill{ height:100%; }
-.hp{ background:#22c55e; }
-.san{ background:#3b82f6; }
-.pe{ background:#a855f7; }
-
-.ritual{
-  background:#3b0f70;
-  padding:10px;
-  border-radius:8px;
-  margin-bottom:12px;
-}
-
-input,textarea,select{
-  background:#111;
   color:white;
-  border:1px solid #333;
-  border-radius:6px;
-  padding:6px;
 }
-input[type=number]{ width:50px; }
+
+.ritual-card .titulo{
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.ritual-card .conteudo{
+  display:none;
+  margin-top:8px;
+  line-height:1.4em;
+}
+
+/* Tags fixas roxas */
+.ritual-card span.tag{
+  color:#a855f7;
+  font-weight:bold;
+  margin-right:4px;
+}
+
+/* Campo preenchível branco */
+.ritual-card .campo{
+  display:inline-block;
+  background:#222;
+  padding:2px 6px;
+  border-radius:4px;
+  color:white;
+  min-width:30px;
+}
+
+/* Estilo dos botões Editar/Remover */
+.ritual-card .acoes{
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+}
+
+.ritual-card button{
+  background:none;
+  border:none;
+  color:#6d28d9;
+  cursor:pointer;
+  font-weight:bold;
+  padding:4px 6px;
+  border-radius:4px;
+}
+
+.ritual-card button:hover{
+  background:#111;
+}
 </style>
-</head>
-
-<body>
-
-<div class="topbar">
-  <button onclick="novo()">Nova ficha</button>
-  <select id="lista" onchange="carregar()"></select>
-  <button onclick="toggleBuff()">Alternar Buffado</button>
-</div>
-
-<div class="section" id="atributos">
-  
-  <div class="stat">
-    Nome: <input id="nome" oninput="salvar()">
-  </div>
-
-  <div class="stat">
-    NEX: <select id="nex" onchange="salvar()"></select>
-  </div>
-
-  <div class="stat">
-    PV:
-    <div>
-      <input id="hpA" type="number" oninput="barras(); salvar()"> /
-      <input id="hpM" type="number" oninput="barras(); salvar()">
-      <div class="bar"><div id="bhp" class="fill hp"></div></div>
-    </div>
-  </div>
-
-  <div class="stat">
-    SAN:
-    <div>
-      <input id="sanA" type="number" oninput="barras(); salvar()"> /
-      <input id="sanM" type="number" oninput="barras(); salvar()">
-      <div class="bar"><div id="bsan" class="fill san"></div></div>
-    </div>
-  </div>
-
-  <div class="stat">
-    PE:
-    <div>
-      <input id="peA" type="number" oninput="barras(); salvar()"> /
-      <input id="peM" type="number" oninput="barras(); salvar()">
-      <div class="bar"><div id="bpe" class="fill pe"></div></div>
-    </div>
-  </div>
-
-</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="tab('atributos',this)">Atributos</div>
-  <div class="tab" onclick="tab('per',this)">Perícias</div>
-  <div class="tab" onclick="tab('inv',this)">Inventário</div>
-  <div class="tab" onclick="tab('rit',this)">Rituais</div>
-</div>
-
-<div id="per" class="section" style="display:none">
-  <div class="card">Luta
-    <select oninput="salvar()">
-      <option>0</option><option>5</option><option>10</option><option>15</option><option>20</option>
-    </select>
-  </div>
-</div>
-
-<div id="inv" class="section" style="display:none">
-  <textarea rows="10" oninput="salvar()"></textarea>
-</div>
-
-<div id="rit" class="section" style="display:none">
-  <div class="ritual">
-    Nome<input oninput="salvar()">
-    Descrição<textarea oninput="salvar()"></textarea>
-  </div>
-</div>
-
-<!-- Firebase compat -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-// Configuração do Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBO3ytDF4stqlHA2h7qUP8fLcLsEwB3jNI",
-  authDomain: "fichasrpg-7fc69.firebaseapp.com",
-  projectId: "fichasrpg-7fc69",
-  storageBucket: "fichasrpg-7fc69.appspot.com",
-  messagingSenderId: "758802032764",
-  appId: "1:758802032764:web:40467e15fdc24c570081f9"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// Preenche NEX
-for(let i=0;i<=100;i+=5) nex.innerHTML+=`<option>${i}</option>`;
-
-let atual=null;
-let buff=false;
-
-// Abas
-function tab(id,e){
-  document.querySelectorAll('.section').forEach(s=>s.style.display='none');
-  document.getElementById(id).style.display='block';
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  e.classList.add('active');
-
-  if(id === "atributos") atualizarInputs();
-}
-
-// Atualiza inputs do personagem atual
-async function atualizarInputs(){
+// Atualiza lista de rituais
+async function atualizarRituais(){
+  const container = document.getElementById("listaRituais");
+  container.innerHTML = "";
   if(!atual) return;
-  const d = await db.collection("fichas").doc(atual).get();
-  const data = d.data();
-  if(!data) return;
+  const snapshot = await db.collection("fichas").doc(atual).collection("rituais").get();
+  document.getElementById("dtRituais").textContent = snapshot.size;
 
-  nome.value = data.nome || "";
-  nex.value = data.nex || 0;
-  hpA.value = data.hpA || 0;
-  hpM.value = data.hpM || 0;
-  sanA.value = data.sanA || 0;
-  sanM.value = data.sanM || 0;
-  peA.value = data.peA || 0;
-  peM.value = data.peM || 0;
-  barras();
+  snapshot.forEach(docu=>{
+    const data = docu.data();
+    const card = document.createElement("div");
+    card.className = "ritual-card";
+
+    card.innerHTML = `
+      <div class="titulo"><span class="campo">${data.varia || "VARIA 1"}</span> - ${data.nome || "Nome do Ritual"}</div>
+      <div class="conteudo">
+        <div><span class="tag">Execução:</span><span class="campo">${data.exec || "padrão"}</span></div>
+        <div><span class="tag">Alcance:</span><span class="campo">${data.alcance || "toque"}</span></div>
+        <div><span class="tag">Alvo:</span><span class="campo">${data.alvo || "-"}</span></div>
+        <div><span class="tag">Duração:</span><span class="campo">${data.duracao || "cena"}</span></div>
+        <p class="campo">${data.descricao || "Descrição do ritual"}</p>
+        ${data.discente ? `<p><span class="tag">Discente (+${data.peDisc} PE):</span><span class="campo">${data.discente}</span></p>` : ""}
+        ${data.verdadeiro ? `<p><span class="tag">Verdadeiro (+${data.peVerd} PE):</span><span class="campo">${data.verdadeiro}</span></p>` : ""}
+        <div class="acoes">
+          <button onclick="editarRitual('${docu.id}')">Editar</button>
+          <button onclick="removerRitual('${docu.id}')">Remover</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+
+    // Toggle conteúdo
+    card.querySelector(".titulo").onclick = ()=>{
+      const conteudo = card.querySelector(".conteudo");
+      conteudo.style.display = conteudo.style.display==="block"?"none":"block";
+    };
+  });
 }
 
-// Nova ficha
-async function novo(){
-  const d = await db.collection("fichas").add({nome:"Personagem"});
-  atual = d.id;
-  listar();
-}
-
-// Lista fichas
-async function listar(){
-  const s = await db.collection("fichas").get();
-  lista.innerHTML="";
-  s.forEach(d => lista.innerHTML+=`<option value="${d.id}">${d.data().nome}</option>`);
-}
-
-// Carrega ficha selecionada
-async function carregar(){
-  atual = lista.value;
-  atualizarInputs();
-}
-
-// Alterna modo buffado
-function toggleBuff(){
-  buff = !buff;
-  alert("Modo "+(buff?"Buffado":"Normal"));
-}
-
-// Salvar ficha
-async function salvar(){
+// Criar novo ritual
+async function novoRitual(){
   if(!atual) return;
-  await db.collection("fichas").doc(atual).set({
-    nome:nome.value,
-    nex:nex.value,
-    hpA:hpA.value,
-    hpM:hpM.value,
-    sanA:sanA.value,
-    sanM:sanM.value,
-    peA:peA.value,
-    peM:peM.value
-  },{merge:true});
-  barras();
-  listar();
+  const doc = await db.collection("fichas").doc(atual).collection("rituais").add({
+    nome:"Novo Ritual",
+    varia:"VARIA 1",
+    exec:"padrão",
+    alcance:"toque",
+    alvo:"-",
+    duracao:"cena",
+    descricao:"",
+    discente:"",
+    peDisc:2,
+    verdadeiro:"",
+    peVerd:5
+  });
+  atualizarRituais();
 }
 
-// Atualiza barras
-function barras(){
-  bhp.style.width = ((Number(hpA.value)/Number(hpM.value))*100 || 0) + "%";
-  bsan.style.width = ((Number(sanA.value)/Number(sanM.value))*100 || 0) + "%";
-  bpe.style.width = ((Number(peA.value)/Number(peM.value))*100 || 0) + "%";
+// Excluir ritual
+async function removerRitual(id){
+  if(!atual) return;
+  await db.collection("fichas").doc(atual).collection("rituais").doc(id).delete();
+  atualizarRituais();
 }
 
-// Inicializa
-listar();
+// Editar ritual (pode abrir modal ou inline)
+function editarRitual(id){
+  alert("Função de edição de ritual ainda precisa ser implementada.");
+}
+
+// Chama ao carregar aba
+atualizarRituais();
 </script>
-
-</body>
-</html>
