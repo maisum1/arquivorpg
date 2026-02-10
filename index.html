@@ -1,4 +1,220 @@
-<div class="section" id="rit" style="display:none">
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Sistema de Rituais C.R.I.S.</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBO3ytDF4stqlHA2h7qUP8fLcLsEwB3jNI",
+    authDomain: "fichasrpg-7fc69.firebaseapp.com",
+    projectId: "fichasrpg-7fc69",
+    storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+    messagingSenderId: "758802032764",
+    appId: "1:758802032764:web:40467e15fdc24c570081f9",
+    measurementId: "G-0LQNEFTCB5"
+  };
+
+  // Inicializa o Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // --- IMPORTANTE: DEFINA O ID DA FICHA AQUI ---
+  // Se o seu site já define 'atual' em outro lugar, pode remover esta linha.
+  // Caso contrário, coloque o ID da ficha entre aspas abaixo para testar.
+  var atual = "ID_DA_SUA_FICHA_AQUI"; 
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@400;700&display=swap');
+
+body {
+    background-color: #050505;
+    color: #e0e0e0;
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+}
+
+/* Área Principal */
+#rit {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Header DT */
+.rit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+}
+
+.dt-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dt-label {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.2em;
+    letter-spacing: 1px;
+}
+
+.dt-box {
+    background: #111;
+    border: 1px solid #555;
+    color: #fff;
+    font-size: 1.2em;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-family: 'Special Elite', cursive;
+}
+
+/* Botões */
+.cris-btn {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 8px 16px;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Special Elite', cursive;
+}
+.cris-btn:hover { background: #fff; color: #000; }
+.cris-btn.danger { border-color: #ff4444; color: #ff4444; }
+.cris-btn.danger:hover { background: #ff4444; color: #fff; }
+.cris-btn.save { border-color: #00e676; color: #00e676; margin-right: 10px;}
+.cris-btn.save:hover { background: #00e676; color: #000; }
+
+/* Card Ritual */
+.ritual-card {
+    background: #121212;
+    border-left: 5px solid #555;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+}
+
+/* Cores por Elemento */
+.ritual-card[data-elem="Conhecimento"] { border-left-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.1); }
+.ritual-card[data-elem="Energia"] { border-left-color: #9b59b6; box-shadow: 0 0 8px rgba(155, 89, 182, 0.1); }
+.ritual-card[data-elem="Morte"] { border-left-color: #555; box-shadow: 0 0 8px rgba(85, 85, 85, 0.1); }
+.ritual-card[data-elem="Sangue"] { border-left-color: #bf1e1e; box-shadow: 0 0 8px rgba(191, 30, 30, 0.1); }
+.ritual-card[data-elem="Medo"] { border-left-color: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
+
+/* Título do Card */
+.card-header {
+    padding: 12px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.03);
+}
+
+.card-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.1em;
+    text-transform: uppercase;
+}
+
+.card-circle {
+    font-size: 0.8em;
+    opacity: 0.8;
+    background: #000;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* Conteúdo */
+.card-body {
+    display: none;
+    padding: 15px;
+    border-top: 1px solid #333;
+}
+
+/* Grid de Status */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+    background: #0a0a0a;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.7em;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+/* Inputs Customizados */
+.cris-input, .cris-select, .cris-textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #444;
+    color: #fff;
+    width: 100%;
+    padding: 6px 0;
+    font-family: 'Roboto', sans-serif;
+}
+.cris-input:focus, .cris-select:focus, .cris-textarea:focus {
+    outline: none;
+    border-bottom-color: #fff;
+    background: #1a1a1a;
+}
+.cris-select option { background: #222; }
+
+.cris-textarea {
+    min-height: 60px;
+    resize: vertical;
+    border: 1px solid #333;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+/* Áreas de Upgrade (Discente/Verdadeiro) */
+.upgrade-section {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px dashed #444;
+    border-radius: 4px;
+}
+.upgrade-title {
+    font-size: 0.85em;
+    color: #aaa;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.acoes-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+</style>
+</head>
+
+<body>
+
+<div class="section" id="rit">
   
   <div class="rit-header">
     <div class="dt-container">
@@ -8,208 +224,23 @@
     <button class="cris-btn" onclick="novoRitual()">+ ADICIONAR RITUAL</button>
   </div>
 
-  <div id="listaRituais" class="rit-list"></div>
+  <div id="listaRituais" class="rit-list">
+    <p style="text-align:center; color:#555;">Carregando grimório...</p>
+  </div>
 </div>
 
-<style>
-/* --- ESTILO GERAL C.R.I.S --- */
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@400;700&display=swap');
-
-#rit {
-  font-family: 'Roboto', sans-serif;
-  color: #e0e0e0;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-/* HEADER DT */
-.rit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #333;
-  padding-bottom: 10px;
-}
-
-.dt-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dt-label {
-  font-family: 'Special Elite', cursive;
-  font-size: 1.2em;
-  letter-spacing: 1px;
-}
-
-.dt-box {
-  background: #111;
-  border: 1px solid #555;
-  color: #fff;
-  font-size: 1.2em;
-  padding: 5px 15px;
-  border-radius: 4px;
-  font-family: 'Special Elite', cursive;
-}
-
-/* BOTÃO ESTILO ORDEM */
-.cris-btn {
-  background: transparent;
-  border: 1px solid #fff;
-  color: #fff;
-  padding: 8px 16px;
-  text-transform: uppercase;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-  font-family: 'Special Elite', cursive;
-}
-.cris-btn:hover { background: #fff; color: #000; }
-.cris-btn.danger { border-color: #ff4444; color: #ff4444; }
-.cris-btn.danger:hover { background: #ff4444; color: #fff; }
-.cris-btn.save { border-color: #00e676; color: #00e676; margin-right: 10px;}
-.cris-btn.save:hover { background: #00e676; color: #000; }
-
-/* CARD DO RITUAL */
-.ritual-card {
-  background: #121212;
-  border-left: 5px solid #555; /* Cor padrão */
-  border-radius: 4px;
-  margin-bottom: 15px;
-  padding: 0;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-  transition: all 0.3s ease;
-}
-
-/* CORES DOS ELEMENTOS */
-.ritual-card[data-elem="Conhecimento"] { border-left-color: #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
-.ritual-card[data-elem="Energia"] { border-left-color: #9b59b6; box-shadow: 0 0 10px rgba(155, 89, 182, 0.1); }
-.ritual-card[data-elem="Morte"] { border-left-color: #555; box-shadow: 0 0 10px rgba(85, 85, 85, 0.1); }
-.ritual-card[data-elem="Sangue"] { border-left-color: #bf1e1e; box-shadow: 0 0 10px rgba(191, 30, 30, 0.1); }
-.ritual-card[data-elem="Medo"] { border-left-color: #fff; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
-
-/* BARRA DE TÍTULO */
-.card-header {
-  padding: 12px 15px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255,255,255,0.03);
-}
-
-.card-title {
-  font-family: 'Special Elite', cursive;
-  font-size: 1.1em;
-  text-transform: uppercase;
-}
-
-.card-circle {
-  font-size: 0.8em;
-  opacity: 0.7;
-  background: #000;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
-/* CONTEÚDO EXPANSÍVEL */
-.card-body {
-  display: none; /* Escondido por padrão */
-  padding: 15px;
-  border-top: 1px solid #333;
-}
-
-/* GRID DE STATUS */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 10px;
-  margin-bottom: 15px;
-  background: #0a0a0a;
-  padding: 10px;
-  border-radius: 4px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-label {
-  font-size: 0.7em;
-  color: #888;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-/* INPUTS E FORMULÁRIOS */
-.cris-input, .cris-select, .cris-textarea {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #444;
-  color: #fff;
-  width: 100%;
-  padding: 4px 0;
-  font-family: 'Roboto', sans-serif;
-  transition: 0.2s;
-}
-.cris-input:focus, .cris-select:focus, .cris-textarea:focus {
-  outline: none;
-  border-bottom-color: #fff;
-  background: #1a1a1a;
-}
-.cris-select option { background: #222; }
-
-.cris-textarea {
-  min-height: 60px;
-  resize: vertical;
-  line-height: 1.5;
-  border: 1px solid #333;
-  padding: 8px;
-  margin-top: 5px;
-}
-
-/* Seções de PE (Discente/Verdadeiro) */
-.upgrade-section {
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px dashed #444;
-  border-radius: 4px;
-}
-.upgrade-title {
-  font-size: 0.85em;
-  color: #aaa;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.acoes-container {
-  margin-top: 15px;
-  display: flex;
-  justify-content: flex-end;
-}
-</style>
-
 <script>
-// --- CONFIGURAÇÃO E VARIÁVEIS GLOBAIS ---
-// O 'db' e o 'atual' (id da ficha) devem vir do seu código principal.
-// Se estiver usando Firebase v9+ Modular, certifique-se de ter o 'compat' ativado ou adaptar este código.
-
-// Função principal para carregar rituais
-async function atualizarRituais() {
+// Monitora a coleção de rituais em tempo real
+function carregarRituais() {
   const container = document.getElementById("listaRituais");
   
-  if (!window.atual || !window.db) {
-    console.error("Variável 'atual' ou 'db' não definida.");
-    container.innerHTML = "<p style='padding:10px'>Erro: Ficha não carregada.</p>";
+  if (!atual || atual === "ID_DA_SUA_FICHA_AQUI") {
+    container.innerHTML = "<p style='text-align:center; color:#ff4444;'>Erro: ID da ficha não definido no código.</p>";
     return;
   }
 
-  // Listener em tempo real (substitui o .get() para atualizar sozinho)
   db.collection("fichas").doc(atual).collection("rituais")
-    .orderBy("circulo", "asc") // Ordena por círculo
+    .orderBy("circulo", "asc")
     .onSnapshot((snapshot) => {
       container.innerHTML = "";
       document.getElementById("dtRituais").textContent = snapshot.size;
@@ -222,8 +253,6 @@ async function atualizarRituais() {
       snapshot.forEach(doc => {
         const r = doc.data();
         const id = doc.id;
-        
-        // Elemento para definir cor
         const elemento = r.elemento || "Outro";
 
         const card = document.createElement("div");
@@ -236,13 +265,13 @@ async function atualizarRituais() {
             <span class="card-title">
               ${r.circulo || 1}º - ${r.nome || "Novo Ritual"}
             </span>
-            <span class="card-circle" style="color:var(--elem-color)">${elemento}</span>
+            <span class="card-circle">${elemento}</span>
           </div>
 
           <div class="card-body" id="body-${id}">
-            <div style="margin-bottom:10px;">
+            <div style="margin-bottom:15px;">
                 <label class="stat-label">Nome do Ritual</label>
-                <input type="text" class="cris-input" style="font-weight:bold; font-size:1.1em;" id="nome-${id}" value="${r.nome || ''}" placeholder="Nome">
+                <input type="text" class="cris-input" style="font-weight:bold; font-size:1.1em;" id="nome-${id}" value="${r.nome || ''}" placeholder="Nome do Ritual">
             </div>
 
             <div class="stats-grid">
@@ -311,25 +340,28 @@ async function atualizarRituais() {
         `;
         container.appendChild(card);
       });
+    }, (error) => {
+        console.error("Erro ao buscar rituais:", error);
+        container.innerHTML = "<p>Erro de permissão ou conexão.</p>";
     });
 }
 
-// Expandir/Recolher
+// Abre e fecha o acordeão
 function toggleRitual(id) {
   const body = document.getElementById(`body-${id}`);
   const display = window.getComputedStyle(body).display;
   body.style.display = display === 'none' ? 'block' : 'none';
 }
 
-// Atualiza visualmente a cor sem recarregar
+// Muda a cor da borda ao trocar o select
 function atualizarCorCard(id, elemento) {
   const card = document.getElementById(`card-${id}`);
   card.setAttribute("data-elem", elemento);
 }
 
-// Criar Novo Ritual
+// Cria um novo ritual no banco
 async function novoRitual() {
-  if (!atual) return;
+  if (!atual) return alert("Ficha não selecionada!");
   try {
     await db.collection("fichas").doc(atual).collection("rituais").add({
       nome: "Novo Ritual",
@@ -346,14 +378,13 @@ async function novoRitual() {
       verdadeiro: "",
       peVerd: 5
     });
-    // O onSnapshot atualizará a tela automaticamente
   } catch (e) {
     console.error("Erro ao criar:", e);
-    alert("Erro ao criar ritual.");
+    alert("Erro ao criar ritual: " + e.message);
   }
 }
 
-// Salvar Edições
+// Salva as alterações do ritual no banco
 async function salvarRitual(id) {
   if (!atual) return;
   
@@ -376,31 +407,31 @@ async function salvarRitual(id) {
   try {
     await db.collection("fichas").doc(atual).collection("rituais").doc(id).update(updates);
     
-    // Feedback visual rápido
+    // Feedback visual
     const btn = document.querySelector(`#card-${id} .save`);
-    const textoOriginal = btn.innerText;
+    const original = btn.innerText;
     btn.innerText = "SALVO!";
-    setTimeout(() => btn.innerText = textoOriginal, 2000);
-    
-    // Fecha o card após salvar (opcional)
-    // toggleRitual(id); 
+    setTimeout(() => btn.innerText = original, 2000);
   } catch (e) {
     console.error("Erro ao salvar:", e);
-    alert("Erro ao salvar alterações.");
+    alert("Erro ao salvar.");
   }
 }
 
-// Remover Ritual
+// Remove o ritual
 async function removerRitual(id) {
   if (!atual) return;
-  if(confirm("Tem certeza que deseja esquecer este ritual?")){
+  if(confirm("Deseja realmente esquecer este ritual?")){
     await db.collection("fichas").doc(atual).collection("rituais").doc(id).delete();
   }
 }
 
-// Inicializa
+// Inicia o carregamento assim que a página abrir
 document.addEventListener("DOMContentLoaded", () => {
-    // Pequeno delay para garantir que o firebase carregou
-    setTimeout(atualizarRituais, 500); 
+    // Pequeno delay para garantir conexão
+    setTimeout(carregarRituais, 500); 
 });
 </script>
+
+</body>
+</html>
