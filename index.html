@@ -45,7 +45,7 @@
         }
 
         .sigilo-container {
-            position: relative; width: 260px; height: 260px; margin: 0 auto 20px auto;
+            position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto;
             background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center;
             background-size: contain;
         }
@@ -58,6 +58,39 @@
         .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 22px; font-family: 'Special Elite'; font-weight: bold; }
         
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .int { top: 75px; right: 5px; } .pre { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
+
+        /* NOVO CSS PARA NIVEL/NEX/DESLOCAMENTO */
+        .mid-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-family: 'Special Elite';
+        }
+        .stat-box {
+            border: 1px solid #333;
+            background: #0a0a0a;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .stat-box label {
+            font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+        }
+        .stat-box select, .stat-box input {
+            background: transparent; border: none; color: #fff;
+            font-family: 'Special Elite'; font-size: 18px; text-align: center;
+            width: 100%; outline: none; cursor: pointer;
+        }
+        .stat-box select option { background: #111; color: #fff; }
+        .desloc-box {
+            grid-column: span 2;
+            flex-direction: column-reverse; /* Inverte label e input pra ficar igual a imagem */
+        }
+        /* FIM DO NOVO CSS */
 
         .status-container { margin-bottom: 12px; }
         .status-header { font-size: 11px; font-weight: bold; color: #aaa; text-align: center; margin-bottom: 4px; }
@@ -89,18 +122,9 @@
         .pericia-row { display: grid; grid-template-columns: 1fr 40px 40px 60px; gap: 5px; padding: 6px 4px; border-bottom: 1px solid #1a1a1a; font-size: 13px; align-items: center; transition: background 0.3s; }
         .treino-select { background: #0a0a0a; color: #ccc; border: 1px solid #333; font-size: 11px; text-align: center; }
 
-        /* Estilos de Cores das Perícias */
-
-        .p-verde { background: rgba(34, 197, 94, 0.5) !important; }
-
-        .p-azul { background: rgba(59, 130, 246, 0.5) !important; }
-
-        .p-laranja { background: rgba(250, 165, 20, 0.5) !important; }
-
-        .p-vermelho { background: rgba(270, 0, 68, 0.5) !important; }
-
-
-        
+        .p-verde { background: rgba(34, 197, 94, 0.15) !important; }
+        .p-azul { background: rgba(59, 130, 246, 0.2) !important; }
+        .p-vermelho { background: rgba(239, 68, 68, 0.2) !important; }
 
         .tabs-nav { display: flex; gap: 5px; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 15px; cursor: pointer; font-size: 12px; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
@@ -136,6 +160,22 @@
             <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="salvarFicha()"></div>
         </div>
 
+        <div class="mid-stats">
+            <div class="stat-box">
+                <label>NÍVEL</label>
+                <select id="nivel-personagem" onchange="salvarFicha()">
+                    </select>
+            </div>
+            <div class="stat-box">
+                <label>NEX</label>
+                <select id="nex-personagem" onchange="salvarFicha()">
+                    </select>
+            </div>
+            <div class="stat-box desloc-box">
+                <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q">
+                <label>DESLOCAMENTO</label>
+            </div>
+        </div>
         <div class="status-container">
             <div class="status-header">VIDA</div>
             <div class="bar-bg">
@@ -232,13 +272,29 @@
     let atual = urlParams.get('id');
     const nomesPericias = ["Acrobacia", "Atletismo", "Atualidades", "Ciências", "Crime", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Intuição", "Investigação", "Luta", "Medicina", "Ocultismo", "Percepção", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Tática", "Tecnologia", "Vontade"];
 
+    // GERA OPCOES DE NIVEL E NEX
+    function gerarOpcoesNivelNex() {
+        const nivelSel = document.getElementById('nivel-personagem');
+        let lvlHtml = '';
+        for(let i=1; i<=20; i++) lvlHtml += `<option value="${i}">${i}</option>`;
+        nivelSel.innerHTML = lvlHtml;
+
+        const nexSel = document.getElementById('nex-personagem');
+        let nexHtml = '';
+        for(let i=0; i<=95; i+=5) nexHtml += `<option value="${i}%">${i}%</option>`;
+        nexHtml += '<option value="99%">99%</option><option value="100%">100%</option>';
+        nexSel.innerHTML = nexHtml;
+    }
+
     async function init() {
+        gerarOpcoesNivelNex();
         if (!atual) {
             const ref = db.collection("fichas").doc();
             atual = ref.id;
             await ref.set({ 
                 nome: "", agi:1, for:1, int:1, pre:1, vig:1, 
                 vidaMax:20, vidaAtual:20, sanMax:20, sanAtual:20, peMax:5, peAtual:5,
+                nivel: 1, nex: "5%", deslocamento: "9 m / 6 q",
                 pericias: {}
             });
             window.location.search = `?id=${atual}`;
@@ -269,11 +325,16 @@
             if(!d) return;
             document.getElementById('nome-personagem').value = d.nome || "";
             ['agi','for','int','pre','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) document.getElementById(`attr-${a}`).value = d[a] });
+            
+            // CARREGAR NOVOS CAMPOS
+            if(d.nivel) document.getElementById('nivel-personagem').value = d.nivel;
+            if(d.nex) document.getElementById('nex-personagem').value = d.nex;
+            if(d.deslocamento) document.getElementById('deslocamento-personagem').value = d.deslocamento;
+
             atualizarStatus('vida', d.vidaAtual, d.vidaMax);
             atualizarStatus('san', d.sanAtual, d.sanMax);
             atualizarStatus('pe', d.peAtual, d.peMax);
             
-            // Carregar Pericias salvas
             if(d.pericias) {
                 Object.keys(d.pericias).forEach(p => {
                     const bField = document.getElementById(`bonus-${p}`);
@@ -315,6 +376,10 @@
             sanMax: parseInt(document.getElementById('san-max').value) || 1,
             peAtual: parseInt(document.getElementById('pe-atual').value) || 0,
             peMax: parseInt(document.getElementById('pe-max').value) || 1,
+            // SALVAR NOVOS CAMPOS
+            nivel: document.getElementById('nivel-personagem').value,
+            nex: document.getElementById('nex-personagem').value,
+            deslocamento: document.getElementById('deslocamento-personagem').value,
             pericias: periciasObj,
             protecao: document.getElementById('info-prot').value,
             resistencias: document.getElementById('info-res').value,
@@ -325,10 +390,9 @@
     function atualizarCorPericia(nome, valor) {
         const el = document.getElementById(`row-${nome}`);
         if(!el) return;
-        el.classList.remove('p-verde', 'p-azul', 'p-laranja', 'p-vermelho');
-        if(valor == "5") el.classList.add('p-verde');
-        else if(valor == "10") el.classList.add('p-azul');
-        else if(valor == "15") el.classList.add('p-laranja');
+        el.classList.remove('p-verde', 'p-azul', 'p-vermelho');
+        if(valor == "5" || valor == "10") el.classList.add('p-verde');
+        else if(valor == "15") el.classList.add('p-azul');
         else if(valor == "20") el.classList.add('p-vermelho');
     }
 
