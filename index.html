@@ -90,10 +90,17 @@
         .treino-select { background: #0a0a0a; color: #ccc; border: 1px solid #333; font-size: 11px; text-align: center; }
 
         /* Estilos de Cores das Perícias */
+
         .p-verde { background: rgba(34, 197, 94, 0.5) !important; }
+
         .p-azul { background: rgba(59, 130, 246, 0.5) !important; }
+
         .p-laranja { background: rgba(250, 165, 20, 0.5) !important; }
+
         .p-vermelho { background: rgba(270, 0, 68, 0.5) !important; }
+
+
+        
 
         .tabs-nav { display: flex; gap: 5px; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 15px; cursor: pointer; font-size: 12px; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
@@ -223,6 +230,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     let atual = urlParams.get('id');
+    const nomesPericias = ["Acrobacia", "Atletismo", "Atualidades", "Ciências", "Crime", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Intuição", "Investigação", "Luta", "Medicina", "Ocultismo", "Percepção", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Tática", "Tecnologia", "Vontade"];
 
     async function init() {
         if (!atual) {
@@ -231,15 +239,28 @@
             await ref.set({ 
                 nome: "", agi:1, for:1, int:1, pre:1, vig:1, 
                 vidaMax:20, vidaAtual:20, sanMax:20, sanAtual:20, peMax:5, peAtual:5,
-                protecao: "", resistencias: "", proficiencias: ""
+                pericias: {}
             });
             window.location.search = `?id=${atual}`;
         } else {
+            gerarPericiasBase();
             carregarFicha();
-            gerarPericias();
             carregarRituais();
             carregarHabilidades();
         }
+    }
+
+    function gerarPericiasBase() {
+        document.getElementById('lista-pericias').innerHTML = nomesPericias.map(p => `
+            <div class="pericia-row" id="row-${p}">
+                <span>${p}</span>
+                <span style="color:#444; text-align:center">--</span>
+                <input type="number" id="bonus-${p}" class="treino-select" value="0" style="width:30px; border:none; background:transparent" onchange="salvarFicha()">
+                <select id="treino-${p}" class="treino-select" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
+                    <option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option>
+                </select>
+            </div>
+        `).join('');
     }
 
     function carregarFicha() {
@@ -247,13 +268,24 @@
             const d = doc.data();
             if(!d) return;
             document.getElementById('nome-personagem').value = d.nome || "";
-            ['agi','for','int','pre','vig'].forEach(a => document.getElementById(`attr-${a}`).value = d[a]);
+            ['agi','for','int','pre','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) document.getElementById(`attr-${a}`).value = d[a] });
             atualizarStatus('vida', d.vidaAtual, d.vidaMax);
             atualizarStatus('san', d.sanAtual, d.sanMax);
             atualizarStatus('pe', d.peAtual, d.peMax);
-            document.getElementById('info-prot').value = d.protecao || "";
-            document.getElementById('info-res').value = d.resistencias || "";
-            document.getElementById('info-prof').value = d.proficiencias || "";
+            
+            // Carregar Pericias salvas
+            if(d.pericias) {
+                Object.keys(d.pericias).forEach(p => {
+                    const bField = document.getElementById(`bonus-${p}`);
+                    const tField = document.getElementById(`treino-${p}`);
+                    if(bField) bField.value = d.pericias[p].bonus || 0;
+                    if(tField) {
+                        tField.value = d.pericias[p].treino || 0;
+                        atualizarCorPericia(p, tField.value);
+                    }
+                });
+            }
+
             const defBase = 10 + (parseInt(d.agi) || 0);
             document.getElementById('display-defesa').innerText = defBase;
             document.getElementById('display-esquiva').innerText = defBase;
@@ -261,13 +293,15 @@
         });
     }
 
-    function atualizarStatus(tipo, at, mx) {
-        document.getElementById(`${tipo}-atual`).value = at;
-        document.getElementById(`${tipo}-max`).value = mx;
-        document.getElementById(`bar-${tipo}`).style.width = Math.min((at / mx) * 100, 100) + "%";
-    }
-
     function salvarFicha() {
+        const periciasObj = {};
+        nomesPericias.forEach(p => {
+            periciasObj[p] = {
+                bonus: parseInt(document.getElementById(`bonus-${p}`).value) || 0,
+                treino: parseInt(document.getElementById(`treino-${p}`).value) || 0
+            };
+        });
+
         db.collection("fichas").doc(atual).update({
             nome: document.getElementById('nome-personagem').value,
             agi: parseInt(document.getElementById('attr-agi').value) || 0,
@@ -281,10 +315,27 @@
             sanMax: parseInt(document.getElementById('san-max').value) || 1,
             peAtual: parseInt(document.getElementById('pe-atual').value) || 0,
             peMax: parseInt(document.getElementById('pe-max').value) || 1,
+            pericias: periciasObj,
             protecao: document.getElementById('info-prot').value,
             resistencias: document.getElementById('info-res').value,
             proficiencias: document.getElementById('info-prof').value
         });
+    }
+
+    function atualizarCorPericia(nome, valor) {
+        const el = document.getElementById(`row-${nome}`);
+        if(!el) return;
+        el.classList.remove('p-verde', 'p-azul', 'p-laranja', 'p-vermelho');
+        if(valor == "5") el.classList.add('p-verde');
+        else if(valor == "10") el.classList.add('p-azul');
+        else if(valor == "15") el.classList.add('p-laranja');
+        else if(valor == "20") el.classList.add('p-vermelho');
+    }
+
+    function atualizarStatus(tipo, at, mx) {
+        document.getElementById(`${tipo}-atual`).value = at;
+        document.getElementById(`${tipo}-max`).value = mx;
+        document.getElementById(`bar-${tipo}`).style.width = Math.min((at / mx) * 100, 100) + "%";
     }
 
     function ajustar(tipo, v) {
@@ -293,84 +344,56 @@
         salvarFicha();
     }
 
-    // LOGICA PERÍCIAS COM CORES
-    function gerarPericias() {
-        const pericias = ["Acrobacia", "Atletismo", "Atualidades", "Ciências", "Crime", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Intuição", "Investigação", "Luta", "Medicina", "Ocultismo", "Percepção", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Tática", "Tecnologia", "Vontade"];
-        document.getElementById('lista-pericias').innerHTML = pericias.map(p => `
-            <div class="pericia-row" id="row-${p}">
-                <span>${p}</span>
-                <span style="color:#444; text-align:center">--</span>
-                <input type="number" class="treino-select" value="0" style="width:30px; border:none; background:transparent">
-                <select class="treino-select" onchange="atualizarCorPericia('${p}', this.value)">
-                    <option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option>
-                </select>
-            </div>
-        `).join('');
-    }
-
-    function atualizarCorPericia(nome, valor) {
-        const el = document.getElementById(`row-${nome}`);
-        el.classList.remove('p-verde', 'p-azul', 'p-laranja', 'p-vermelho');
-        if(valor == "5") el.classList.add('p-verde');
-        else if(valor == "10") el.classList.add('p-azul');
-        else if(valor == "15") el.classList.add('p-laranja');
-        else if(valor == "20") el.classList.add('p-vermelho');
-    }
-
-    // RITUAIS
+    // RITUAIS E HABILIDADES
     function carregarRituais() {
         db.collection("fichas").doc(atual).collection("rituais").onSnapshot(snap => {
             const container = document.getElementById('lista-rituais');
             container.innerHTML = "";
             snap.forEach(doc => {
                 const r = doc.data();
-                const card = document.createElement('div');
-                card.className = 'ritual-card'; card.setAttribute('data-elem', r.elemento);
-                card.innerHTML = `
-                    <div class="card-header" onclick="toggleElem('body-rit-${doc.id}')">
-                        <span>${r.nome}</span> <span style="font-size:10px; opacity:0.6">${r.elemento} / ${r.circulo}º</span>
-                    </div>
-                    <div class="card-body" id="body-rit-${doc.id}">
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <input type="text" class="treino-select" value="${r.nome}" onchange="updateSub('${doc.id}', 'rituais', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;">
-                            <select class="treino-select" onchange="updateSub('${doc.id}', 'rituais', 'elemento', this.value)">
-                                <option ${r.elemento=='Morte'?'selected':''}>Morte</option><option ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option ${r.elemento=='Energia'?'selected':''}>Energia</option><option ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
-                            </select>
+                container.innerHTML += `
+                    <div class="ritual-card" data-elem="${r.elemento}">
+                        <div class="card-header" onclick="toggleElem('rit-${doc.id}')">
+                            <span>${r.nome}</span> <span style="font-size:10px; opacity:0.6">${r.elemento}</span>
                         </div>
-                        <textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea>
-                        <div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'rituais')">Remover</button></div>
+                        <div class="card-body" id="rit-${doc.id}">
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <input type="text" class="treino-select" value="${r.nome}" onchange="updateSub('${doc.id}', 'rituais', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;">
+                                <select class="treino-select" onchange="updateSub('${doc.id}', 'rituais', 'elemento', this.value)">
+                                    <option ${r.elemento=='Morte'?'selected':''}>Morte</option><option ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option ${r.elemento=='Energia'?'selected':''}>Energia</option><option ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                                </select>
+                            </div>
+                            <textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea>
+                            <div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'rituais')">Remover</button></div>
+                        </div>
                     </div>`;
-                container.appendChild(card);
             });
         });
     }
 
-    // HABILIDADES (IGUAL RITUAIS)
     function carregarHabilidades() {
         db.collection("fichas").doc(atual).collection("habilidades").onSnapshot(snap => {
             const container = document.getElementById('lista-habilidades');
             container.innerHTML = "";
             snap.forEach(doc => {
                 const h = doc.data();
-                const card = document.createElement('div');
-                card.className = 'ritual-card';
-                card.innerHTML = `
-                    <div class="card-header" onclick="toggleElem('body-hab-${doc.id}')"><span>${h.nome}</span></div>
-                    <div class="card-body" id="body-hab-${doc.id}">
-                        <input type="text" class="treino-select" value="${h.nome}" onchange="updateSub('${doc.id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;">
-                        <textarea class="cris-textarea" placeholder="Descrição..." onchange="updateSub('${doc.id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
-                        <div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'habilidades')">Remover</button></div>
+                container.innerHTML += `
+                    <div class="ritual-card">
+                        <div class="card-header" onclick="toggleElem('hab-${doc.id}')"><span>${h.nome}</span></div>
+                        <div class="card-body" id="hab-${doc.id}">
+                            <input type="text" class="treino-select" value="${h.nome}" onchange="updateSub('${doc.id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;">
+                            <textarea class="cris-textarea" placeholder="Descrição..." onchange="updateSub('${doc.id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
+                            <div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'habilidades')">Remover</button></div>
+                        </div>
                     </div>`;
-                container.appendChild(card);
             });
         });
     }
 
-    async function novoRitual() { await db.collection("fichas").doc(atual).collection("rituais").add({ nome: "Novo Ritual", elemento: "Morte", circulo: 1, descricao: "" }); }
+    async function novoRitual() { await db.collection("fichas").doc(atual).collection("rituais").add({ nome: "Novo Ritual", elemento: "Morte", descricao: "" }); }
     async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
     async function updateSub(id, col, campo, valor) { let o = {}; o[campo] = valor; await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); }
     async function removerSub(id, col) { if(confirm("Excluir?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
-    
     function toggleElem(id) { const b = document.getElementById(id); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
     function mudarAba(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -383,17 +406,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
