@@ -41,8 +41,19 @@
             width: 100%; background: transparent; border: none;
             border-bottom: 2px solid #333; color: #fff;
             font-family: 'Special Elite'; font-size: 24px;
-            padding: 5px 0; margin-bottom: 20px; outline: none;
+            padding: 5px 0; margin-bottom: 10px; outline: none;
         }
+
+        /* NOVO CSS: Origem e Classe */
+        .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .sub-input-group { flex: 1; display: flex; flex-direction: column; }
+        .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
+        .sub-input-group input, .sub-input-group select {
+            background: transparent; border: none; border-bottom: 1px solid #333;
+            color: #fff; font-family: 'Special Elite'; font-size: 16px; padding: 5px 0; outline: none;
+        }
+        .sub-input-group select option { background: #111; color: #ccc; }
+        /* FIM NOVO CSS */
 
         .sigilo-container {
             position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto;
@@ -59,38 +70,21 @@
         
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .int { top: 75px; right: 5px; } .pre { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
-        /* NOVO CSS PARA NIVEL/NEX/DESLOCAMENTO */
         .mid-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-            font-family: 'Special Elite';
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-family: 'Special Elite';
         }
         .stat-box {
-            border: 1px solid #333;
-            background: #0a0a0a;
-            padding: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            border: 1px solid #333; background: #0a0a0a; padding: 5px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .stat-box label {
-            font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif;
-            text-transform: uppercase;
-        }
+        .stat-box label { font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif; text-transform: uppercase; }
         .stat-box select, .stat-box input {
             background: transparent; border: none; color: #fff;
             font-family: 'Special Elite'; font-size: 18px; text-align: center;
             width: 100%; outline: none; cursor: pointer;
         }
         .stat-box select option { background: #111; color: #fff; }
-        .desloc-box {
-            grid-column: span 2;
-            flex-direction: column-reverse; /* Inverte label e input pra ficar igual a imagem */
-        }
-        /* FIM DO NOVO CSS */
+        .desloc-box { grid-column: span 2; flex-direction: column-reverse; }
 
         .status-container { margin-bottom: 12px; }
         .status-header { font-size: 11px; font-weight: bold; color: #aaa; text-align: center; margin-bottom: 4px; }
@@ -152,6 +146,22 @@
 <div class="grid-container">
     <section>
         <input type="text" id="nome-personagem" class="header-name" placeholder="NOME DO AGENTE" onchange="salvarFicha()">
+        
+        <div class="header-sub-row">
+            <div class="sub-input-group">
+                <label>ORIGEM</label>
+                <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
+            </div>
+            <div class="sub-input-group">
+                <label>CLASSE</label>
+                <select id="classe-personagem" onchange="salvarFicha()">
+                    <option value="">Selecione...</option>
+                    <option value="Combatente">Combatente</option>
+                    <option value="Esotérico">Esotérico</option>
+                    <option value="Polímata">Polímata</option>
+                </select>
+            </div>
+        </div>
         <div class="sigilo-container">
             <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="salvarFicha()"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
@@ -163,19 +173,18 @@
         <div class="mid-stats">
             <div class="stat-box">
                 <label>NÍVEL</label>
-                <select id="nivel-personagem" onchange="salvarFicha()">
-                    </select>
+                <select id="nivel-personagem" onchange="salvarFicha()"></select>
             </div>
             <div class="stat-box">
                 <label>NEX</label>
-                <select id="nex-personagem" onchange="salvarFicha()">
-                    </select>
+                <select id="nex-personagem" onchange="salvarFicha()"></select>
             </div>
             <div class="stat-box desloc-box">
                 <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q">
                 <label>DESLOCAMENTO</label>
             </div>
         </div>
+
         <div class="status-container">
             <div class="status-header">VIDA</div>
             <div class="bar-bg">
@@ -235,6 +244,7 @@
             <button class="tab-btn" onclick="mudarAba('combate')">Combate</button>
             <button class="tab-btn" onclick="mudarAba('habilidades')">Habilidades</button>
             <button class="tab-btn active" onclick="mudarAba('rituais')">Rituais</button>
+            <button class="tab-btn" onclick="mudarAba('poderes')">Poderes</button>
             <button class="tab-btn" onclick="mudarAba('inventario')">Inventário</button>
         </nav>
 
@@ -244,6 +254,11 @@
                 <div style="font-family:'Special Elite'">DT <span id="dt-val">10</span></div>
             </div>
             <div id="lista-rituais"></div>
+        </div>
+
+        <div id="aba-poderes" class="tab-content">
+            <div class="cris-btn" onclick="novoPoder()" style="margin-bottom:15px;">+ Novo Poder</div>
+            <div id="lista-poderes"></div>
         </div>
 
         <div id="aba-habilidades" class="tab-content">
@@ -272,7 +287,6 @@
     let atual = urlParams.get('id');
     const nomesPericias = ["Acrobacia", "Atletismo", "Atualidades", "Ciências", "Crime", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Intuição", "Investigação", "Luta", "Medicina", "Ocultismo", "Percepção", "Pontaria", "Reflexos", "Religião", "Sobrevivência", "Tática", "Tecnologia", "Vontade"];
 
-    // GERA OPCOES DE NIVEL E NEX
     function gerarOpcoesNivelNex() {
         const nivelSel = document.getElementById('nivel-personagem');
         let lvlHtml = '';
@@ -292,7 +306,7 @@
             const ref = db.collection("fichas").doc();
             atual = ref.id;
             await ref.set({ 
-                nome: "", agi:1, for:1, int:1, pre:1, vig:1, 
+                nome: "", origem: "", classe: "", agi:1, for:1, int:1, pre:1, vig:1, 
                 vidaMax:20, vidaAtual:20, sanMax:20, sanAtual:20, peMax:5, peAtual:5,
                 nivel: 1, nex: "5%", deslocamento: "9 m / 6 q",
                 pericias: {}
@@ -302,6 +316,7 @@
             gerarPericiasBase();
             carregarFicha();
             carregarRituais();
+            carregarPoderes(); // Carrega os poderes
             carregarHabilidades();
         }
     }
@@ -324,9 +339,12 @@
             const d = doc.data();
             if(!d) return;
             document.getElementById('nome-personagem').value = d.nome || "";
+            // Carregar Origem e Classe
+            if(d.origem) document.getElementById('origem-personagem').value = d.origem;
+            if(d.classe) document.getElementById('classe-personagem').value = d.classe;
+
             ['agi','for','int','pre','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) document.getElementById(`attr-${a}`).value = d[a] });
             
-            // CARREGAR NOVOS CAMPOS
             if(d.nivel) document.getElementById('nivel-personagem').value = d.nivel;
             if(d.nex) document.getElementById('nex-personagem').value = d.nex;
             if(d.deslocamento) document.getElementById('deslocamento-personagem').value = d.deslocamento;
@@ -365,6 +383,8 @@
 
         db.collection("fichas").doc(atual).update({
             nome: document.getElementById('nome-personagem').value,
+            origem: document.getElementById('origem-personagem').value, // Salva Origem
+            classe: document.getElementById('classe-personagem').value, // Salva Classe
             agi: parseInt(document.getElementById('attr-agi').value) || 0,
             for: parseInt(document.getElementById('attr-for').value) || 0,
             int: parseInt(document.getElementById('attr-int').value) || 0,
@@ -376,7 +396,6 @@
             sanMax: parseInt(document.getElementById('san-max').value) || 1,
             peAtual: parseInt(document.getElementById('pe-atual').value) || 0,
             peMax: parseInt(document.getElementById('pe-max').value) || 1,
-            // SALVAR NOVOS CAMPOS
             nivel: document.getElementById('nivel-personagem').value,
             nex: document.getElementById('nex-personagem').value,
             deslocamento: document.getElementById('deslocamento-personagem').value,
@@ -408,7 +427,6 @@
         salvarFicha();
     }
 
-    // RITUAIS E HABILIDADES
     function carregarRituais() {
         db.collection("fichas").doc(atual).collection("rituais").onSnapshot(snap => {
             const container = document.getElementById('lista-rituais');
@@ -435,6 +453,33 @@
         });
     }
 
+    // NOVA FUNÇÃO: CARREGAR PODERES (IDÊNTICA A RITUAIS)
+    function carregarPoderes() {
+        db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
+            const container = document.getElementById('lista-poderes');
+            container.innerHTML = "";
+            snap.forEach(doc => {
+                const p = doc.data();
+                container.innerHTML += `
+                    <div class="ritual-card" data-elem="${p.elemento}">
+                        <div class="card-header" onclick="toggleElem('pod-${doc.id}')">
+                            <span>${p.nome}</span> <span style="font-size:10px; opacity:0.6">${p.elemento}</span>
+                        </div>
+                        <div class="card-body" id="pod-${doc.id}">
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <input type="text" class="treino-select" value="${p.nome}" onchange="updateSub('${doc.id}', 'poderes', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;">
+                                <select class="treino-select" onchange="updateSub('${doc.id}', 'poderes', 'elemento', this.value)">
+                                    <option ${p.elemento=='Morte'?'selected':''}>Morte</option><option ${p.elemento=='Sangue'?'selected':''}>Sangue</option><option ${p.elemento=='Energia'?'selected':''}>Energia</option><option ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option ${p.elemento=='Geral'?'selected':''}>Geral</option>
+                                </select>
+                            </div>
+                            <textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea>
+                            <div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'poderes')">Remover</button></div>
+                        </div>
+                    </div>`;
+            });
+        });
+    }
+
     function carregarHabilidades() {
         db.collection("fichas").doc(atual).collection("habilidades").onSnapshot(snap => {
             const container = document.getElementById('lista-habilidades');
@@ -455,6 +500,7 @@
     }
 
     async function novoRitual() { await db.collection("fichas").doc(atual).collection("rituais").add({ nome: "Novo Ritual", elemento: "Morte", descricao: "" }); }
+    async function novoPoder() { await db.collection("fichas").doc(atual).collection("poderes").add({ nome: "Novo Poder", elemento: "Geral", descricao: "" }); }
     async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
     async function updateSub(id, col, campo, valor) { let o = {}; o[campo] = valor; await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); }
     async function removerSub(id, col) { if(confirm("Excluir?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
