@@ -31,7 +31,8 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: 320px 1fr 450px;
+            /* ALTERADO: Coluna do meio fixa (400px) para aproximar pericias, direita expande (1fr) */
+            grid-template-columns: 320px 400px 1fr;
             gap: 25px;
             max-width: 1650px;
             margin: 0 auto;
@@ -44,7 +45,6 @@
             padding: 5px 0; margin-bottom: 10px; outline: none;
         }
 
-        /* NOVO CSS: Origem e Classe */
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .sub-input-group { flex: 1; display: flex; flex-direction: column; }
         .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
@@ -53,7 +53,6 @@
             color: #fff; font-family: 'Special Elite'; font-size: 16px; padding: 5px 0; outline: none;
         }
         .sub-input-group select option { background: #111; color: #ccc; }
-        /* FIM NOVO CSS */
 
         .sigilo-container {
             position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto;
@@ -113,6 +112,7 @@
 
         .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
         .pericia-header { display: grid; grid-template-columns: 1fr 40px 40px 60px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; }
+        /* A grid interna mantém 1fr para o nome, mas como o container pai agora tem 400px, o 1fr será menor, aproximando os valores */
         .pericia-row { display: grid; grid-template-columns: 1fr 40px 40px 60px; gap: 5px; padding: 6px 4px; border-bottom: 1px solid #1a1a1a; font-size: 13px; align-items: center; transition: background 0.3s; }
         .treino-select { background: #0a0a0a; color: #ccc; border: 1px solid #333; font-size: 11px; text-align: center; }
 
@@ -137,6 +137,7 @@
         [data-elem="Energia"] { border-left-color: #9333ea; }
         [data-elem="Conhecimento"] { border-left-color: #eab308; }
         [data-elem="Medo"] { border-left-color: #fff; }
+        [data-elem="Geral"] { border-left-color: #333; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -162,6 +163,7 @@
                 </select>
             </div>
         </div>
+
         <div class="sigilo-container">
             <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="salvarFicha()"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
@@ -316,7 +318,7 @@
             gerarPericiasBase();
             carregarFicha();
             carregarRituais();
-            carregarPoderes(); // Carrega os poderes
+            carregarPoderes();
             carregarHabilidades();
         }
     }
@@ -339,7 +341,6 @@
             const d = doc.data();
             if(!d) return;
             document.getElementById('nome-personagem').value = d.nome || "";
-            // Carregar Origem e Classe
             if(d.origem) document.getElementById('origem-personagem').value = d.origem;
             if(d.classe) document.getElementById('classe-personagem').value = d.classe;
 
@@ -383,8 +384,8 @@
 
         db.collection("fichas").doc(atual).update({
             nome: document.getElementById('nome-personagem').value,
-            origem: document.getElementById('origem-personagem').value, // Salva Origem
-            classe: document.getElementById('classe-personagem').value, // Salva Classe
+            origem: document.getElementById('origem-personagem').value,
+            classe: document.getElementById('classe-personagem').value,
             agi: parseInt(document.getElementById('attr-agi').value) || 0,
             for: parseInt(document.getElementById('attr-for').value) || 0,
             int: parseInt(document.getElementById('attr-int').value) || 0,
@@ -453,7 +454,6 @@
         });
     }
 
-    // NOVA FUNÇÃO: CARREGAR PODERES (IDÊNTICA A RITUAIS)
     function carregarPoderes() {
         db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
             const container = document.getElementById('lista-poderes');
