@@ -32,18 +32,17 @@
         .grid-container {
             display: grid;
             /* ALTERADO: Coluna do meio fixa (400px) para aproximar pericias, direita expande (1fr) */
-           grid-template-columns: 320px minmax(350px, 400px) 1fr;
+            grid-template-columns: 320px 400px 1fr;
             gap: 25px;
             max-width: 1650px;
             margin: 0 auto;
-            align-items: start;
         }
 
         .header-name {
             width: 100%; background: transparent; border: none;
             border-bottom: 2px solid #333; color: #fff;
             font-family: 'Special Elite'; font-size: 24px;
-            padding: 5px 0; margin-bottom: 0px; outline: none;
+            padding: 5px 0; margin-bottom: 10px; outline: none;
         }
 
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -111,16 +110,15 @@
         .info-row label { display: block; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 3px; }
         .info-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-size: 13px; padding: 4px 0; outline: none; }
 
-        .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; overflow: hidden;}
+        .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
         .pericia-header { display: grid; grid-template-columns: 1fr 40px 40px 60px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; }
         /* A grid interna mantém 1fr para o nome, mas como o container pai agora tem 400px, o 1fr será menor, aproximando os valores */
         .pericia-row { display: grid; grid-template-columns: 1fr 40px 40px 60px; gap: 5px; padding: 6px 4px; border-bottom: 1px solid #1a1a1a; font-size: 13px; align-items: center; transition: background 0.3s; }
         .treino-select { background: #0a0a0a; color: #ccc; border: 1px solid #333; font-size: 11px; text-align: center; }
 
-        .p-verde { background: rgba(34, 197, 94, 0.2) !important; }
+        .p-verde { background: rgba(34, 197, 94, 0.15) !important; }
         .p-azul { background: rgba(59, 130, 246, 0.2) !important; }
-        .p-laranja { background: rgba(198, 61, 12, 0.2) !important; }
-        .p-vermelho { background: rgba(250, 30, 0, 0.2) !important; }
+        .p-vermelho { background: rgba(239, 68, 68, 0.2) !important; }
 
         .tabs-nav { display: flex; gap: 5px; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 15px; cursor: pointer; font-size: 12px; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
@@ -148,13 +146,13 @@
 
 <div class="grid-container">
     <section>
-      <div style="display:flex; gap:15px; align-items:flex-start; margin-bottom:10px;">
+        <div style="display:flex; gap:15px; align-items:flex-end;">
     <input type="text" id="nome-personagem" class="header-name" placeholder="NOME DO AGENTE" onchange="salvarFicha()" style="flex:1;">
     
     <div style="display:flex; flex-direction:column; width:40px;">
         <label style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; text-transform:uppercase;">IDADE</label>
         <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0"
-               style="background:transparent; border:none; border-bottom:1px solid #333; color:#fff; font-family:'Special Elite'; font-size:16px; padding:5px 0; outline:none;">
+               style="background:transparent; border:none; border-bottom:0px solid #333; color:#fff; font-family:'Special Elite'; font-size:16px; padding:5px 0; outline:none;">
     </div>
 </div>
 
@@ -421,10 +419,9 @@
     function atualizarCorPericia(nome, valor) {
         const el = document.getElementById(`row-${nome}`);
         if(!el) return;
-        el.classList.remove('p-verde', 'p-azul', 'p-laranja', 'p-vermelho');
-        if(valor == "5") el.classList.add('p-verde');
-        else if(valor == "10") el.classList.add('p-azul');
-        else if(valor == "15") el.classList.add('p-laranja');
+        el.classList.remove('p-verde', 'p-azul', 'p-vermelho');
+        if(valor == "5" || valor == "10") el.classList.add('p-verde');
+        else if(valor == "15") el.classList.add('p-azul');
         else if(valor == "20") el.classList.add('p-vermelho');
     }
 
@@ -528,8 +525,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
