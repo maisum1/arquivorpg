@@ -31,6 +31,7 @@
 
         .grid-container {
             display: grid;
+            /* ALTERADO: Coluna do meio fixa (400px) para aproximar pericias, direita expande (1fr) */
             grid-template-columns: 320px 400px 1fr;
             gap: 25px;
             max-width: 1650px;
@@ -44,8 +45,8 @@
             padding: 5px 0; margin-bottom: 10px; outline: none;
         }
 
-        .header-sub-row { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
-        .sub-input-group { flex: 1; min-width: 80px; display: flex; flex-direction: column; }
+        .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .sub-input-group { flex: 1; display: flex; flex-direction: column; }
         .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
         .sub-input-group input, .sub-input-group select {
             background: transparent; border: none; border-bottom: 1px solid #333;
@@ -109,8 +110,9 @@
         .info-row label { display: block; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 3px; }
         .info-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-size: 13px; padding: 4px 0; outline: none; }
 
-        .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; max-width: 400px; }
+        .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
         .pericia-header { display: grid; grid-template-columns: 1fr 40px 40px 60px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; }
+        /* A grid interna mantém 1fr para o nome, mas como o container pai agora tem 400px, o 1fr será menor, aproximando os valores */
         .pericia-row { display: grid; grid-template-columns: 1fr 40px 40px 60px; gap: 5px; padding: 6px 4px; border-bottom: 1px solid #1a1a1a; font-size: 13px; align-items: center; transition: background 0.3s; }
         .treino-select { background: #0a0a0a; color: #ccc; border: 1px solid #333; font-size: 11px; text-align: center; }
 
@@ -144,7 +146,16 @@
 
 <div class="grid-container">
     <section>
-        <input type="text" id="nome-personagem" class="header-name" placeholder="NOME DO AGENTE" onchange="salvarFicha()">
+       <div style="display:flex; gap:15px; align-items:flex-end;">
+    <input type="text" id="nome-personagem" class="header-name" placeholder="NOME DO AGENTE" onchange="salvarFicha()" style="flex:1;">
+    
+    <div style="display:flex; flex-direction:column; width:40px;">
+        <label style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; text-transform:uppercase;">IDADE</label>
+        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0"
+               style="background:transparent; border:none; border-bottom:1px solid #333; color:#fff; font-family:'Special Elite'; font-size:16px; padding:5px 0; outline:none;">
+    </div>
+</div>
+
         
         <div class="header-sub-row">
             <div class="sub-input-group">
@@ -159,10 +170,6 @@
                     <option value="Esotérico">Esotérico</option>
                     <option value="Polímata">Polímata</option>
                 </select>
-            </div>
-            <div class="sub-input-group" style="flex: 0 0 60px;">
-                <label>IDADE</label>
-                <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0">
             </div>
         </div>
 
@@ -207,7 +214,7 @@
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content">
                     <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
-                    <div><input type="number" id="san-atual" onchange="sanAtual(); salvarFicha()"> / <input type="number" id="san-max" onchange="salvarFicha()"></div>
+                    <div><input type="number" id="san-atual" onchange="salvarFicha()"> / <input type="number" id="san-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
             </div>
@@ -310,7 +317,7 @@
             const ref = db.collection("fichas").doc();
             atual = ref.id;
             await ref.set({ 
-                nome: "", origem: "", classe: "", idade: 0, agi:1, for:1, int:1, pre:1, vig:1, 
+                nome: "", origem: "", classe: "", agi:1, for:1, int:1, pre:1, vig:1, 
                 vidaMax:20, vidaAtual:20, sanMax:20, sanAtual:20, peMax:5, peAtual:5,
                 nivel: 1, nex: "5%", deslocamento: "9 m / 6 q",
                 pericias: {}
@@ -345,7 +352,6 @@
             document.getElementById('nome-personagem').value = d.nome || "";
             if(d.origem) document.getElementById('origem-personagem').value = d.origem;
             if(d.classe) document.getElementById('classe-personagem').value = d.classe;
-            if(d.idade) document.getElementById('idade-personagem').value = d.idade;
 
             ['agi','for','int','pre','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) document.getElementById(`attr-${a}`).value = d[a] });
             
@@ -389,7 +395,6 @@
             nome: document.getElementById('nome-personagem').value,
             origem: document.getElementById('origem-personagem').value,
             classe: document.getElementById('classe-personagem').value,
-            idade: parseInt(document.getElementById('idade-personagem').value) || 0,
             agi: parseInt(document.getElementById('attr-agi').value) || 0,
             for: parseInt(document.getElementById('attr-for').value) || 0,
             int: parseInt(document.getElementById('attr-int').value) || 0,
