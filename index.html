@@ -231,9 +231,19 @@
 
         <div class="defesa-grid">
             <div class="defesa-shield" id="display-defesa">10</div>
-            <div><div class="def-label">DEFESA</div><div style="font-size: 8px; color: #555;">10 + AGI + EQUIP</div></div>
-            <div><div class="def-label">BLOQUEIO</div><div class="def-val" contenteditable="true">0</div></div>
-            <div><div class="def-label">ESQUIVA</div><div class="def-val" id="display-esquiva">10</div></div>
+            <div>
+                <div class="def-label">DEFESA <input type="number" id="bonus-defesa" placeholder="+0" onchange="salvarFicha()" style="width:25px; background:transparent; border:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none; margin-left:3px; border-radius:2px;"></div>
+                <div style="font-size: 8px; color: #555;">10 + AGI + BÔNUS</div>
+            </div>
+            <div>
+                <div class="def-label">BLOQUEIO <input type="number" id="bonus-bloqueio" placeholder="+0" onchange="salvarFicha()" style="width:25px; background:transparent; border:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none; margin-left:3px; border-radius:2px;"></div>
+                <div class="def-val" id="display-bloqueio">0</div>
+                <div style="font-size: 8px; color: #555; text-align:center; margin-top:2px;">Base: <input type="number" id="base-bloqueio" value="0" onchange="salvarFicha()" style="width:20px; background:transparent; border:none; border-bottom:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none;"></div>
+            </div>
+            <div>
+                <div class="def-label">ESQUIVA <input type="number" id="bonus-esquiva" placeholder="+0" onchange="salvarFicha()" style="width:25px; background:transparent; border:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none; margin-left:3px; border-radius:2px;"></div>
+                <div class="def-val" id="display-esquiva">10</div>
+            </div>
         </div>
 
         <div class="info-row"><label>PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
@@ -259,7 +269,10 @@
         <div id="aba-rituais" class="tab-content active">
             <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
                 <div class="cris-btn" onclick="novoRitual()">+ Novo Ritual</div>
-                <div style="font-family:'Special Elite'">DT <span id="dt-val">10</span></div>
+                <div style="font-family:'Special Elite'; display:flex; align-items:center;">
+                    DT <span id="dt-val" style="margin-left:5px;">10</span>
+                    <input type="number" id="bonus-dt" placeholder="+0" onchange="salvarFicha()" style="width:30px; background:transparent; border:1px solid #444; color:#aaa; font-size:12px; text-align:center; margin-left:10px; outline:none; font-family:'Roboto'; border-radius:3px;">
+                </div>
             </div>
             <div id="lista-rituais"></div>
         </div>
@@ -317,7 +330,8 @@
                 nome: "", origem: "", idade: 0, classe: "", agi:1, for:1, int:1, pre:1, vig:1, 
                 vidaMax:20, vidaAtual:20, sanMax:20, sanAtual:20, peMax:5, peAtual:5,
                 nivel: 1, nex: "5%", deslocamento: "9 m / 6 q",
-                pericias: {}
+                pericias: {},
+                bonusDefesa: 0, bonusEsquiva: 0, baseBloqueio: 0, bonusBloqueio: 0, bonusDt: 0
             });
             window.location.search = `?id=${atual}`;
         } else {
@@ -373,10 +387,23 @@
                 });
             }
 
+            const bDef = parseInt(d.bonusDefesa) || 0;
+            const bEsq = parseInt(d.bonusEsquiva) || 0;
+            const bBloq = parseInt(d.bonusBloqueio) || 0;
+            const baseBloq = parseInt(d.baseBloqueio) || 0;
+            const bDt = parseInt(d.bonusDt) || 0;
+
+            if(document.getElementById('bonus-defesa')) document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
+            if(document.getElementById('bonus-esquiva')) document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
+            if(document.getElementById('bonus-bloqueio')) document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
+            if(document.getElementById('base-bloqueio')) document.getElementById('base-bloqueio').value = baseBloq !== 0 ? baseBloq : "";
+            if(document.getElementById('bonus-dt')) document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
+
             const defBase = 10 + (parseInt(d.agi) || 0);
-            document.getElementById('display-defesa').innerText = defBase;
-            document.getElementById('display-esquiva').innerText = defBase;
-            document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + 5;
+            document.getElementById('display-defesa').innerText = defBase + bDef;
+            document.getElementById('display-esquiva').innerText = defBase + bEsq;
+            document.getElementById('display-bloqueio').innerText = baseBloq + bBloq;
+            document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + 5 + bDt;
         });
     }
 
@@ -411,7 +438,12 @@
             pericias: periciasObj,
             protecao: document.getElementById('info-prot').value,
             resistencias: document.getElementById('info-res').value,
-            proficiencias: document.getElementById('info-prof').value
+            proficiencias: document.getElementById('info-prof').value,
+            bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0,
+            bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0,
+            baseBloqueio: parseInt(document.getElementById('base-bloqueio').value) || 0,
+            bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0,
+            bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0
         });
     }
 
@@ -525,7 +557,3 @@
 </script>
 </body>
 </html>
-
-
-
-
