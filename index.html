@@ -96,15 +96,21 @@
         .bar-btn { cursor: pointer; color: #fff; font-size: 18px; opacity: 0.6; user-select: none; }
         .bar-btn:hover { opacity: 1; }
 
-        .defesa-grid { display: grid; grid-template-columns: 80px 1fr 60px 60px; gap: 10px; align-items: center; margin-top: 20px; }
+        /* AJUSTE DE ALINHAMENTO DEFESA, BLOQUEIO E ESQUIVA */
+        .defesa-grid { display: flex; align-items: center; gap: 20px; margin-top: 20px; }
         .defesa-shield {
             width: 70px; height: 75px; background: url('https://www.ordemparanormal.com.br/assets/rituais/escudo_defesa.png') no-repeat center;
             background-size: contain; display: flex; align-items: center; justify-content: center;
-            font-family: 'Special Elite'; font-size: 22px; font-weight: bold;
+            font-family: 'Special Elite'; font-size: 24px; font-weight: bold; flex-shrink: 0;
         }
-        .def-label { font-size: 10px; color: #aaa; font-weight: bold; }
-        .def-val { font-size: 18px; font-family: 'Special Elite'; border-bottom: 1px solid #444; text-align: center; }
-        
+        .defesa-colunas { display: flex; gap: 20px; flex: 1; justify-content: space-between; }
+        .def-item { display: flex; flex-direction: column; align-items: center; }
+        .def-header-row { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+        .def-label { font-size: 10px; color: #aaa; font-weight: bold; text-transform: uppercase; }
+        .def-input-bonus { width: 30px; background: transparent; border: 1px solid #444; color: #fff; font-size: 10px; text-align: center; outline: none; border-radius: 2px; }
+        .def-val-total { font-size: 20px; font-family: 'Special Elite'; border-bottom: 1px solid #fff; min-width: 45px; text-align: center; padding-bottom: 2px; }
+        .def-formula { font-size: 8px; color: #555; margin-top: 2px; text-align: center; }
+
         .info-row { margin-top: 15px; }
         .info-row label { display: block; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 3px; }
         .info-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-size: 13px; padding: 4px 0; outline: none; }
@@ -231,24 +237,33 @@
 
         <div class="defesa-grid">
             <div class="defesa-shield" id="display-defesa">10</div>
-            <div>
-                <div class="def-label">DEFESA <input type="number" id="bonus-defesa" placeholder="+0" onchange="salvarFicha()" style="width:25px; background:transparent; border:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none; margin-left:3px; border-radius:2px;"></div>
-                <div style="font-size: 8px; color: #555;">10 + AGI + BÔNUS</div>
-            </div>
-            <div>
-                <div class="def-label">BLOQUEIO <input type="number" id="bonus-bloqueio" placeholder="+0" onchange="salvarFicha()" style="width:25px; background:transparent; border:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none; margin-left:3px; border-radius:2px;"></div>
-                <div class="def-val" id="display-bloqueio">0</div>
-                <div style="font-size: 8px; color: #555; text-align:center; margin-top:2px;">Base: <input type="number" id="base-bloqueio" value="0" onchange="salvarFicha()" style="width:20px; background:transparent; border:none; border-bottom:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none;"></div>
-            </div>
-            <div>
-                <div class="def-label">ESQUIVA <input type="number" id="bonus-esquiva" placeholder="+0" onchange="salvarFicha()" style="width:25px; background:transparent; border:1px solid #444; color:#aaa; font-size:9px; text-align:center; outline:none; margin-left:3px; border-radius:2px;"></div>
-                <div class="def-val" id="display-esquiva">10</div>
+            
+            <div class="defesa-colunas">
+                <div class="def-item">
+                    <div class="def-header-row">
+                        <label class="def-label">DEFESA</label>
+                        <input type="number" id="bonus-defesa" class="def-input-bonus" placeholder="0" onchange="salvarFicha()">
+                    </div>
+                    <div class="def-formula">10+AGI+BÔNUS</div>
+                </div>
+
+                <div class="def-item">
+                    <div class="def-header-row">
+                        <label class="def-label">BLOQUEIO</label>
+                        <input type="number" id="bonus-bloqueio" class="def-input-bonus" placeholder="0" onchange="salvarFicha()">
+                    </div>
+                    <div class="def-val-total" id="display-bloqueio">0</div>
+                </div>
+
+                <div class="def-item">
+                    <div class="def-header-row">
+                        <label class="def-label">ESQUIVA</label>
+                        <input type="number" id="bonus-esquiva" class="def-input-bonus" placeholder="0" onchange="salvarFicha()">
+                    </div>
+                    <div class="def-val-total" id="display-esquiva">10</div>
+                </div>
             </div>
         </div>
-
-        <div class="info-row"><label>PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
-        <div class="info-row"><label>RESISTÊNCIAS</label><input type="text" id="info-res" class="info-field" onchange="salvarFicha()"></div>
-        <div class="info-row"><label>PROFICIÊNCIAS</label><input type="text" id="info-prof" class="info-field" onchange="salvarFicha()"></div>
     </section>
 
     <section class="pericias-box">
@@ -261,10 +276,18 @@
         <nav class="tabs-nav">
             <button class="tab-btn" onclick="mudarAba('combate')">Combate</button>
             <button class="tab-btn" onclick="mudarAba('habilidades')">Habilidades</button>
-            <button class="tab-btn active" onclick="mudarAba('rituais')">Rituais</button>
+            <button class="tab-btn" onclick="mudarAba('rituais')">Rituais</button>
             <button class="tab-btn" onclick="mudarAba('poderes')">Poderes</button>
             <button class="tab-btn" onclick="mudarAba('inventario')">Inventário</button>
         </nav>
+
+        <div id="aba-combate" class="tab-content">
+            <div class="info-row"><label>PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
+            <div class="info-row"><label>RESISTÊNCIAS</label><input type="text" id="info-res" class="info-field" onchange="salvarFicha()"></div>
+            <div class="info-row"><label>PROFICIÊNCIAS</label><input type="text" id="info-prof" class="info-field" onchange="salvarFicha()"></div>
+            
+            <p style="margin-top:20px; color:#444; font-size:12px;">Em desenvolvimento: Ataques e Armas...</p>
+        </div>
 
         <div id="aba-rituais" class="tab-content active">
             <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
@@ -287,7 +310,6 @@
             <div id="lista-habilidades"></div>
         </div>
 
-        <div id="aba-combate" class="tab-content">Em desenvolvimento...</div>
         <div id="aba-inventario" class="tab-content">Em desenvolvimento...</div>
     </section>
 </div>
@@ -331,7 +353,7 @@
                 vidaMax:20, vidaAtual:20, sanMax:20, sanAtual:20, peMax:5, peAtual:5,
                 nivel: 1, nex: "5%", deslocamento: "9 m / 6 q",
                 pericias: {},
-                bonusDefesa: 0, bonusEsquiva: 0, baseBloqueio: 0, bonusBloqueio: 0, bonusDt: 0
+                bonusDefesa: 0, bonusEsquiva: 0, bonusBloqueio: 0, bonusDt: 0
             });
             window.location.search = `?id=${atual}`;
         } else {
@@ -375,6 +397,8 @@
             atualizarStatus('san', d.sanAtual, d.sanMax);
             atualizarStatus('pe', d.peAtual, d.peMax);
             
+            // Dados de Perícia para cálculos
+            let fortTreino = 0;
             if(d.pericias) {
                 Object.keys(d.pericias).forEach(p => {
                     const bField = document.getElementById(`bonus-${p}`);
@@ -383,26 +407,32 @@
                     if(tField) {
                         tField.value = d.pericias[p].treino || 0;
                         atualizarCorPericia(p, tField.value);
+                        if(p === "Fortitude") fortTreino = parseInt(tField.value);
                     }
                 });
             }
 
+            if(d.protecao) document.getElementById('info-prot').value = d.protecao;
+            if(d.resistencias) document.getElementById('info-res').value = d.resistencias;
+            if(d.proficiencias) document.getElementById('info-prof').value = d.proficiencias;
+
             const bDef = parseInt(d.bonusDefesa) || 0;
             const bEsq = parseInt(d.bonusEsquiva) || 0;
             const bBloq = parseInt(d.bonusBloqueio) || 0;
-            const baseBloq = parseInt(d.baseBloqueio) || 0;
             const bDt = parseInt(d.bonusDt) || 0;
 
-            if(document.getElementById('bonus-defesa')) document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
-            if(document.getElementById('bonus-esquiva')) document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
-            if(document.getElementById('bonus-bloqueio')) document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
-            if(document.getElementById('base-bloqueio')) document.getElementById('base-bloqueio').value = baseBloq !== 0 ? baseBloq : "";
-            if(document.getElementById('bonus-dt')) document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
+            document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
+            document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
+            document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
+            document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
 
             const defBase = 10 + (parseInt(d.agi) || 0);
             document.getElementById('display-defesa').innerText = defBase + bDef;
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
-            document.getElementById('display-bloqueio').innerText = baseBloq + bBloq;
+            
+            // Bloqueio agora usa Fortitude como base
+            document.getElementById('display-bloqueio').innerText = fortTreino + bBloq;
+            
             document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + 5 + bDt;
         });
     }
@@ -441,7 +471,6 @@
             proficiencias: document.getElementById('info-prof').value,
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0,
             bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0,
-            baseBloqueio: parseInt(document.getElementById('base-bloqueio').value) || 0,
             bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0,
             bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0
         });
