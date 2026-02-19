@@ -16,26 +16,27 @@
         .btn-google { background: white; color: black; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: sans-serif; }
         #dashboard { display: none; width: 90%; max-width: 800px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
-        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; text-decoration: none; color: white; transition: 0.3s; display: block; position: relative; }
+        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; text-decoration: none; color: white; transition: 0.3s; display: block; }
         .card:hover { border-color: #6d28d9; background: #1a1a1a; }
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite'; font-size: 16px; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
         .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
-        
-        /* Botão de Excluir */
-        .delete-btn {
-            background: #441111;
-            color: #ff4444;
-            border: 1px solid #661111;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-            border-radius: 3px;
-            margin-top: 15px;
-            font-family: 'Special Elite';
-            transition: 0.3s;
-        }
-        .delete-btn:hover { background: #ff4444; color: white; }
+              /* Estilo do botão de excluir no card */
+.delete-btn {
+    background: #441111;
+    color: #ff4444;
+    border: 1px solid #661111;
+    padding: 4px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+.delete-btn:hover {
+    background: #ff4444;
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -74,7 +75,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const emailMestre = "SEU_EMAIL_AQUI@GMAIL.COM"; 
+        // --- CONFIGURAÇÃO DO MESTRE ---
+        const emailMestre = "pedroacpr@gmail.com"; 
+        // ------------------------------
 
         auth.onAuthStateChanged(user => {
             const loginScreen = document.getElementById('login-screen');
@@ -105,8 +108,13 @@
 
         function fazerLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Força a seleção de conta para evitar bugs de pop-up travado
             provider.setCustomParameters({ prompt: 'select_account' });
-            auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
+            
+            auth.signInWithPopup(provider).catch(error => {
+                console.error("Erro no login:", error);
+                alert("Erro ao abrir login: " + error.message);
+            });
         }
 
         function abaHub(tipo) {
@@ -123,32 +131,9 @@
                 container.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    container.innerHTML += `
-                        <div class="card">
-                            <a href="ficha.html?id=${doc.id}" style="text-decoration: none; color: inherit; display: block;">
-                                <strong>${d.nome || 'Sem Nome'}</strong><br>
-                                <small>NEX: ${d.nex || '5%'}</small>
-                            </a>
-                            <button class="delete-btn" onclick="confirmarExclusao('${doc.id}', '${d.nome}')">Excluir</button>
-                        </div>`;
+                    container.innerHTML += `<a href="ficha.html?id=${doc.id}" class="card"><strong>${d.nome || 'Sem Nome'}</strong><br><small>${d.nex || '5%'}</small></a>`;
                 });
             });
-        }
-
-        async function confirmarExclusao(id, nome) {
-            if (confirm(`Deseja mesmo excluir a ficha de "${nome}"?`)) {
-                const check = prompt("Para confirmar, digite EXCLUIR em letras maiúsculas:");
-                if (check === "EXCLUIR") {
-                    try {
-                        await db.collection("fichas").doc(id).delete();
-                        alert("Arquivo deletado com sucesso.");
-                    } catch (e) {
-                        alert("Erro ao deletar: " + e.message);
-                    }
-                } else {
-                    alert("Ação cancelada. Texto incorreto.");
-                }
-            }
         }
 
         function carregarMonitorMestre() {
