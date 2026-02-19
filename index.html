@@ -22,11 +22,11 @@
         .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; text-decoration: none; color: white; transition: 0.3s; display: block; }
         .card:hover { border-color: #6d28d9; background: #1a1a1a; }
 
-        /* Estilo das Abas do Hub */
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite'; font-size: 16px; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
         
         .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
+        .monitor-row a { color: #6d28d9; text-decoration: none; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
         
         <div style="margin-bottom: 30px;">
             <button id="btn-jog" class="tab-btn active" onclick="abaHub('jogador')">Meus Agentes</button>
-            <button id="btn-mes" class="tab-btn" onclick="abaHub('mestre')">Painel do Mestre</button>
+            <button id="btn-mes" class="tab-btn" onclick="abaHub('mestre')" style="display: none; color: #ff4444;">Painel do Mestre</button>
         </div>
 
         <div id="hub-jogador">
@@ -51,7 +51,7 @@
 
         <div id="hub-mestre" style="display:none;">
             <div id="monitor-mestre">
-                <p style="color: #666;">Carregando dados da equipe...</p>
+                <p style="color: #666;">Carregando monitoramento da equipe...</p>
             </div>
         </div>
 
@@ -60,7 +60,6 @@
     </div>
 
     <script>
-        // Use a sua chave da "Nova Browser key" aqui
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
             authDomain: "fichasrpg-7fc69.firebaseapp.com",
@@ -73,12 +72,21 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Monitor de Estado de Login
+        // --- CONFIGURAÇÃO DE ACESSO DO MESTRE ---
+        const emailMestre = "SEU_EMAIL_AQUI@GMAIL.COM"; // <-- COLOQUE SEU EMAIL AQUI
+        // ---------------------------------------
+
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 document.getElementById('welcome').innerText = "Agente: " + user.displayName;
+                
+                // Só mostra o botão do mestre se o email for o correto
+                if (user.email === emailMestre) {
+                    document.getElementById('btn-mes').style.display = 'inline-block';
+                }
+
                 carregarFichas(user.uid);
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -91,7 +99,6 @@
             auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
         }
 
-        // Funções de Troca de Aba
         function abaHub(tipo) {
             document.getElementById('hub-jogador').style.display = tipo === 'jogador' ? 'block' : 'none';
             document.getElementById('hub-mestre').style.display = tipo === 'mestre' ? 'block' : 'none';
@@ -102,7 +109,6 @@
             if(tipo === 'mestre') carregarMonitorMestre();
         }
 
-        // Carrega apenas as fichas do usuário logado
         function carregarFichas(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
                 const container = document.getElementById('lista-fichas');
@@ -117,7 +123,6 @@
             });
         }
 
-        // Carrega TODAS as fichas para o Mestre
         function carregarMonitorMestre() {
             db.collection("fichas").onSnapshot(snap => {
                 const container = document.getElementById('monitor-mestre');
@@ -131,9 +136,9 @@
                                 <small style="color:#888">${d.classe || 'Sem Classe'} - ${d.nex || '5%'}</small>
                             </div>
                             <div style="text-align:right">
-                                <span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | 
-                                <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span>
-                                <br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9; font-size:12px;">Abrir Ficha</a>
+                                <span style="color:#b31d1d">PV: ${d.vidaAtual ?? 0}/${d.vidaMax ?? 0}</span> | 
+                                <span style="color:#034374">SAN: ${d.sanAtual ?? 0}/${d.sanMax ?? 0}</span>
+                                <br><a href="ficha.html?id=${doc.id}">ABRIR FICHA</a>
                             </div>
                         </div>`;
                 });
@@ -147,7 +152,8 @@
                 nome: "Novo Agente",
                 nex: "5%",
                 vidaAtual: 20, vidaMax: 20,
-                sanAtual: 20, sanMax: 20
+                sanAtual: 20, sanMax: 20,
+                peAtual: 5, peMax: 5
             });
             window.location.href = `ficha.html?id=${ref.id}`;
         }
