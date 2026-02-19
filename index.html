@@ -103,10 +103,23 @@
             }
         });
 
-        function fazerLogin() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
+       async function fazerLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    try {
+        // Tentamos o Popup primeiro, que é o padrão
+        await auth.signInWithPopup(provider);
+    } catch (error) {
+        console.error("Erro no login:", error);
+        // Se o popup falhar por estar bloqueado, ele tenta o Redirect automaticamente
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+            auth.signInWithRedirect(provider);
+        } else {
+            alert("Erro: " + error.message);
+        }
+    }
+}
         }
 
         function abaHub(tipo) {
