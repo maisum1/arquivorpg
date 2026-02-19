@@ -11,22 +11,16 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         body { background: #000; color: white; font-family: 'Special Elite', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        
         #login-screen { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
         h1 { font-size: 3.5rem; letter-spacing: 8px; margin: 0; }
-
         .btn-google { background: white; color: black; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: sans-serif; }
-        
         #dashboard { display: none; width: 90%; max-width: 800px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
         .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; text-decoration: none; color: white; transition: 0.3s; display: block; }
         .card:hover { border-color: #6d28d9; background: #1a1a1a; }
-
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite'; font-size: 16px; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
-        
         .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
-        .monitor-row a { color: #6d28d9; text-decoration: none; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -39,10 +33,9 @@
     <div id="dashboard">
         <h2 id="welcome">Agente Conectado</h2>
         
-        <div style="margin-bottom: 30px;">
+        <div id="menu-abas" style="margin-bottom: 30px;">
             <button id="btn-jog" class="tab-btn active" onclick="abaHub('jogador')">Meus Agentes</button>
-            <button id="btn-mes" class="tab-btn" onclick="abaHub('mestre')" style="display: none; color: #ff4444;">Painel do Mestre</button>
-        </div>
+            </div>
 
         <div id="hub-jogador">
             <div class="grid" id="lista-fichas"></div>
@@ -50,9 +43,7 @@
         </div>
 
         <div id="hub-mestre" style="display:none;">
-            <div id="monitor-mestre">
-                <p style="color: #666;">Carregando monitoramento da equipe...</p>
-            </div>
+            <div id="monitor-mestre"></div>
         </div>
 
         <br><br>
@@ -72,9 +63,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- CONFIGURAÇÃO DE ACESSO DO MESTRE ---
-        const emailMestre = "pedroacpr@gmail.com"; // <-- COLOQUE SEU EMAIL AQUI
-        // ---------------------------------------
+        // --- AJUSTE O SEU EMAIL AQUI ---
+        const emailMestre = "pedroacpr@gmail.com"; 
+        // ------------------------------
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -82,21 +73,26 @@
                 document.getElementById('dashboard').style.display = 'block';
                 document.getElementById('welcome').innerText = "Agente: " + user.displayName;
                 
-                // Só mostra o botão do mestre se o email for o correto
-                if (user.email === emailMestre) {
-                    document.getElementById('btn-mes').style.display = 'inline-block';
+                // Se for o mestre, cria o botão agora
+                if (user.email === emailMestre && !document.getElementById('btn-mes')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'btn-mes';
+                    btn.className = 'tab-btn';
+                    btn.innerText = 'Painel do Mestre';
+                    btn.style.color = '#ff4444';
+                    btn.onclick = () => abaHub('mestre');
+                    document.getElementById('menu-abas').appendChild(btn);
                 }
 
                 carregarFichas(user.uid);
             } else {
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('dashboard').style.display = 'none';
+                location.reload(); // Recarrega para limpar tudo ao sair
             }
         });
 
         function fazerLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
+            auth.signInWithPopup(provider).catch(error => alert(error.message));
         }
 
         function abaHub(tipo) {
@@ -104,7 +100,9 @@
             document.getElementById('hub-mestre').style.display = tipo === 'mestre' ? 'block' : 'none';
             
             document.getElementById('btn-jog').classList.toggle('active', tipo === 'jogador');
-            document.getElementById('btn-mes').classList.toggle('active', tipo === 'mestre');
+            if(document.getElementById('btn-mes')) {
+                document.getElementById('btn-mes').classList.toggle('active', tipo === 'mestre');
+            }
 
             if(tipo === 'mestre') carregarMonitorMestre();
         }
@@ -131,14 +129,11 @@
                     const d = doc.data();
                     container.innerHTML += `
                         <div class="monitor-row">
-                            <div>
-                                <strong>${d.nome || 'Agente'}</strong><br>
-                                <small style="color:#888">${d.classe || 'Sem Classe'} - ${d.nex || '5%'}</small>
-                            </div>
+                            <div><strong>${d.nome || 'Agente'}</strong><br><small>${d.nex || '5%'}</small></div>
                             <div style="text-align:right">
-                                <span style="color:#b31d1d">PV: ${d.vidaAtual ?? 0}/${d.vidaMax ?? 0}</span> | 
-                                <span style="color:#034374">SAN: ${d.sanAtual ?? 0}/${d.sanMax ?? 0}</span>
-                                <br><a href="ficha.html?id=${doc.id}">ABRIR FICHA</a>
+                                <span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | 
+                                <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span>
+                                <br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9">ABRIR</a>
                             </div>
                         </div>`;
                 });
@@ -152,8 +147,7 @@
                 nome: "Novo Agente",
                 nex: "5%",
                 vidaAtual: 20, vidaMax: 20,
-                sanAtual: 20, sanMax: 20,
-                peAtual: 5, peMax: 5
+                sanAtual: 20, sanMax: 20
             });
             window.location.href = `ficha.html?id=${ref.id}`;
         }
