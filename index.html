@@ -12,28 +12,21 @@
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         body { background: #000; color: white; font-family: 'Special Elite', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         
-        /* Resolve o desalinhamento: organiza em coluna com espaço entre eles */
-        #login-screen { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 40px; 
-            text-align: center;
-        }
-
+        #login-screen { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
         h1 { font-size: 3.5rem; letter-spacing: 8px; margin: 0; }
 
-        .btn-google { 
-            background: white; color: black; border: none; padding: 15px 30px; 
-            border-radius: 5px; font-weight: bold; cursor: pointer; font-family: sans-serif;
-            transition: 0.3s;
-        }
-        .btn-google:hover { transform: scale(1.1); background: #eee; }
-
+        .btn-google { background: white; color: black; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: sans-serif; }
+        
         #dashboard { display: none; width: 90%; max-width: 800px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
-        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; text-decoration: none; color: white; transition: 0.3s; }
+        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 8px; text-decoration: none; color: white; transition: 0.3s; display: block; }
         .card:hover { border-color: #6d28d9; background: #1a1a1a; }
+
+        /* Estilo das Abas do Hub */
+        .tab-btn { background: transparent; border: none; color: #666; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite'; font-size: 16px; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
+        
+        .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
     </style>
 </head>
 <body>
@@ -45,16 +38,31 @@
 
     <div id="dashboard">
         <h2 id="welcome">Agente Conectado</h2>
-        <div class="grid" id="lista-fichas"></div>
-        <button onclick="criarNovaFicha()" style="margin-top:30px; padding:10px; cursor:pointer;">+ Novo Agente</button>
+        
+        <div style="margin-bottom: 30px;">
+            <button id="btn-jog" class="tab-btn active" onclick="abaHub('jogador')">Meus Agentes</button>
+            <button id="btn-mes" class="tab-btn" onclick="abaHub('mestre')">Painel do Mestre</button>
+        </div>
+
+        <div id="hub-jogador">
+            <div class="grid" id="lista-fichas"></div>
+            <button class="btn-google" onclick="criarNovaFicha()" style="margin-top:30px; background:#222; color:white; border:1px solid #444;">+ Novo Agente</button>
+        </div>
+
+        <div id="hub-mestre" style="display:none;">
+            <div id="monitor-mestre">
+                <p style="color: #666;">Carregando dados da equipe...</p>
+            </div>
+        </div>
+
         <br><br>
-        <button onclick="firebase.auth().signOut()" style="background:transparent; color:gray; border:none; cursor:pointer;">Sair da Conta</button>
+        <button onclick="firebase.auth().signOut()" style="background:transparent; color:gray; border:none; cursor:pointer; font-family: sans-serif;">Sair da Conta</button>
     </div>
 
     <script>
-        // Use a chave da "Nova Browser key" que você configurou no Google Cloud
+        // Use a sua chave da "Nova Browser key" aqui
         const firebaseConfig = {
-            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI", 
+            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
             authDomain: "fichasrpg-7fc69.firebaseapp.com",
             projectId: "fichasrpg-7fc69",
             storageBucket: "fichasrpg-7fc69.firebasestorage.app",
@@ -65,7 +73,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Monitor de Login
+        // Monitor de Estado de Login
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -78,25 +86,23 @@
             }
         });
 
-        // Função de Login que estava dando erro de "not defined"
         function fazerLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                alert("Erro ao logar: " + error.message);
-                console.error(error);
-            });
+            auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
         }
 
-        async function criarNovaFicha() {
-            const user = auth.currentUser;
-            const ref = await db.collection("fichas").add({
-                dono: user.uid,
-                nome: "Novo Agente",
-                nex: "5%"
-            });
-            window.location.href = `ficha.html?id=${ref.id}`;
+        // Funções de Troca de Aba
+        function abaHub(tipo) {
+            document.getElementById('hub-jogador').style.display = tipo === 'jogador' ? 'block' : 'none';
+            document.getElementById('hub-mestre').style.display = tipo === 'mestre' ? 'block' : 'none';
+            
+            document.getElementById('btn-jog').classList.toggle('active', tipo === 'jogador');
+            document.getElementById('btn-mes').classList.toggle('active', tipo === 'mestre');
+
+            if(tipo === 'mestre') carregarMonitorMestre();
         }
 
+        // Carrega apenas as fichas do usuário logado
         function carregarFichas(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
                 const container = document.getElementById('lista-fichas');
@@ -109,6 +115,41 @@
                     </a>`;
                 });
             });
+        }
+
+        // Carrega TODAS as fichas para o Mestre
+        function carregarMonitorMestre() {
+            db.collection("fichas").onSnapshot(snap => {
+                const container = document.getElementById('monitor-mestre');
+                container.innerHTML = "";
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    container.innerHTML += `
+                        <div class="monitor-row">
+                            <div>
+                                <strong>${d.nome || 'Agente'}</strong><br>
+                                <small style="color:#888">${d.classe || 'Sem Classe'} - ${d.nex || '5%'}</small>
+                            </div>
+                            <div style="text-align:right">
+                                <span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | 
+                                <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span>
+                                <br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9; font-size:12px;">Abrir Ficha</a>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        async function criarNovaFicha() {
+            const user = auth.currentUser;
+            const ref = await db.collection("fichas").add({
+                dono: user.uid,
+                nome: "Novo Agente",
+                nex: "5%",
+                vidaAtual: 20, vidaMax: 20,
+                sanAtual: 20, sanMax: 20
+            });
+            window.location.href = `ficha.html?id=${ref.id}`;
         }
     </script>
 </body>
