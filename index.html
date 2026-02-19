@@ -21,6 +21,22 @@
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite'; font-size: 16px; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
         .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
+        /* Estilo do botão de excluir no card */
+.delete-btn {
+    background: #441111;
+    color: #ff4444;
+    border: 1px solid #661111;
+    padding: 4px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+.delete-btn:hover {
+    background: #ff4444;
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -110,15 +126,23 @@
         }
 
         function carregarFichas(uid) {
-            db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
-                const container = document.getElementById('lista-fichas');
-                container.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    container.innerHTML += `<a href="ficha.html?id=${doc.id}" class="card"><strong>${d.nome || 'Sem Nome'}</strong><br><small>${d.nex || '5%'}</small></a>`;
-                });
-            });
-        }
+    db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
+        const container = document.getElementById('lista-fichas');
+        container.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            container.innerHTML += `
+                <div class="card" style="position: relative;">
+                    <a href="ficha.html?id=${doc.id}" style="text-decoration: none; color: inherit;">
+                        <strong>${d.nome || 'Sem Nome'}</strong><br>
+                        <small>NEX: ${d.nex || '5%'}</small>
+                    </a>
+                    <br>
+                    <button class="delete-btn" onclick="confirmarExclusao('${doc.id}', '${d.nome}')">Excluir Ficha</button>
+                </div>`;
+        });
+    });
+}
 
         function carregarMonitorMestre() {
             db.collection("fichas").onSnapshot(snap => {
@@ -138,6 +162,27 @@
                 vidaAtual: 20, vidaMax: 20, sanAtual: 20, sanMax: 20
             });
             window.location.href = `ficha.html?id=${ref.id}`;
+            async function confirmarExclusao(id, nome) {
+    // Primeira confirmação padrão
+    const primeiraConfirmacao = confirm(`Você tem certeza que deseja excluir a ficha de "${nome}"?`);
+    
+    if (primeiraConfirmacao) {
+        // Segunda confirmação com digitação
+        const palavraSeguranca = prompt(`Para confirmar a exclusão PERMANENTE, digite EXCLUIR no campo abaixo:`);
+        
+        if (palavraSeguranca === "EXCLUIR") {
+            try {
+                await db.collection("fichas").doc(id).delete();
+                alert("Ficha eliminada dos arquivos da C.R.I.S.");
+            } catch (error) {
+                console.error("Erro ao deletar:", error);
+                alert("Erro ao excluir ficha. Verifique suas permissões.");
+            }
+        } else {
+            alert("Exclusão cancelada. A palavra de segurança não foi digitada corretamente.");
+        }
+    }
+}
         }
     </script>
 </body>
