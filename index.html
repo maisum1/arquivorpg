@@ -21,20 +21,7 @@
         .tab-btn { background: transparent; border: none; color: #666; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite'; font-size: 16px; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
         .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
-        
-        /* Botão de Excluir */
-        .delete-btn {
-            background: #441111;
-            color: #ff4444;
-            border: 1px solid #661111;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-            border-radius: 3px;
-            margin-top: 15px;
-            font-family: 'Special Elite';
-            transition: 0.3s;
-        }
+        .delete-btn { background: #441111; color: #ff4444; border: 1px solid #661111; padding: 4px 8px; font-size: 10px; cursor: pointer; border-radius: 3px; margin-top: 15px; font-family: 'Special Elite'; transition: 0.3s; }
         .delete-btn:hover { background: #ff4444; color: white; }
     </style>
 </head>
@@ -58,7 +45,7 @@
             <div id="monitor-mestre"></div>
         </div>
         <br><br>
-        <button onclick="firebase.auth().signOut()" style="background:transparent; color:gray; border:none; cursor:pointer; font-family: sans-serif;">Sair da Conta</button>
+        <button onclick="firebase.auth().signOut().then(() => location.reload())" style="background:transparent; color:gray; border:none; cursor:pointer; font-family: sans-serif;">Sair da Conta</button>
     </div>
 
     <script>
@@ -79,12 +66,10 @@
         auth.onAuthStateChanged(user => {
             const loginScreen = document.getElementById('login-screen');
             const dashboard = document.getElementById('dashboard');
-
             if (user) {
                 loginScreen.style.display = 'none';
                 dashboard.style.display = 'block';
                 document.getElementById('welcome').innerText = "Agente: " + user.displayName;
-                
                 if (user.email === emailMestre && !document.getElementById('btn-mes')) {
                     const btn = document.createElement('button');
                     btn.id = 'btn-mes';
@@ -98,15 +83,22 @@
             } else {
                 loginScreen.style.display = 'flex';
                 dashboard.style.display = 'none';
-                const btnMes = document.getElementById('btn-mes');
-                if(btnMes) btnMes.remove();
             }
         });
 
-        function fazerLogin() {
+        async function fazerLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-            auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
+            try {
+                // Tenta primeiro o popup, se falhar ou fechar, ele tenta o redirect
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/popup-blocked') {
+                    auth.signInWithRedirect(provider);
+                } else {
+                    alert("Erro no login: " + error.message);
+                }
+            }
         }
 
         function abaHub(tipo) {
@@ -141,12 +133,10 @@
                 if (check === "EXCLUIR") {
                     try {
                         await db.collection("fichas").doc(id).delete();
-                        alert("Arquivo deletado com sucesso.");
+                        alert("Arquivo deletado.");
                     } catch (e) {
                         alert("Erro ao deletar: " + e.message);
                     }
-                } else {
-                    alert("Ação cancelada. Texto incorreto.");
                 }
             }
         }
@@ -157,7 +147,7 @@
                 container.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    container.innerHTML += `<div class="monitor-row"><div><strong>${d.nome || 'Agente'}</strong><br><small>${d.nex || '5%'}</small></div><div style="text-align:right"><span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span><br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9">ABRIR</a></div></div>`;
+                    container.innerHTML += `<div class="monitor-row"><div><strong>${d.nome || 'Agente'}</strong><br><small>${d.nex || '5%'}</small></div><div style="text-align:right"><span style="color:#b31d1d">PV: ${d.vidaAtual ?? 0}/${d.vidaMax ?? 0}</span> | <span style="color:#034374">SAN: ${d.sanAtual ?? 0}/${d.sanMax ?? 0}</span><br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9">ABRIR</a></div></div>`;
                 });
             });
         }
