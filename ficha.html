@@ -136,7 +136,6 @@
         .card-body { padding: 15px; display: none; border-top: 1px solid #222; }
         .cris-textarea { width: 100%; background: #080808; border: 1px solid #333; color: #ccc; font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; }
         .cris-btn { background: var(--cris-purple); border: none; color: #fff; padding: 8px 16px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 2px; }
-        .cris-btn:hover { background: var(--cris-purple) !important; border-color: var(--cris-purple); }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -145,11 +144,6 @@
 
 <div class="grid-container">
     <section>
-        <div style="margin-bottom: 20px;">
-            <button onclick="window.location.href='index.html'" class="cris-btn" style="background: #222; border: 1px solid #444; display: flex; align-items: center; gap: 8px;">
-                <span>←</span> VOLTAR AO HUB
-            </button>
-        </div>
         <div style="display:flex; gap:15px; align-items:flex-end;">
             <input type="text" id="nome-personagem" class="header-name" placeholder="NOME DO AGENTE" onchange="salvarFicha()" style="flex:1;">
             
@@ -379,59 +373,41 @@
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             const d = doc.data();
             if(!d) return;
-            
-            // PROTEÇÃO CONTRA UNDEFINED NOS CAMPOS DE TEXTO E NÚMEROS GERAIS
             document.getElementById('nome-personagem').value = d.nome || "";
             document.getElementById('origem-personagem').value = d.origem || "";
             document.getElementById('classe-personagem').value = d.classe || "";
             document.getElementById('idade-personagem').value = d.idade || 0;
-            
-            ['agi','for','int','pre','vig'].forEach(a => { 
-                if(document.getElementById(`attr-${a}`)) {
-                    document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 1;
-                } 
-            });
-
+            ['agi','for','int','pre','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) document.getElementById(`attr-${a}`).value = d[a] });
             document.getElementById('nivel-personagem').value = d.nivel || 1;
             document.getElementById('nex-personagem').value = d.nex || "5%";
             document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
-
-            // PROTEÇÃO NAS BARRAS DE STATUS
-            atualizarStatus('vida', d.vidaAtual ?? 20, d.vidaMax ?? 20);
-            atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
-            atualizarStatus('pe', d.peAtual ?? 5, d.peMax ?? 5);
-
+            atualizarStatus('vida', d.vidaAtual, d.vidaMax);
+            atualizarStatus('san', d.sanAtual, d.sanMax);
+            atualizarStatus('pe', d.peAtual, d.peMax);
             let fortTreino = 0;
             if(d.pericias) {
-                nomesPericias.forEach(p => {
+                Object.keys(d.pericias).forEach(p => {
                     const bField = document.getElementById(`bonus-${p}`);
                     const tField = document.getElementById(`treino-${p}`);
-                    const dadosPericia = d.pericias[p] || { bonus: 0, treino: 0 };
-                    
-                    if(bField) bField.value = dadosPericia.bonus ?? 0;
+                    if(bField) bField.value = d.pericias[p].bonus || 0;
                     if(tField) {
-                        tField.value = dadosPericia.treino ?? 0;
+                        tField.value = d.pericias[p].treino || 0;
                         atualizarCorPericia(p, tField.value);
                         if(p === "Fortitude") fortTreino = parseInt(tField.value);
                     }
                 });
             }
-
             document.getElementById('info-prot').value = d.protecao || "";
             document.getElementById('info-res').value = d.resistencias || "";
             document.getElementById('info-prof').value = d.proficiencias || "";
-
-            // CÁLCULOS DE DEFESA COM PROTEÇÃO
             const bDef = parseInt(d.bonusDefesa) || 0;
             const bEsq = parseInt(d.bonusEsquiva) || 0;
             const bBloq = parseInt(d.bonusBloqueio) || 0;
             const bDt = parseInt(d.bonusDt) || 0;
-
             document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
             document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
             document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
             document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
-
             const defBase = 10 + (parseInt(d.agi) || 0);
             document.getElementById('display-defesa').innerText = defBase + bDef;
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
@@ -443,14 +419,11 @@
     function salvarFicha() {
         const periciasObj = {};
         nomesPericias.forEach(p => {
-            const bVal = document.getElementById(`bonus-${p}`) ? document.getElementById(`bonus-${p}`).value : 0;
-            const tVal = document.getElementById(`treino-${p}`) ? document.getElementById(`treino-${p}`).value : 0;
             periciasObj[p] = {
-                bonus: parseInt(bVal) || 0,
-                treino: parseInt(tVal) || 0
+                bonus: parseInt(document.getElementById(`bonus-${p}`).value) || 0,
+                treino: parseInt(document.getElementById(`treino-${p}`).value) || 0
             };
         });
-
         db.collection("fichas").doc(atual).update({
             nome: document.getElementById('nome-personagem').value,
             origem: document.getElementById('origem-personagem').value,
@@ -492,20 +465,15 @@
     }
 
     function atualizarStatus(tipo, at, mx) {
-        const inputAt = document.getElementById(`${tipo}-atual`);
-        const inputMx = document.getElementById(`${tipo}-max`);
-        const bar = document.getElementById(`bar-${tipo}`);
-        if(inputAt) inputAt.value = at;
-        if(inputMx) inputMx.value = mx;
-        if(bar) bar.style.width = Math.min((at / mx) * 100, 100) + "%";
+        document.getElementById(`${tipo}-atual`).value = at;
+        document.getElementById(`${tipo}-max`).value = mx;
+        document.getElementById(`bar-${tipo}`).style.width = Math.min((at / mx) * 100, 100) + "%";
     }
 
     function ajustar(tipo, v) {
         const input = document.getElementById(`${tipo}-atual`);
-        if(input) {
-            input.value = (parseInt(input.value) || 0) + v;
-            salvarFicha();
-        }
+        input.value = parseInt(input.value) + v;
+        salvarFicha();
     }
 
     function carregarRituais() {
@@ -514,7 +482,7 @@
             container.innerHTML = "";
             snap.forEach(doc => {
                 const r = doc.data();
-                container.innerHTML += `<div class="ritual-card" data-elem="${r.elemento}"><div class="card-header" onclick="toggleElem('rit-${doc.id}')"><span>${r.nome || 'Sem nome'}</span> <span style="font-size:10px; opacity:0.6">${r.elemento}</span></div><div class="card-body" id="rit-${doc.id}"><div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" class="treino-select" value="${r.nome || ''}" onchange="updateSub('${doc.id}', 'rituais', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;"><select class="treino-select" onchange="updateSub('${doc.id}', 'rituais', 'elemento', this.value)"><option ${r.elemento=='Morte'?'selected':''}>Morte</option><option ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option ${r.elemento=='Energia'?'selected':''}>Energia</option><option ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div><textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'rituais')">Remover</button></div></div></div>`;
+                container.innerHTML += `<div class="ritual-card" data-elem="${r.elemento}"><div class="card-header" onclick="toggleElem('rit-${doc.id}')"><span>${r.nome}</span> <span style="font-size:10px; opacity:0.6">${r.elemento}</span></div><div class="card-body" id="rit-${doc.id}"><div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" class="treino-select" value="${r.nome}" onchange="updateSub('${doc.id}', 'rituais', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;"><select class="treino-select" onchange="updateSub('${doc.id}', 'rituais', 'elemento', this.value)"><option ${r.elemento=='Morte'?'selected':''}>Morte</option><option ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option ${r.elemento=='Energia'?'selected':''}>Energia</option><option ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div><textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'rituais')">Remover</button></div></div></div>`;
             });
         });
     }
@@ -525,7 +493,7 @@
             container.innerHTML = "";
             snap.forEach(doc => {
                 const p = doc.data();
-                container.innerHTML += `<div class="ritual-card" data-elem="${p.elemento}"><div class="card-header" onclick="toggleElem('pod-${doc.id}')"><span>${p.nome || 'Sem nome'}</span> <span style="font-size:10px; opacity:0.6">${p.elemento}</span></div><div class="card-body" id="pod-${doc.id}"><div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" class="treino-select" value="${p.nome || ''}" onchange="updateSub('${doc.id}', 'poderes', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;"><select class="treino-select" onchange="updateSub('${doc.id}', 'poderes', 'elemento', this.value)"><option ${p.elemento=='Morte'?'selected':''}>Morte</option><option ${p.elemento=='Sangue'?'selected':''}>Sangue</option><option ${p.elemento=='Energia'?'selected':''}>Energia</option><option ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option ${p.elemento=='Geral'?'selected':''}>Geral</option></select></div><textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'poderes')">Remover</button></div></div></div>`;
+                container.innerHTML += `<div class="ritual-card" data-elem="${p.elemento}"><div class="card-header" onclick="toggleElem('pod-${doc.id}')"><span>${p.nome}</span> <span style="font-size:10px; opacity:0.6">${p.elemento}</span></div><div class="card-body" id="pod-${doc.id}"><div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" class="treino-select" value="${p.nome}" onchange="updateSub('${doc.id}', 'poderes', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;"><select class="treino-select" onchange="updateSub('${doc.id}', 'poderes', 'elemento', this.value)"><option ${p.elemento=='Morte'?'selected':''}>Morte</option><option ${p.elemento=='Sangue'?'selected':''}>Sangue</option><option ${p.elemento=='Energia'?'selected':''}>Energia</option><option ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option ${p.elemento=='Geral'?'selected':''}>Geral</option></select></div><textarea class="cris-textarea" onchange="updateSub('${doc.id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'poderes')">Remover</button></div></div></div>`;
             });
         });
     }
@@ -536,7 +504,7 @@
             container.innerHTML = "";
             snap.forEach(doc => {
                 const h = doc.data();
-                container.innerHTML += `<div class="ritual-card"><div class="card-header" onclick="toggleElem('hab-${doc.id}')"><span>${h.nome || 'Sem nome'}</span></div><div class="card-body" id="hab-${doc.id}"><input type="text" class="treino-select" value="${h.nome || ''}" onchange="updateSub('${doc.id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;"><textarea class="cris-textarea" placeholder="Descrição..." onchange="updateSub('${doc.id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'habilidades')">Remover</button></div></div></div>`;
+                container.innerHTML += `<div class="ritual-card"><div class="card-header" onclick="toggleElem('hab-${doc.id}')"><span>${h.nome}</span></div><div class="card-body" id="hab-${doc.id}"><input type="text" class="treino-select" value="${h.nome}" onchange="updateSub('${doc.id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;"><textarea class="cris-textarea" placeholder="Descrição..." onchange="updateSub('${doc.id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="background:#444" onclick="removerSub('${doc.id}', 'habilidades')">Remover</button></div></div></div>`;
             });
         });
     }
@@ -546,21 +514,26 @@
     async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
     async function updateSub(id, col, campo, valor) { let o = {}; o[campo] = valor; await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); }
     async function removerSub(id, col) { if(confirm("Excluir?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
-    
-    function toggleElem(id) { 
-        const b = document.getElementById(id); 
-        if(b) b.style.display = b.style.display === 'block' ? 'none' : 'block'; 
-    }
-    
+    function toggleElem(id) { const b = document.getElementById(id); b.style.display = b.style.display === 'block' ? 'none' : 'block'; }
     function mudarAba(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        const aba = document.getElementById('aba-' + id);
-        if(aba) aba.classList.add('active');
-        if(event && event.currentTarget) event.currentTarget.classList.add('active');
+        document.getElementById('aba-' + id).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
     init();
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
