@@ -22,7 +22,6 @@
         .tab-btn.active { color: white; border-bottom: 2px solid #6d28d9; }
         .monitor-row { background: #111; padding: 15px; border-left: 4px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-align: left; }
         
-        /* Botão de Excluir */
         .delete-btn {
             background: #441111;
             color: #ff4444;
@@ -74,7 +73,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const emailMestre = "pedroacpr@gmail.com"; 
+        const emailMestre = "SEU_EMAIL_AQUI@GMAIL.COM"; 
 
         auth.onAuthStateChanged(user => {
             const loginScreen = document.getElementById('login-screen');
@@ -106,7 +105,8 @@
         function fazerLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-            auth.signInWithPopup(provider).catch(error => alert("Erro: " + error.message));
+            // Alterado de Popup para Redirect para maior estabilidade
+            auth.signInWithRedirect(provider).catch(error => alert("Erro: " + error.message));
         }
 
         function abaHub(tipo) {
