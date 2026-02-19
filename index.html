@@ -11,7 +11,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         body { background: #000; color: white; font-family: 'Special Elite', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        #login-screen { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
+        #login-screen { display: none; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
         h1 { font-size: 3.5rem; letter-spacing: 8px; margin: 0; }
         .btn-google { background: white; color: black; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: sans-serif; }
         #dashboard { display: none; width: 90%; max-width: 800px; text-align: center; }
@@ -32,20 +32,16 @@
 
     <div id="dashboard">
         <h2 id="welcome">Agente Conectado</h2>
-        
         <div id="menu-abas" style="margin-bottom: 30px;">
             <button id="btn-jog" class="tab-btn active" onclick="abaHub('jogador')">Meus Agentes</button>
-            </div>
-
+        </div>
         <div id="hub-jogador">
             <div class="grid" id="lista-fichas"></div>
             <button class="btn-google" onclick="criarNovaFicha()" style="margin-top:30px; background:#222; color:white; border:1px solid #444;">+ Novo Agente</button>
         </div>
-
         <div id="hub-mestre" style="display:none;">
             <div id="monitor-mestre"></div>
         </div>
-
         <br><br>
         <button onclick="firebase.auth().signOut()" style="background:transparent; color:gray; border:none; cursor:pointer; font-family: sans-serif;">Sair da Conta</button>
     </div>
@@ -63,7 +59,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // --- AJUSTE O SEU EMAIL AQUI ---
+        // --- CONFIGURAÇÃO DO MESTRE ---
         const emailMestre = "pedroacpr@gmail.com"; 
         // ------------------------------
 
@@ -76,7 +72,6 @@
                 dashboard.style.display = 'block';
                 document.getElementById('welcome').innerText = "Agente: " + user.displayName;
                 
-                // Se for o mestre, cria o botão se ele ainda não existir
                 if (user.email === emailMestre && !document.getElementById('btn-mes')) {
                     const btn = document.createElement('button');
                     btn.id = 'btn-mes';
@@ -86,39 +81,31 @@
                     btn.onclick = () => abaHub('mestre');
                     document.getElementById('menu-abas').appendChild(btn);
                 }
-
                 carregarFichas(user.uid);
             } else {
-                // Em vez de dar reload, apenas mostramos a tela de login e escondemos o lobby
                 loginScreen.style.display = 'flex';
                 dashboard.style.display = 'none';
-                
-                // Remove o botão do mestre se ele existir (para segurança)
                 const btnMes = document.getElementById('btn-mes');
                 if(btnMes) btnMes.remove();
             }
         });
 
-                carregarFichas(user.uid);
-            } else {
-                location.reload(); // Recarrega para limpar tudo ao sair
-            }
-        });
-
         function fazerLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => alert(error.message));
+            // Força a seleção de conta para evitar bugs de pop-up travado
+            provider.setCustomParameters({ prompt: 'select_account' });
+            
+            auth.signInWithPopup(provider).catch(error => {
+                console.error("Erro no login:", error);
+                alert("Erro ao abrir login: " + error.message);
+            });
         }
 
         function abaHub(tipo) {
             document.getElementById('hub-jogador').style.display = tipo === 'jogador' ? 'block' : 'none';
             document.getElementById('hub-mestre').style.display = tipo === 'mestre' ? 'block' : 'none';
-            
             document.getElementById('btn-jog').classList.toggle('active', tipo === 'jogador');
-            if(document.getElementById('btn-mes')) {
-                document.getElementById('btn-mes').classList.toggle('active', tipo === 'mestre');
-            }
-
+            if(document.getElementById('btn-mes')) document.getElementById('btn-mes').classList.toggle('active', tipo === 'mestre');
             if(tipo === 'mestre') carregarMonitorMestre();
         }
 
@@ -128,10 +115,7 @@
                 container.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    container.innerHTML += `<a href="ficha.html?id=${doc.id}" class="card">
-                        <strong>${d.nome || 'Sem Nome'}</strong><br>
-                        <small>NEX: ${d.nex || '5%'}</small>
-                    </a>`;
+                    container.innerHTML += `<a href="ficha.html?id=${doc.id}" class="card"><strong>${d.nome || 'Sem Nome'}</strong><br><small>${d.nex || '5%'}</small></a>`;
                 });
             });
         }
@@ -142,15 +126,7 @@
                 container.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    container.innerHTML += `
-                        <div class="monitor-row">
-                            <div><strong>${d.nome || 'Agente'}</strong><br><small>${d.nex || '5%'}</small></div>
-                            <div style="text-align:right">
-                                <span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | 
-                                <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span>
-                                <br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9">ABRIR</a>
-                            </div>
-                        </div>`;
+                    container.innerHTML += `<div class="monitor-row"><div><strong>${d.nome || 'Agente'}</strong><br><small>${d.nex || '5%'}</small></div><div style="text-align:right"><span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span><br><a href="ficha.html?id=${doc.id}" style="color:#6d28d9">ABRIR</a></div></div>`;
                 });
             });
         }
@@ -158,11 +134,8 @@
         async function criarNovaFicha() {
             const user = auth.currentUser;
             const ref = await db.collection("fichas").add({
-                dono: user.uid,
-                nome: "Novo Agente",
-                nex: "5%",
-                vidaAtual: 20, vidaMax: 20,
-                sanAtual: 20, sanMax: 20
+                dono: user.uid, nome: "Novo Agente", nex: "5%",
+                vidaAtual: 20, vidaMax: 20, sanAtual: 20, sanMax: 20
             });
             window.location.href = `ficha.html?id=${ref.id}`;
         }
