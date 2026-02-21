@@ -131,14 +131,7 @@
             outline: none;
         }
 
-        /* NOVOS BOTÕES DE ESTADO E SEQUELAS */
-        .status-btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 15px; margin-bottom: 10px; }
-        .btn-status { background: #1a1a1a; border: 1px solid #333; color: #666; padding: 6px; cursor: pointer; font-size: 9px; font-weight: bold; text-transform: uppercase; transition: 0.2s; border-radius: 3px; }
-        .btn-status.active { background: var(--cris-purple); color: #fff; border-color: #fff; }
-        .btn-status.danger.active { background: var(--hp-red); }
-        .lesao-ui { background: rgba(255,255,255,0.03); padding: 10px; margin-top: 8px; border-radius: 4px; border: 1px solid #222; display: none; }
-
-        /* ATRIBUTOS HEXÁGONO (Adaptado para Círculo) */
+        /* ATRIBUTOS HEXÁGONO */
         .sigilo-container {
             position: relative;
             width: 260px;
@@ -254,6 +247,71 @@
 
         .bar-btn:hover { opacity: 1; }
 
+        /* ESTILOS DOS NOVOS BOTÕES DE ESTADO */
+        .container-estados {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #222;
+        }
+
+        .btn-estado {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #666;
+            padding: 10px;
+            cursor: pointer;
+            font-family: 'Special Elite';
+            font-size: 13px;
+            text-align: center;
+            transition: 0.3s;
+            border-radius: 4px;
+        }
+
+        .btn-estado.active {
+            background: var(--cris-purple);
+            color: white;
+            border-color: #fff;
+        }
+
+        .area-selecao {
+            display: none;
+            padding: 10px;
+            background: #000;
+            border: 1px dashed #333;
+            border-radius: 4px;
+            margin-top: -5px;
+        }
+
+        .morrendo-checks {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .morrendo-checks label {
+            font-size: 10px;
+            color: #888;
+            font-weight: bold;
+        }
+
+        .treino-select {
+            background: #0a0a0a;
+            color: #ccc;
+            border: 1px solid #333;
+            font-size: 11px;
+            text-align: center;
+            width: 100%;
+            border-radius: 2px;
+            outline: none;
+            padding: 5px;
+        }
+
         .pericias-box {
             background: rgba(255,255,255,0.02);
             padding: 15px;
@@ -300,18 +358,6 @@
             color: #aaa;
             margin-bottom: 4px;
             line-height: 1.4;
-        }
-
-        .treino-select {
-            background: #0a0a0a;
-            color: #ccc;
-            border: 1px solid #333;
-            font-size: 11px;
-            text-align: center;
-            width: 100%;
-            border-radius: 2px;
-            outline: none;
-            padding: 2px;
         }
 
         .p-verde { background: rgba(34, 197, 94, 0.1) !important; }
@@ -392,13 +438,6 @@
             border-radius: 0 4px 4px 0;
             overflow: hidden;
         }
-        
-        /* CORES POR ELEMENTO (Para Rituais/Poderes) */
-        .elem-morte { border-left-color: var(--cor-morte) !important; }
-        .elem-sangue { border-left-color: var(--cor-sangue) !important; }
-        .elem-energia { border-left-color: var(--cor-energia) !important; }
-        .elem-conhecimento { border-left-color: var(--cor-conhecimento) !important; }
-        .elem-medo { border-left-color: var(--cor-medo) !important; }
 
         .card-header {
             padding: 12px;
@@ -409,8 +448,6 @@
             align-items: center;
             font-family: 'Special Elite';
         }
-
-        .card-header:hover { background: rgba(255,255,255,0.05); }
 
         .card-body {
             padding: 15px;
@@ -443,8 +480,6 @@
             text-transform: uppercase;
         }
 
-        .cris-btn:hover { filter: brightness(1.2); }
-        
         .card-input {
             background: transparent;
             border: none;
@@ -498,37 +533,7 @@
             <div class="elem-box" style="border-color: var(--cor-medo)">Medo<br><input type="number" id="elem-medo" onchange="salvarFicha()"></div>
         </div>
 
-        <div class="status-btn-group">
-            <button id="btn-enlouquecendo" class="btn-status danger" onclick="toggleEstado('enlouquecendo')">Enlouquecendo</button>
-            <button id="btn-morrendo" class="btn-status danger" onclick="toggleEstado('morrendo')">Morrendo</button>
-            <button id="btn-lesionado" class="btn-status" onclick="toggleEstado('lesionado')">Lesionado</button>
-        </div>
-
-        <div id="ui-morrendo" class="lesao-ui">
-            <span style="font-size:9px; color:#888; font-weight:bold;">TURNOS EM MORRENDO:</span>
-            <input type="number" id="turnos-morrendo" class="treino-select" style="font-size:14px; color:var(--hp-red); border:none; border-bottom:1px solid #333;" onchange="salvarFicha()">
-        </div>
-
-        <div id="ui-lesionado" class="lesao-ui">
-            <span style="font-size:9px; color:#888; font-weight:bold;">LOCAL DA LESÃO:</span>
-            <select id="local-lesao" class="treino-select" style="text-align:left; padding:5px; font-size:12px; margin-top:5px;" onchange="salvarFicha()">
-                <option value="Membros Superiores">Membros Superiores</option>
-                <option value="Membros Inferiores">Membros Inferiores</option>
-                <option value="Tórax">Tórax</option>
-                <option value="Crânio">Crânio</option>
-            </select>
-        </div>
-
-        <div style="margin-top:10px; background: rgba(255,255,255,0.03); padding: 10px; border: 1px solid #222; border-radius: 4px;">
-            <label style="font-size:11px; cursor:pointer; font-weight:bold; color:#ccc;">
-                <input type="checkbox" id="tem-sequela" onchange="toggleSequela()"> SEQUELA PERMANENTE
-            </label>
-            <div id="ui-sequela" style="display:none; margin-top:10px;">
-                <textarea id="desc-sequela" class="cris-textarea" style="min-height:50px; font-size:11px; padding:5px;" placeholder="Descreva a sequela..." onchange="salvarFicha()"></textarea>
-            </div>
-        </div>
-
-        <div class="sigilo-container" style="margin-top:20px;">
+        <div class="sigilo-container">
             <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="salvarFicha()"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
             <div class="attr-box int"><span class="attr-label">INT</span><input type="number" id="attr-int" onchange="salvarFicha()"></div>
@@ -542,9 +547,7 @@
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content">
                     <span class="bar-btn" onclick="ajustar('vida', -1)">-</span>
-                    <div>
-                        <input type="number" id="vida-atual" onchange="salvarFicha()"> / <input type="number" id="vida-max" onchange="salvarFicha()">
-                    </div>
+                    <div><input type="number" id="vida-atual" onchange="salvarFicha()"> / <input type="number" id="vida-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('vida', 1)">+</span>
                 </div>
             </div>
@@ -556,9 +559,7 @@
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content">
                     <span class="bar-btn" onclick="ajustar('san', -1)">-</span>
-                    <div>
-                        <input type="number" id="san-atual" onchange="salvarFicha()"> / <input type="number" id="san-max" onchange="salvarFicha()">
-                    </div>
+                    <div><input type="number" id="san-atual" onchange="salvarFicha()"> / <input type="number" id="san-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">+</span>
                 </div>
             </div>
@@ -570,11 +571,38 @@
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content">
                     <span class="bar-btn" onclick="ajustar('pe', -1)">-</span>
-                    <div>
-                        <input type="number" id="pe-atual" onchange="salvarFicha()"> / <input type="number" id="pe-max" onchange="salvarFicha()">
-                    </div>
+                    <div><input type="number" id="pe-atual" onchange="salvarFicha()"> / <input type="number" id="pe-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('pe', 1)">+</span>
                 </div>
+            </div>
+        </div>
+
+        <div class="container-estados">
+            <button id="btn-enlouquecendo" class="btn-estado" onclick="toggleEstado('enlouquecendo')">Enlouquecendo</button>
+            
+            <button id="btn-morrendo" class="btn-estado" onclick="toggleEstado('morrendo')">Morrendo</button>
+            <div id="ui-morrendo" class="area-selecao">
+                <div class="morrendo-checks">
+                    <label>T1 <input type="checkbox" id="m-t1" onchange="salvarFicha()"></label>
+                    <label>T2 <input type="checkbox" id="m-t2" onchange="salvarFicha()"></label>
+                    <label>T3 <input type="checkbox" id="m-t3" onchange="salvarFicha()"></label>
+                </div>
+            </div>
+
+            <button id="btn-lesionado" class="btn-estado" onclick="toggleEstado('lesionado')">Lesionado</button>
+            <div id="ui-lesionado" class="area-selecao">
+                <select id="local-lesionado" class="treino-select" onchange="salvarFicha()">
+                    <option value="">Selecionar Local...</option>
+                    <option value="Membros Superiores">Membros Superiores</option>
+                    <option value="Membros Inferiores">Membros Inferiores</option>
+                    <option value="Tórax">Tórax</option>
+                    <option value="Crânio">Crânio</option>
+                </select>
+            </div>
+
+            <button id="btn-sequela" class="btn-estado" onclick="toggleEstado('sequela')">Sequelas Permanentes</button>
+            <div id="ui-sequela" class="area-selecao">
+                <textarea id="desc-sequela" class="cris-textarea" placeholder="Descreva a sequela..." onchange="salvarFicha()"></textarea>
             </div>
         </div>
     </section>
@@ -582,11 +610,7 @@
     <section class="pericias-box">
         <h3 style="font-family: 'Special Elite'; margin-top: 0;">PERÍCIAS</h3>
         <div class="pericia-header">
-            <span>Nome</span>
-            <span>Atrib.</span>
-            <span>Bônus</span>
-            <span>Treino</span>
-            <span>Soma</span>
+            <span>Nome</span><span>Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span>
         </div>
         <div id="lista-pericias"></div>
     </section>
@@ -596,58 +620,29 @@
             <button class="tab-btn active" onclick="mudarAba('combate')">Combate</button>
             <button class="tab-btn" onclick="mudarAba('habilidades')">Habilidades</button>
             <button class="tab-btn" onclick="mudarAba('rituais')">Rituais</button>
-            <button class="tab-btn" onclick="mudarAba('poderes')">Poderes</button>
         </nav>
 
         <div id="aba-combate" class="tab-content active">
-            <div class="defesa-grid" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 5px;">
+            <div class="defesa-grid">
                 <div class="defesa-shield" id="display-defesa">10</div>
-                
                 <div class="defesa-colunas">
-                    <div class="def-item">
-                        <label class="def-label">DEFESA EX.</label>
-                        <input type="number" id="bonus-defesa" class="treino-select" style="width: 40px; font-size:14px" value="0" onchange="salvarFicha()">
-                    </div>
-                    <div class="def-item">
-                        <label class="def-label">BLOQUEIO</label>
-                        <div class="def-val-total" id="display-bloqueio">0</div>
-                    </div>
-                    <div class="def-item">
-                        <label class="def-label">ESQUIVA</label>
-                        <div class="def-val-total" id="display-esquiva">10</div>
-                    </div>
+                    <div class="def-item"><span class="def-label">BÔNUS DEFESA</span><input type="number" id="bonus-defesa" class="treino-select" value="0" onchange="salvarFicha()"></div>
+                    <div class="def-item"><span class="def-label">BLOQUEIO</span><div class="def-val-total" id="display-bloqueio">0</div></div>
+                    <div class="def-item"><span class="def-label">ESQUIVA</span><div class="def-val-total" id="display-esquiva">10</div></div>
                 </div>
             </div>
-            
-            <div style="margin-top: 15px;">
-                <label style="font-size: 10px; color: #666; font-weight: bold;">PROTEÇÕES (Itens)</label>
-                <input type="text" id="info-prot" class="header-name" style="font-size: 14px;" placeholder="Ex: Colete Leve (+2)" onchange="salvarFicha()">
-            </div>
-            
-            <div style="margin-top: 15px;">
-                <label style="font-size: 10px; color: #666; font-weight: bold;">RESISTÊNCIAS</label>
-                <input type="text" id="info-res" class="header-name" style="font-size: 14px;" placeholder="Ex: Balística 2, Sangue 5" onchange="salvarFicha()">
-            </div>
-            
-            <div style="margin-top: 20px;">
-                <button class="cris-btn" onclick="novaArma()" style="margin-bottom: 15px;">+ Nova Arma</button>
-                <div id="lista-armas"></div>
-            </div>
+            <div id="lista-armas"></div>
+            <button class="cris-btn" onclick="novaArma()">+ Nova Arma</button>
         </div>
 
         <div id="aba-habilidades" class="tab-content">
-            <button class="cris-btn" onclick="novaHabilidade()" style="margin-bottom: 15px;">+ Nova Habilidade</button>
             <div id="lista-habilidades"></div>
+            <button class="cris-btn" onclick="novaHabilidade()">+ Nova Habilidade</button>
         </div>
 
         <div id="aba-rituais" class="tab-content">
-            <button class="cris-btn" onclick="novoRitual()" style="margin-bottom: 15px;">+ Novo Ritual</button>
             <div id="lista-rituais"></div>
-        </div>
-        
-        <div id="aba-poderes" class="tab-content">
-            <button class="cris-btn" onclick="novoPoder()" style="margin-bottom: 15px;">+ Novo Poder</button>
-            <div id="lista-poderes"></div>
+            <button class="cris-btn" onclick="novoRitual()">+ Novo Ritual</button>
         </div>
     </section>
 </div>
@@ -668,11 +663,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     let atual = urlParams.get('id');
     
-    // Armazena os IDs dos menus que o usuário deixou aberto para não fechar sozinho quando o Firebase atualizar
     let menusAbertos = new Set();
-    
-    // ESTADOS
-    let estados = { morrendo: false, enlouquecendo: false, lesionado: false };
+    let estadosAtivos = { enlouquecendo: false, morrendo: false, lesionado: false, sequela: false };
 
     const bancoPericias = {
         "Acrobacia": { attr: "AGI", desc: "Equilíbrio e quedas." },
@@ -712,7 +704,6 @@
             gerarPericiasBase();
             carregarFicha();
             carregarSubColecao("rituais", "lista-rituais", renderRitual);
-            carregarSubColecao("poderes", "lista-poderes", renderPoder);
             carregarSubColecao("habilidades", "lista-habilidades", renderHabilidade);
             carregarSubColecao("armas", "lista-armas", renderArma);
         }
@@ -724,26 +715,30 @@
             return `
             <div class="pericia-row" id="row-${p}">
                 <span class="pericia-nome" onclick="toggleDesc('${p}')">${p}</span>
-                <select id="attr-${p}" class="treino-select" onchange="salvarFicha()" style="border:none; background:transparent;">
-                    <option value="AGI">AGI</option>
-                    <option value="FOR">FOR</option>
-                    <option value="INT">INT</option>
-                    <option value="PRE">PRE</option>
-                    <option value="VIG">VIG</option>
-                </select>
-                <input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()" style="border:none; background:transparent; width:30px">
+                <span style="font-size:10px; color:#666;">${bancoPericias[p].attr}</span>
+                <input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()" style="width:30px">
                 <select id="treino-${p}" class="treino-select" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
-                    <option value="0">0</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="15">15</option>
-                    <option value="20">20</option>
+                    <option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option>
                 </select>
-                <span id="total-${p}" style="font-family:'Special Elite'; color:var(--cris-purple); font-weight:bold;">0</span>
+                <span id="total-${p}" style="font-family:'Special Elite'; color:var(--cris-purple);">0</span>
             </div>
-            <div id="desc-${p}" class="pericia-desc">${bancoPericias[p].desc}</div>
-            `;
+            <div id="desc-${p}" class="pericia-desc">${bancoPericias[p].desc}</div>`;
         }).join('');
+    }
+
+    function toggleEstado(est) {
+        estadosAtivos[est] = !estadosAtivos[est];
+        const btn = document.getElementById('btn-' + est);
+        const ui = document.getElementById('ui-' + est);
+
+        if (estadosAtivos[est]) {
+            btn.classList.add('active');
+            if(ui) ui.style.display = 'block';
+        } else {
+            btn.classList.remove('active');
+            if(ui) ui.style.display = 'none';
+        }
+        salvarFicha();
     }
 
     function carregarFicha() {
@@ -751,40 +746,39 @@
             const d = doc.data();
             if(!d) return;
 
-            // INFO
             document.getElementById('nome-personagem').value = d.nome || "";
             document.getElementById('info-nex').value = d.nex || "";
             document.getElementById('info-classe').value = d.classe || "";
             document.getElementById('info-origem').value = d.origem || "";
-            document.getElementById('info-prot').value = d.protecao || "";
-            document.getElementById('info-res').value = d.resistencia || "";
+            
+            ['agi','for','int','pre','vig'].forEach(a => { if(d[a] !== undefined) document.getElementById(`attr-${a}`).value = d[a]; });
+            ['morte','sangue','energia','conhecimento','medo'].forEach(e => { if(d["elem_"+e] !== undefined) document.getElementById(`elem-${e}`).value = d["elem_"+e]; });
 
-            // ATRIBUTOS
-            ['agi','for','int','pre','vig'].forEach(a => {
-                if(d[a] !== undefined) document.getElementById(`attr-${a}`).value = d[a];
-            });
-
-            // ELEMENTOS
-            ['morte','sangue','energia','conhecimento','medo'].forEach(e => {
-                if(d["elem_"+e] !== undefined) document.getElementById(`elem-${e}`).value = d["elem_"+e];
-            });
-
-            // STATUS BARS
             atualizarStatus('vida', d.vidaAtual ?? 20, d.vidaMax ?? 20);
             atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
             atualizarStatus('pe', d.peAtual ?? 5, d.peMax ?? 5);
 
-            // NOVOS CAMPOS E ESTADOS
-            estados = d.estados || { morrendo: false, enlouquecendo: false, lesionado: false };
-            atualizarBotoesEstado();
-            
-            document.getElementById('turnos-morrendo').value = d.turnosMorrendo || 0;
-            document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
-            document.getElementById('tem-sequela').checked = d.temSequela || false;
+            // Carregar Estados
+            if (d.estadosAtivos) {
+                estadosAtivos = d.estadosAtivos;
+                Object.keys(estadosAtivos).forEach(est => {
+                    const btn = document.getElementById('btn-' + est);
+                    const ui = document.getElementById('ui-' + est);
+                    if (estadosAtivos[est]) {
+                        btn.classList.add('active');
+                        if(ui) ui.style.display = 'block';
+                    } else {
+                        btn.classList.remove('active');
+                        if(ui) ui.style.display = 'none';
+                    }
+                });
+            }
+            document.getElementById('m-t1').checked = d.m_t1 || false;
+            document.getElementById('m-t2').checked = d.m_t2 || false;
+            document.getElementById('m-t3').checked = d.m_t3 || false;
+            document.getElementById('local-lesionado').value = d.localLesionado || "";
             document.getElementById('desc-sequela').value = d.descSequela || "";
-            document.getElementById('ui-sequela').style.display = d.temSequela ? 'block' : 'none';
 
-            // DEFESAS EXTRAS E PERÍCIAS
             let defesaExtra = parseInt(d.bonusDefesa) || 0;
             document.getElementById('bonus-defesa').value = defesaExtra;
             let valAgi = parseInt(d.agi) || 0;
@@ -793,50 +787,20 @@
 
             if(d.pericias) {
                 Object.keys(bancoPericias).forEach(p => {
-                    const pData = d.pericias[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr };
+                    const pData = d.pericias[p] || { bonus: 0, treino: 0 };
                     document.getElementById(`bonus-${p}`).value = pData.bonus;
                     document.getElementById(`treino-${p}`).value = pData.treino;
-                    document.getElementById(`attr-${p}`).value = pData.atributo || bancoPericias[p].attr;
-                    
-                    let atriVal = parseInt(d[pData.atributo.toLowerCase()]) || 0;
-                    let soma = atriVal + parseInt(pData.bonus) + parseInt(pData.treino);
-                    
+                    let soma = valAgi + parseInt(pData.bonus) + parseInt(pData.treino); 
                     document.getElementById(`total-${p}`).innerText = soma;
                     atualizarCorPericia(p, pData.treino);
-
                     if (p === "Reflexos") reflexosTreino = parseInt(pData.treino);
                     if (p === "Fortitude") fortitudeTreino = parseInt(pData.treino);
                 });
             }
-
-            // CALCULO DEFESAS
             document.getElementById('display-defesa').innerText = 10 + valAgi + defesaExtra;
             document.getElementById('display-esquiva').innerText = 10 + valAgi + defesaExtra + reflexosTreino;
             document.getElementById('display-bloqueio').innerText = fortitudeTreino;
         });
-    }
-
-    function toggleEstado(est) {
-        estados[est] = !estados[est];
-        salvarFicha();
-    }
-
-    function atualizarBotoesEstado() {
-        for (let key in estados) {
-            const btn = document.getElementById('btn-' + key);
-            if(btn) {
-                if(estados[key]) btn.classList.add('active');
-                else btn.classList.remove('active');
-            }
-        }
-        document.getElementById('ui-morrendo').style.display = estados.morrendo ? 'block' : 'none';
-        document.getElementById('ui-lesionado').style.display = estados.lesionado ? 'block' : 'none';
-    }
-
-    function toggleSequela() {
-        const checked = document.getElementById('tem-sequela').checked;
-        document.getElementById('ui-sequela').style.display = checked ? 'block' : 'none';
-        salvarFicha();
     }
 
     function salvarFicha() {
@@ -844,8 +808,7 @@
         Object.keys(bancoPericias).forEach(p => {
             periciasObj[p] = {
                 bonus: parseInt(document.getElementById(`bonus-${p}`).value) || 0,
-                treino: parseInt(document.getElementById(`treino-${p}`).value) || 0,
-                atributo: document.getElementById(`attr-${p}`).value
+                treino: parseInt(document.getElementById(`treino-${p}`).value) || 0
             };
         });
 
@@ -854,50 +817,45 @@
             nex: document.getElementById('info-nex').value,
             classe: document.getElementById('info-classe').value,
             origem: document.getElementById('info-origem').value,
-            protecao: document.getElementById('info-prot').value,
-            resistencia: document.getElementById('info-res').value,
-            
             agi: parseInt(document.getElementById('attr-agi').value) || 0,
             for: parseInt(document.getElementById('attr-for').value) || 0,
             int: parseInt(document.getElementById('attr-int').value) || 0,
             pre: parseInt(document.getElementById('attr-pre').value) || 0,
             vig: parseInt(document.getElementById('attr-vig').value) || 0,
-            
             elem_morte: parseInt(document.getElementById('elem-morte').value) || 0,
             elem_sangue: parseInt(document.getElementById('elem-sangue').value) || 0,
             elem_energia: parseInt(document.getElementById('elem-energia').value) || 0,
             elem_conhecimento: parseInt(document.getElementById('elem-conhecimento').value) || 0,
             elem_medo: parseInt(document.getElementById('elem-medo').value) || 0,
-
             vidaAtual: parseInt(document.getElementById('vida-atual').value) || 0,
             vidaMax: parseInt(document.getElementById('vida-max').value) || 1,
             sanAtual: parseInt(document.getElementById('san-atual').value) || 0,
             sanMax: parseInt(document.getElementById('san-max').value) || 1,
             peAtual: parseInt(document.getElementById('pe-atual').value) || 0,
             peMax: parseInt(document.getElementById('pe-max').value) || 1,
-            
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0,
             pericias: periciasObj,
-
-            estados: estados,
-            turnosMorrendo: document.getElementById('turnos-morrendo').value,
-            localLesao: document.getElementById('local-lesao').value,
-            temSequela: document.getElementById('tem-sequela').checked,
+            // Salvar Estados
+            estadosAtivos: estadosAtivos,
+            m_t1: document.getElementById('m-t1').checked,
+            m_t2: document.getElementById('m-t2').checked,
+            m_t3: document.getElementById('m-t3').checked,
+            localLesionado: document.getElementById('local-lesionado').value,
             descSequela: document.getElementById('desc-sequela').value
         });
     }
 
     function ajustar(tipo, valor) {
-        const atual = document.getElementById(`${tipo}-atual`);
-        atual.value = (parseInt(atual.value) || 0) + valor;
+        const el = document.getElementById(`${tipo}-atual`);
+        el.value = (parseInt(el.value) || 0) + valor;
         salvarFicha();
     }
 
     function atualizarStatus(tipo, atual, max) {
         document.getElementById(`${tipo}-atual`).value = atual;
         document.getElementById(`${tipo}-max`).value = max;
-        const perc = max > 0 ? (atual / max) * 100 : 0;
-        document.getElementById(`bar-${tipo}`).style.width = Math.min(Math.max(perc, 0), 100) + "%";
+        const perc = (atual / max) * 100;
+        document.getElementById(`bar-${tipo}`).style.width = Math.min(perc, 100) + "%";
     }
 
     function atualizarCorPericia(nome, valor) {
@@ -914,134 +872,35 @@
         d.style.display = d.style.display === 'block' ? 'none' : 'block';
     }
 
-    // --- SUB COLEÇÕES ---
     function carregarSubColecao(colecao, divId, renderFunc) {
         db.collection("fichas").doc(atual).collection(colecao).onSnapshot(snap => {
             const container = document.getElementById(divId);
             container.innerHTML = "";
-            snap.forEach(doc => {
-                container.innerHTML += renderFunc(doc.id, doc.data(), colecao);
-            });
-            // Reabre os menus que estavam abertos
-            menusAbertos.forEach(id => {
-                const e = document.getElementById(id);
-                if(e) e.style.display = 'block';
-            });
+            snap.forEach(doc => { container.innerHTML += renderFunc(doc.id, doc.data(), colecao); });
         });
     }
 
     function renderRitual(id, r, col) {
-        const isAberto = menusAbertos.has('rit-'+id) ? 'block' : 'none';
-        const cssElem = "elem-" + (r.elemento ? r.elemento.toLowerCase() : 'morte');
-        return `
-        <div class="ritual-card ${cssElem}">
-            <div class="card-header" onclick="toggleElem('rit-${id}')">
-                <input type="text" class="card-input" value="${r.nome || 'Novo Ritual'}" onchange="updateSub('${id}','${col}','nome',this.value)" onclick="event.stopPropagation()">
-                <select class="elem-select" onchange="updateSub('${id}','${col}','elemento',this.value)" onclick="event.stopPropagation()">
-                    <option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option>
-                    <option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option>
-                    <option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option>
-                    <option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
-                    <option value="Medo" ${r.elemento=='Medo'?'selected':''}>Medo</option>
-                </select>
-            </div>
-            <div class="card-body" id="rit-${id}" style="display:${isAberto}">
-                <textarea class="cris-textarea" onchange="updateSub('${id}', '${col}', 'descricao', this.value)" placeholder="Círculo, Execução, Alcance, etc...">${r.descricao || ""}</textarea>
-                <div style="text-align:right; margin-top:5px;">
-                    <button class="cris-btn" style="background:#444;" onclick="removerSub('${id}', '${col}')">Remover</button>
-                </div>
-            </div>
-        </div>`;
-    }
-
-    function renderPoder(id, p, col) {
-        const isAberto = menusAbertos.has('pod-'+id) ? 'block' : 'none';
-        const cssElem = p.elemento ? "elem-" + p.elemento.toLowerCase() : "";
-        return `
-        <div class="ritual-card ${cssElem}" style="border-left-color: ${p.elemento === 'Geral' ? '#555' : ''}">
-            <div class="card-header" onclick="toggleElem('pod-${id}')">
-                <input type="text" class="card-input" value="${p.nome || 'Novo Poder'}" onchange="updateSub('${id}','${col}','nome',this.value)" onclick="event.stopPropagation()">
-                <select class="elem-select" onchange="updateSub('${id}','${col}','elemento',this.value)" onclick="event.stopPropagation()">
-                    <option value="Geral" ${p.elemento=='Geral'?'selected':''}>Geral</option>
-                    <option value="Morte" ${p.elemento=='Morte'?'selected':''}>Morte</option>
-                    <option value="Sangue" ${p.elemento=='Sangue'?'selected':''}>Sangue</option>
-                    <option value="Energia" ${p.elemento=='Energia'?'selected':''}>Energia</option>
-                    <option value="Conhecimento" ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
-                    <option value="Medo" ${p.elemento=='Medo'?'selected':''}>Medo</option>
-                </select>
-            </div>
-            <div class="card-body" id="pod-${id}" style="display:${isAberto}">
-                <textarea class="cris-textarea" onchange="updateSub('${id}', '${col}', 'descricao', this.value)">${p.descricao || ""}</textarea>
-                <div style="text-align:right; margin-top:5px;">
-                    <button class="cris-btn" style="background:#444;" onclick="removerSub('${id}', '${col}')">Remover</button>
-                </div>
-            </div>
-        </div>`;
+        return `<div class="ritual-card"><div class="card-header" onclick="toggleElem('${id}')"><span>${r.nome}</span></div><div class="card-body" id="${id}"><textarea class="cris-textarea" onchange="updateSub('${id}','${col}','descricao',this.value)">${r.descricao}</textarea><button class="cris-btn" onclick="removerSub('${id}','${col}')">Excluir</button></div></div>`;
     }
 
     function renderHabilidade(id, h, col) {
-        const isAberto = menusAbertos.has('hab-'+id) ? 'block' : 'none';
-        return `
-        <div class="ritual-card" style="border-left-color: #555">
-            <div class="card-header" onclick="toggleElem('hab-${id}')">
-                <input type="text" class="card-input" style="width:100%" value="${h.nome || 'Nova Habilidade'}" onchange="updateSub('${id}','${col}','nome',this.value)" onclick="event.stopPropagation()">
-            </div>
-            <div class="card-body" id="hab-${id}" style="display:${isAberto}">
-                <textarea class="cris-textarea" onchange="updateSub('${id}', '${col}', 'descricao', this.value)">${h.descricao || ""}</textarea>
-                <div style="text-align:right; margin-top:5px;">
-                    <button class="cris-btn" style="background:#444;" onclick="removerSub('${id}', '${col}')">Remover</button>
-                </div>
-            </div>
-        </div>`;
+        return `<div class="ritual-card"><div class="card-header" onclick="toggleElem('${id}')"><span>${h.nome}</span></div><div class="card-body" id="${id}"><textarea class="cris-textarea" onchange="updateSub('${id}','${col}','descricao',this.value)">${h.descricao}</textarea><button class="cris-btn" onclick="removerSub('${id}','${col}')">Excluir</button></div></div>`;
     }
 
     function renderArma(id, a, col) {
-        const isAberto = menusAbertos.has('arm-'+id) ? 'block' : 'none';
-        return `
-        <div class="ritual-card" style="border-left-color: var(--hp-red)">
-            <div class="card-header" onclick="toggleElem('arm-${id}')">
-                <input type="text" class="card-input" style="width:100%" value="${a.nome || 'Nova Arma'}" onchange="updateSub('${id}','${col}','nome',this.value)" onclick="event.stopPropagation()">
-            </div>
-            <div class="card-body" id="arm-${id}" style="display:${isAberto}">
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <input type="text" class="treino-select" style="text-align:left; padding:5px; font-size:12px;" placeholder="Teste (Ex: 2d20+5)" value="${a.teste || ''}" onchange="updateSub('${id}', '${col}', 'teste', this.value)">
-                    <input type="text" class="treino-select" style="text-align:left; padding:5px; font-size:12px;" placeholder="Dano (Ex: 1d10+2)" value="${a.dano || ''}" onchange="updateSub('${id}', '${col}', 'dano', this.value)">
-                    <input type="text" class="treino-select" style="text-align:left; padding:5px; font-size:12px;" placeholder="Crítico (Ex: 19/x2)" value="${a.critico || ''}" onchange="updateSub('${id}', '${col}', 'critico', this.value)">
-                </div>
-                <textarea class="cris-textarea" style="min-height: 40px;" placeholder="Efeitos, Categoria, Espaços..." onchange="updateSub('${id}', '${col}', 'descricao', this.value)">${a.descricao || ""}</textarea>
-                <div style="text-align:right; margin-top:5px;">
-                    <button class="cris-btn" style="background:#444;" onclick="removerSub('${id}', '${col}')">Remover</button>
-                </div>
-            </div>
-        </div>`;
+        return `<div class="ritual-card"><div class="card-header" onclick="toggleElem('${id}')"><span>${a.nome}</span></div><div class="card-body" id="${id}"><input type="text" placeholder="Dano" value="${a.dano||''}" onchange="updateSub('${id}','${col}','dano',this.value)"><button class="cris-btn" onclick="removerSub('${id}','${col}')">Excluir</button></div></div>`;
     }
 
-    async function novoRitual() { await db.collection("fichas").doc(atual).collection("rituais").add({ nome: "Novo Ritual", elemento: "Morte", descricao: "" }); }
-    async function novoPoder() { await db.collection("fichas").doc(atual).collection("poderes").add({ nome: "Novo Poder", elemento: "Geral", descricao: "" }); }
-    async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
-    async function novaArma() { await db.collection("fichas").doc(atual).collection("armas").add({ nome: "Nova Arma", teste: "", dano: "", critico: "", descricao: "" }); }
-    
-    async function updateSub(id, col, campo, valor) { 
-        let o = {}; o[campo] = valor; 
-        if (col === 'rituais') menusAbertos.add('rit-' + id);
-        if (col === 'poderes') menusAbertos.add('pod-' + id);
-        if (col === 'habilidades') menusAbertos.add('hab-' + id);
-        if (col === 'armas') menusAbertos.add('arm-' + id);
-        await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); 
-    }
-    
+    async function novoRitual() { await db.collection("fichas").doc(atual).collection("rituais").add({ nome: "Novo Ritual", descricao: "" }); }
+    async function novoHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
+    async function novaArma() { await db.collection("fichas").doc(atual).collection("armas").add({ nome: "Nova Arma", dano: "" }); }
+    async function updateSub(id, col, campo, valor) { let o = {}; o[campo] = valor; await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); }
     async function removerSub(id, col) { if(confirm("Excluir?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
     
     function toggleElem(id) { 
         const b = document.getElementById(id); 
-        if(!b) return;
-        if(b.style.display === 'block') {
-            b.style.display = 'none';
-            menusAbertos.delete(id);
-        } else {
-            b.style.display = 'block';
-            menusAbertos.add(id);
-        }
+        if(b) b.style.display = b.style.display === 'block' ? 'none' : 'block'; 
     }
     
     function mudarAba(id) {
@@ -1052,9 +911,7 @@
         if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
-    auth.onAuthStateChanged(user => {
-        if (user) { init(); } else { window.location.href = "index.html"; }
-    });
+    auth.onAuthStateChanged(user => { if (user) { init(); } else { window.location.href = "index.html"; } });
 </script>
 </body>
 </html>
