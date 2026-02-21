@@ -117,32 +117,24 @@
             if(tipo === 'mestre') carregarMonitorMestre();
         }
 
-        function carregarFichasUsuario() {
-    db.collection("fichas").where("dono", "==", auth.currentUser.uid).onSnapshot(snap => {
-        const container = document.getElementById('lista-personagens'); // Certifique-se que o ID está correto
-        container.innerHTML = "";
-        snap.forEach(doc => {
-            const d = doc.data();
-            // Aqui é onde a mágica acontece: pegamos o d.portrait
-            container.innerHTML += `
-                <div class="personagem-card" onclick="window.location.href='ficha.html?id=${doc.id}'" 
-                     style="display: flex; align-items: center; gap: 15px; background: #111; padding: 10px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; border: 1px solid #222;">
-                    
-                    <div style="width: 50px; height: 50px; border: 1px solid #333; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
-                        ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 8px; color: #333;">FOTO</span>`}
-                    </div>
+        function carregarFichas(uid) {
+            db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
+                const container = document.getElementById('lista-fichas');
+                container.innerHTML = "";
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    container.innerHTML += `
+                        <div class="card">
+                            <a href="ficha.html?id=${doc.id}" style="text-decoration: none; color: inherit; display: block;">
+                                <strong>${d.nome || 'Sem Nome'}</strong><br>
+                                <small>NEX: ${d.nex || '5%'}</small>
+                            </a>
+                            <button class="delete-btn" onclick="confirmarExclusao('${doc.id}', '${d.nome}')">Excluir</button>
+                        </div>`;
+                });
+            });
+        }
 
-                    <div style="flex: 1;">
-                        <div style="font-size: 16px; color: #fff; font-family: 'Special Elite';">${d.nome || 'Agente Sem Nome'}</div>
-                        <div style="font-size: 10px; color: #6d28d9; font-weight: bold;">NEX: ${d.nex || '5%'} | ${d.classe || 'Classe'}</div>
-                    </div>
-                    
-                    <div style="font-size: 18px; color: #333;">➔</div>
-                </div>
-            `;
-        });
-    });
-}
         async function confirmarExclusao(id, nome) {
             if (confirm(`Deseja mesmo excluir a ficha de "${nome}"?`)) {
                 const check = prompt("Para confirmar, digite EXCLUIR em letras maiúsculas:");
