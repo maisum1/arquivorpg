@@ -33,15 +33,7 @@
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* Procure a linha 46 e substitua por isto */
-.grid-container {
-    display: grid;
-    grid-template-columns: 320px 1fr; /* Apenas 2 colunas */
-    gap: 40px;
-    max-width: 100%;
-    margin: 0;
-    align-items: start;
-}
+        .grid-container { display: grid; grid-template-columns: 320px 1fr; gap: 40px; max-width: 100%; margin: 0; align-items: start; }
 
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 24px; padding: 5px 0; margin-bottom: 10px; outline: none; }
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -267,11 +259,15 @@
 </nav>
 
         <div id="aba-pericias" class="tab-content active pericias-box" style="border: none; background: transparent; padding: 0;">
-    <div class="pericia-header">
-        <span>Nome</span> <span title="Atributo Base">Atrib.</span> <span>Bônus</span> <span>Treino</span> <span>Soma</span>
-    </div>
-    <div id="lista-pericias"></div>
-</div>
+            <div class="pericia-header">
+                <span>Nome</span>
+                <span title="Atributo Base">Atrib.</span>
+                <span>Bônus</span>
+                <span>Treino</span>
+                <span>Soma</span>
+            </div>
+            <div id="lista-pericias"></div>
+        </div>
         
         <div id="aba-combate" class="tab-content">
             
@@ -724,46 +720,41 @@
     }
 
     function carregarPoderes() {
-        // Substitua da linha 722 até a 745 por este bloco:
-db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
-    const lista = document.getElementById('lista-poderes');
-    lista.innerHTML = "";
-    const coresElem = { "Morte": "#9ca3af", "Sangue": "#ff4d4d", "Energia": "#a855f7", "Conhecimento": "#cead00", "Nenhum": "#555" };
+        db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
+            const container = document.getElementById('lista-poderes');
+            container.innerHTML = "";
+            snap.forEach(doc => {
+                const p = doc.data();
+                const id = doc.id;
+                const isOpen = menusAbertos.has('pod-' + id);
 
-    snap.forEach(doc => {
-        const p = doc.data(); p.id = doc.id;
-        const cor = coresElem[p.elemento] || "#555";
-        const div = document.createElement('div');
-        div.className = "ritual-card";
-        div.style.borderLeft = `4px solid ${cor}`;
-        div.innerHTML = `
-            <div class="card-header" onclick="toggleElem('pod-${p.id}')">
-                <span style="color:${cor}">${p.nome || 'Novo Poder'}</span>
-            </div>
-            <div id="pod-${p.id}" class="card-body" style="display:${menusAbertos.has('pod-'+p.id)?'block':'none'}">
-                <label style="color:${cor}; font-size:10px">ELEMENTO</label>
-                <select onchange="atualizarSub('${p.id}','poderes','elemento',this.value)" class="rit-input">
-                    <option value="Nenhum" ${p.elemento==='Nenhum'?'selected':''}>Nenhum</option>
-                    <option value="Morte" ${p.elemento==='Morte'?'selected':''}>Morte</option>
-                    <option value="Sangue" ${p.elemento==='Sangue'?'selected':''}>Sangue</option>
-                    <option value="Energia" ${p.elemento==='Energia'?'selected':''}>Energia</option>
-                    <option value="Conhecimento" ${p.elemento==='Conhecimento'?'selected':''}>Conhecimento</option>
-                </select>
-                <label style="color:${cor}; font-size:10px; margin-top:10px; display:block">DESCRIÇÃO</label>
-                <textarea onchange="atualizarSub('${p.id}','poderes','descricao',this.value)" class="rit-input" style="height:60px">${p.descricao||''}</textarea>
-                
-                <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #333">
-                    <label style="color:#00e5ff; font-size:10px; font-weight:bold">AFINIDADE</label>
-                    <textarea onchange="atualizarSub('${p.id}','poderes','afinidade',this.value)" class="rit-input" style="height:50px; border-color:#00e5ff55" placeholder="Efeito de afinidade...">${p.afinidade||''}</textarea>
-                </div>
-
-                <button onclick="removerSub('${p.id}','poderes')" class="cris-btn" style="background:#b31d1d; margin-top:10px; width:100%">Excluir</button>
-            </div>
-        `;
-        lista.appendChild(div);
-    });
-});
+                container.innerHTML += `
+                <div class="ritual-card" data-elem="${p.elemento}">
+                    <div class="card-header" onclick="toggleElem('pod-${id}')">
+                        <span>${p.nome || 'Sem nome'}</span> 
+                        <span style="font-size:10px; opacity:0.6">${(p.elemento || 'Geral').toUpperCase()}</span>
+                    </div>
+                    <div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}">
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <input type="text" class="treino-select" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;">
+                            <select class="treino-select" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
+                                <option ${p.elemento=='Morte'?'selected':''}>Morte</option>
+                                <option ${p.elemento=='Sangue'?'selected':''}>Sangue</option>
+                                <option ${p.elemento=='Energia'?'selected':''}>Energia</option>
+                                <option ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                                <option ${p.elemento=='Geral'?'selected':''}>Geral</option>
+                            </select>
+                        </div>
+                        <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea>
+                        <div style="text-align:right; margin-top:10px;">
+                            <button class="cris-btn" style="background:#444" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">Remover</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        });
     }
+
     function carregarHabilidades() {
         db.collection("fichas").doc(atual).collection("habilidades").onSnapshot(snap => {
             const container = document.getElementById('lista-habilidades');
@@ -842,18 +833,3 @@ db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
