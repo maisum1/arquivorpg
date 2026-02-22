@@ -38,19 +38,11 @@
             right: 10px;
         }
         .delete-btn:hover { background: #ff4444; color: white; }
-        .monitor-img-container {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%; /* Ou remova esta linha se preferir quadrado */
-    overflow: hidden;
-    border: 1px solid var(--cris-purple);
-    background: #000;
-    flex-shrink: 0;
+        .monitor-row {
+    transition: background 0.3s;
 }
-.monitor-img-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.monitor-row:hover {
+    background: rgba(234, 179, 8, 0.05);
 }
     </style>
 </head>
@@ -177,15 +169,14 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     
-                    // Define a imagem: se não tiver portrait, usa um placeholder cinza
-                    const portraitImg = d.portrait ? 
-                        `<img src="${d.portrait}" style="object-position: ${d.pX || 50}% ${d.pY || 50}%; transform: scale(${d.pZ || 1});">` : 
-                        `<div style="background:#222; width:100%; height:100%;"></div>`;
+                    // Se houver retrato, aplica o enquadramento salvo. Se não, usa um placeholder cinza.
+                    const estiloImagem = d.portrait ? 
+                        `background-image: url('${d.portrait}'); background-size: ${d.pZ * 100 || 100}%; background-position: ${d.pX || 50}% ${d.pY || 50}%;` : 
+                        `background: #222;`;
 
                     container.innerHTML += `
-                        <div class="monitor-row" style="display: flex; align-items: center; gap: 15px;">
-                            <div class="monitor-img-container">
-                                ${portraitImg}
+                        <div class="monitor-row" style="display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #222;">
+                            <div style="width: 50px; height: 50px; border-radius: 5px; border: 1px solid var(--cris-purple); overflow: hidden; flex-shrink: 0; ${estiloImagem} background-repeat: no-repeat;">
                             </div>
                             <div style="flex-grow: 1;">
                                 <strong>${d.nome || 'Agente'}</strong><br>
@@ -194,13 +185,12 @@
                             <div style="text-align:right">
                                 <span style="color:#b31d1d">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> | 
                                 <span style="color:#034374">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span><br>
-                                <a href="ficha.html?id=${doc.id}" style="color:#EAB308">ABRIR</a>
+                                <a href="ficha.html?id=${doc.id}" style="color:#EAB308; font-size: 12px;">ABRIR FICHA</a>
                             </div>
                         </div>`;
                 });
             });
         }
-
         async function criarNovaFicha() {
             const user = auth.currentUser;
             const ref = await db.collection("fichas").add({
