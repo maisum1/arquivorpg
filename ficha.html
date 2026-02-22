@@ -174,76 +174,44 @@
             .treino-select {
                 font-size: 9px;
             }
-            /* DESIGN DAS CONDIÇÕES - CORRIGIDO */
 .condicoes-section {
-    margin-top: 25px;
+    margin-top: 20px;
     padding: 15px;
-    background: rgba(0, 0, 0, 0.4);
+    background: #0f0f0f;
     border: 1px solid #333;
     border-radius: 8px;
 }
-
-.condicao-item { margin-bottom: 10px; }
-
-/* Botão em estado normal (DESLIGADO) */
+.condicao-item { margin-bottom: 8px; width: 100%; }
 .condicao-btn {
     width: 100%;
-    padding: 12px;
-    background: #111; /* Fundo bem escuro para parecer desligado */
-    border: 1px solid #444;
-    color: #666; /* Texto cinza escuro */
+    padding: 10px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #888;
     font-family: 'Special Elite';
     cursor: pointer;
     text-align: center;
-    transition: all 0.2s ease;
     border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    transition: 0.3s;
 }
-
-/* Efeito ao passar o mouse */
-.condicao-btn:hover {
-    border-color: var(--cris-purple);
-    color: #999;
-}
-
-/* Botão em estado ATIVO (LIGADO) */
 .condicao-btn.active {
     background: var(--cris-purple) !important;
     color: #000 !important;
     border-color: #fff !important;
-    box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
-    font-weight: bold;
 }
-
-/* Sub-menus que abrem */
 .condicao-sub {
     display: none;
-    padding: 15px;
-    background: #0a0a0a;
-    border: 1px solid var(--cris-purple);
+    padding: 10px;
+    background: #050505;
+    border: 1px solid #222;
     border-top: none;
-    border-radius: 0 0 4px 4px;
 }
-
-/* Mostra o menu se o botão estiver ativo */
-.condicao-btn.active + .condicao-sub {
-    display: block;
-}
-
-/* Ajuste para as bolinhas (Checkboxes) */
-.morrendo-dots {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 8px;
-}
-
-.dot-check {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--cris-purple);
-    cursor: pointer;
+.condicao-btn.active + .condicao-sub { display: block; }
+.morrendo-dots { display: flex; gap: 10px; justify-content: center; margin-top: 5px; }
+.dot-check { width: 18px; height: 18px; accent-color: var(--cris-purple); }
+.condicao-select, .condicao-text {
+    width: 100%; background: #000; color: #fff; border: 1px solid #333; 
+    padding: 5px; margin-top: 5px; font-family: 'Roboto';
 }
         }
     </style>
@@ -370,18 +338,50 @@
                     <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
                 </div>
             </div>
-            <div class="condicoes-section" style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.03); border: 1px solid #222; border-radius: 5px;">
-            <div style="font-family: 'Special Elite'; font-size: 14px; color: var(--cris-purple); margin-bottom: 15px; text-align: center;">CONDIÇÕES</div>
-
-            <div class="condicao-item" style="margin-bottom: 12px;">
+            <div class="condicoes-section">
+            <div style="font-family:'Special Elite'; font-size:14px; color:var(--cris-purple); margin-bottom:10px; text-align:center;">CONDIÇÕES</div>
+            
+            <div class="condicao-item">
                 <button id="btn-enlouquecendo" class="condicao-btn" onclick="toggleCondicao('enlouquecendo')">ENLOUQUECENDO</button>
                 <div class="condicao-sub">
-                    <div style="font-size: 10px; text-align: center; color: #888;">RODADAS SEM SALVAMENTO</div>
-                    <div class="morrendo-dots" style="display: flex; gap: 15px; justify-content: center; margin-top: 5px;">
-                        <input type="checkbox" id="enlou-1" onchange="salvarFicha()" class="dot-check">
-                        <input type="checkbox" id="enlou-2" onchange="salvarFicha()" class="dot-check">
-                        <input type="checkbox" id="enlou-3" onchange="salvarFicha()" class="dot-check">
+                    <div class="morrendo-dots">
+                        <input type="checkbox" id="e1" onchange="salvarFicha()" class="dot-check">
+                        <input type="checkbox" id="e2" onchange="salvarFicha()" class="dot-check">
+                        <input type="checkbox" id="e3" onchange="salvarFicha()" class="dot-check">
                     </div>
+                </div>
+            </div>
+
+            <div class="condicao-item">
+                <button id="btn-morrendo" class="condicao-btn" onclick="toggleCondicao('morrendo')">MORRENDO</button>
+                <div class="condicao-sub">
+                    <div class="morrendo-dots">
+                        <input type="checkbox" id="m1" onchange="salvarFicha()" class="dot-check">
+                        <input type="checkbox" id="m2" onchange="salvarFicha()" class="dot-check">
+                        <input type="checkbox" id="m3" onchange="salvarFicha()" class="dot-check">
+                    </div>
+                </div>
+            </div>
+
+            <div class="condicao-item">
+                <button id="btn-lesionado" class="condicao-btn" onclick="toggleCondicao('lesionado')">LESIONADO</button>
+                <div class="condicao-sub">
+                    <select id="l-loc" class="condicao-select" onchange="salvarFicha()">
+                        <option value="Membros Superiores">Membros Superiores</option>
+                        <option value="Membros Inferiores">Membros Inferiores</option>
+                        <option value="Tórax">Tórax</option>
+                        <option value="Crânio">Crânio</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="condicao-item">
+                <button id="btn-sequela" class="condicao-btn" onclick="toggleCondicao('sequela')">SEQUELAS</button>
+                <div class="condicao-sub">
+                    <textarea id="s-desc" class="condicao-text" placeholder="Descrição..." onchange="salvarFicha()"></textarea>
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
 
@@ -688,20 +688,19 @@
             atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
             atualizarStatus('pe', d.peAtual ?? 5, d.peMax ?? 5);
 
-            // --- CARREGAR CONDIÇÕES ---
-            if(d.cEnlou) document.getElementById('btn-enlouquecendo').classList.add('active'); else document.getElementById('btn-enlouquecendo').classList.remove('active');
-            if(d.cMorre) document.getElementById('btn-morrendo').classList.add('active'); else document.getElementById('btn-morrendo').classList.remove('active');
-            if(d.cLesao) document.getElementById('btn-lesionado').classList.add('active'); else document.getElementById('btn-lesionado').classList.remove('active');
-            if(d.cSeque) document.getElementById('btn-sequela').classList.add('active'); else document.getElementById('btn-sequela').classList.remove('active');
-            
-            document.getElementById('enlou-1').checked = d.e1 || false;
-            document.getElementById('enlou-2').checked = d.e2 || false;
-            document.getElementById('enlou-3').checked = d.e3 || false;
-            document.getElementById('mor-1').checked = d.m1 || false;
-            document.getElementById('mor-2').checked = d.m2 || false;
-            document.getElementById('mor-3').checked = d.m3 || false;
-            document.getElementById('local-lesao').value = d.lLesao || "Membros Superiores";
-            document.getElementById('desc-sequela').value = d.dSeque || "";
+           // Carregar Condições
+            if(d.cEnlou) document.getElementById('btn-enlouquecendo').classList.add('active');
+            if(d.cMorre) document.getElementById('btn-morrendo').classList.add('active');
+            if(d.cLesao) document.getElementById('btn-lesionado').classList.add('active');
+            if(d.cSeque) document.getElementById('btn-sequela').classList.add('active');
+            document.getElementById('e1').checked = d.e1 || false;
+            document.getElementById('e2').checked = d.e2 || false;
+            document.getElementById('e3').checked = d.e3 || false;
+            document.getElementById('m1').checked = d.m1 || false;
+            document.getElementById('m2').checked = d.m2 || false;
+            document.getElementById('m3').checked = d.m3 || false;
+            document.getElementById('l-loc').value = d.lLoc || "Membros Superiores";
+            document.getElementById('s-desc').value = d.sDesc || "";
 
             let fortTreino = 0;
             if(d.pericias) {
@@ -806,18 +805,15 @@
             sanAtual: parseInt(document.getElementById('san-atual').value) || 0,
             sanMax: parseInt(document.getElementById('san-max').value) || 1,
             peAtual: parseInt(document.getElementById('pe-atual').value) || 0,
-            peMax: parseInt(document.getElementById('pe-max').value) || 1, cEnlou: document.getElementById('btn-enlouquecendo').classList.contains('active'),
+          peMax: parseInt(document.getElementById('pe-max').value),
+            cEnlou: document.getElementById('btn-enlouquecendo').classList.contains('active'),
             cMorre: document.getElementById('btn-morrendo').classList.contains('active'),
             cLesao: document.getElementById('btn-lesionado').classList.contains('active'),
             cSeque: document.getElementById('btn-sequela').classList.contains('active'),
-            e1: document.getElementById('enlou-1').checked,
-            e2: document.getElementById('enlou-2').checked,
-            e3: document.getElementById('enlou-3').checked,
-            m1: document.getElementById('mor-1').checked,
-            m2: document.getElementById('mor-2').checked,
-            m3: document.getElementById('mor-3').checked,
-            lLesao: document.getElementById('local-lesao').value,
-            dSeque: document.getElementById('desc-sequela').value,
+            e1: document.getElementById('e1').checked, e2: document.getElementById('e2').checked, e3: document.getElementById('e3').checked,
+            m1: document.getElementById('m1').checked, m2: document.getElementById('m2').checked, m3: document.getElementById('m3').checked,
+            lLoc: document.getElementById('l-loc').value,
+            sDesc: document.getElementById('s-desc').value
             nivel: document.getElementById('nivel-personagem').value,
             nex: document.getElementById('nex-personagem').value,
             deslocamento: document.getElementById('deslocamento-personagem').value,
@@ -1080,10 +1076,11 @@
     }
     function toggleCondicao(id) {
     const btn = document.getElementById('btn-' + id);
-    // Isso alterna a classe: se tem, tira; se não tem, coloca.
-    btn.classList.toggle('active');
-    
-    // Salva automaticamente no Firebase após mudar
+    if(btn.classList.contains('active')) {
+        btn.classList.remove('active');
+    } else {
+        btn.classList.add('active');
+    }
     salvarFicha();
 }
     auth.onAuthStateChanged(user => {
@@ -1097,6 +1094,7 @@
 </script>
 </body>
 </html>
+
 
 
 
