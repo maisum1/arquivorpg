@@ -126,54 +126,98 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* ==========================================
+           ESTILOS DAS CONDIÇÕES
+           ========================================== */
+        .condicoes-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #222;
+            border-radius: 5px;
+        }
+        .condicoes-title {
+            font-family: 'Special Elite';
+            font-size: 14px;
+            color: var(--cris-purple);
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .condicao-item { margin-bottom: 10px; }
+        .condicao-btn {
+            width: 100%;
+            padding: 10px;
+            background: #0a0a0a; /* Fundo bem escuro (Desligado) */
+            border: 1px solid #333;
+            color: #666;         /* Texto cinza apagado */
+            font-family: 'Special Elite';
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+            border-radius: 3px;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        .condicao-btn:hover { border-color: #555; color: #aaa; }
+        
+        /* Estado LIGADO do Botão */
+        .condicao-btn.active {
+            background: var(--cris-purple);
+            color: #000;
+            border-color: #fff;
+            font-weight: bold;
+        }
+        
+        /* O submenu só aparece quando o botão anterior tem a classe 'active' */
+        .condicao-sub {
+            display: none;
+            padding: 15px;
+            background: #050505;
+            border: 1px solid #222;
+            border-top: none;
+            border-radius: 0 0 3px 3px;
+        }
+        .condicao-btn.active + .condicao-sub {
+            display: block;
+        }
+        
+        .morrendo-dots { display: flex; gap: 15px; justify-content: center; margin-top: 5px; }
+        .dot-check {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--hp-red);
+            cursor: pointer;
+        }
+        .condicao-select, .condicao-text {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid #333;
+            font-family: 'Roboto';
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            font-size: 12px;
+        }
+
+        /* ==========================================
            OTIMIZAÇÃO PARA MOBILE (CELULARES) 
            ========================================== */
         @media (max-width: 900px) {
             .grid-container {
-                grid-template-columns: 1fr; /* Muda de 2 colunas para 1 coluna */
+                grid-template-columns: 1fr;
                 gap: 20px;
             }
-            .header-sub-row {
-                flex-wrap: wrap; /* Permite que classe/idade pulem de linha se não couberem */
-            }
-            .sub-input-group {
-                min-width: 45%;
-            }
-            .tabs-nav {
-                flex-wrap: wrap; /* Os botões das abas viram bloquinhos */
-                justify-content: space-between;
-            }
-            .tab-btn {
-                flex: 1 1 30%; /* Ocupa 1/3 da tela no celular */
-                text-align: center;
-                padding: 10px 5px;
-                font-size: 11px;
-                border-bottom: 1px solid transparent;
-            }
-            .rit-grid-2, .rit-grid-3 {
-                grid-template-columns: 1fr; /* Colunas de rituais empilham */
-            }
-            .rit-layout-top {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            .defesa-grid {
-                flex-direction: column;
-                align-items: center;
-            }
-            .defesa-colunas {
-                width: 100%;
-                justify-content: space-around;
-            }
-            .pericia-header, .pericia-row {
-                grid-template-columns: 1fr 45px 40px 45px 35px; /* Aperta um pouco as perícias para caberem */
-                font-size: 11px;
-                gap: 2px;
-            }
-            .treino-select {
-                font-size: 9px;
-            }
+            .header-sub-row { flex-wrap: wrap; }
+            .sub-input-group { min-width: 45%; }
+            .tabs-nav { flex-wrap: wrap; justify-content: space-between; }
+            .tab-btn { flex: 1 1 30%; text-align: center; padding: 10px 5px; font-size: 11px; border-bottom: 1px solid transparent; }
+            .rit-grid-2, .rit-grid-3 { grid-template-columns: 1fr; }
+            .rit-layout-top { flex-direction: column; align-items: center; text-align: center; }
+            .defesa-grid { flex-direction: column; align-items: center; }
+            .defesa-colunas { width: 100%; justify-content: space-around; }
+            .pericia-header, .pericia-row { grid-template-columns: 1fr 45px 40px 45px 35px; font-size: 11px; gap: 2px; }
+            .treino-select { font-size: 9px; }
         }
     </style>
 </head>
@@ -279,6 +323,55 @@
                 </div>
             </div>
         </div>
+
+        <div class="condicoes-section">
+            <div class="condicoes-title">CONDIÇÕES</div>
+            
+            <div class="condicao-item">
+                <button id="btn-enlouquecendo" class="condicao-btn" onclick="toggleCondicao('enlouquecendo')">ENLOUQUECENDO</button>
+                <div class="condicao-sub">
+                    <div style="font-size: 10px; text-align: center; color: #888;">RODADAS SEM SALVAMENTO</div>
+                    <div class="morrendo-dots">
+                        <input type="checkbox" id="enlou-1" class="dot-check" onchange="salvarFicha()">
+                        <input type="checkbox" id="enlou-2" class="dot-check" onchange="salvarFicha()">
+                        <input type="checkbox" id="enlou-3" class="dot-check" onchange="salvarFicha()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="condicao-item">
+                <button id="btn-morrendo" class="condicao-btn" onclick="toggleCondicao('morrendo')">MORRENDO</button>
+                <div class="condicao-sub">
+                    <div style="font-size: 10px; text-align: center; color: #888;">TURNOS PASSADOS</div>
+                    <div class="morrendo-dots">
+                        <input type="checkbox" id="mor-1" class="dot-check" onchange="salvarFicha()">
+                        <input type="checkbox" id="mor-2" class="dot-check" onchange="salvarFicha()">
+                        <input type="checkbox" id="mor-3" class="dot-check" onchange="salvarFicha()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="condicao-item">
+                <button id="btn-lesionado" class="condicao-btn" onclick="toggleCondicao('lesionado')">LESIONADO</button>
+                <div class="condicao-sub">
+                    <label style="font-size: 10px; color: #888; display: block; margin-bottom: 5px;">LOCAL DA LESÃO:</label>
+                    <select id="local-lesao" class="condicao-select" onchange="salvarFicha()">
+                        <option value="Membros Superiores">Membros Superiores</option>
+                        <option value="Membros Inferiores">Membros Inferiores</option>
+                        <option value="Tórax">Tórax</option>
+                        <option value="Crânio">Crânio</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="condicao-item">
+                <button id="btn-sequela" class="condicao-btn" onclick="toggleCondicao('sequela')">SEQUELAS PERMANENTES</button>
+                <div class="condicao-sub">
+                    <textarea id="desc-sequela" class="condicao-text" placeholder="Descreva a sequela..." onchange="salvarFicha()" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
     </section>
     
     <section>
@@ -552,6 +645,29 @@
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
             document.getElementById('display-bloqueio').innerText = fortTreino + bBloq;
             
+            // --- CARREGAR CONDIÇÕES (Sincronização com Firebase) ---
+            const setToggle = (id, isActive) => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    if (isActive) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            };
+            
+            setToggle('btn-enlouquecendo', d.condEnlouquecendo);
+            setToggle('btn-morrendo', d.condMorrendo);
+            setToggle('btn-lesionado', d.condLesionado);
+            setToggle('btn-sequela', d.condSequela);
+
+            if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false;
+            if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false;
+            if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false;
+            if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false;
+            if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false;
+            if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
+            if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
+            if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
+
             document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + 5 + bDt;
         });
     }
@@ -622,7 +738,22 @@
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0,
             bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0,
             bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0,
-            bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0
+            bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
+            
+            // Salvamento das Condições
+            condEnlouquecendo: document.getElementById('btn-enlouquecendo').classList.contains('active'),
+            condMorrendo: document.getElementById('btn-morrendo').classList.contains('active'),
+            condLesionado: document.getElementById('btn-lesionado').classList.contains('active'),
+            condSequela: document.getElementById('btn-sequela').classList.contains('active'),
+            enlou1: document.getElementById('enlou-1').checked,
+            enlou2: document.getElementById('enlou-2').checked,
+            enlou3: document.getElementById('enlou-3').checked,
+            mor1: document.getElementById('mor-1').checked,
+            mor2: document.getElementById('mor-2').checked,
+            mor3: document.getElementById('mor-3').checked,
+            localLesao: document.getElementById('local-lesao').value,
+            descSequela: document.getElementById('desc-sequela').value
+            
         }).then(() => {
             const agi = parseInt(document.getElementById('attr-agi').value) || 0;
             const int = parseInt(document.getElementById('attr-int').value) || 0;
@@ -877,6 +1008,13 @@
         if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
+    // --- FUNÇÃO PARA ATIVAR / DESATIVAR CONDIÇÕES ---
+    function toggleCondicao(id) {
+        const btn = document.getElementById('btn-' + id);
+        btn.classList.toggle('active'); // Alterna estado (Liga/Desliga)
+        salvarFicha(); // Salva automaticamente ao clicar
+    }
+
     auth.onAuthStateChanged(user => {
         if (user) {
             init(); 
@@ -888,4 +1026,3 @@
 </script>
 </body>
 </html>
-
