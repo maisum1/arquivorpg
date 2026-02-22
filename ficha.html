@@ -41,7 +41,9 @@
         .sub-input-group { flex: 1; display: flex; flex-direction: column; }
         .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
         .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 16px; padding: 5px 0; outline: none; }
-        .sub-input-group select option { background: #111; color: #ccc; }
+        
+        /* CORREÇÃO DO SELECT (TEXTO ESCURO NO FUNDO BRANCO DO NAVEGADOR) */
+        .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; }
 
         .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; }
         .attr-box { position: absolute; width: 55px; height: 55px; background: #090909; border: 2px solid #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -53,7 +55,6 @@
         .stat-box { border: 1px solid #333; background: #0a0a0a; padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .stat-box label { font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif; text-transform: uppercase; }
         .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Special Elite'; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
-        .stat-box select option { background: #111; color: #fff; }
         .desloc-box { grid-column: span 2; flex-direction: column-reverse; }
 
         .status-container { margin-bottom: 12px; }
@@ -281,9 +282,16 @@
                 <label>NEX</label>
                 <select id="nex-personagem" onchange="salvarFicha()"></select>
             </div>
-            <div class="stat-box desloc-box">
-                <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q">
+            <div class="stat-box">
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <label>LIMITE PE</label>
+                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="salvarFicha()">
+                </div>
+                <div id="display-limite-pe" style="font-size:18px; color:#fff;">1</div>
+            </div>
+            <div class="stat-box">
                 <label>DESLOCAMENTO</label>
+                <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q">
             </div>
         </div>
 
@@ -645,9 +653,15 @@
                 } 
             });
 
-            document.getElementById('nivel-personagem').value = d.nivel || 1;
+            const nivel = parseInt(d.nivel) || 1;
+            document.getElementById('nivel-personagem').value = nivel;
             document.getElementById('nex-personagem').value = d.nex || "5%";
             document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
+
+            // LIMITE PE
+            const bLimitePe = parseInt(d.bonusLimitePe) || 0;
+            document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
+            document.getElementById('display-limite-pe').innerText = nivel + bLimitePe;
 
             atualizarStatus('vida', d.vidaAtual ?? 20, d.vidaMax ?? 20);
             atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
@@ -720,7 +734,8 @@
             if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
             if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
 
-            document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + 5 + bDt;
+            // CORREÇÃO DA DT: 10 + INT + BÔNUS
+            document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + bDt;
         });
     }
 
@@ -779,6 +794,7 @@
             nivel: document.getElementById('nivel-personagem').value,
             nex: document.getElementById('nex-personagem').value,
             deslocamento: document.getElementById('deslocamento-personagem').value,
+            bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
             pericias: periciasObj,
             protecao: document.getElementById('info-prot').value,
             resistencias: document.getElementById('info-res').value,
