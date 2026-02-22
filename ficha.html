@@ -174,11 +174,77 @@
             .treino-select {
                 font-size: 9px;
             }
-            .condicao-btn { width: 100%; padding: 8px; background: #1a1a1a; border: 1px solid #333; color: #888; font-family: 'Special Elite'; cursor: pointer; text-align: left; }
-.condicao-btn.active { background: var(--cris-purple); color: #000; border-color: #fff; }
-.condicao-sub { display: none; padding: 10px; background: #0d0d0d; border: 1px solid #222; border-top: none; }
-.condicao-btn.active + .condicao-sub { display: block; }
-.dot-check { width: 20px; height: 20px; accent-color: var(--cris-purple); cursor: pointer; }
+            /* DESIGN DAS CONDIÇÕES - CORRIGIDO */
+.condicoes-section {
+    margin-top: 25px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.condicao-item { margin-bottom: 10px; }
+
+/* Botão em estado normal (DESLIGADO) */
+.condicao-btn {
+    width: 100%;
+    padding: 12px;
+    background: #111; /* Fundo bem escuro para parecer desligado */
+    border: 1px solid #444;
+    color: #666; /* Texto cinza escuro */
+    font-family: 'Special Elite';
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Efeito ao passar o mouse */
+.condicao-btn:hover {
+    border-color: var(--cris-purple);
+    color: #999;
+}
+
+/* Botão em estado ATIVO (LIGADO) */
+.condicao-btn.active {
+    background: var(--cris-purple) !important;
+    color: #000 !important;
+    border-color: #fff !important;
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+    font-weight: bold;
+}
+
+/* Sub-menus que abrem */
+.condicao-sub {
+    display: none;
+    padding: 15px;
+    background: #0a0a0a;
+    border: 1px solid var(--cris-purple);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+}
+
+/* Mostra o menu se o botão estiver ativo */
+.condicao-btn.active + .condicao-sub {
+    display: block;
+}
+
+/* Ajuste para as bolinhas (Checkboxes) */
+.morrendo-dots {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.dot-check {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--cris-purple);
+    cursor: pointer;
+}
         }
     </style>
 </head>
@@ -1012,9 +1078,12 @@
         if(aba) aba.classList.add('active');
         if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
-    function toggleCondicao(id) {
+    ffunction toggleCondicao(id) {
     const btn = document.getElementById('btn-' + id);
+    // Isso alterna a classe: se tem, tira; se não tem, coloca.
     btn.classList.toggle('active');
+    
+    // Salva automaticamente no Firebase após mudar
     salvarFicha();
 }
     auth.onAuthStateChanged(user => {
@@ -1028,6 +1097,7 @@
 </script>
 </body>
 </html>
+
 
 
 
