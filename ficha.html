@@ -13,7 +13,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@300;400;700&display=swap');
 
         :root {
-            --cris-purple: #EAB308;
+            --cris-purple: #eab308;
             --hp-red: #b31d1d;
             --san-purple: #034374;
             --pe-orange: #5A0C92;
@@ -33,7 +33,15 @@
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        .grid-container { display: grid; grid-template-columns: 320px 1fr; gap: 40px; max-width: 1600px; margin: 0 auto; }
+        /* AJUSTE DO GRID PARA 2 COLUNAS E ALINHADO A ESQUERDA */
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: 320px 1fr; 
+            gap: 40px; 
+            max-width: 1400px; 
+            margin: 0; 
+            align-items: start;
+        }
 
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 24px; padding: 5px 0; margin-bottom: 10px; outline: none; }
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -103,14 +111,10 @@
 
         /* MANTIDO OS PODERES ORIGINAIS */
         .ritual-card { background: #121212; border-left: 4px solid var(--cor-geral); margin-bottom: 10px; border-radius: 0 4px 4px 0; transition: border-color 0.3s; }
-        .ritual-card[data-elem="Morte"] { border-left-color: var(--cor-morte); }
-        .ritual-card[data-elem="Sangue"] { border-left-color: var(--cor-sangue); }
-        .ritual-card[data-elem="Energia"] { border-left-color: var(--cor-energia); }
-        .ritual-card[data-elem="Conhecimento"] { border-left-color: var(--cor-conhecimento); }
         .card-header { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); align-items: center; font-family: 'Special Elite'; }
         .card-body { padding: 15px; display: none; border-top: 1px solid #222; }
         .cris-textarea { width: 100%; background: #080808; border: 1px solid #333; color: #fff; font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Roboto', sans-serif;}
-        .cris-btn { background: var(--cris-purple); border: none; color: #fff; padding: 8px 16px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 2px; }
+        .cris-btn { background: var(--cris-purple); border: none; color: #000; padding: 8px 16px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 2px; }
         .cris-btn:hover { background: var(--cris-purple) !important; border-color: var(--cris-purple); }
 
         /* NOVOS ESTILOS PARA RITUAIS (VIBE CTHULHU/CRIS) */
@@ -134,9 +138,9 @@
 <body>
 
 <div class="grid-container">
-    <section>
+    <section style="min-width: 0; overflow: hidden;">
         <div style="margin-bottom: 20px;">
-            <button onclick="window.location.href='index.html'" class="cris-btn" style="background: #222; border: 1px solid #444; display: flex; align-items: center; gap: 8px;">
+            <button onclick="window.location.href='index.html'" class="cris-btn" style="background: #222; border: 1px solid #444; color: #fff; display: flex; align-items: center; gap: 8px;">
                 <span>←</span> VOLTAR AO HUB
             </button>
         </div>
@@ -237,22 +241,26 @@
     
     <section>
         <nav class="tabs-nav">
-    <button class="tab-btn active" onclick="mudarAba('pericias')">Perícias</button>
-    <button class="tab-btn" onclick="mudarAba('combate')">Combate</button>
-    <button class="tab-btn" onclick="mudarAba('habilidades')">Habilidades</button>
-    <button class="tab-btn" onclick="mudarAba('rituais')">Rituais</button>
-    <button class="tab-btn" onclick="mudarAba('poderes')">Poderes</button>
-    <button class="tab-btn" onclick="mudarAba('inventario')">Inventário</button>
-</nav>
-        <div id="aba-pericias" class="tab-content active pericias-box" style="border: none; background: transparent; padding: 0;">
-        <div class="pericia-header">
-            <span>Nome</span> <span>Atrib.</span> <span>Bônus</span> <span>Treino</span> <span>Soma</span>
-        </div>
-        <div id="lista-pericias"></div>
-    </div>
+            <button class="tab-btn active" onclick="mudarAba('pericias')">Perícias</button>
+            <button class="tab-btn" onclick="mudarAba('combate')">Combate</button>
+            <button class="tab-btn" onclick="mudarAba('habilidades')">Habilidades</button>
+            <button class="tab-btn" onclick="mudarAba('rituais')">Rituais</button>
+            <button class="tab-btn" onclick="mudarAba('poderes')">Poderes</button>
+            <button class="tab-btn" onclick="mudarAba('inventario')">Inventário</button>
+        </nav>
 
-    <div id="aba-combate" class="tab-content">
-            
+        <div id="aba-pericias" class="tab-content active pericias-box" style="border: none; background: transparent; padding: 0;">
+            <div class="pericia-header">
+                <span>Nome</span>
+                <span title="Atributo Base">Atrib.</span>
+                <span>Bônus</span>
+                <span>Treino</span>
+                <span>Soma</span>
+            </div>
+            <div id="lista-pericias"></div>
+        </div>
+        
+        <div id="aba-combate" class="tab-content">
             <div class="defesa-grid" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 5px;">
                 <div class="defesa-shield" id="display-defesa">10</div>
                 <div class="defesa-colunas">
@@ -621,24 +629,25 @@
         if (url) updateSub(id, 'rituais', 'simbolo', url);
     }
 
-    // RITUAIS (SISTEMA CTHULHU/CRIS)
+    // RITUAIS COM CORES DINÂMICAS E AFINIDADE
     function carregarRituais() {
         db.collection("fichas").doc(atual).collection("rituais").onSnapshot(snap => {
             const container = document.getElementById('lista-rituais');
             container.innerHTML = "";
+            const coresElem = { "Morte": "#9ca3af", "Sangue": "#ff4d4d", "Energia": "#a855f7", "Conhecimento": "#cead00", "Nenhum": "#555" };
+            
             snap.forEach(doc => {
                 const r = doc.data();
                 const id = doc.id;
                 const isOpen = menusAbertos.has('rit-' + id);
-                
                 const isAprendido = r.aprendido ? 'checked' : '';
                 const isPrimeira = r.primeiraConjuracao ? 'checked' : '';
-                const displayTempo = r.aprendido ? 'none !important' : 'flex';
+                const cor = coresElem[r.elemento] || "#555";
 
                 container.innerHTML += `
-                <div class="ritual-card" data-elem="${r.elemento}">
+                <div class="ritual-card" style="border-left-color: ${cor}">
                     <div class="card-header" onclick="toggleElem('rit-${id}')">
-                        <span>${r.nome || 'Novo Ritual'}</span> 
+                        <span style="color:${cor}; font-weight:bold">${r.nome || 'Novo Ritual'}</span> 
                         <span style="font-size:10px; opacity:0.6">${(r.elemento || 'Morte').toUpperCase()}</span>
                     </div>
                     <div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}">
@@ -650,16 +659,17 @@
                             
                             <div class="rit-grid-2">
                                 <div class="rit-field">
-                                    <span class="rit-label">Nome do Ritual</span>
+                                    <span class="rit-label" style="color:${cor}">Nome do Ritual</span>
                                     <input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)">
                                 </div>
                                 <div class="rit-field">
-                                    <span class="rit-label">Elemento</span>
+                                    <span class="rit-label" style="color:${cor}">Elemento</span>
                                     <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)">
-                                        <option ${r.elemento=='Morte'?'selected':''}>Morte</option>
-                                        <option ${r.elemento=='Sangue'?'selected':''}>Sangue</option>
-                                        <option ${r.elemento=='Energia'?'selected':''}>Energia</option>
-                                        <option ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                                        <option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option>
+                                        <option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option>
+                                        <option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option>
+                                        <option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option>
+                                        <option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
                                     </select>
                                 </div>
                             </div>
@@ -671,29 +681,29 @@
                         </div>
 
                         <div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;">
-                            <span class="rit-label">Tempo até Aprendizado</span>
+                            <span class="rit-label" style="color:${cor}">Tempo até Aprendizado</span>
                             <input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)">
                         </div>
 
                         <div class="rit-grid-2">
-                            <div class="rit-field"><span class="rit-label">Tempo de Conjuração</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Alcance</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Alvo / Área</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Duração</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Conjuração</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Duração</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div>
                         </div>
 
                         <div class="rit-grid-2" style="margin-top: 10px;">
-                            <div class="rit-field"><span class="rit-label">Custo PE</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Custo Sanidade</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo PE</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo Sanidade</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div>
                         </div>
 
                         <div class="rit-field" style="margin-top: 10px;">
-                            <span class="rit-label">Descrição</span>
+                            <span class="rit-label" style="color:${cor}">Descrição</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea>
                         </div>
 
                         <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="background:#444" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">Remover</button>
+                            <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">Remover</button>
                         </div>
                     </div>
                 </div>`;
@@ -705,31 +715,52 @@
         db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
             const container = document.getElementById('lista-poderes');
             container.innerHTML = "";
+            const coresElem = { "Morte": "#9ca3af", "Sangue": "#ff4d4d", "Energia": "#a855f7", "Conhecimento": "#cead00", "Geral": "#555", "Nenhum": "#555" };
+            
             snap.forEach(doc => {
                 const p = doc.data();
                 const id = doc.id;
                 const isOpen = menusAbertos.has('pod-' + id);
+                const cor = coresElem[p.elemento] || "#555";
 
                 container.innerHTML += `
-                <div class="ritual-card" data-elem="${p.elemento}">
+                <div class="ritual-card" style="border-left-color: ${cor}">
                     <div class="card-header" onclick="toggleElem('pod-${id}')">
-                        <span>${p.nome || 'Sem nome'}</span> 
+                        <span style="color:${cor}; font-weight:bold">${p.nome || 'Sem nome'}</span> 
                         <span style="font-size:10px; opacity:0.6">${(p.elemento || 'Geral').toUpperCase()}</span>
                     </div>
                     <div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}">
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <input type="text" class="treino-select" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)" style="flex:1; text-align:left; padding:5px;">
-                            <select class="treino-select" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
-                                <option ${p.elemento=='Morte'?'selected':''}>Morte</option>
-                                <option ${p.elemento=='Sangue'?'selected':''}>Sangue</option>
-                                <option ${p.elemento=='Energia'?'selected':''}>Energia</option>
-                                <option ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
-                                <option ${p.elemento=='Geral'?'selected':''}>Geral</option>
-                            </select>
+                        
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field">
+                                <span class="rit-label" style="color:${cor}">Nome do Poder</span>
+                                <input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)">
+                            </div>
+                            <div class="rit-field">
+                                <span class="rit-label" style="color:${cor}">Elemento</span>
+                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
+                                    <option value="Nenhum" ${p.elemento=='Nenhum'?'selected':''}>Nenhum</option>
+                                    <option value="Morte" ${p.elemento=='Morte'?'selected':''}>Morte</option>
+                                    <option value="Sangue" ${p.elemento=='Sangue'?'selected':''}>Sangue</option>
+                                    <option value="Energia" ${p.elemento=='Energia'?'selected':''}>Energia</option>
+                                    <option value="Conhecimento" ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                                    <option value="Geral" ${p.elemento=='Geral'?'selected':''}>Geral</option>
+                                </select>
+                            </div>
                         </div>
-                        <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea>
+                        
+                        <div class="rit-field">
+                            <span class="rit-label" style="color:${cor}">Descrição</span>
+                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea>
+                        </div>
+
+                        <div style="margin-top:10px; padding:10px; border:1px solid #00e5ff33; background:#00e5ff05; border-radius: 4px;">
+                            <span class="rit-label" style="color:#00e5ff; font-weight:bold;">Afinidade</span>
+                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Efeito de afinidade...">${p.afinidade || ""}</textarea>
+                        </div>
+         
                         <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="background:#444" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">Remover</button>
+                            <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">Remover</button>
                         </div>
                     </div>
                 </div>`;
@@ -755,7 +786,7 @@
                         <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;">
                         <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
                         <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="background:#444" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">Remover</button>
+                            <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">Remover</button>
                         </div>
                     </div>
                 </div>`;
@@ -815,4 +846,3 @@
 </script>
 </body>
 </html>
-
