@@ -42,7 +42,7 @@
         .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
         .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 16px; padding: 5px 0; outline: none; }
         
-        /* CORREÇÃO DO SELECT (TEXTO ESCURO NO FUNDO BRANCO DO NAVEGADOR) */
+        /* CORREÇÃO DO SELECT */
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; }
 
         .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; }
@@ -60,11 +60,18 @@
         .status-container { margin-bottom: 12px; }
         .status-header { font-size: 11px; font-weight: bold; color: #aaa; text-align: center; margin-bottom: 4px; }
         .bar-bg { width: 100%; height: 32px; background: #111; position: relative; border: 1px solid #222; overflow: hidden; display: flex; align-items: center; }
-        .bar-fill { height: 100%; transition: width 0.4s; position: absolute; top: 0; left: 0; opacity: 0.8; }
-        .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Special Elite'; align-items: center; }
+        .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
+        .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Special Elite'; align-items: center; transition: opacity 0.3s; }
         .bar-content input { background: transparent; border: none; color: #fff; width: 35px; text-align: center; font-size: 16px; font-family: 'Special Elite'; }
         .bar-btn { cursor: pointer; color: #fff; font-size: 18px; opacity: 0.6; user-select: none; }
         .bar-btn:hover { opacity: 1; }
+
+        /* ESTADO ZERO (MORRENDO / ENLOUQUECENDO) DENTRO DA BARRA */
+        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; gap: 8px; font-family: 'Special Elite'; font-size: 12px; font-weight: bold; }
+        .zero-state.active { display: flex; }
+        .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #fff; }
+        .btn-curar { background: #222; color: #fff; border: 1px solid #555; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; font-family: 'Special Elite'; transition: 0.2s; }
+        .btn-curar:hover { background: var(--cris-purple); color: #000; border-color: var(--cris-purple); }
 
         /* PERÍCIAS */
         .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
@@ -123,66 +130,12 @@
         .rit-checkbox-row input[type="checkbox"] { accent-color: var(--cor-fixo); width: 14px; height: 14px; cursor: pointer; }
         .hidden { display: none !important; }
 
+        .condicao-select, .condicao-text { width: 100%; background: #000; color: #fff; border: 1px solid #333; font-family: 'Roboto'; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* ==========================================
-           ESTILOS DAS CONDIÇÕES
-           ========================================== */
-        .condicoes-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid #222;
-            border-radius: 5px;
-        }
-        .condicoes-title {
-            font-family: 'Special Elite';
-            font-size: 14px;
-            color: var(--cris-purple);
-            margin-bottom: 15px;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-        .condicao-item { margin-bottom: 10px; }
-        .condicao-btn {
-            width: 100%;
-            padding: 10px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            color: #666;
-            font-family: 'Special Elite';
-            cursor: pointer;
-            text-align: center;
-            transition: 0.2s;
-            border-radius: 3px;
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-        .condicao-btn:hover { border-color: #555; color: #aaa; }
-        
-        .condicao-btn.active {
-            background: var(--cris-purple);
-            color: #000;
-            border-color: #fff;
-            font-weight: bold;
-        }
-        
-        .condicao-sub {
-            display: none;
-            padding: 15px;
-            background: #050505;
-            border: 1px solid #222;
-            border-top: none;
-            border-radius: 0 0 3px 3px;
-        }
-        .condicao-btn.active + .condicao-sub { display: block; }
-        
-        .morrendo-dots { display: flex; gap: 15px; justify-content: center; margin-top: 5px; }
-        .dot-check { width: 20px; height: 20px; accent-color: var(--hp-red); cursor: pointer; }
-        .condicao-select, .condicao-text { width: 100%; background: #000; color: #fff; border: 1px solid #333; font-family: 'Roboto'; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; }
-
-        /* ==========================================
-           OTIMIZAÇÃO PARA MOBILE (CELULARES) 
+           OTIMIZAÇÃO PARA MOBILE
            ========================================== */
         @media (max-width: 900px) {
             .grid-container { grid-template-columns: 1fr; gap: 20px; }
@@ -299,10 +252,17 @@
             <div class="status-header">VIDA</div>
             <div class="bar-bg">
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
-                <div class="bar-content">
+                <div class="bar-content" id="content-vida">
                     <span class="bar-btn" onclick="ajustar('vida', -1)">« <</span>
                     <div><input type="number" id="vida-atual" onchange="salvarFicha()"> / <input type="number" id="vida-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
+                </div>
+                <div class="zero-state" id="zero-vida">
+                    <span style="color:var(--hp-red);">MORRENDO</span>
+                    <input type="checkbox" id="mor-1" onchange="salvarFicha()">
+                    <input type="checkbox" id="mor-2" onchange="salvarFicha()">
+                    <input type="checkbox" id="mor-3" onchange="salvarFicha()">
+                    <button class="btn-curar" onclick="curarStatus('vida')">CURAR 1 PV</button>
                 </div>
             </div>
         </div>
@@ -311,10 +271,17 @@
             <div class="status-header">SANIDADE</div>
             <div class="bar-bg">
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
-                <div class="bar-content">
+                <div class="bar-content" id="content-san">
                     <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
                     <div><input type="number" id="san-atual" onchange="salvarFicha()"> / <input type="number" id="san-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
+                </div>
+                <div class="zero-state" id="zero-san">
+                    <span style="color:#00aeff;">ENLOUQUECENDO</span>
+                    <input type="checkbox" id="enlou-1" onchange="salvarFicha()">
+                    <input type="checkbox" id="enlou-2" onchange="salvarFicha()">
+                    <input type="checkbox" id="enlou-3" onchange="salvarFicha()">
+                    <button class="btn-curar" onclick="curarStatus('san')">CURAR 1 SAN</button>
                 </div>
             </div>
         </div>
@@ -323,7 +290,7 @@
             <div class="status-header">ESFORÇO</div>
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
-                <div class="bar-content">
+                <div class="bar-content" id="content-pe">
                     <span class="bar-btn" onclick="ajustar('pe', -1)">« <</span>
                     <div><input type="number" id="pe-atual" onchange="salvarFicha()"> / <input type="number" id="pe-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
@@ -331,51 +298,24 @@
             </div>
         </div>
 
-        <div class="condicoes-section">
-            <div class="condicoes-title">CONDIÇÕES</div>
+        <div style="display: flex; gap: 15px; margin-top: 15px;">
+            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px;">
+                <label style="display:flex; align-items:center; gap:5px; font-size:10px; color:#aaa; font-weight:bold; cursor:pointer;">
+                    <input type="checkbox" id="chk-lesionado" onchange="toggleMiniCond('lesionado'); salvarFicha();" style="accent-color:var(--hp-red);"> LESIONADO
+                </label>
+                <select id="local-lesao" class="condicao-select" onchange="salvarFicha()" style="display:none; margin-top:8px;">
+                    <option value="Membros Superiores">Membros Superiores</option>
+                    <option value="Membros Inferiores">Membros Inferiores</option>
+                    <option value="Tórax">Tórax</option>
+                    <option value="Crânio">Crânio</option>
+                </select>
+            </div>
             
-            <div class="condicao-item">
-                <button id="btn-enlouquecendo" class="condicao-btn" onclick="toggleCondicao('enlouquecendo')">ENLOUQUECENDO</button>
-                <div class="condicao-sub">
-                    <div style="font-size: 10px; text-align: center; color: #888;">RODADAS SEM SALVAMENTO</div>
-                    <div class="morrendo-dots">
-                        <input type="checkbox" id="enlou-1" class="dot-check" onchange="salvarFicha()">
-                        <input type="checkbox" id="enlou-2" class="dot-check" onchange="salvarFicha()">
-                        <input type="checkbox" id="enlou-3" class="dot-check" onchange="salvarFicha()">
-                    </div>
-                </div>
-            </div>
-
-            <div class="condicao-item">
-                <button id="btn-morrendo" class="condicao-btn" onclick="toggleCondicao('morrendo')">MORRENDO</button>
-                <div class="condicao-sub">
-                    <div style="font-size: 10px; text-align: center; color: #888;">TURNOS PASSADOS</div>
-                    <div class="morrendo-dots">
-                        <input type="checkbox" id="mor-1" class="dot-check" onchange="salvarFicha()">
-                        <input type="checkbox" id="mor-2" class="dot-check" onchange="salvarFicha()">
-                        <input type="checkbox" id="mor-3" class="dot-check" onchange="salvarFicha()">
-                    </div>
-                </div>
-            </div>
-
-            <div class="condicao-item">
-                <button id="btn-lesionado" class="condicao-btn" onclick="toggleCondicao('lesionado')">LESIONADO</button>
-                <div class="condicao-sub">
-                    <label style="font-size: 10px; color: #888; display: block; margin-bottom: 5px;">LOCAL DA LESÃO:</label>
-                    <select id="local-lesao" class="condicao-select" onchange="salvarFicha()">
-                        <option value="Membros Superiores">Membros Superiores</option>
-                        <option value="Membros Inferiores">Membros Inferiores</option>
-                        <option value="Tórax">Tórax</option>
-                        <option value="Crânio">Crânio</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="condicao-item">
-                <button id="btn-sequela" class="condicao-btn" onclick="toggleCondicao('sequela')">SEQUELAS PERMANENTES</button>
-                <div class="condicao-sub">
-                    <textarea id="desc-sequela" class="condicao-text" placeholder="Descreva a sequela..." onchange="salvarFicha()" rows="3"></textarea>
-                </div>
+            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px;">
+                <label style="display:flex; align-items:center; gap:5px; font-size:10px; color:#aaa; font-weight:bold; cursor:pointer;">
+                    <input type="checkbox" id="chk-sequela" onchange="toggleMiniCond('sequela'); salvarFicha();" style="accent-color:var(--san-purple);"> SEQUELAS
+                </label>
+                <textarea id="desc-sequela" class="condicao-text" placeholder="Descreva a sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
             </div>
         </div>
 
@@ -481,7 +421,6 @@
     
     let menusAbertos = new Set();
 
-    // --- VARIÁVEIS DO CROP ---
     let modoCrop = ""; 
     let ritualIdAtual = "";
 
@@ -537,7 +476,6 @@
         }
     }
 
-    // --- FUNÇÕES DE CROP ---
     function abrirConfigImagem(tipo, id = "") {
         const url = prompt("Cole a URL da imagem PNG/JPG:");
         if(!url) return;
@@ -572,9 +510,7 @@
         img.style.transform = `scale(${z})`;
     }
 
-    function fecharModal() { 
-        document.getElementById('crop-modal').style.display = 'none'; 
-    }
+    function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
 
     async function confirmarCrop() {
         const url = document.getElementById('temp-img').src;
@@ -583,13 +519,9 @@
         const y = document.getElementById('crop-y').value;
 
         if(modoCrop === 'portrait') {
-            await db.collection("fichas").doc(atual).update({ 
-                portrait: url, pX: x, pY: y, pZ: z 
-            });
+            await db.collection("fichas").doc(atual).update({ portrait: url, pX: x, pY: y, pZ: z });
         } else {
-            await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ 
-                simbolo: url, sX: x, sY: y, sZ: z 
-            });
+            await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: url, sX: x, sY: y, sZ: z });
         }
         fecharModal();
     }
@@ -600,7 +532,6 @@
             return `
             <div class="pericia-row" id="row-${p}">
                 <span class="pericia-nome" onclick="toggleDescricao('${p}')" title="Clique para detalhes">${p}</span>
-                
                 <select id="attr-${p}" class="treino-select" onchange="salvarFicha()" style="background:transparent; border:none; border-bottom:1px solid #333; cursor:pointer;">
                     <option value="AGI" ${info.attr==='AGI'?'selected':''}>AGI</option>
                     <option value="FOR" ${info.attr==='FOR'?'selected':''}>FOR</option>
@@ -608,13 +539,10 @@
                     <option value="PRE" ${info.attr==='PRE'?'selected':''}>PRE</option>
                     <option value="VIG" ${info.attr==='VIG'?'selected':''}>VIG</option>
                 </select>
-                
                 <input type="number" id="bonus-${p}" class="treino-select" value="0" style="background:transparent; border:none; border-bottom:1px solid #333;" onchange="salvarFicha()">
-                
                 <select id="treino-${p}" class="treino-select" style="cursor:pointer;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
                     <option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option>
                 </select>
-                
                 <span id="total-${p}" style="font-family:'Special Elite'; color:var(--cris-purple); font-size:16px;">0</span>
             </div>
             <div id="desc-${p}" class="pericia-desc">${info.desc}</div>
@@ -637,7 +565,6 @@
             document.getElementById('classe-personagem').value = d.classe || "";
             document.getElementById('idade-personagem').value = d.idade || 0;
             
-            // CARREGAR CROP DO PORTRAIT
             if (d.portrait) {
                 const img = document.getElementById('display-portrait');
                 img.src = d.portrait;
@@ -658,7 +585,6 @@
             document.getElementById('nex-personagem').value = d.nex || "5%";
             document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
 
-            // LIMITE PE
             const bLimitePe = parseInt(d.bonusLimitePe) || 0;
             document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
             document.getElementById('display-limite-pe').innerText = nivel + bLimitePe;
@@ -711,30 +637,23 @@
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
             document.getElementById('display-bloqueio').innerText = fortTreino + bBloq;
             
-            // CARREGAR CONDIÇÕES
-            const setToggle = (id, isActive) => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    if (isActive) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                }
-            };
-            
-            setToggle('btn-enlouquecendo', d.condEnlouquecendo);
-            setToggle('btn-morrendo', d.condMorrendo);
-            setToggle('btn-lesionado', d.condLesionado);
-            setToggle('btn-sequela', d.condSequela);
-
+            // CONDIÇÕES: CHECKBOXES
             if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false;
             if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false;
             if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false;
             if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false;
             if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false;
             if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
+            
+            // CONDIÇÕES MENORES
+            document.getElementById('chk-lesionado').checked = d.condLesionado || false;
+            document.getElementById('chk-sequela').checked = d.condSequela || false;
+            toggleMiniCond('lesionado');
+            toggleMiniCond('sequela');
+            
             if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
             if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
 
-            // CORREÇÃO DA DT: 10 + INT + BÔNUS
             document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + bDt;
         });
     }
@@ -768,11 +687,7 @@
             const tVal = document.getElementById(`treino-${p}`) ? parseInt(document.getElementById(`treino-${p}`).value) || 0 : 0;
             const aVal = document.getElementById(`attr-${p}`) ? document.getElementById(`attr-${p}`).value : bancoPericias[p].attr;
             
-            periciasObj[p] = {
-                bonus: bVal,
-                treino: tVal,
-                atributo: aVal
-            };
+            periciasObj[p] = { bonus: bVal, treino: tVal, atributo: aVal };
         });
 
         db.collection("fichas").doc(atual).update({
@@ -804,10 +719,8 @@
             bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0,
             bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             
-            condEnlouquecendo: document.getElementById('btn-enlouquecendo').classList.contains('active'),
-            condMorrendo: document.getElementById('btn-morrendo').classList.contains('active'),
-            condLesionado: document.getElementById('btn-lesionado').classList.contains('active'),
-            condSequela: document.getElementById('btn-sequela').classList.contains('active'),
+            condLesionado: document.getElementById('chk-lesionado').checked,
+            condSequela: document.getElementById('chk-sequela').checked,
             enlou1: document.getElementById('enlou-1').checked,
             enlou2: document.getElementById('enlou-2').checked,
             enlou3: document.getElementById('enlou-3').checked,
@@ -833,9 +746,34 @@
         const inputAt = document.getElementById(`${tipo}-atual`);
         const inputMx = document.getElementById(`${tipo}-max`);
         const bar = document.getElementById(`bar-${tipo}`);
+        
+        // Verifica se entrou no estado Morrendo/Enlouquecendo
+        if(tipo === 'vida' || tipo === 'san') {
+            const zeroState = document.getElementById(`zero-${tipo}`);
+            const contentState = document.getElementById(`content-${tipo}`);
+            if (at <= 0) {
+                zeroState.classList.add('active');
+                contentState.style.opacity = '0'; 
+            } else {
+                zeroState.classList.remove('active');
+                contentState.style.opacity = '1';
+                // Reseta os checkboxes quando curado
+                if (tipo === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; }
+                if (tipo === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; }
+            }
+        }
+
         if(inputAt) inputAt.value = at;
         if(inputMx) inputMx.value = mx;
-        if(bar) bar.style.width = Math.min((at / mx) * 100, 100) + "%";
+        if(bar) {
+            bar.style.width = Math.max(0, Math.min((at / mx) * 100, 100)) + "%";
+            // Escurece qualquer barra se estiver na metade ou menos
+            if(mx > 0 && at <= (mx / 2)) {
+                bar.style.filter = "brightness(0.35)";
+            } else {
+                bar.style.filter = "brightness(1)";
+            }
+        }
     }
 
     function ajustar(tipo, v) {
@@ -845,6 +783,21 @@
             let novoValor = (parseInt(input.value) || 0) + v;
             atualizarStatus(tipo, novoValor, parseInt(max.value) || 1);
             salvarFicha();
+        }
+    }
+
+    function curarStatus(tipo) {
+        const mx = parseInt(document.getElementById(`${tipo}-max`).value) || 1;
+        document.getElementById(`${tipo}-atual`).value = 1;
+        atualizarStatus(tipo, 1, mx);
+        salvarFicha();
+    }
+
+    function toggleMiniCond(tipo) {
+        if (tipo === 'lesionado') {
+            document.getElementById('local-lesao').style.display = document.getElementById('chk-lesionado').checked ? 'block' : 'none';
+        } else if (tipo === 'sequela') {
+            document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none';
         }
     }
 
@@ -869,17 +822,12 @@
                         <span style="font-size:10px; opacity:0.6">${(r.elemento || 'Morte').toUpperCase()}</span>
                     </div>
                     <div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}">
-                        
                         <div class="rit-layout-top">
                             <div class="rit-symbol-box" onclick="abrirConfigImagem('ritual', '${id}')">
                                 ${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0;">` : `<span>SÍMBOLO<br>(Clique)</span>`}
                             </div>
-                            
                             <div class="rit-grid-2">
-                                <div class="rit-field">
-                                    <span class="rit-label" style="color:${cor}">Nome do Ritual</span>
-                                    <input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)">
-                                </div>
+                                <div class="rit-field"><span class="rit-label" style="color:${cor}">Nome do Ritual</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div>
                                 <div class="rit-field">
                                     <span class="rit-label" style="color:${cor}">Elemento</span>
                                     <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)">
@@ -892,34 +840,25 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="rit-checkbox-row">
                             <label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Ritual Aprendido</label>
                             <label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Primeira Conjuração</label>
                         </div>
-
-                        <div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;">
-                            <span class="rit-label" style="color:${cor}">Tempo até Aprendizado</span>
-                            <input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)">
-                        </div>
-
+                        <div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Tempo até Aprendizado</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div>
                         <div class="rit-grid-2">
                             <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Conjuração</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div>
                             <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div>
                             <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div>
                             <div class="rit-field"><span class="rit-label" style="color:${cor}">Duração</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div>
                         </div>
-
                         <div class="rit-grid-2" style="margin-top: 10px;">
                             <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo PE</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div>
                             <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo Sanidade</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div>
                         </div>
-
                         <div class="rit-field" style="margin-top: 10px;">
                             <span class="rit-label" style="color:${cor}">Descrição</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea>
                         </div>
-
                         <div style="text-align:right; margin-top:10px;">
                             <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">Remover</button>
                         </div>
@@ -948,12 +887,8 @@
                         <span style="font-size:10px; opacity:0.6">${(p.elemento || 'Geral').toUpperCase()}</span>
                     </div>
                     <div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}">
-                        
                         <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field">
-                                <span class="rit-label" style="color:${cor}">Nome do Poder</span>
-                                <input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)">
-                            </div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Nome do Poder</span><input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div>
                             <div class="rit-field">
                                 <span class="rit-label" style="color:${cor}">Elemento</span>
                                 <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
@@ -966,17 +901,14 @@
                                 </select>
                             </div>
                         </div>
-                        
                         <div class="rit-field">
                             <span class="rit-label" style="color:${cor}">Descrição</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea>
                         </div>
-
                         <div style="margin-top:10px; padding:10px; border:1px solid #00e5ff33; background:#00e5ff05; border-radius: 4px;">
                             <span class="rit-label" style="color:#00e5ff; font-weight:bold;">Afinidade</span>
                             <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Efeito de afinidade...">${p.afinidade || ""}</textarea>
                         </div>
-         
                         <div style="text-align:right; margin-top:10px;">
                             <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">Remover</button>
                         </div>
@@ -997,9 +929,7 @@
 
                 container.innerHTML += `
                 <div class="ritual-card">
-                    <div class="card-header" onclick="toggleElem('hab-${id}')">
-                        <span>${h.nome || 'Sem nome'}</span>
-                    </div>
+                    <div class="card-header" onclick="toggleElem('hab-${id}')"><span>${h.nome || 'Sem nome'}</span></div>
                     <div class="card-body" id="hab-${id}" style="display:${isOpen ? 'block' : 'none'}">
                         <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;">
                         <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
@@ -1019,7 +949,6 @@
             tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: ""
         }); 
     }
-    
     async function novoPoder() { await db.collection("fichas").doc(atual).collection("poderes").add({ nome: "Novo Poder", elemento: "Geral", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
     
@@ -1036,13 +965,8 @@
     function toggleElem(id) { 
         const b = document.getElementById(id); 
         if(!b) return;
-        if(b.style.display === 'block') {
-            b.style.display = 'none';
-            menusAbertos.delete(id);
-        } else {
-            b.style.display = 'block';
-            menusAbertos.add(id);
-        }
+        if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } 
+        else { b.style.display = 'block'; menusAbertos.add(id); }
     }
     
     function mudarAba(id) {
@@ -1053,19 +977,9 @@
         if(event && event.currentTarget) event.currentTarget.classList.add('active');
     }
 
-    function toggleCondicao(id) {
-        const btn = document.getElementById('btn-' + id);
-        btn.classList.toggle('active'); 
-        salvarFicha(); 
-    }
-
     auth.onAuthStateChanged(user => {
-        if (user) {
-            init(); 
-        } else {
-            alert("Sessão expirada. Voltando ao Hub.");
-            window.location.href = "index.html";
-        }
+        if (user) { init(); } 
+        else { alert("Sessão expirada. Voltando ao Hub."); window.location.href = "index.html"; }
     });
 </script>
 </body>
