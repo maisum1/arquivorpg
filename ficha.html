@@ -73,6 +73,19 @@
         .btn-curar { background: #222; color: #fff; border: 1px solid #555; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; font-family: 'Special Elite'; transition: 0.2s; }
         .btn-curar:hover { background: var(--cris-purple); color: #000; border-color: var(--cris-purple); }
 
+        /* DESIGN BONITO PARA LESIONADO E SEQUELAS */
+        .mini-cond-chk { display: none; }
+        .mini-cond-label {
+            display: block; width: 100%; text-align: center; padding: 8px;
+            background: #111; border: 1px solid #333; border-radius: 3px;
+            color: #666; font-family: 'Special Elite'; font-size: 11px;
+            cursor: pointer; transition: 0.3s; user-select: none;
+            letter-spacing: 1px;
+        }
+        .mini-cond-label:hover { border-color: #666; color: #ccc; }
+        #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #fff; font-weight: bold; }
+        #chk-sequela:checked + .mini-cond-label { background: var(--san-purple); color: #fff; border-color: #fff; font-weight: bold; }
+
         /* PERÍCIAS */
         .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
         .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; }
@@ -300,9 +313,8 @@
 
         <div style="display: flex; gap: 15px; margin-top: 15px;">
             <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px;">
-                <label style="display:flex; align-items:center; gap:5px; font-size:10px; color:#aaa; font-weight:bold; cursor:pointer;">
-                    <input type="checkbox" id="chk-lesionado" onchange="toggleMiniCond('lesionado'); salvarFicha();" style="accent-color:var(--hp-red);"> LESIONADO
-                </label>
+                <input type="checkbox" id="chk-lesionado" class="mini-cond-chk" onchange="toggleMiniCond('lesionado'); salvarFicha();">
+                <label for="chk-lesionado" class="mini-cond-label">LESIONADO</label>
                 <select id="local-lesao" class="condicao-select" onchange="salvarFicha()" style="display:none; margin-top:8px;">
                     <option value="Membros Superiores">Membros Superiores</option>
                     <option value="Membros Inferiores">Membros Inferiores</option>
@@ -312,9 +324,8 @@
             </div>
             
             <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px;">
-                <label style="display:flex; align-items:center; gap:5px; font-size:10px; color:#aaa; font-weight:bold; cursor:pointer;">
-                    <input type="checkbox" id="chk-sequela" onchange="toggleMiniCond('sequela'); salvarFicha();" style="accent-color:var(--san-purple);"> SEQUELAS
-                </label>
+                <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
+                <label for="chk-sequela" class="mini-cond-label">SEQUELAS</label>
                 <textarea id="desc-sequela" class="condicao-text" placeholder="Descreva a sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
             </div>
         </div>
@@ -541,7 +552,7 @@
                 </select>
                 <input type="number" id="bonus-${p}" class="treino-select" value="0" style="background:transparent; border:none; border-bottom:1px solid #333;" onchange="salvarFicha()">
                 <select id="treino-${p}" class="treino-select" style="cursor:pointer;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
-                    <option value="0">0</option><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option>
+                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
                 </select>
                 <span id="total-${p}" style="font-family:'Special Elite'; color:var(--cris-purple); font-size:16px;">0</span>
             </div>
@@ -613,7 +624,12 @@
                         aField.value = dadosPericia.atributo;
                     }
                     if(totalSpan) {
-                        totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0);
+                        // SOMA: Bônus + Treino + VALOR DO ATRIBUTO ATUAL
+                        const attrUsado = dadosPericia.atributo || bancoPericias[p].attr;
+                        const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
+                        const attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                        
+                        totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue;
                     }
                 });
             }
@@ -637,7 +653,7 @@
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
             document.getElementById('display-bloqueio').innerText = fortTreino + bBloq;
             
-            // CONDIÇÕES: CHECKBOXES
+            // CONDIÇÕES: CHECKBOXES DE MORRENDO E ENLOUQUECENDO
             if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false;
             if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false;
             if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false;
@@ -645,7 +661,7 @@
             if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false;
             if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
             
-            // CONDIÇÕES MENORES
+            // CONDIÇÕES MENORES (LESÃO E SEQUELA)
             document.getElementById('chk-lesionado').checked = d.condLesionado || false;
             document.getElementById('chk-sequela').checked = d.condSequela || false;
             toggleMiniCond('lesionado');
@@ -688,6 +704,13 @@
             const aVal = document.getElementById(`attr-${p}`) ? document.getElementById(`attr-${p}`).value : bancoPericias[p].attr;
             
             periciasObj[p] = { bonus: bVal, treino: tVal, atributo: aVal };
+
+            const totalSpan = document.getElementById(`total-${p}`);
+            if(totalSpan) {
+                const attrInput = document.getElementById(`attr-${aVal.toLowerCase()}`);
+                const attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                totalSpan.innerText = bVal + tVal + attrValue;
+            }
         });
 
         db.collection("fichas").doc(atual).update({
@@ -736,10 +759,10 @@
         const el = document.getElementById(`row-${nome}`);
         if(!el) return;
         el.classList.remove('p-verde', 'p-azul', 'p-laranja', 'p-vermelho');
-        if(valor == "5") el.classList.add('p-verde');
-        else if(valor == "10") el.classList.add('p-azul');
-        else if(valor == "15") el.classList.add('p-laranja');
-        else if(valor == "20") el.classList.add('p-vermelho');
+        if(valor == "1") el.classList.add('p-verde');
+        else if(valor == "2") el.classList.add('p-azul');
+        else if(valor == "3") el.classList.add('p-laranja');
+        else if(valor == "4") el.classList.add('p-vermelho');
     }
 
     function atualizarStatus(tipo, at, mx) {
@@ -747,7 +770,6 @@
         const inputMx = document.getElementById(`${tipo}-max`);
         const bar = document.getElementById(`bar-${tipo}`);
         
-        // Verifica se entrou no estado Morrendo/Enlouquecendo
         if(tipo === 'vida' || tipo === 'san') {
             const zeroState = document.getElementById(`zero-${tipo}`);
             const contentState = document.getElementById(`content-${tipo}`);
@@ -757,7 +779,6 @@
             } else {
                 zeroState.classList.remove('active');
                 contentState.style.opacity = '1';
-                // Reseta os checkboxes quando curado
                 if (tipo === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; }
                 if (tipo === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; }
             }
@@ -767,7 +788,6 @@
         if(inputMx) inputMx.value = mx;
         if(bar) {
             bar.style.width = Math.max(0, Math.min((at / mx) * 100, 100)) + "%";
-            // Escurece qualquer barra se estiver na metade ou menos
             if(mx > 0 && at <= (mx / 2)) {
                 bar.style.filter = "brightness(0.35)";
             } else {
