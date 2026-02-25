@@ -541,13 +541,15 @@
         document.getElementById('crop-modal').style.display = 'block';
     }
     function atualizarPreview() {
-        const z = document.getElementById('crop-zoom').value;
-        const x = document.getElementById('crop-x').value;
-        const y = document.getElementById('crop-y').value;
-        const img = document.getElementById('temp-img');
-        img.style.objectPosition = `${x}% ${y}%`;
-        img.style.transform = `scale(${z})`;
-    }
+    const img = document.getElementById('preview-img'); // Verifique se o ID da sua imagem é este
+    const x = document.getElementById('crop-x').value;
+    const y = document.getElementById('crop-y').value;
+    const zoom = document.getElementById('crop-zoom').value || 1; // caso tenha slider de zoom
+
+    // O segredo está aqui: usamos px (pixels) em vez de %
+    // Isso move a imagem independente do tamanho dela
+    img.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+}
     function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
     async function confirmarCrop() {
         const url = document.getElementById('temp-img').src;
@@ -1075,6 +1077,7 @@
 </script>
 </body>
 </html>
+
 
 
 
