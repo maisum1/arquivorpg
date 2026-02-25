@@ -19,13 +19,12 @@
             --pe-orange: #5A0C92;
             --bg-dark: #090909;
             
-            /* CORES DOS ELEMENTOS E ESTILO CTHULHU */
             --cor-morte: #1a1a1a;
             --cor-sangue: #8b0000;
             --cor-energia: #5a009d;
             --cor-conhecimento: #cead00;
             --cor-geral: #555;
-            --cor-fixo: #eab308; /* Alaranjado para Rótulos Fixos */
+            --cor-fixo: #eab308;
         }
 
         body { background-color: var(--bg-dark); color: #e0e0e0; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; }
@@ -33,7 +32,6 @@
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* AJUSTE DO GRID PARA 2 COLUNAS (DESKTOP) */
         .grid-container { display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; }
 
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 24px; padding: 5px 0; margin-bottom: 10px; outline: none; }
@@ -41,8 +39,6 @@
         .sub-input-group { flex: 1; display: flex; flex-direction: column; }
         .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
         .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 16px; padding: 5px 0; outline: none; }
-        
-        /* CORREÇÃO DO SELECT */
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; }
 
         .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; }
@@ -66,27 +62,18 @@
         .bar-btn { cursor: pointer; color: #fff; font-size: 18px; opacity: 0.6; user-select: none; }
         .bar-btn:hover { opacity: 1; }
 
-        /* ESTADO ZERO (MORRENDO / ENLOUQUECENDO) DENTRO DA BARRA */
         .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; gap: 8px; font-family: 'Special Elite'; font-size: 12px; font-weight: bold; }
         .zero-state.active { display: flex; }
         .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #fff; }
         .btn-curar { background: #222; color: #fff; border: 1px solid #555; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; font-family: 'Special Elite'; transition: 0.2s; }
         .btn-curar:hover { background: var(--cris-purple); color: #000; border-color: var(--cris-purple); }
 
-        /* DESIGN BONITO PARA LESIONADO E SEQUELAS */
         .mini-cond-chk { display: none; }
-        .mini-cond-label {
-            display: block; width: 100%; text-align: center; padding: 8px;
-            background: #111; border: 1px solid #333; border-radius: 3px;
-            color: #666; font-family: 'Special Elite'; font-size: 11px;
-            cursor: pointer; transition: 0.3s; user-select: none;
-            letter-spacing: 1px; box-sizing: border-box; /* Adicionado para evitar que vaze da grid */
-        }
+        .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: #111; border: 1px solid #333; border-radius: 3px; color: #666; font-family: 'Special Elite'; font-size: 11px; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
         .mini-cond-label:hover { border-color: #666; color: #ccc; }
         #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #fff; font-weight: bold; }
         #chk-sequela:checked + .mini-cond-label { background: var(--san-purple); color: #fff; border-color: #fff; font-weight: bold; }
 
-        /* PERÍCIAS */
         .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
         .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; }
         .pericia-header > span:first-child { text-align: left; }
@@ -145,11 +132,27 @@
 
         .condicao-select, .condicao-text { width: 100%; background: #000; color: #fff; border: 1px solid #333; font-family: 'Roboto'; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; }
 
+        /* ESTILOS DA ENGRENAGEM DE CONFIGURAÇÃO DO PORTRAIT */
+        .btn-config {
+            position: fixed; top: 10px; right: 10px; z-index: 999;
+            background: none; border: none; color: var(--cris-purple);
+            font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s;
+        }
+        .btn-config:hover { opacity: 1; transform: rotate(90deg); }
+
+        #modal-config {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #111; border: 2px solid var(--cris-purple); padding: 20px;
+            z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0,0,0,0.9);
+            border-radius: 5px;
+        }
+        .config-field { margin-bottom: 15px; text-align: left; }
+        .config-field label { display: block; font-size: 10px; color: #aaa; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; font-weight: bold;}
+        .config-field input { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 8px; box-sizing: border-box; font-family: 'Special Elite'; font-size: 12px;}
+        .btn-copy-link { background: var(--pe-orange); color: white; border: none; padding: 10px; width: 100%; cursor: pointer; margin-top: 10px; font-family: 'Special Elite'; font-weight: bold;}
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* ==========================================
-           OTIMIZAÇÃO PARA MOBILE
-           ========================================== */
         @media (max-width: 900px) {
             .grid-container { grid-template-columns: 1fr; gap: 20px; }
             .header-sub-row { flex-wrap: wrap; }
@@ -166,6 +169,32 @@
     </style>
 </head>
 <body>
+
+<button class="btn-config" onclick="toggleElem('modal-config')" title="Configurar Overlay OBS">⚙️</button>
+
+<div id="modal-config">
+    <h3 style="margin-top:0; font-family:'Special Elite'; color:var(--cris-purple); text-align:center;">CONFIGURAÇÕES DA LIVE (OBS)</h3>
+    <div class="config-field">
+        <label>URL Imagem Normal (PNG)</label>
+        <input type="text" id="img-normal" placeholder="https://...">
+    </div>
+    <div class="config-field">
+        <label>URL Imagem Machucado (Metade ou menos de Vida)</label>
+        <input type="text" id="img-machucado" placeholder="https://...">
+    </div>
+    <div class="config-field">
+        <label>URL Imagem Enlouquecendo (0 de Sanidade)</label>
+        <input type="text" id="img-enlouquecendo" placeholder="https://...">
+    </div>
+    <div class="config-field">
+        <label>URL Imagem Morto (0 de Vida)</label>
+        <input type="text" id="img-morto" placeholder="Se vazio, a imagem fica preta">
+    </div>
+    
+    <button class="btn-copy-link" onclick="copiarLinkOBS()">COPIAR LINK PARA OBS</button>
+    <button onclick="salvarConfigPortrait()" style="margin-top:10px; width:100%; background:var(--cris-purple); color:black; border:none; padding:10px; cursor:pointer; font-weight:bold; font-family:'Special Elite';">SALVAR CONFIGS</button>
+    <button onclick="toggleElem('modal-config')" style="margin-top:10px; width:100%; background:#444; color:white; border:none; padding:10px; cursor:pointer; font-family:'Special Elite';">FECHAR</button>
+</div>
 
 <div id="crop-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 20px; border: 2px solid var(--cris-purple); z-index: 10000; text-align: center; border-radius: 8px; width: 250px; box-shadow: 0 0 30px #000;">
     <h3 style="margin:0 0 15px 0; font-family:'Special Elite'; color: var(--cris-purple);">AJUSTAR IMAGEM</h3>
@@ -431,7 +460,6 @@
     let atual = urlParams.get('id');
     
     let menusAbertos = new Set();
-
     let modoCrop = ""; 
     let ritualIdAtual = "";
 
@@ -487,6 +515,7 @@
         }
     }
 
+    /* FUNÇÕES DE CROP */
     function abrirConfigImagem(tipo, id = "") {
         const url = prompt("Cole a URL da imagem PNG/JPG:");
         if(!url) return;
@@ -511,7 +540,6 @@
         
         document.getElementById('crop-modal').style.display = 'block';
     }
-
     function atualizarPreview() {
         const z = document.getElementById('crop-zoom').value;
         const x = document.getElementById('crop-x').value;
@@ -520,9 +548,7 @@
         img.style.objectPosition = `${x}% ${y}%`;
         img.style.transform = `scale(${z})`;
     }
-
     function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
-
     async function confirmarCrop() {
         const url = document.getElementById('temp-img').src;
         const z = document.getElementById('crop-zoom').value;
@@ -535,6 +561,25 @@
             await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: url, sX: x, sY: y, sZ: z });
         }
         fecharModal();
+    }
+
+    /* FUNÇÕES DE PORTRAIT OBS */
+    async function salvarConfigPortrait() {
+        const config = {
+            portraitNormal: document.getElementById('img-normal').value,
+            portraitMachucado: document.getElementById('img-machucado').value,
+            portraitEnlouquecendo: document.getElementById('img-enlouquecendo').value,
+            portraitMorto: document.getElementById('img-morto').value
+        };
+        await db.collection("fichas").doc(atual).update(config);
+        alert("Configurações de imagem salvas com sucesso!");
+        toggleElem('modal-config');
+    }
+    function copiarLinkOBS() {
+        const urlBase = window.location.href.split('ficha.html')[0];
+        const linkFull = `${urlBase}portrait.html?id=${atual}`;
+        navigator.clipboard.writeText(linkFull);
+        alert("Link copiado!\nNo OBS, adicione uma fonte 'Navegador' (Browser).\nCole o link.\nLargura: 400 | Altura: 550");
     }
 
     function gerarPericiasBase() {
@@ -574,11 +619,10 @@
         const nexStr = document.getElementById('nex-personagem').value || "0%";
         const nex = parseInt(nexStr) || 0;
 
-        const novaVida = 10 + (2 * vig) + (nivel);
+        const novaVida = 10 + (2 * vig) + (2 * nivel);
         const novaSan = 50 + (15 * pre);
         const novoPe = 4 + vig + pre + Math.floor(nex / 10);
         
-        // Força os valores atuais a serem iguais aos novos máximos
         document.getElementById('vida-max').value = novaVida;
         document.getElementById('san-max').value = novaSan;
         document.getElementById('pe-max').value = novoPe;
@@ -612,6 +656,12 @@
             document.getElementById('classe-personagem').value = d.classe || "";
             document.getElementById('idade-personagem').value = d.idade || 0;
             
+            // CARREGA LINKS DO PORTRAIT MODAL
+            document.getElementById('img-normal').value = d.portraitNormal || "";
+            document.getElementById('img-machucado').value = d.portraitMachucado || "";
+            document.getElementById('img-enlouquecendo').value = d.portraitEnlouquecendo || "";
+            document.getElementById('img-morto').value = d.portraitMorto || "";
+
             if (d.portrait) {
                 const img = document.getElementById('display-portrait');
                 img.src = d.portrait;
@@ -696,7 +746,6 @@
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
             document.getElementById('display-bloqueio').innerText = fortTreino + bBloq;
             
-            // CONDIÇÕES: CHECKBOXES DE MORRENDO E ENLOUQUECENDO
             if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false;
             if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false;
             if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false;
@@ -704,7 +753,6 @@
             if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false;
             if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
             
-            // CONDIÇÕES MENORES
             document.getElementById('chk-lesionado').checked = d.condLesionado || false;
             document.getElementById('chk-sequela').checked = d.condSequela || false;
             toggleMiniCond('lesionado');
@@ -713,13 +761,11 @@
             if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
             if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
 
-            document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + bDt;
+            document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + nivel + bDt;
         });
     }
 
-    function aplicarClasse() {
-        salvarFicha();
-    }
+    function aplicarClasse() { salvarFicha(); }
 
     function salvarFicha() {
         const periciasObj = {};
@@ -1029,4 +1075,3 @@
 </script>
 </body>
 </html>
-
