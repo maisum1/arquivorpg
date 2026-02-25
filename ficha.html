@@ -218,13 +218,13 @@
                         <label>ORIGEM</label>
                         <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
                     </div>
-                    <div class="sub-input-group">
-                        <label>CLASSE</label>
-                        <select id="classe-personagem" onchange="aplicarClasse()">
+                    <div class="sub-input-group" id="grupo-arquetipo" style="display: none;">
+                        <label>ARQUÉTIPO</label>
+                        <select id="classe-personagem" onchange="salvarFicha()">
                             <option value="">Selecione...</option>
-                            <option value="Combatente">Combatente</option>
+                            <option value="Canalizador">Canalizador</option>
                             <option value="Esotérico">Esotérico</option>
-                            <option value="Polímata">Polímata</option>
+                            <option value="Focalizador">Focalizador</option>
                         </select>
                     </div>
                 </div>
@@ -234,19 +234,19 @@
         <div class="sigilo-container">
             <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="salvarFicha()"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
-            <div class="attr-box int"><span class="attr-label">INT</span><input type="number" id="attr-int" onchange="salvarFicha()"></div>
-            <div class="attr-box pre"><span class="attr-label">PRE</span><input type="number" id="attr-pre" onchange="salvarFicha()"></div>
-            <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="salvarFicha()"></div>
+            <div class="attr-box int"><span class="attr-label">INT</span><input type="number" id="attr-int" onchange="recalcularBases()"></div>
+            <div class="attr-box pre"><span class="attr-label">PRE</span><input type="number" id="attr-pre" onchange="recalcularBases()"></div>
+            <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="recalcularBases()"></div>
         </div>
 
         <div class="mid-stats">
             <div class="stat-box">
                 <label>NÍVEL</label>
-                <select id="nivel-personagem" onchange="salvarFicha()"></select>
+                <select id="nivel-personagem" onchange="recalcularBases()"></select>
             </div>
             <div class="stat-box">
                 <label>NEX</label>
-                <select id="nex-personagem" onchange="salvarFicha()"></select>
+                <select id="nex-personagem" onchange="recalcularBases()"></select>
             </div>
             <div class="stat-box">
                 <div style="display:flex; align-items:center; gap:5px;">
@@ -464,7 +464,7 @@
     function gerarOpcoesNivelNex() {
         const nivelSel = document.getElementById('nivel-personagem');
         let lvlHtml = '';
-        for(let i=1; i<=20; i++) lvlHtml += `<option value="${i}">${i}</option>`;
+        for(let i=1; i<=6; i++) lvlHtml += `<option value="${i}">${i}</option>`;
         nivelSel.innerHTML = lvlHtml;
 
         const nexSel = document.getElementById('nex-personagem');
@@ -566,6 +566,44 @@
         desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
     }
 
+    function recalcularBases() {
+        const vig = parseInt(document.getElementById('attr-vig').value) || 0;
+        const pre = parseInt(document.getElementById('attr-pre').value) || 0;
+        const int = parseInt(document.getElementById('attr-int').value) || 0;
+        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 1;
+        const nexStr = document.getElementById('nex-personagem').value || "0%";
+        const nex = parseInt(nexStr) || 0;
+
+        const novaVida = 10 + (2 * vig) + (2 * nivel);
+        const novaSan = 50 + (15 * pre);
+        const novoPe = 4 + vig + pre + Math.floor(nex / 10);
+        
+        let vidaAt = parseInt(document.getElementById('vida-atual').value);
+        if(isNaN(vidaAt)) vidaAt = novaVida;
+        let sanAt = parseInt(document.getElementById('san-atual').value);
+        if(isNaN(sanAt)) sanAt = novaSan;
+        let peAt = parseInt(document.getElementById('pe-atual').value);
+        if(isNaN(peAt)) peAt = novoPe;
+
+        document.getElementById('vida-max').value = novaVida;
+        document.getElementById('san-max').value = novaSan;
+        document.getElementById('pe-max').value = novoPe;
+        
+        document.getElementById('vida-atual').value = vidaAt;
+        document.getElementById('san-atual').value = sanAt;
+        document.getElementById('pe-atual').value = peAt;
+
+        const divArq = document.getElementById('grupo-arquetipo');
+        if (nivel >= 3) {
+            divArq.style.display = 'flex';
+        } else {
+            divArq.style.display = 'none';
+            document.getElementById('classe-personagem').value = ""; 
+        }
+
+        salvarFicha();
+    }
+
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             const d = doc.data();
@@ -596,9 +634,18 @@
             document.getElementById('nex-personagem').value = d.nex || "5%";
             document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
 
+            const divArq = document.getElementById('grupo-arquetipo');
+            if (nivel >= 3) {
+                divArq.style.display = 'flex';
+            } else {
+                divArq.style.display = 'none';
+            }
+
+            const nex = parseInt(d.nex) || 0;
+            const int = parseInt(d.int) || 0;
             const bLimitePe = parseInt(d.bonusLimitePe) || 0;
             document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
-            document.getElementById('display-limite-pe').innerText = nivel + bLimitePe;
+            document.getElementById('display-limite-pe').innerText = (2 * nivel) + int + Math.floor(nex / 5) + bLimitePe;
 
             atualizarStatus('vida', d.vidaAtual ?? 20, d.vidaMax ?? 20);
             atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
@@ -624,11 +671,9 @@
                         aField.value = dadosPericia.atributo;
                     }
                     if(totalSpan) {
-                        // SOMA: Bônus + Treino + VALOR DO ATRIBUTO ATUAL
                         const attrUsado = dadosPericia.atributo || bancoPericias[p].attr;
                         const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
                         const attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
-                        
                         totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue;
                     }
                 });
@@ -661,7 +706,7 @@
             if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false;
             if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
             
-            // CONDIÇÕES MENORES (LESÃO E SEQUELA)
+            // CONDIÇÕES MENORES
             document.getElementById('chk-lesionado').checked = d.condLesionado || false;
             document.getElementById('chk-sequela').checked = d.condSequela || false;
             toggleMiniCond('lesionado');
@@ -672,28 +717,6 @@
 
             document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + bDt;
         });
-    }
-
-    function aplicarClasse() {
-        const classe = document.getElementById('classe-personagem').value;
-        const vig = parseInt(document.getElementById('attr-vig').value) || 0;
-        
-        const atributosClasse = {
-            "Combatente": { vida: 20, san: 12, pe: 2 },
-            "Esotérico": { vida: 12, san: 20, pe: 3 },
-            "Polímata": { vida: 16, san: 16, pe: 4 }
-        };
-
-        if (atributosClasse[classe]) {
-            const novaVida = atributosClasse[classe].vida + vig;
-            const novaSan = atributosClasse[classe].san;
-            const novoPe = atributosClasse[classe].pe;
-
-            atualizarStatus('vida', novaVida, novaVida);
-            atualizarStatus('san', novaSan, novaSan);
-            atualizarStatus('pe', novoPe, novoPe);
-        }
-        salvarFicha();
     }
 
     function salvarFicha() {
