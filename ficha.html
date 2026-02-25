@@ -638,6 +638,27 @@ function ajustarPortrait() {
         alert("Configurações de imagem salvas com sucesso!");
         toggleElem('modal-config');
     }
+    async function salvarRecorte() {
+    const estado = document.getElementById('select-estado-ajuste').value;
+    const zoom = document.getElementById('p-zoom').value;
+    const x = document.getElementById('p-x').value;
+    const y = document.getElementById('p-y').value;
+
+    // Monta o objeto com os nomes corretos que o portrait.html espera ler
+    const dados = {};
+    dados["p" + estado + "Zoom"] = zoom;
+    dados["p" + estado + "X"] = x;
+    dados["p" + estado + "Y"] = y;
+    
+    try {
+        // 'atual' é a variável que seu código já usa para o ID da ficha
+        await db.collection("fichas").doc(atual).update(dados);
+        alert("Recorte do estado " + estado + " salvo com sucesso!");
+    } catch (e) {
+        console.error("Erro ao salvar recorte:", e);
+        alert("Erro ao salvar: Verifique sua conexão ou permissões.");
+    }
+}
     function copiarLinkOBS() {
         const urlBase = window.location.href.split('ficha.html')[0];
         const linkFull = `${urlBase}portrait.html?id=${atual}`;
@@ -1138,6 +1159,7 @@ function ajustarPortrait() {
 </script>
 </body>
 </html>
+
 
 
 
