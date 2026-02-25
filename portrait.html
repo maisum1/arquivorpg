@@ -7,57 +7,79 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            font-family: 'Special Elite', sans-serif; 
+            background: transparent; 
+        }
         
         #portrait-container {
             position: relative;
             width: 400px;
             height: 550px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
         }
 
         #personagem-img {
             position: absolute;
-            bottom: 80px;
+            bottom: 0;
             left: 0;
             width: 100%;
+            height: 100%;
+            object-fit: contain; /* Mantém a proporção da imagem */
+            object-position: bottom;
             z-index: 1;
             transition: all 0.5s ease;
         }
 
-        .status-bars {
-            position: relative;
+        /* CONTEINER DE STATUS (NOME, VIDA, SAN) */
+        .status-text-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-align: right;
             z-index: 10;
-            padding: 20px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            line-height: 1.2;
         }
 
-        .nome {
-            font-size: 28px;
-            color: white;
+        #nome-val {
+            font-size: 32px;
+            color: #ff4d4d;
             text-transform: uppercase;
-            text-shadow: 2px 2px #000, 0 0 10px rgba(255,255,255,0.3);
+            /* Contorno preto forte + brilho vermelho neon */
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
             margin-bottom: 5px;
         }
 
-        .bar-container { width: 250px; height: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; margin-bottom: 5px; position: relative; }
-        .bar-fill { height: 100%; transition: width 0.5s ease; }
-        
-        .vida-fill { background: #b31d1d; box-shadow: 0 0 10px #b31d1d; }
-        .san-fill { background: #034374; box-shadow: 0 0 10px #034374; }
-        
-        .pe-badge {
+        #vida-text {
+            font-size: 28px;
+            color: #ff4d4d;
+            /* Contorno preto forte + brilho vermelho neon */
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+            margin-bottom: 5px;
+        }
+
+        #san-text {
+            font-size: 28px;
+            color: #4da6ff;
+            /* Contorno preto forte + brilho azul neon */
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #0066ff, 0 0 20px #0066ff;
+        }
+
+        /* ESFORÇO NO CANTO INFERIOR ESQUERDO */
+        #pe-container {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            background: rgba(90, 12, 146, 0.2);
-            border: 2px solid #5A0C92;
-            color: #bd6bff;
-            padding: 5px 15px;
-            font-size: 20px;
-            box-shadow: 0 0 15px #5A0C92;
+            font-size: 22px; /* Menor que os outros */
+            color: #cc66ff;
+            /* Contorno preto forte + brilho roxo neon */
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #9900ff, 0 0 20px #9900ff;
             z-index: 11;
         }
 
@@ -70,12 +92,14 @@
     <div id="portrait-container">
         <img id="personagem-img" src="" alt="">
         
-        <div class="pe-badge">PE: <span id="pe-val">0</span></div>
+        <div id="pe-container">
+            <span id="pe-val">0</span>
+        </div>
 
-        <div class="status-bars">
-            <div class="nome" id="nome-val">AGENTE</div>
-            <div class="bar-container"><div id="vida-fill" class="bar-fill vida-fill"></div></div>
-            <div class="bar-container"><div id="san-fill" class="bar-fill san-fill"></div></div>
+        <div class="status-text-container">
+            <div id="nome-val">AGENTE</div>
+            <div id="vida-text">0/0</div>
+            <div id="san-text">0/0</div>
         </div>
     </div>
 
@@ -99,20 +123,19 @@
                 const d = doc.data();
                 if(!d) return;
 
-                // 1. Atualiza Textos
+                // 1. Atualiza Textos (Apenas os números de Vida e Sanidade)
                 document.getElementById('nome-val').innerText = d.nome || "Agente";
                 document.getElementById('pe-val').innerText = d.peAtual || 0;
+                
+                document.getElementById('vida-text').innerText = `${d.vidaAtual || 0} / ${d.vidaMax || 0}`;
+                document.getElementById('san-text').innerText = `${d.sanAtual || 0} / ${d.sanMax || 0}`;
 
-                // 2. Atualiza Barras Gráficas
-                const pVida = (d.vidaAtual / d.vidaMax) * 100;
-                const pSan = (d.sanAtual / d.sanMax) * 100;
-                document.getElementById('vida-fill').style.width = Math.max(0, Math.min(pVida, 100)) + "%";
-                document.getElementById('san-fill').style.width = Math.max(0, Math.min(pSan, 100)) + "%";
-
-                // 3. Lógica Automática de Troca de Arte
+                // 2. Lógica Automática de Troca de Arte
                 let imgFinal = d.portraitNormal;
                 const imgEl = document.getElementById('personagem-img');
                 imgEl.classList.remove('morto');
+
+                const pVida = (d.vidaAtual / d.vidaMax) * 100;
 
                 // A prioridade desce do "Pior caso" para o "Melhor caso"
                 if (d.vidaAtual <= 0) {
