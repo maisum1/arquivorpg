@@ -2,162 +2,109 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Portrait Overlay</title>
+    <title>Portrait Overlay - Manual Crop</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            font-family: 'Special Elite', sans-serif; 
+            background: transparent; 
+        }
+        
+        #main-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end; 
+            padding: 20px;
+            gap: 25px;
+        }
 
-body { 
-    margin: 0; 
-    padding: 0; 
-    overflow: hidden; 
-    font-family: 'Special Elite', sans-serif; 
-    background: transparent; 
-}
+        /* JANELA DE RECORTE (TAMANHO FIXO) */
+        #image-frame {
+            position: relative;
+            width: 250px;  /* Largura fixa do recorte */
+            height: 350px; /* Altura fixa do recorte */
+            overflow: hidden; /* Esconde o que sobrar da imagem manual */
+            background: rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
 
-/* CONTAINER PRINCIPAL */
-#main-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start; /* Nome sobe */
-    padding: 15px;
-    gap: 18px;
-}
+        #personagem-img {
+            position: absolute; /* Necessário para o recorte manual */
+            transition: all 0.3s ease-out; /* Transição suave ao ajustar */
+            /* O tamanho e posição serão controlados pelo JavaScript via Firebase */
+        }
 
-/* QUADRO DA IMAGEM */
-#image-frame {
-    position: relative;
-    width: 240px;
-    height: 340px;
-    overflow: visible; /* importante */
-    background: transparent;
-}
+        /* PE SOBREPOSTO NA IMAGEM (CANTO INFERIOR ESQUERDO) */
+        #pe-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 28px; 
+            color: #cc66ff;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #9900ff, 0 0 20px #9900ff;
+            z-index: 10;
+        }
 
-/* Remove qualquer borda do container */
-#image-frame {
-    border: none;
-    box-shadow: none;
-}
+        /* STATUS AO LADO DA IMAGEM */
+        #stats-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding-bottom: 5px;
+        }
 
-#personagem-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* importante para PNG recortado */
-    object-position: bottom center;
-    transition: all 0.5s ease;
+        #nome-val {
+            font-size: 40px;
+            color: #ff4d4d;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 12px #ff0000, 0 0 25px #ff0000;
+            margin-bottom: 10px;
+            line-height: 0.9;
+        }
 
-    /* Moldura vermelha que segue o contorno */
-    filter:
-        drop-shadow(0 0 6px #ff0000)
-        drop-shadow(0 0 12px #ff0000)
-        drop-shadow(0 0 18px #990000);
-}
+        #vida-text {
+            font-size: 36px;
+            color: #ff4d4d;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
 
-/* PE (mantido no canto inferior esquerdo) */
-#pe-container {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    font-size: 24px; 
-    color: #cc66ff;
-    text-shadow:
-        2px 2px 0 #000,
-        0 0 10px #9900ff,
-        0 0 20px #9900ff;
-    z-index: 10;
-}
+        #san-text {
+            font-size: 36px;
+            color: #4da6ff;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #0066ff, 0 0 20px #0066ff;
+            line-height: 1;
+        }
 
-/* CONTAINER STATUS */
-#stats-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding-top: 5px;
-}
+        .morto { filter: brightness(0) contrast(100%); }
 
-/* NOME */
-#nome-val {
-    font-size: 42px;
-    color: #ff1a1a;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow:
-        3px 3px 0 #000,
-        0 0 12px #ff0000,
-        0 0 24px #ff0000;
-    margin-bottom: 12px;
-    line-height: 1;
-}
-
-/* VIDA */
-#vida-text {
-    font-size: 38px;
-    color: #ff1a1a;
-    text-shadow:
-        2px 2px 0 #000,
-        0 0 10px #ff0000,
-        0 0 20px #ff0000;
-    margin-bottom: 4px;
-    line-height: 1;
-}
-
-/* SANIDADE */
-#san-text {
-    font-size: 32px;
-    color: #2da8ff;
-    text-shadow:
-        2px 2px 0 #000,
-        0 0 10px #0066ff,
-        0 0 20px #0066ff;
-    line-height: 1;
-}
-
-/* Estado Morto */
-.morto { 
-    filter: brightness(0) contrast(120%);
-}
-
-/* Tela erro (inalterada visualmente) */
-#error-screen {
-    display: none; 
-    position: absolute; 
-    top: 0; left: 0; 
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9); 
-    z-index: 9999; 
-    color: white;
-    flex-direction: column; 
-    justify-content: center; 
-    align-items: center; 
-    text-align: center;
-    padding: 20px; 
-    box-sizing: border-box;
-}
-</style>
+        #error-screen {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999; color: white;
+            flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+    </style>
 </head>
 <body>
 
     <div id="error-screen">
-        <h3 style="color: #ff4d4d; margin-top: 0;">ACESSO BLOQUEADO</h3>
-        <p style="font-family: sans-serif; font-size: 14px; color: #ccc;">
-            O OBS não tem permissão para ler o banco de dados.<br><br>
-            Vá nas Regras (Rules) do seu Firestore e coloque:<br>
-            <strong style="color: yellow;">allow read: if true;</strong><br><br>
-            Ou clique com botão direito no OBS -> Interagir -> Fazer Login abaixo:
-        </p>
-        <button onclick="fazerLoginOBS()" style="padding: 10px; cursor: pointer; background: #5A0C92; color: white; border: none; font-weight: bold;">Login com Google</button>
+        <h3 style="color: #ff4d4d;">ERRO DE PERMISSÃO</h3>
+        <button onclick="fazerLoginOBS()">Fazer Login</button>
     </div>
 
     <div id="main-wrapper">
-        
         <div id="image-frame">
             <img id="personagem-img" src="" alt="">
-            <div id="pe-container">
-                <span id="pe-val">0</span>
-            </div>
+            <div id="pe-container"><span id="pe-val">0</span></div>
         </div>
 
         <div id="stats-container">
@@ -165,7 +112,6 @@ body {
             <div id="vida-text">0 / 0</div>
             <div id="san-text">0 / 0</div>
         </div>
-
     </div>
 
     <script>
@@ -179,70 +125,56 @@ body {
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
 
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
-
-        function fazerLoginOBS() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(e => alert(e.message));
-        }
 
         function iniciarOverlay() {
             if(!id) return;
 
             db.collection("fichas").doc(id).onSnapshot(doc => {
-                document.getElementById('error-screen').style.display = 'none';
-
                 const d = doc.data();
                 if(!d) return;
 
                 // 1. Atualiza Textos
                 document.getElementById('nome-val').innerText = d.nome || "Agente";
                 document.getElementById('pe-val').innerText = d.peAtual || 0;
-                
                 document.getElementById('vida-text').innerText = `${d.vidaAtual || 0} / ${d.vidaMax || 0}`;
                 document.getElementById('san-text').innerText = `${d.sanAtual || 0} / ${d.sanMax || 0}`;
 
-                // 2. Lógica Automática de Troca de Arte
+                // 2. Lógica de Imagem
                 let imgFinal = d.portraitNormal || "";
                 const imgEl = document.getElementById('personagem-img');
-                imgEl.classList.remove('morto');
-
                 const pVida = (d.vidaAtual / d.vidaMax) * 100;
 
-                // A prioridade desce do Pior estado (Morto) para o Menos Pior
+                imgEl.classList.remove('morto');
                 if (d.vidaAtual <= 0) {
                     imgFinal = d.portraitMorto || d.portraitNormal || "";
-                    if (!d.portraitMorto && d.portraitNormal) imgEl.classList.add('morto'); 
-                } 
-                else if (d.sanAtual <= 0) {
+                    if (!d.portraitMorto) imgEl.classList.add('morto');
+                } else if (d.sanAtual <= 0) {
                     imgFinal = d.portraitEnlouquecendo || d.portraitNormal || "";
-                } 
-                else if (pVida <= 50) {
+                } else if (pVida <= 50) {
                     imgFinal = d.portraitMachucado || d.portraitNormal || "";
                 }
 
-                // Evita que a imagem "pisque" atualizando só se a URL mudar
-                if(imgFinal && imgEl.getAttribute('src') !== imgFinal) {
-                    imgEl.setAttribute('src', imgFinal);
-                } else if (!imgFinal && imgEl.getAttribute('src') !== "") {
-                    imgEl.setAttribute('src', "");
-                }
+                if(imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-            }, error => {
-                console.error("Erro de permissão:", error);
+                // 3. RECORTE MANUAL (Ajusta via Firebase)
+                // Use os campos: portraitZoom (ex: 1.5), portraitX (ex: -50), portraitY (ex: 20)
+                const zoom = d.portraitZoom || 1;
+                const posX = d.portraitX || 0;
+                const posY = d.portraitY || 0;
+
+                imgEl.style.width = (zoom * 100) + "%"; 
+                imgEl.style.left = posX + "px";
+                imgEl.style.top = posY + "px";
+
+            }, err => {
                 document.getElementById('error-screen').style.display = 'flex';
             });
         }
 
         iniciarOverlay();
-
-        auth.onAuthStateChanged(user => {
-            if(user) iniciarOverlay();
-        });
-
     </script>
 </body>
 </html>
