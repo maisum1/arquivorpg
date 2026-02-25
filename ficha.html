@@ -190,6 +190,61 @@
         <label>URL Imagem Morto (0 de Vida)</label>
         <input type="text" id="img-morto" placeholder="Se vazio, a imagem fica preta">
     </div>
+    <div class="sessao-ajuste-portrait" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #eab308;">
+    <h3 style="color: #eab308; margin-bottom: 15px;">📐 Ajuste de Recorte (Portrait OBS)</h3>
+    
+    <select id="select-estado-ajuste" onchange="mudarEstadoPreview()" style="width: 100%; padding: 10px; background: #000; color: #fff; margin-bottom: 15px;">
+        <option value="Normal">Estado: Normal</option>
+        <option value="Machucado">Estado: Machucado (Vida < 50%)</option>
+        <option value="Enlouquecendo">Estado: Enlouquecendo (San < 0)</option>
+        <option value="Morto">Estado: Morto</option>
+    </select>
+
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <div style="width: 120px; height: 160px; border: 2px solid #eab308; overflow: hidden; position: relative; background: #000;">
+            <img id="preview-portrait-obs" src="" style="position: absolute; transition: 0.1s;">
+        </div>
+
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 10px;">
+            <label>Zoom: <input type="range" id="p-zoom" min="0.5" max="5" step="0.1" oninput="ajustarPortrait()"></label>
+            <label>Eixo X: <input type="range" id="p-x" min="-300" max="300" step="1" oninput="ajustarPortrait()"></label>
+            <label>Eixo Y: <input type="range" id="p-y" min="-300" max="300" step="1" oninput="ajustarPortrait()"></label>
+            <button onclick="salvarRecorte()" style="background: #eab308; color: #000; border: none; padding: 5px; font-weight: bold; cursor: pointer;">SALVAR RECORTE</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Função para atualizar o preview e salvar no Firebase
+    function ajustarPortrait() {
+        const img = document.getElementById('preview-portrait-obs');
+        const zoom = document.getElementById('p-zoom').value;
+        const x = document.getElementById('p-x').value;
+        const y = document.getElementById('p-y').value;
+
+        img.style.width = (zoom * 100) + "%";
+        img.style.left = x + "px";
+        img.style.top = y + "px";
+    }
+
+    function mudarEstadoPreview() {
+        // Aqui você carregaria a imagem do estado selecionado (Normal, Morto, etc) 
+        // e os valores que já estão salvos no Firebase para esse estado.
+        // Vou simplificar para o salvarRecorte ser o foco.
+    }
+
+    async function salvarRecorte() {
+        const estado = document.getElementById('select-estado-ajuste').value;
+        const dados = {
+            [`p${estado}Zoom`]: document.getElementById('p-zoom').value,
+            [`p${estado}X`]: document.getElementById('p-x').value,
+            [`p${estado}Y`]: document.getElementById('p-y').value
+        };
+        
+        await db.collection("fichas").doc(atual).update(dados);
+        alert("Recorte de " + estado + " salvo!");
+    }
+</script>
     
     <button class="btn-copy-link" onclick="copiarLinkOBS()">COPIAR LINK PARA OBS</button>
     <button onclick="salvarConfigPortrait()" style="margin-top:10px; width:100%; background:var(--cris-purple); color:black; border:none; padding:10px; cursor:pointer; font-weight:bold; font-family:'Special Elite';">SALVAR CONFIGS</button>
@@ -1073,4 +1128,5 @@
 </script>
 </body>
 </html>
+
 
