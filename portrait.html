@@ -7,97 +7,128 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        
-        body { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            font-family: 'Special Elite', sans-serif; 
-            background: transparent; 
-        }
-        
-        /* CONTAINER PRINCIPAL: Alinha a imagem e os status lado a lado */
-        #main-wrapper {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-end; /* Alinha os textos pela parte de baixo da imagem */
-            padding: 20px;
-            gap: 20px; /* Espaço entre a imagem e os textos */
-        }
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
 
-        /* QUADRO DA IMAGEM: Tamanho fixo para padronizar o recorte */
-        #image-frame {
-            position: relative;
-            width: 260px;  /* Largura fixa do retrato */
-            height: 360px; /* Altura fixa do retrato */
-            overflow: hidden;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Leve sombra para destacar a imagem */
-        }
+body { 
+    margin: 0; 
+    padding: 0; 
+    overflow: hidden; 
+    font-family: 'Special Elite', sans-serif; 
+    background: transparent; 
+}
 
-        #personagem-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Garante que a imagem preencha o quadro (recorte fixo) */
-            object-position: top center; /* Foca na parte de cima (cabeça/tronco) */
-            transition: all 0.5s ease;
-        }
+/* CONTAINER PRINCIPAL */
+#main-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* Nome sobe */
+    padding: 15px;
+    gap: 18px;
+}
 
-        /* ESFORÇO (PE) - Sobreposto na imagem no canto inferior esquerdo */
-        #pe-container {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            font-size: 26px; 
-            color: #cc66ff;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #9900ff, 0 0 20px #9900ff;
-            z-index: 10;
-        }
+/* QUADRO DA IMAGEM */
+#image-frame {
+    position: relative;
+    width: 240px;
+    height: 340px;
+    overflow: hidden;
+    border: 6px solid #b30000;   /* Moldura vermelha forte */
+    box-shadow:
+        0 0 20px rgba(255,0,0,0.6),
+        0 0 40px rgba(0,0,0,0.8);
+    background: #000;
+}
 
-        /* CONTEINER DE STATUS (NOME, VIDA, SAN) - Ao lado da imagem */
-        #stats-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; /* Alinha os textos à esquerda, colados na imagem */
-            justify-content: flex-end;
-            padding-bottom: 10px; /* Alinhamento fino com o rodapé da imagem */
-        }
+#personagem-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: all 0.5s ease;
+}
 
-        #nome-val {
-            font-size: 38px;
-            color: #ff4d4d;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
-            margin-bottom: 15px;
-            line-height: 1;
-        }
+/* PE (mantido no canto inferior esquerdo) */
+#pe-container {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 24px; 
+    color: #cc66ff;
+    text-shadow:
+        2px 2px 0 #000,
+        0 0 10px #9900ff,
+        0 0 20px #9900ff;
+    z-index: 10;
+}
 
-        #vida-text {
-            font-size: 34px;
-            color: #ff4d4d;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
-            margin-bottom: 8px;
-            line-height: 1;
-        }
+/* CONTAINER STATUS */
+#stats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 5px;
+}
 
-        #san-text {
-            font-size: 34px;
-            color: #4da6ff;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #0066ff, 0 0 20px #0066ff;
-            line-height: 1;
-        }
+/* NOME */
+#nome-val {
+    font-size: 42px;
+    color: #ff1a1a;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow:
+        3px 3px 0 #000,
+        0 0 12px #ff0000,
+        0 0 24px #ff0000;
+    margin-bottom: 12px;
+    line-height: 1;
+}
 
-        /* Estado Morto (Silhueta Escura) */
-        .morto { filter: brightness(0) contrast(100%); }
+/* VIDA */
+#vida-text {
+    font-size: 38px;
+    color: #ff1a1a;
+    text-shadow:
+        2px 2px 0 #000,
+        0 0 10px #ff0000,
+        0 0 20px #ff0000;
+    margin-bottom: 4px;
+    line-height: 1;
+}
 
-        /* Tela de erro para avisar se o Firebase bloquear o OBS */
-        #error-screen {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 9999; color: white;
-            flex-direction: column; justify-content: center; align-items: center; text-align: center;
-            padding: 20px; box-sizing: border-box;
-        }
-    </style>
+/* SANIDADE */
+#san-text {
+    font-size: 32px;
+    color: #2da8ff;
+    text-shadow:
+        2px 2px 0 #000,
+        0 0 10px #0066ff,
+        0 0 20px #0066ff;
+    line-height: 1;
+}
+
+/* Estado Morto */
+.morto { 
+    filter: brightness(0) contrast(120%);
+}
+
+/* Tela erro (inalterada visualmente) */
+#error-screen {
+    display: none; 
+    position: absolute; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); 
+    z-index: 9999; 
+    color: white;
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center;
+    padding: 20px; 
+    box-sizing: border-box;
+}
+</style>
 </head>
 <body>
 
