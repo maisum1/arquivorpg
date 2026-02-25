@@ -101,14 +101,14 @@
             // Aplica a URL
             if(imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-            // 3. APLICA O RECORTE MANUAL SALVO PARA ESTE ESTADO
-            const zoom = d[`p${estado}Zoom`] || d.pNormalZoom || 1;
-            const x = d[`p${estado}X`] || d.pNormalX || 0;
-            const y = d[`p${estado}Y`] || d.pNormalY || 0;
+            // Dentro do seu onSnapshot no portrait.html:
+const zoom = Number(d["p" + estado + "Zoom"]) || 1;
+const x = Number(d["p" + estado + "X"]) || 0;
+const y = Number(d["p" + estado + "Y"]) || 0;
 
-            imgEl.style.width = (zoom * 100) + "%";
-            imgEl.style.left = x + "px";
-            imgEl.style.top = y + "px";
+imgEl.style.width = (zoom * 100) + "%";
+imgEl.style.left = x + "px"; // Aqui vai o valor cheio salvo no Firebase
+imgEl.style.top = y + "px";
         });
     </script>
 </body>
