@@ -17,67 +17,74 @@
             background: transparent; 
         }
         
-        #portrait-container {
+        /* CONTAINER PRINCIPAL: Alinha a imagem e os status lado a lado */
+        #main-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end; /* Alinha os textos pela parte de baixo da imagem */
+            padding: 20px;
+            gap: 20px; /* Espaço entre a imagem e os textos */
+        }
+
+        /* QUADRO DA IMAGEM: Tamanho fixo para padronizar o recorte */
+        #image-frame {
             position: relative;
-            width: 400px;
-            height: 550px;
+            width: 260px;  /* Largura fixa do retrato */
+            height: 360px; /* Altura fixa do retrato */
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Leve sombra para destacar a imagem */
         }
 
         #personagem-img {
-            position: absolute;
-            bottom: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            object-position: bottom;
-            z-index: 1;
+            object-fit: cover; /* Garante que a imagem preencha o quadro (recorte fixo) */
+            object-position: top center; /* Foca na parte de cima (cabeça/tronco) */
             transition: all 0.5s ease;
         }
 
-        /* CONTEINER DE STATUS (NOME, VIDA, SAN) */
-        .status-text-container {
+        /* ESFORÇO (PE) - Sobreposto na imagem no canto inferior esquerdo */
+        #pe-container {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            text-align: right;
+            bottom: 10px;
+            left: 10px;
+            font-size: 26px; 
+            color: #cc66ff;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #9900ff, 0 0 20px #9900ff;
             z-index: 10;
+        }
+
+        /* CONTEINER DE STATUS (NOME, VIDA, SAN) - Ao lado da imagem */
+        #stats-container {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            line-height: 1.2;
+            align-items: flex-start; /* Alinha os textos à esquerda, colados na imagem */
+            justify-content: flex-end;
+            padding-bottom: 10px; /* Alinhamento fino com o rodapé da imagem */
         }
 
         #nome-val {
-            font-size: 32px;
+            font-size: 38px;
             color: #ff4d4d;
             text-transform: uppercase;
             text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
-            margin-bottom: 5px;
+            margin-bottom: 15px;
+            line-height: 1;
         }
 
         #vida-text {
-            font-size: 28px;
+            font-size: 34px;
             color: #ff4d4d;
             text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #ff0000, 0 0 20px #ff0000;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1;
         }
 
         #san-text {
-            font-size: 28px;
+            font-size: 34px;
             color: #4da6ff;
             text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #0066ff, 0 0 20px #0066ff;
-        }
-
-        /* ESFORÇO NO CANTO INFERIOR ESQUERDO */
-        #pe-container {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            font-size: 22px; 
-            color: #cc66ff;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px #9900ff, 0 0 20px #9900ff;
-            z-index: 11;
+            line-height: 1;
         }
 
         /* Estado Morto (Silhueta Escura) */
@@ -102,21 +109,24 @@
             <strong style="color: yellow;">allow read: if true;</strong><br><br>
             Ou clique com botão direito no OBS -> Interagir -> Fazer Login abaixo:
         </p>
-        <button onclick="fazerLoginOBS()" style="padding: 10px; cursor: pointer; background: var(--pe-orange); color: white; border: none; font-weight: bold;">Login com Google</button>
+        <button onclick="fazerLoginOBS()" style="padding: 10px; cursor: pointer; background: #5A0C92; color: white; border: none; font-weight: bold;">Login com Google</button>
     </div>
 
-    <div id="portrait-container">
-        <img id="personagem-img" src="" alt="">
+    <div id="main-wrapper">
         
-        <div id="pe-container">
-            <span id="pe-val">0</span>
+        <div id="image-frame">
+            <img id="personagem-img" src="" alt="">
+            <div id="pe-container">
+                <span id="pe-val">0</span>
+            </div>
         </div>
 
-        <div class="status-text-container">
+        <div id="stats-container">
             <div id="nome-val">AGENTE</div>
             <div id="vida-text">0 / 0</div>
             <div id="san-text">0 / 0</div>
         </div>
+
     </div>
 
     <script>
@@ -144,7 +154,6 @@
             if(!id) return;
 
             db.collection("fichas").doc(id).onSnapshot(doc => {
-                // Se der certo, oculta a tela de erro
                 document.getElementById('error-screen').style.display = 'none';
 
                 const d = doc.data();
@@ -176,7 +185,7 @@
                     imgFinal = d.portraitMachucado || d.portraitNormal || "";
                 }
 
-                // Evita que a imagem "pisque" atualizando só se a URL mudar de verdade
+                // Evita que a imagem "pisque" atualizando só se a URL mudar
                 if(imgFinal && imgEl.getAttribute('src') !== imgFinal) {
                     imgEl.setAttribute('src', imgFinal);
                 } else if (!imgFinal && imgEl.getAttribute('src') !== "") {
@@ -184,16 +193,13 @@
                 }
 
             }, error => {
-                // Se o OBS for bloqueado pelo Firebase, mostra o erro visual
                 console.error("Erro de permissão:", error);
                 document.getElementById('error-screen').style.display = 'flex';
             });
         }
 
-        // Tenta iniciar a leitura imediatamente. 
         iniciarOverlay();
 
-        // Se o usuário logar pelo OBS para resolver a permissão, recarrega
         auth.onAuthStateChanged(user => {
             if(user) iniciarOverlay();
         });
