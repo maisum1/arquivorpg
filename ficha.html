@@ -80,7 +80,7 @@
             background: #111; border: 1px solid #333; border-radius: 3px;
             color: #666; font-family: 'Special Elite'; font-size: 11px;
             cursor: pointer; transition: 0.3s; user-select: none;
-            letter-spacing: 1px;
+            letter-spacing: 1px; box-sizing: border-box; /* Adicionado para evitar que vaze da grid */
         }
         .mini-cond-label:hover { border-color: #666; color: #ccc; }
         #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #fff; font-weight: bold; }
@@ -312,7 +312,7 @@
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 15px;">
-            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px;">
+            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-lesionado" class="mini-cond-chk" onchange="toggleMiniCond('lesionado'); salvarFicha();">
                 <label for="chk-lesionado" class="mini-cond-label">LESIONADO</label>
                 <select id="local-lesao" class="condicao-select" onchange="salvarFicha()" style="display:none; margin-top:8px;">
@@ -323,7 +323,7 @@
                 </select>
             </div>
             
-            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px;">
+            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
                 <label for="chk-sequela" class="mini-cond-label">SEQUELAS</label>
                 <textarea id="desc-sequela" class="condicao-text" placeholder="Descreva a sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
@@ -578,20 +578,18 @@
         const novaSan = 50 + (15 * pre);
         const novoPe = 4 + vig + pre + Math.floor(nex / 10);
         
-        let vidaAt = parseInt(document.getElementById('vida-atual').value);
-        if(isNaN(vidaAt)) vidaAt = novaVida;
-        let sanAt = parseInt(document.getElementById('san-atual').value);
-        if(isNaN(sanAt)) sanAt = novaSan;
-        let peAt = parseInt(document.getElementById('pe-atual').value);
-        if(isNaN(peAt)) peAt = novoPe;
-
+        // Força os valores atuais a serem iguais aos novos máximos
         document.getElementById('vida-max').value = novaVida;
         document.getElementById('san-max').value = novaSan;
         document.getElementById('pe-max').value = novoPe;
         
-        document.getElementById('vida-atual').value = vidaAt;
-        document.getElementById('san-atual').value = sanAt;
-        document.getElementById('pe-atual').value = peAt;
+        document.getElementById('vida-atual').value = novaVida;
+        document.getElementById('san-atual').value = novaSan;
+        document.getElementById('pe-atual').value = novoPe;
+
+        atualizarStatus('vida', novaVida, novaVida);
+        atualizarStatus('san', novaSan, novaSan);
+        atualizarStatus('pe', novoPe, novoPe);
 
         const divArq = document.getElementById('grupo-arquetipo');
         if (nivel >= 3) {
@@ -717,6 +715,10 @@
 
             document.getElementById('dt-val').innerText = 10 + (parseInt(d.int) || 0) + bDt;
         });
+    }
+
+    function aplicarClasse() {
+        salvarFicha();
     }
 
     function salvarFicha() {
