@@ -207,10 +207,10 @@
     <input type="range" id="crop-zoom" min="1" max="4" step="0.1" value="1" style="width:100%; margin-bottom:10px;" oninput="atualizarPreview()">
     
     <div style="text-align:left; font-size:10px; color:#888; margin-bottom: 2px;">ESQUERDA / DIREITA</div>
-    <input type="range" id="crop-x" min="-300" max="300" value="0" style="width:100%; margin-bottom:10px;" oninput="atualizarPreview()">
+    <input type="range" id="crop-x" min="0" max="100" value="50" style="width:100%; margin-bottom:10px;" oninput="atualizarPreview()">
     
     <div style="text-align:left; font-size:10px; color:#888; margin-bottom: 2px;">CIMA / BAIXO</div>
-    <input type="range" id="crop-y" min="-300" max="300" value="0" style="width:100%; margin-bottom:15px;" oninput="atualizarPreview()">
+    <input type="range" id="crop-y" min="0" max="100" value="50" style="width:100%; margin-bottom:15px;" oninput="atualizarPreview()">
     
     <div style="display:flex; gap:10px; justify-content:center;">
         <button class="cris-btn" onclick="confirmarCrop()">SALVAR</button>
@@ -541,53 +541,13 @@
         document.getElementById('crop-modal').style.display = 'block';
     }
     function atualizarPreview() {
-    const img = document.getElementById('preview-img'); // Certifique-se que o ID da img no modal é este
-    const x = document.getElementById('crop-x').value;
-    const y = document.getElementById('crop-y').value;
-    const zoom = document.getElementById('crop-zoom').value;
-
-    // Usamos transform para mover a imagem livremente em pixels
-    // O scale garante o zoom sem bugar o posicionamento
-    img.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
-}
-
-// Função que abre o modal/sistema de recorte
-function abrirModalRecorte(url) {
-    const img = document.getElementById('preview-img');
-    img.src = url;
-
-    // Resetamos ou carregamos os valores do Firebase
-    // Se não houver nada salvo, ele começa no 0 (centralizado)
-    document.getElementById('crop-x').value = 0;
-    document.getElementById('crop-y').value = 0;
-    document.getElementById('crop-zoom').value = 1;
-
-    document.getElementById('modal-recorte').style.display = 'block'; // Ou a lógica que você usa para abrir
-    
-    // Força o preview inicial
-    atualizarPreview();
-}
-
-async function salvarRecorte() {
-    const x = document.getElementById('crop-x').value;
-    const y = document.getElementById('crop-y').value;
-    const zoom = document.getElementById('crop-zoom').value;
-
-    // SALVANDO NO FIREBASE
-    // 'atual' deve ser o ID da sua ficha que já está definido no seu código
-    try {
-        await db.collection("fichas").doc(atual).update({
-            portraitX: x,
-            portraitY: y,
-            portraitZoom: zoom
-        });
-        alert("Recorte salvo com sucesso!");
-        fecharModal(); // Sua função de fechar o modal
-        location.reload(); // Recarrega para aplicar a mudança no HUB
-    } catch (e) {
-        console.error("Erro ao salvar recorte: ", e);
+        const z = document.getElementById('crop-zoom').value;
+        const x = document.getElementById('crop-x').value;
+        const y = document.getElementById('crop-y').value;
+        const img = document.getElementById('temp-img');
+        img.style.objectPosition = `${x}% ${y}%`;
+        img.style.transform = `scale(${z})`;
     }
-}
     function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
     async function confirmarCrop() {
         const url = document.getElementById('temp-img').src;
@@ -1115,10 +1075,3 @@ async function salvarRecorte() {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
