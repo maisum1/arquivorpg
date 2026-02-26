@@ -7,9 +7,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; }
         
-        #main-wrapper { display: flex; flex-direction: row; align-items: flex-end; padding: 20px; gap: 25px; }
+        body { 
+            margin: 0; padding: 0; overflow: hidden; 
+            font-family: 'Special Elite', sans-serif; 
+            background: transparent; 
+        }
+        
+        #main-wrapper { 
+            display: flex; flex-direction: row; 
+            align-items: flex-end; padding: 20px; gap: 25px; 
+        }
 
         /* QUADRO DE RECORTE FIXO */
         #image-frame {
@@ -19,35 +27,36 @@
             background: transparent;
         }
 
-       #personagem-img {
-    position: absolute;
-    transition: all 0.4s ease-out;
-    /* ADICIONE ESTA LINHA: Cria um contorno neon vermelho duplo para ficar bem forte */
-    filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000);
-}
+        #personagem-img {
+            position: absolute;
+            transition: all 0.4s ease-out;
+            /* Filtro neon padrão */
+            filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000);
+        }
 
         /* PE SOBREPOSTO */
         #pe-container {
             position: absolute; bottom: 10px; left: 10px; font-size: 40px; 
-            color: #cc66ff; text-shadow: 2px 2px 0 #000, 0 0 12px #9900ff; z-index: 10;
+            color: #ffffff; 
+            text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 15px #cc66ff;
+            z-index: 10;
         }
 
         /* TEXTOS AO LADO */
         #stats-container { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: flex-start; 
-    padding-bottom: 5px;
-    margin-left: -40px; /* Puxa os textos para dentro do retângulo da imagem */
-    position: relative; /* Necessário para o z-index funcionar */
-    z-index: 10;        /* Coloca o texto na camada acima da imagem */
-}
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            padding-bottom: 5px;
+            margin-left: -40px; 
+            position: relative; 
+            z-index: 10; 
+        }
 
         #nome-val { 
             font-size: 40px; 
-            color: #ffffff; /* Miolo Branco */
+            color: #ffffff;
             text-transform: uppercase; 
-            /* Camadas de brilho vermelho */
             text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
             margin-bottom: 10px; 
             line-height: 0.9; 
@@ -55,8 +64,7 @@
 
         #vida-text { 
             font-size: 36px; 
-            color: #ffffff; /* Miolo Branco */
-            /* Camadas de brilho vermelho */
+            color: #ffffff;
             text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
             margin-bottom: 5px; 
             line-height: 1; 
@@ -64,19 +72,10 @@
 
         #san-text { 
             font-size: 36px; 
-            color: #ffffff; /* Miolo Branco */
-            /* Camadas de brilho azul */
+            color: #ffffff;
             text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 15px #0066ff; 
             line-height: 1; 
         }
-
-        /* Ajuste para o PE (Pontos de Esforço) se quiser ele neon também */
-        #pe-val {
-            color: #ffffff; 
-            text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 15px #cc66ff;
-        }
-
-        .morto-filtro { filter: brightness(0) contrast(100%); }
     </style>
 </head>
 <body>
@@ -95,7 +94,6 @@
     </div>
 
     <script>
-        // Use suas credenciais aqui
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
             authDomain: "fichasrpg-7fc69.firebaseapp.com",
@@ -110,56 +108,57 @@
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
 
-        db.collection("fichas").doc(id).onSnapshot(doc => {
-            const d = doc.data();
-            if(!d) return;
+        if (!id) {
+            document.body.innerHTML = "<h1 style='color:white;'>ERRO: Falta o ID na URL! Adicione ?id=SEU_ID no final do link.</h1>";
+        } else {
+            db.collection("fichas").doc(id).onSnapshot(doc => {
+                const d = doc.data();
+                if(!d) return;
 
-            // 1. Atualizar Textos
-            document.getElementById('nome-val').innerText = d.nome || "Agente";
-            document.getElementById('pe-val').innerText = d.peAtual || 0;
-            document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
-            document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
+                // 1. Atualizar Textos
+                document.getElementById('nome-val').innerText = d.nome || "Agente";
+                document.getElementById('pe-val').innerText = d.peAtual || 0;
+                document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
+                document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
 
-            // 2. Lógica de Imagem e Recorte Específico
-            let imgFinal = d.portraitNormal;
-            let estado = "Normal";
-            const imgEl = document.getElementById('personagem-img');
-            imgEl.classList.remove('morto-filtro');
+                // 2. Lógica de Imagem (Ajustado para bater com os nomes da ficha)
+                let imgFinal = d.imgNormal; // Antes estava d.portraitNormal
+                let estado = "Normal";
+                const imgEl = document.getElementById('personagem-img');
 
-            if (d.vidaAtual <= 0) {
-                imgFinal = d.portraitMorto || d.portraitNormal;
-                estado = "Morto";
-                if(!d.portraitMorto) imgEl.classList.add('morto-filtro');
-            } else if (d.sanAtual <= 0) {
-                imgFinal = d.portraitEnlouquecendo || d.portraitNormal;
-                estado = "Enlouquecendo";
-            } else if ((d.vidaAtual / d.vidaMax) <= 0.5) {
-                imgFinal = d.portraitMachucado || d.portraitNormal;
-                estado = "Machucado";
-            }
+                if (d.vidaAtual <= 0) {
+                    imgFinal = d.imgMorto || d.imgNormal;
+                    estado = "Morto";
+                } else if (d.sanAtual <= 0) {
+                    imgFinal = d.imgEnlouquecendo || d.imgNormal;
+                    estado = "Enlouquecendo";
+                } else if ((d.vidaAtual / d.vidaMax) <= 0.5) {
+                    imgFinal = d.imgMachucado || d.imgNormal;
+                    estado = "Machucado";
+                }
 
-            // Aplica a URL
-            if(imgEl.src !== imgFinal) imgEl.src = imgFinal;
+                // Aplica a URL
+                if(imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-            // Dentro do seu onSnapshot no portrait.html:
-const zoom = Number(d["p" + estado + "Zoom"]) || 1;
-const x = Number(d["p" + estado + "X"]) || 0;
-const y = Number(d["p" + estado + "Y"]) || 0;
+                // 3. Aplica o Recorte Manual
+                const zoom = Number(d["p" + estado + "Zoom"]) || Number(d.pNormalZoom) || 1;
+                const x = Number(d["p" + estado + "X"]) || Number(d.pNormalX) || 0;
+                const y = Number(d["p" + estado + "Y"]) || Number(d.pNormalY) || 0;
 
-imgEl.style.width = (zoom * 100) + "%";
-imgEl.style.left = x + "px"; // Aqui vai o valor cheio salvo no Firebase
-imgEl.style.top = y + "px";
-            // Remove a cor preta do "Morto", mas MANTÉM o neon vermelho ativo
-if (estado !== "Morto") {
-    // Volta para o neon padrão
-    imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
-} else {
-    // Se estiver morto e não tiver imagem de morto específica, ele fica escuro MAS ainda com o neon (opcional)
-    if(!d.portraitMorto) {
-        imgEl.style.filter = "brightness(0) drop-shadow(0 0 5px #ff0000)";
-    }
-}
-        });
+                imgEl.style.width = (zoom * 100) + "%";
+                imgEl.style.left = x + "px";
+                imgEl.style.top = y + "px";
+
+                // 4. Aplica o Neon e Filtro de Morto
+                if (estado === "Morto" && !d.imgMorto) {
+                    // Se estiver morto e não tiver foto própria, fica preto com neon
+                    imgEl.style.filter = "brightness(0) drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
+                } else {
+                    // Neon padrão (vermelho)
+                    imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
+                }
+            });
+        }
     </script>
 </body>
 </html>
