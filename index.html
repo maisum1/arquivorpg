@@ -10,32 +10,32 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        body { background: #000; color: white; font-family: 'Special Elite', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body { background: #000; color: white; font-family: 'Special Elite', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
         
-        #login-screen { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
-        #hub-screen { display: none; width: 100%; max-width: 1200px; padding: 20px; box-sizing: border-box; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; margin-top: 100px; }
+        #hub-screen { display: none; width: 100%; max-width: 1000px; }
 
         h1 { font-size: 3.5rem; letter-spacing: 8px; margin: 0; }
         .btn-google { background: white; color: black; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; font-family: 'Special Elite'; }
 
-        /* MENU DE NAVEGAÇÃO */
-        .nav-tabs { display: flex; justify-content: center; gap: 30px; margin-bottom: 40px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .tab-btn { background: none; border: none; color: #555; font-family: 'Special Elite'; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { color: #EAB308; text-shadow: 0 0 10px #EAB308; }
+        .nav-tabs { display: flex; justify-content: center; gap: 30px; margin-bottom: 40px; border-bottom: 1px solid #222; width: 100%; }
+        .tab-btn { background: none; border: none; color: #555; font-family: 'Special Elite'; font-size: 1.2rem; cursor: pointer; padding: 10px; transition: 0.3s; }
+        .tab-btn.active { color: #EAB308; border-bottom: 2px solid #EAB308; }
 
-        .tab-content { display: none; }
+        .tab-content { display: none; width: 100%; }
         .tab-content.active { display: block; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; }
         
-        /* CARD ESTILO ORIGINAL */
+        /* ESTILO ORIGINAL DO CARD */
         .ficha-card { background: #0a0a0a; border: 1px solid #222; padding: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
-        .ficha-card:hover { border-color: #EAB308; background: #111; }
-        
-        .retrato-mini { width: 60px; height: 60px; background: #111; border: 1px solid #333; position: relative; overflow: hidden; }
+        .ficha-card:hover { border-color: #EAB308; }
+        .retrato-mini { width: 50px; height: 50px; background: #111; border: 1px solid #333; overflow: hidden; position: relative; }
         
         .btn-novo { background: none; border: 1px solid #EAB308; color: #EAB308; padding: 10px 20px; font-family: 'Special Elite'; cursor: pointer; margin-bottom: 20px; }
         .btn-novo:hover { background: #EAB308; color: black; }
+        
+        .delete-btn { background: none; border: none; color: #b31d1d; cursor: pointer; font-family: 'Special Elite'; font-size: 10px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -63,7 +63,7 @@
         </div>
 
         <div id="content-mestre" class="tab-content">
-            <h2 style="color:#EAB308">TODAS AS FICHAS DO SISTEMA</h2>
+            <h2 style="color:#EAB308">CONTROLE GERAL</h2>
             <div id="lista-mestre" class="grid"></div>
         </div>
     </div>
@@ -81,24 +81,20 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        const EMAIL_MESTRE = "pedroacpr@gmail.com"; // COLOQUE SEU EMAIL AQUI
+        const EMAIL_MESTRE = "pedroacpr@gmail.com"; 
 
-        function login() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider);
-        }
+        function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('hub-screen').style.display = 'block';
-                
                 if (user.email === EMAIL_MESTRE) {
                     document.getElementById('tab-ameacas').style.display = 'block';
                     document.getElementById('tab-mestre').style.display = 'block';
-                    carregarTodasFichas();
+                    carregarMestre();
                 }
-                carregarFichas(user);
+                carregarAgentes(user);
                 carregarAmeacas();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -113,66 +109,72 @@
             event.currentTarget.classList.add('active');
         }
 
-        // CARREGAR AGENTES DO JOGADOR (USA DONO E UID PARA NÃO SUMIR)
-        function carregarFichas(user) {
+        function criarCard(docId, d, tipo) {
+            const url = tipo === 'ameaca' ? 'ameaca.html' : 'ficha.html';
+            const img = d.portraitNormal || d.imgNormal || d.imgAmeaca || '';
+            const statusColor = tipo === 'ameaca' ? '#ff4d4d' : '#EAB308';
+            
+            return `
+                <div class="ficha-card">
+                    <div style="display:flex; align-items:center; gap:12px">
+                        <div class="retrato-mini">
+                            ${img ? `<img src="${img}" style="width:100%; height:100%; object-fit:cover;">` : ''}
+                        </div>
+                        <div>
+                            <strong>${d.nome || 'Sem Nome'}</strong><br>
+                            <small>${d.nex || d.vd || '5%'} ${d.origem || ''}</small><br>
+                            <button class="delete-btn" onclick="excluirItem('${docId}', '${d.nome}', '${tipo}')">EXCLUIR</button>
+                        </div>
+                    </div>
+                    <div style="text-align:right">
+                        <span style="color:#b31d1d; font-size:11px">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span><br>
+                        ${tipo !== 'ameaca' ? `<span style="color:#034374; font-size:11px">SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span><br>` : ''}
+                        <a href="${url}?id=${docId}" style="color:${statusColor}; text-decoration:none; font-size:12px;">ABRIR</a>
+                    </div>
+                </div>`;
+        }
+
+        function carregarAgentes(user) {
             db.collection("fichas").onSnapshot(snap => {
                 const lista = document.getElementById('lista-agentes');
                 lista.innerHTML = "";
                 snap.forEach(doc => {
-                    const d = doc.data();
-                    if (d.dono === user.uid) {
-                        lista.innerHTML += criarCardHTML(doc.id, d, "ficha.html");
-                    }
+                    if (doc.data().dono === user.uid) lista.innerHTML += criarCard(doc.id, doc.data(), 'agente');
                 });
             });
         }
 
-        // CARREGAR TUDO PARA O MESTRE
-        function carregarTodasFichas() {
-            db.collection("fichas").onSnapshot(snap => {
-                const lista = document.getElementById('lista-mestre');
-                lista.innerHTML = "";
-                snap.forEach(doc => {
-                    lista.innerHTML += criarCardHTML(doc.id, doc.data(), "ficha.html");
-                });
-            });
-        }
-
-        // CARREGAR AMEAÇAS
         function carregarAmeacas() {
             db.collection("ameacas").onSnapshot(snap => {
                 const lista = document.getElementById('lista-ameacas');
                 lista.innerHTML = "";
-                snap.forEach(doc => {
-                    lista.innerHTML += criarCardHTML(doc.id, doc.data(), "ameaca.html");
-                });
+                snap.forEach(doc => lista.innerHTML += criarCard(doc.id, doc.data(), 'ameaca'));
             });
         }
 
-        function criarCardHTML(id, d, url) {
-            return `
-                <div class="ficha-card">
-                    <div style="display:flex; align-items:center; gap:15px">
-                        <div class="retrato-mini">
-                            ${d.portraitNormal || d.imgNormal ? `<img src="${d.portraitNormal || d.imgNormal}" style="width:100%; height:100%; object-fit:cover;">` : ''}
-                        </div>
-                        <div>
-                            <strong>${d.nome || 'Sem Nome'}</strong><br>
-                            <small>${d.nex || d.vd || '5%'} ${d.origem || ''}</small>
-                        </div>
-                    </div>
-                    <a href="${url}?id=${id}" style="color:#EAB308; font-size:12px; text-decoration:none;">ABRIR</a>
-                </div>`;
+        function carregarMestre() {
+            db.collection("fichas").onSnapshot(snap => {
+                const lista = document.getElementById('lista-mestre');
+                lista.innerHTML = "";
+                snap.forEach(doc => lista.innerHTML += criarCard(doc.id, doc.data(), 'agente'));
+            });
+        }
+
+        async function excluirItem(id, nome, tipo) {
+            const colecao = tipo === 'ameaca' ? 'ameacas' : 'fichas';
+            const conf = prompt(`Para excluir "${nome}", digite EXCLUIR:`);
+            if (conf === "EXCLUIR") {
+                await db.collection(colecao).doc(id).delete();
+            }
         }
 
         async function criarNovaFicha() {
-            const user = auth.currentUser;
             const nome = prompt("Nome do Agente:");
             if (nome) {
                 await db.collection("fichas").add({
-                    dono: user.uid,
-                    nome: nome,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    dono: auth.currentUser.uid,
+                    nome: nome, nex: "5%", vidaAtual: 20, vidaMax: 20, sanAtual: 20, sanMax: 20,
+                    createdAt: new Date()
                 });
             }
         }
@@ -180,13 +182,13 @@
         async function criarAmeaca() {
             const nome = prompt("Nome da Ameaça:");
             if (nome) {
-                const doc = await db.collection("ameacas").add({
-                    nome: nome,
-                    vd: "0",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                // Redireciona para a ficha de ameaça recém criada
-                window.location.href = "ameaca.html?id=" + doc.id;
+                try {
+                    const docRef = await db.collection("ameacas").add({
+                        nome: nome, vd: "20", vidaAtual: 100, vidaMax: 100,
+                        createdAt: new Date()
+                    });
+                    window.location.href = "ameaca.html?id=" + docRef.id;
+                } catch (e) { alert("Erro ao criar: " + e); }
             }
         }
     </script>
