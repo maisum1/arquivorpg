@@ -9,7 +9,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         
-        /* Remove setas de número */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
@@ -19,12 +18,13 @@
             font-family: 'Special Elite', sans-serif; 
             margin: 0; 
             padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         
         .nav-header { 
-            width: 100%; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
@@ -39,20 +39,19 @@
             cursor: pointer; 
             font-family: 'Special Elite'; 
             text-decoration: none; 
-            font-size: 0.9rem;
         }
         #status-save { font-size: 0.8rem; color: #444; }
 
-        .ficha-container { 
+        .ficha-full { 
             width: 100%; 
             background: #0a0a0a; 
             border: 1px solid #220000; 
-            padding: 20px; 
+            padding: 25px; 
             box-sizing: border-box; 
+            flex-grow: 1;
         }
         
-        /* Cabeçalho Largo */
-        .header-top { 
+        .header-main { 
             display: grid; 
             grid-template-columns: 1fr auto; 
             gap: 20px; 
@@ -65,185 +64,147 @@
             background: transparent; 
             border: none; 
             color: #ff4d4d; 
-            font-size: 3rem; 
+            font-size: 3.5rem; 
             font-family: 'Special Elite'; 
             width: 100%; 
             outline: none; 
         }
 
-        .vd-area { color: #ff4d4d; font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }
+        .vd-area { color: #ff4d4d; font-size: 2rem; display: flex; align-items: center; gap: 10px; }
         .vd-area input { 
-            width: 80px; 
+            width: 100px; 
             background: #1a1a1a; 
             border: 1px solid #441111; 
             color: white; 
             text-align: center; 
-            font-size: 1.8rem; 
+            font-size: 2rem; 
             font-family: 'Special Elite';
         }
 
-        /* Grades de Informação */
-        .top-info { 
+        .grid-info { 
             display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 15px; 
-            margin-bottom: 20px; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; 
         }
-        .info-box { display: flex; flex-direction: column; gap: 5px; }
-        .info-box label { font-size: 0.7rem; color: #666; }
-        .info-box input { background: #111; border: 1px solid #333; color: white; padding: 8px; font-family: 'Special Elite'; outline: none; }
+        .box-info { display: flex; flex-direction: column; }
+        .box-info label { font-size: 0.8rem; color: #555; margin-bottom: 5px; }
+        .box-info input { background: #111; border: 1px solid #333; color: white; padding: 10px; font-family: 'Special Elite'; outline: none; }
 
-        /* Corpo da Ficha em 3 Colunas */
-        .corpo-layout { 
+        /* Layout 3 Colunas Full Width */
+        .layout-corpo { 
             display: grid; 
-            grid-template-columns: 280px 1fr 1fr; 
-            gap: 25px; 
+            grid-template-columns: 300px 1fr 1fr; 
+            gap: 30px; 
         }
 
-        .col-stats { display: flex; flex-direction: column; gap: 20px; }
-        
-        .img-quadro { 
-            width: 100%; 
-            aspect-ratio: 1/1.2; 
-            border: 1px solid #333; 
-            background: #000; 
-            cursor: pointer; 
-            object-fit: cover; 
-        }
+        .img-container { width: 100%; position: relative; }
+        .img-display { width: 100%; aspect-ratio: 2/3; background: #000; border: 1px solid #333; object-fit: cover; cursor: pointer; }
 
-        .attr-grid { 
+        .attr-container { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 10px; 
+            gap: 15px; 
+            margin: 20px 0;
         }
-        .attr-circle { 
-            background: #111; 
+        .attr-item { 
             border: 1px solid #ff4d4d; 
             border-radius: 50%; 
-            width: 75px; 
-            height: 75px; 
+            height: 80px; 
             display: flex; 
             flex-direction: column; 
-            justify-content: center; 
             align-items: center; 
-            margin: auto; 
+            justify-content: center; 
         }
-        .attr-circle input { width: 35px; background: transparent; border: none; color: white; text-align: center; font-size: 1.5rem; font-family: 'Special Elite'; outline: none; }
-        .attr-label { font-size: 0.7rem; color: #ff4d4d; }
+        .attr-item input { width: 40px; background: transparent; border: none; color: white; text-align: center; font-size: 1.8rem; font-family: 'Special Elite'; outline: none; }
+        .attr-item span { font-size: 0.7rem; color: #ff4d4d; }
 
-        .vida-box { 
-            background: #220505; 
-            border: 1px solid #ff4d4d; 
-            padding: 15px; 
-            text-align: center; 
-        }
-        .vida-inputs { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px; }
-        .vida-inputs input { width: 70px; font-size: 1.8rem; background: transparent; border: none; color: #ff4d4d; text-align: center; font-family: 'Special Elite'; outline: none; }
+        .pv-container { background: #200; border: 1px solid #ff4d4d; padding: 20px; text-align: center; }
+        .pv-inputs { display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .pv-inputs input { width: 80px; background: transparent; border: none; color: #ff4d4d; font-size: 2rem; text-align: center; font-family: 'Special Elite'; outline: none; }
 
-        /* Textareas */
-        .section-title { 
-            background: #441111; 
-            color: white; 
-            padding: 6px 12px; 
-            font-size: 1rem; 
-            border-left: 4px solid #ff4d4d; 
-            margin: 15px 0 10px 0;
-            letter-spacing: 1px;
-        }
+        .titulo-sec { background: #300; color: #ff4d4d; padding: 8px 15px; margin-bottom: 10px; border-left: 4px solid #ff4d4d; letter-spacing: 2px; }
         textarea { 
             width: 100%; 
-            background: #111; 
+            background: #0f0f0f; 
             border: 1px solid #222; 
-            color: #bbb; 
+            color: #ccc; 
             font-family: 'Special Elite'; 
-            resize: vertical; 
-            padding: 12px; 
+            padding: 15px; 
             box-sizing: border-box; 
             outline: none; 
-            font-size: 0.95rem;
+            resize: vertical; 
+            margin-bottom: 20px;
+            font-size: 1rem;
             line-height: 1.4;
         }
         textarea:focus { border-color: #ff4d4d; }
 
-        @media (max-width: 1000px) {
-            .corpo-layout { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 1200px) { .layout-corpo { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div class="nav-header">
-        <a href="index.html" class="btn-voltar">← VOLTAR AO HUB</a>
+        <a href="index.html" class="btn-voltar">← HUB</a>
         <div id="status-save">Sincronizado</div>
     </div>
 
-    <div class="ficha-container">
-        <div class="header-top">
+    <div class="ficha-full">
+        <div class="header-main">
             <div class="nome-area">
-                <input type="text" id="nome" placeholder="NOME DA AMEAÇA" onchange="salvar('nome', this.value)">
+                <input type="text" id="nome" placeholder="NOME DA AMEAÇA" onchange="autoSalvar('nome', this.value)">
             </div>
             <div class="vd-area">
                 <span>VD</span>
-                <input type="number" id="vd" placeholder="0" onchange="salvar('vd', this.value)">
+                <input type="number" id="vd" onchange="autoSalvar('vd', this.value)">
             </div>
         </div>
 
-        <div class="top-info">
-            <div class="info-box">
-                <label>ELEMENTOS</label>
-                <input type="text" id="elementos" placeholder="Ex: Sangue e Medo" onchange="salvar('elementos', this.value)">
-            </div>
-            <div class="info-box">
-                <label>CLASSE</label>
-                <input type="text" id="classe" placeholder="Ex: Criatura" onchange="salvar('classe', this.value)">
-            </div>
-            <div class="info-box">
-                <label>TAMANHO</label>
-                <input type="text" id="tamanho" placeholder="Ex: Médio" onchange="salvar('tamanho', this.value)">
-            </div>
-            <div class="info-box">
-                <label>TIPO</label>
-                <input type="text" id="tipo" placeholder="Ex: Paranormal" onchange="salvar('tipo', this.value)">
-            </div>
+        <div class="grid-info">
+            <div class="box-info"><label>ELEMENTOS</label><input type="text" id="elementos" onchange="autoSalvar('elementos', this.value)"></div>
+            <div class="box-info"><label>CLASSE</label><input type="text" id="classe" onchange="autoSalvar('classe', this.value)"></div>
+            <div class="box-info"><label>TAMANHO</label><input type="text" id="tamanho" onchange="autoSalvar('tamanho', this.value)"></div>
+            <div class="box-info"><label>TIPO</label><input type="text" id="tipo" onchange="autoSalvar('tipo', this.value)"></div>
         </div>
 
-        <div class="corpo-layout">
-            <div class="col-stats">
-                <img src="" id="imgAmeaca" class="img-quadro" onclick="document.getElementById('file-in').click()">
-                <input type="file" id="file-in" style="display:none;" onchange="uploadImg(this)">
+        <div class="layout-corpo">
+            <div>
+                <img src="" id="display-img" class="img-display" onclick="document.getElementById('file-in').click()">
+                <input type="file" id="file-in" style="display:none;" onchange="upload(this)">
                 
-                <div class="attr-grid">
-                    <div class="attr-circle"><span class="attr-label">AGI</span><input type="number" id="agi" onchange="salvar('agi', this.value)"></div>
-                    <div class="attr-circle"><span class="attr-label">FOR</span><input type="number" id="for" onchange="salvar('for', this.value)"></div>
-                    <div class="attr-circle"><span class="attr-label">INT</span><input type="number" id="int" onchange="salvar('int', this.value)"></div>
-                    <div class="attr-circle"><span class="attr-label">VIG</span><input type="number" id="vig" onchange="salvar('vig', this.value)"></div>
-                    <div class="attr-circle"><span class="attr-label">PRE</span><input type="number" id="pre" onchange="salvar('pre', this.value)"></div>
+                <div class="attr-container">
+                    <div class="attr-item"><span>AGI</span><input type="number" id="agi" onchange="autoSalvar('agi', this.value)"></div>
+                    <div class="attr-item"><span>FOR</span><input type="number" id="for" onchange="autoSalvar('for', this.value)"></div>
+                    <div class="attr-item"><span>INT</span><input type="number" id="int" onchange="autoSalvar('int', this.value)"></div>
+                    <div class="attr-item"><span>VIG</span><input type="number" id="vig" onchange="autoSalvar('vig', this.value)"></div>
+                    <div class="attr-item"><span>PRE</span><input type="number" id="pre" onchange="autoSalvar('pre', this.value)"></div>
                 </div>
 
-                <div class="vida-box">
-                    <div style="color:#ff4d4d; font-size:0.8rem">PONTOS DE VIDA</div>
-                    <div class="vida-inputs">
-                        <input type="number" id="vidaAtual" onchange="salvar('vidaAtual', this.value)">
+                <div class="pv-container">
+                    <div style="font-size: 0.8rem; color: #ff4d4d; margin-bottom: 5px;">PONTOS DE VIDA</div>
+                    <div class="pv-inputs">
+                        <input type="number" id="vidaAtual" onchange="autoSalvar('vidaAtual', this.value)">
                         <span style="color:#444">/</span>
-                        <input type="number" id="vidaMax" onchange="salvar('vidaMax', this.value)">
+                        <input type="number" id="vidaMax" onchange="autoSalvar('vidaMax', this.value)">
                     </div>
                 </div>
             </div>
 
-            <div class="col-center">
-                <div class="section-title">DEFESA E RESISTÊNCIAS</div>
-                <textarea id="defesa" rows="4" placeholder="Defesa: 20&#10;Esquiva: 30&#10;Resistências: Morte 10, Corte 5..." onchange="salvar('defesa', this.value)"></textarea>
+            <div>
+                <div class="titulo-sec">DEFESA / RESISTÊNCIAS</div>
+                <textarea id="defesa" rows="4" onchange="autoSalvar('defesa', this.value)"></textarea>
 
-                <div class="section-title">PERÍCIAS</div>
-                <textarea id="pericias" rows="6" placeholder="Percepção +10, Iniciativa +15..." onchange="salvar('pericias', this.value)"></textarea>
+                <div class="titulo-sec">PERÍCIAS</div>
+                <textarea id="pericias" rows="6" onchange="autoSalvar('pericias', this.value)"></textarea>
 
-                <div class="section-title">DESCRIÇÃO</div>
-                <textarea id="descricao" rows="12" placeholder="Notas sobre a criatura..." onchange="salvar('descricao', this.value)"></textarea>
+                <div class="titulo-sec">DESCRIÇÃO</div>
+                <textarea id="descricao" rows="10" onchange="autoSalvar('descricao', this.value)"></textarea>
             </div>
 
-            <div class="col-right">
-                <div class="section-title">AÇÕES E ATAQUES</div>
-                <textarea id="acoes" rows="32" placeholder="PADRÃO - Mordida: +15 | 2d10+5 Sangue..." onchange="salvar('acoes', this.value)"></textarea>
+            <div>
+                <div class="titulo-sec">AÇÕES E ATAQUES</div>
+                <textarea id="acoes" rows="28" onchange="autoSalvar('acoes', this.value)"></textarea>
             </div>
         </div>
     </div>
@@ -261,39 +222,41 @@
         const db = firebase.firestore();
         const id = new URLSearchParams(window.location.search).get('id');
 
-        // Carregar dados
-        if (id) {
-            db.collection("ameacas").doc(id).onSnapshot(doc => {
-                if (!doc.exists) return;
-                const d = doc.data();
-                Object.keys(d).forEach(k => {
-                    const el = document.getElementById(k);
-                    if (el && document.activeElement !== el) el.value = d[k];
-                });
-                if (d.imgAmeaca) document.getElementById('imgAmeaca').src = d.imgAmeaca;
-            });
-        }
+        if (!id) window.location.href = 'index.html';
 
-        async function salvar(campo, valor) {
+        // Carregar Realtime
+        db.collection("ameacas").doc(id).onSnapshot(doc => {
+            if (!doc.exists) return;
+            const d = doc.data();
+            Object.keys(d).forEach(k => {
+                const el = document.getElementById(k);
+                if (el && document.activeElement !== el) el.value = d[k];
+            });
+            if (d.imgAmeaca) document.getElementById('display-img').src = d.imgAmeaca;
+        });
+
+        async function autoSalvar(campo, valor) {
             const status = document.getElementById('status-save');
             status.innerText = "Salvando...";
             try {
                 const el = document.getElementById(campo);
                 const valFinal = el.type === 'number' ? Number(valor) : valor;
-                let obj = {}; obj[campo] = valFinal;
-                await db.collection("ameacas").doc(id).update(obj);
+                let data = {}; data[campo] = valFinal;
+                await db.collection("ameacas").doc(id).update(data);
                 status.innerText = "Sincronizado";
             } catch (e) { status.innerText = "Erro ao salvar!"; }
         }
 
-        function uploadImg(input) {
+        function upload(input) {
+            const file = input.files[0];
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const base64 = e.target.result;
-                document.getElementById('imgAmeaca').src = base64;
+                document.getElementById('display-img').src = base64;
                 await db.collection("ameacas").doc(id).update({ imgAmeaca: base64 });
             };
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
