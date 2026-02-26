@@ -2,72 +2,30 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Portrait Recorte Manual</title>
+    <title>Portrait FIX</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; color: white; }
         #main-wrapper { display: flex; flex-direction: row; align-items: flex-end; padding: 20px; gap: 25px; }
-
-        #image-frame {
-            position: relative;
-            width: 250px; height: 350px;
-            overflow: hidden;
-            background: transparent;
-        }
-
-        #personagem-img {
-            position: absolute;
-            transition: all 0.4s ease-out;
-            filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000);
-        }
-
-        #pe-container {
-            position: absolute; bottom: 10px; left: 10px; font-size: 40px; 
-            color: #ffffff; 
-            text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 15px #cc66ff;
-            z-index: 10;
-        }
-
-        #stats-container { 
-            display: flex; flex-direction: column; align-items: flex-start; 
-            padding-bottom: 5px; margin-left: -40px; position: relative; z-index: 10; 
-        }
-
-        #nome-val { 
-            font-size: 40px; color: #ffffff; text-transform: uppercase; 
-            text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
-            margin-bottom: 10px; line-height: 0.9; 
-        }
-
-        #vida-text { 
-            font-size: 36px; color: #ffffff;
-            text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
-            margin-bottom: 5px; line-height: 1; 
-        }
-
-        #san-text { 
-            font-size: 36px; color: #ffffff;
-            text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 15px #0066ff; 
-            line-height: 1; 
-        }
+        #image-frame { position: relative; width: 250px; height: 350px; overflow: hidden; }
+        #personagem-img { position: absolute; transition: all 0.4s ease-out; }
+        #stats-container { display: flex; flex-direction: column; margin-left: -40px; position: relative; z-index: 10; }
+        #nome-val { font-size: 40px; text-transform: uppercase; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000; color: white; }
+        #vida-text { font-size: 36px; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000; color: white; }
+        #san-text { font-size: 36px; text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff; color: white; }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
-        <div id="image-frame">
-            <img id="personagem-img" src="">
-            <div id="pe-container"><span id="pe-val">0</span></div>
-        </div>
+        <div id="image-frame"><img id="personagem-img" src=""></div>
         <div id="stats-container">
-            <div id="nome-val">CARREGANDO...</div>
+            <div id="nome-val">...</div>
             <div id="vida-text">0/0</div>
             <div id="san-text">0/0</div>
         </div>
     </div>
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
@@ -79,57 +37,33 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const id = new URLSearchParams(window.location.search).get('id');
 
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-
-        if (!id) {
-            alert("ID da ficha não encontrado na URL! Use o botão da ficha ou adicione ?id=SUA_ID");
-        } else {
+        if (id) {
             db.collection("fichas").doc(id).onSnapshot(doc => {
                 const d = doc.data();
                 if(!d) return;
-
-                // 1. Atualizar Textos
                 document.getElementById('nome-val').innerText = d.nome || "Agente";
-                document.getElementById('pe-val').innerText = d.peAtual || 0;
-                document.getElementById('vida-text').innerText = (d.vidaAtual || 0) + "/" + (d.vidaMax || 0);
-                document.getElementById('san-text').innerText = (d.sanAtual || 0) + "/" + (d.sanMax || 0);
+                document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
+                document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
 
-                // 2. Lógica de Imagem (Suporta os dois nomes: 'imgNormal' e 'portraitNormal')
-                let imgFinal = d.imgNormal || d.portraitNormal || "";
                 let estado = "Normal";
+                if (d.vidaAtual <= 0) estado = "Morto";
+                else if (d.sanAtual <= 0) estado = "Enlouquecendo";
+                else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
+
+                const imgFinal = d.imgNormal || d.portraitNormal;
                 const imgEl = document.getElementById('personagem-img');
-
-                if (d.vidaAtual <= 0) {
-                    imgFinal = d.imgMorto || d.portraitMorto || imgFinal;
-                    estado = "Morto";
-                } else if (d.sanAtual <= 0) {
-                    imgFinal = d.imgEnlouquecendo || d.portraitEnlouquecendo || imgFinal;
-                    estado = "Enlouquecendo";
-                } else if ((d.vidaAtual / d.vidaMax) <= 0.5) {
-                    imgFinal = d.imgMachucado || d.portraitMachucado || imgFinal;
-                    estado = "Machucado";
-                }
-
-                // Aplica a URL se ela existir
                 if(imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-                // 3. Aplica o Recorte Manual
-                const zoom = Number(d["p" + estado + "Zoom"]) || Number(d.pNormalZoom) || 1;
-                const x = Number(d["p" + estado + "X"]) || Number(d.pNormalX) || 0;
-                const y = Number(d["p" + estado + "Y"]) || Number(d.pNormalY) || 0;
+                const zoom = Number(d["p"+estado+"Zoom"]) || 1;
+                const x = Number(d["p"+estado+"X"]) || 0;
+                const y = Number(d["p"+estado+"Y"]) || 0;
 
                 imgEl.style.width = (zoom * 100) + "%";
                 imgEl.style.left = x + "px";
                 imgEl.style.top = y + "px";
-
-                // 4. Neon e Filtro de Morte
-                if (estado === "Morto" && !d.imgMorto && !d.portraitMorto) {
-                    imgEl.style.filter = "brightness(0) drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
-                } else {
-                    imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
-                }
+                imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
             });
         }
     </script>
