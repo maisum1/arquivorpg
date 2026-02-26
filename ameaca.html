@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Ameaça</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+        body { background: #050505; color: #e0e0e0; font-family: 'Special Elite', sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .ficha-container { width: 100%; max-width: 900px; background: #121212; border: 2px solid #441111; padding: 20px; box-shadow: 0 0 30px rgba(255,0,0,0.1); }
+        
+        .header { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #ff4d4d; padding-bottom: 15px; margin-bottom: 20px; }
+        .nome-area input { background: transparent; border: none; color: #ff4d4d; font-size: 2.5rem; font-family: 'Special Elite'; width: 100%; }
+        .vd-area { text-align: right; color: #ff4d4d; font-size: 1.5rem; }
+        .vd-area input { width: 60px; background: #222; border: 1px solid #ff4d4d; color: white; text-align: center; font-family: 'Special Elite'; }
+
+        .top-info { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; font-size: 0.9rem; }
+        .top-info div { display: flex; align-items: center; gap: 5px; }
+        .top-info input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 5px; font-family: 'Special Elite'; }
+
+        .corpo-ficha { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        @media (max-width: 768px) { .corpo-ficha { grid-template-columns: 1fr; } }
+
+        .stats-col { display: flex; flex-direction: column; gap: 20px; }
+        .atributos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+        .attr-box { background: #1a1a1a; border: 1px solid #ff4d4d; border-radius: 50%; width: 70px; height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: auto; }
+        .attr-box input { width: 30px; background: transparent; border: none; color: white; text-align: center; font-size: 1.2rem; font-family: 'Special Elite'; }
+        .attr-label { font-size: 0.7rem; color: #ff4d4d; }
+
+        .pericia-area { background: #0a0a0a; padding: 10px; border: 1px solid #333; }
+        textarea { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #ccc; font-family: 'Special Elite'; resize: vertical; padding: 10px; box-sizing: border-box; }
+
+        .img-ameaca { width: 100%; border: 1px solid #ff4d4d; min-height: 250px; background: #000; cursor: pointer; object-fit: cover; }
+        .section-title { background: #441111; color: white; padding: 5px 10px; margin: 15px 0 10px 0; font-size: 1.1rem; border-left: 5px solid #ff4d4d; }
+        
+        .vida-box { display: flex; align-items: center; gap: 10px; background: #221111; padding: 10px; border: 1px solid #ff4d4d; }
+        .vida-box input { width: 80px; font-size: 1.5rem; background: transparent; border: none; color: #ff4d4d; text-align: center; font-family: 'Special Elite'; }
+    </style>
+</head>
+<body>
+
+<div class="ficha-container">
+    <div class="header">
+        <div class="nome-area"><input type="text" id="nome" placeholder="NOME DA AMEAÇA"></div>
+        <div class="vd-area">VD <input type="number" id="vd"></div>
+    </div>
+
+    <div class="top-info">
+        <div>ELEMENTOS: <input type="text" id="elementos" placeholder="Sangue, Morte..."></div>
+        <div>CLASSE: <input type="text" id="classe" placeholder="Criatura / Humanoide"></div>
+        <div>TAMANHO: <input type="text" id="tamanho" placeholder="Médio"></div>
+    </div>
+
+    <div class="corpo-ficha">
+        <div class="stats-col">
+            <img src="" id="preview-img" class="img-ameaca" onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" style="display:none;" onchange="uploadImagem(this)">
+            
+            <div class="atributos-grid">
+                <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi"></div>
+                <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for"></div>
+                <div class="attr-box"><span class="attr-label">INT</span><input type="number" id="int"></div>
+                <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig"></div>
+                <div class="attr-box"><span class="attr-label">PRE</span><input type="number" id="pre"></div>
+            </div>
+
+            <div class="vida-box">
+                <span>PV</span>
+                <input type="number" id="vidaAtual"> / <input type="number" id="vidaMax">
+            </div>
+        </div>
+
+        <div class="info-col">
+            <div class="section-title">PERÍCIAS / DEFESA</div>
+            <textarea id="pericias" rows="3" placeholder="Percepção +10, Iniciativa +5... Defesa: 25"></textarea>
+
+            <div class="section-title">RESISTÊNCIAS / VULNERABILIDADES</div>
+            <textarea id="resistencias" rows="2" placeholder="Corte 10, Balístico 5... Vuln: Energia"></textarea>
+
+            <div class="section-title">AÇÕES</div>
+            <textarea id="acoes" rows="8" placeholder="PADRÃO: Mordida +15 (2d10+5)...&#10;MOVIMENTO: Salto..."></textarea>
+
+            <div class="section-title">DESCRIÇÃO BREVE</div>
+            <textarea id="descricao" rows="4" placeholder="Relato de encontro, comportamento..."></textarea>
+        </div>
+    </div>
+    <button onclick="salvar()" style="margin-top:20px; width:100%; padding:15px; background:#ff4d4d; border:none; color:black; font-weight:bold; cursor:pointer; font-family:'Special Elite'">SALVAR ALTERAÇÕES</button>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+        authDomain: "fichasrpg-7fc69.firebaseapp.com",
+        projectId: "fichasrpg-7fc69",
+        storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+        messagingSenderId: "758802032764",
+        appId: "1:758802032764:web:40467e15fdc24c570081f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    // Carregar dados
+    db.collection("ameacas").doc(id).onSnapshot(doc => {
+        const d = doc.data();
+        if(!d) return;
+        for (let key in d) {
+            const el = document.getElementById(key);
+            if (el && el.type !== 'file') el.value = d[key];
+        }
+        if(d.imgAmeaca) document.getElementById('preview-img').src = d.imgAmeaca;
+    });
+
+    function salvar() {
+        const dados = {};
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(i => { if(i.id) dados[i.id] = i.value; });
+        db.collection("ameacas").doc(id).update(dados).then(() => alert("Ameaça atualizada!"));
+    }
+
+    function uploadImagem(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result;
+            db.collection("ameacas").doc(id).update({ imgAmeaca: base64String });
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+</body>
+</html>
