@@ -19,10 +19,12 @@
             background: transparent;
         }
 
-        #personagem-img {
-            position: absolute;
-            transition: all 0.4s ease-out; /* Suaviza a troca de posição/zoom */
-        }
+       #personagem-img {
+    position: absolute;
+    transition: all 0.4s ease-out;
+    /* ADICIONE ESTA LINHA: Cria um contorno neon vermelho duplo para ficar bem forte */
+    filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000);
+}
 
         /* PE SOBREPOSTO */
         #pe-container {
@@ -109,6 +111,16 @@ const y = Number(d["p" + estado + "Y"]) || 0;
 imgEl.style.width = (zoom * 100) + "%";
 imgEl.style.left = x + "px"; // Aqui vai o valor cheio salvo no Firebase
 imgEl.style.top = y + "px";
+            // Remove a cor preta do "Morto", mas MANTÉM o neon vermelho ativo
+if (estado !== "Morto") {
+    // Volta para o neon padrão
+    imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
+} else {
+    // Se estiver morto e não tiver imagem de morto específica, ele fica escuro MAS ainda com o neon (opcional)
+    if(!d.portraitMorto) {
+        imgEl.style.filter = "brightness(0) drop-shadow(0 0 5px #ff0000)";
+    }
+}
         });
     </script>
 </body>
