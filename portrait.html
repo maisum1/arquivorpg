@@ -8,18 +8,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         
-        body { 
-            margin: 0; padding: 0; overflow: hidden; 
-            font-family: 'Special Elite', sans-serif; 
-            background: transparent; 
-        }
-        
-        #main-wrapper { 
-            display: flex; flex-direction: row; 
-            align-items: flex-end; padding: 20px; gap: 25px; 
-        }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; }
+        #main-wrapper { display: flex; flex-direction: row; align-items: flex-end; padding: 20px; gap: 25px; }
 
-        /* QUADRO DE RECORTE FIXO */
         #image-frame {
             position: relative;
             width: 250px; height: 350px;
@@ -30,11 +21,9 @@
         #personagem-img {
             position: absolute;
             transition: all 0.4s ease-out;
-            /* Filtro neon padrão */
             filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000);
         }
 
-        /* PE SOBREPOSTO */
         #pe-container {
             position: absolute; bottom: 10px; left: 10px; font-size: 40px; 
             color: #ffffff; 
@@ -42,54 +31,40 @@
             z-index: 10;
         }
 
-        /* TEXTOS AO LADO */
         #stats-container { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: flex-start; 
-            padding-bottom: 5px;
-            margin-left: -40px; 
-            position: relative; 
-            z-index: 10; 
+            display: flex; flex-direction: column; align-items: flex-start; 
+            padding-bottom: 5px; margin-left: -40px; position: relative; z-index: 10; 
         }
 
         #nome-val { 
-            font-size: 40px; 
-            color: #ffffff;
-            text-transform: uppercase; 
+            font-size: 40px; color: #ffffff; text-transform: uppercase; 
             text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
-            margin-bottom: 10px; 
-            line-height: 0.9; 
+            margin-bottom: 10px; line-height: 0.9; 
         }
 
         #vida-text { 
-            font-size: 36px; 
-            color: #ffffff;
+            font-size: 36px; color: #ffffff;
             text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
-            margin-bottom: 5px; 
-            line-height: 1; 
+            margin-bottom: 5px; line-height: 1; 
         }
 
         #san-text { 
-            font-size: 36px; 
-            color: #ffffff;
+            font-size: 36px; color: #ffffff;
             text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 15px #0066ff; 
             line-height: 1; 
         }
     </style>
 </head>
 <body>
-
     <div id="main-wrapper">
         <div id="image-frame">
             <img id="personagem-img" src="">
             <div id="pe-container"><span id="pe-val">0</span></div>
         </div>
-
         <div id="stats-container">
-            <div id="nome-val">AGENTE</div>
-            <div id="vida-text">0 / 0</div>
-            <div id="san-text">0 / 0</div>
+            <div id="nome-val">CARREGANDO...</div>
+            <div id="vida-text">0/0</div>
+            <div id="san-text">0/0</div>
         </div>
     </div>
 
@@ -109,7 +84,7 @@
         const id = params.get('id');
 
         if (!id) {
-            document.body.innerHTML = "<h1 style='color:white;'>ERRO: Falta o ID na URL! Adicione ?id=SEU_ID no final do link.</h1>";
+            alert("ID da ficha não encontrado na URL! Use o botão da ficha ou adicione ?id=SUA_ID");
         } else {
             db.collection("fichas").doc(id).onSnapshot(doc => {
                 const d = doc.data();
@@ -118,26 +93,26 @@
                 // 1. Atualizar Textos
                 document.getElementById('nome-val').innerText = d.nome || "Agente";
                 document.getElementById('pe-val').innerText = d.peAtual || 0;
-                document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
-                document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
+                document.getElementById('vida-text').innerText = (d.vidaAtual || 0) + "/" + (d.vidaMax || 0);
+                document.getElementById('san-text').innerText = (d.sanAtual || 0) + "/" + (d.sanMax || 0);
 
-                // 2. Lógica de Imagem (Ajustado para bater com os nomes da ficha)
-                let imgFinal = d.imgNormal; // Antes estava d.portraitNormal
+                // 2. Lógica de Imagem (Suporta os dois nomes: 'imgNormal' e 'portraitNormal')
+                let imgFinal = d.imgNormal || d.portraitNormal || "";
                 let estado = "Normal";
                 const imgEl = document.getElementById('personagem-img');
 
                 if (d.vidaAtual <= 0) {
-                    imgFinal = d.imgMorto || d.imgNormal;
+                    imgFinal = d.imgMorto || d.portraitMorto || imgFinal;
                     estado = "Morto";
                 } else if (d.sanAtual <= 0) {
-                    imgFinal = d.imgEnlouquecendo || d.imgNormal;
+                    imgFinal = d.imgEnlouquecendo || d.portraitEnlouquecendo || imgFinal;
                     estado = "Enlouquecendo";
                 } else if ((d.vidaAtual / d.vidaMax) <= 0.5) {
-                    imgFinal = d.imgMachucado || d.imgNormal;
+                    imgFinal = d.imgMachucado || d.portraitMachucado || imgFinal;
                     estado = "Machucado";
                 }
 
-                // Aplica a URL
+                // Aplica a URL se ela existir
                 if(imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
                 // 3. Aplica o Recorte Manual
@@ -149,12 +124,10 @@
                 imgEl.style.left = x + "px";
                 imgEl.style.top = y + "px";
 
-                // 4. Aplica o Neon e Filtro de Morto
-                if (estado === "Morto" && !d.imgMorto) {
-                    // Se estiver morto e não tiver foto própria, fica preto com neon
+                // 4. Neon e Filtro de Morte
+                if (estado === "Morto" && !d.imgMorto && !d.portraitMorto) {
                     imgEl.style.filter = "brightness(0) drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
                 } else {
-                    // Neon padrão (vermelho)
                     imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
                 }
             });
