@@ -46,28 +46,35 @@
         <button class="btn-google" onclick="fazerLogin()">Entrar com Google</button>
     </div>
 
-    <div id="dashboard">
-        <h2 id="welcome">Agente Conectado</h2>
-        <div id="menu-abas" style="margin-bottom: 30px;">
-            <button id="btn-jog" class="tab-btn active" onclick="abaHub('jogador')">Meus Agentes</button> 
-            <button class="tab-btn" id="btn-ameacas" style="display:none;" onclick="mudarAba('ameacas')">AMEAÇAS</button>
-        </div>
-        <div id="hub-jogador">
-            <div class="grid" id="lista-fichas"></div>
-            <button class="btn-google" onclick="criarNovaFicha()" style="margin-top:30px; background:#222; color:white; border:1px solid #444;">+ Novo Agente</button>
-        </div>
-        <div id="hub-mestre" style="display:none;">
-            <div id="monitor-mestre"></div>
-          <div class="tab-content" id="aba-ameacas" style="display: none; width: 100%; max-width: 800px; margin: 0 auto; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #b31d1d; padding-bottom: 10px; margin-bottom: 20px;">
-        <h2 style="color: #b31d1d; margin: 0; font-family: 'Special Elite', cursive;">ARQUIVO DE AMEAÇAS</h2>
-        <button class="btn-google" style="background: #b31d1d; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-family: 'Special Elite', cursive;" onclick="criarNovaAmeaca()">+ NOVA AMEAÇA</button>
+   <div id="dashboard">
+    <h2 id="welcome">Agente Conectado</h2>
+    
+    <div id="menu-abas" style="margin-bottom: 30px;">
+        <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">Meus Agentes</button> 
+        <button id="btn-ameacas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('ameacas')">AMEAÇAS</button>
+        <button id="btn-mestre" class="tab-btn" style="display:none;" onclick="mudarAbaHub('mestre')">Painel do Mestre</button>
     </div>
-    <div id="lista-ameacas" style="display: flex; flex-direction: column; gap: 15px;"></div>
-        </div>
-        <br><br>
-        <button onclick="firebase.auth().signOut()" style="background:transparent; color:gray; border:none; cursor:pointer; font-family: sans-serif;">Sair da Conta</button>
+
+    <div id="hub-jogador" class="conteudo-hub">
+        <div class="grid" id="lista-fichas"></div>
+        <button class="btn-google" onclick="criarNovaFicha()" style="margin-top:30px; background:#222; color:white; border:1px solid #444;">+ Novo Agente</button>
     </div>
+
+    <div id="hub-ameacas" class="conteudo-hub" style="display: none; width: 100%; max-width: 800px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #b31d1d; padding-bottom: 10px; margin-bottom: 20px;">
+            <h2 style="color: #b31d1d; margin: 0; font-family: 'Special Elite', cursive;">ARQUIVO DE AMEAÇAS</h2>
+            <button class="btn-google" style="background: #b31d1d; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-family: 'Special Elite', cursive;" onclick="criarNovaAmeaca()">+ NOVA AMEAÇA</button>
+        </div>
+        <div id="lista-ameacas" style="display: flex; flex-direction: column; gap: 15px;"></div>
+    </div>
+
+    <div id="hub-mestre" class="conteudo-hub" style="display:none;">
+        <div id="monitor-mestre"></div>
+    </div>
+
+    <br><br>
+    <button onclick="firebase.auth().signOut()" style="background:transparent; color:gray; border:none; cursor:pointer; font-family: sans-serif;">Sair da Conta</button>
+</div>
 
     <script>
         const firebaseConfig = {
