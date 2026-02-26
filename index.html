@@ -9,40 +9,125 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        body { background-color: #0a0a0a; color: white; font-family: 'Special Elite', sans-serif; margin: 0; padding: 20px; }
-        .nav-menu { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .nav-btn { background: none; border: none; color: #888; font-family: 'Special Elite'; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
-        .nav-btn.active { color: #ff4d4d; text-shadow: 0 0 10px #ff0000; }
-        .aba-content { display: none; }
+
+        body {
+            background-color: #0a0a0a;
+            color: white;
+            font-family: 'Special Elite', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-family: 'Special Elite', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 5px 10px;
+        }
+
+        .nav-btn:hover { color: #ccc; }
+        .nav-btn.active {
+            color: #ff4d4d;
+            text-shadow: 0 0 10px #ff0000;
+            border-bottom: 2px solid #ff4d4d;
+        }
+
+        .aba-content { display: none; width: 100%; max-width: 1000px; }
         .aba-content.active { display: block; }
-        .grid-fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card { background: #1a1a1a; border: 1px solid #333; padding: 15px; text-align: center; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: #ff4d4d; transform: scale(1.05); }
-        .card img { width: 100%; height: 150px; object-fit: cover; border-radius: 3px; margin-bottom: 10px; }
-        .btn-add { background: #441111; color: white; border: 1px solid #ff4d4d; padding: 10px 20px; font-family: 'Special Elite'; cursor: pointer; margin-bottom: 20px; }
+
+        .grid-fichas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            border-color: #ff4d4d;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+        }
+
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            filter: grayscale(100%);
+            transition: 0.3s;
+        }
+
+        .card:hover img { filter: grayscale(0%); }
+        .card p { margin: 5px 0; font-size: 1.1rem; }
+
+        .btn-add {
+            background-color: #1a1a1a;
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 10px 20px;
+            font-family: 'Special Elite', sans-serif;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .btn-add:hover { background-color: #ff4d4d; color: black; }
+        .btn-sair { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; border: none; padding: 10px; cursor: pointer; font-family: 'Special Elite'; }
     </style>
 </head>
 <body>
 
     <div class="nav-menu">
-        <button class="nav-btn" onclick="mostrarAba('mestre')" id="btn-mestre">PAINEL DE MESTRE</button>
-        <button class="nav-btn active" onclick="mostrarAba('ameacas')" id="btn-ameacas">AMEAÇAS</button>
-        <button class="nav-btn" onclick="mostrarAba('agentes')" id="btn-agentes">AGENTES</button>
+        <button class="nav-btn active" onclick="mostrarAba('agentes')" id="btn-agentes">MEUS AGENTES</button>
+        <button class="nav-btn" onclick="mostrarAba('ameacas')" id="btn-ameacas" style="display:none;">AMEAÇAS</button>
+        <button class="nav-btn" onclick="mostrarAba('mestre')" id="btn-mestre" style="display:none;">PAINEL DO MESTRE</button>
     </div>
 
-    <div id="aba-mestre" class="aba-content">
-        <h2 style="color: #ff4d4d;">Controle Geral</h2>
-        <div id="lista-mestre" class="grid-fichas"></div>
+    <div id="aba-agentes" class="aba-content active">
+        <button class="btn-add" onclick="criarFicha()">+ CRIAR NOVO AGENTE</button>
+        <div id="lista-agentes" class="grid-fichas"></div>
     </div>
 
-    <div id="aba-ameacas" class="aba-content active">
-        <button class="btn-add" onclick="criarAmeaca()" id="btn-add-ameaca" style="display:none;">+ CRIAR NOVA AMEAÇA</button>
+    <div id="aba-ameacas" class="aba-content">
+        <button class="btn-add" onclick="criarAmeaca()" id="btn-add-ameaca" style="display:none;">+ REGISTRAR AMEAÇA</button>
         <div id="lista-ameacas" class="grid-fichas"></div>
     </div>
 
-    <div id="aba-agentes" class="aba-content">
-        <div id="lista-agentes" class="grid-fichas"></div>
+    <div id="aba-mestre" class="aba-content">
+        <h2 style="color: #ff4d4d; text-align: center;">Arquivo Confidencial - Ordo Realitas</h2>
+        <div id="lista-mestre" class="grid-fichas"></div>
     </div>
+
+    <button class="btn-sair" onclick="sair()">SAIR</button>
 
     <script>
         const firebaseConfig = {
@@ -53,6 +138,7 @@
             messagingSenderId: "758802032764",
             appId: "1:758802032764:web:40467e15fdc24c570081f9"
         };
+
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
@@ -61,11 +147,20 @@
         const emailMestre = "seuemail@gmail.com"; // AJUSTE PARA O SEU EMAIL
 
         auth.onAuthStateChanged(user => {
-            if (user && user.email === emailMestre) {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Lógica de Acesso do Mestre
+            if (user.email === emailMestre) {
                 ehMestre = true;
+                document.getElementById('btn-mestre').style.display = 'block';
+                document.getElementById('btn-ameacas').style.display = 'block';
                 document.getElementById('btn-add-ameaca').style.display = 'block';
             }
-            carregarFichas();
+
+            carregarFichas(user.email);
             carregarAmeacas();
         });
 
@@ -76,21 +171,31 @@
             document.getElementById('btn-' + nome).classList.add('active');
         }
 
-        function carregarFichas() {
-            db.collection("fichas").onSnapshot(snap => {
+        function carregarFichas(userEmail) {
+            db.collection("fichas").orderBy("createdAt", "desc").onSnapshot(snap => {
                 const listaAgentes = document.getElementById('lista-agentes');
                 const listaMestre = document.getElementById('lista-mestre');
+                
                 listaAgentes.innerHTML = "";
                 listaMestre.innerHTML = "";
 
                 snap.forEach(doc => {
                     const d = doc.data();
-                    const card = `<div class="card" onclick="window.location.href='ficha.html?id=${doc.id}'">
-                        <img src="${d.imgNormal || 'https://via.placeholder.com/150'}">
-                        <p>${d.nome || 'Agente Sem Nome'}</p>
-                    </div>`;
-                    listaAgentes.innerHTML += card;
-                    if(ehMestre) listaMestre.innerHTML += card;
+                    const card = `
+                        <div class="card" onclick="window.location.href='ficha.html?id=${doc.id}'">
+                            <img src="${d.imgNormal || 'https://via.placeholder.com/200x300'}">
+                            <p>${d.nome || 'Agente Sem Nome'}</p>
+                            <small>${d.origem || 'Origem desconhecida'}</small>
+                        </div>
+                    `;
+
+                    // Jogador vê apenas as dele, Mestre vê tudo no Painel
+                    if (d.owner === userEmail) {
+                        listaAgentes.innerHTML += card;
+                    }
+                    if (ehMestre) {
+                        listaMestre.innerHTML += card;
+                    }
                 });
             });
         }
@@ -101,29 +206,50 @@
                 container.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    container.innerHTML += `<div class="card" onclick="window.location.href='ameaca.html?id=${doc.id}'">
-                        <img src="${d.imgAmeaca || 'https://via.placeholder.com/150'}">
-                        <p>${d.nome || 'Ameaça Desconhecida'}</p>
-                        <small style="color:#ff4d4d">VD ${d.vd || '??'}</small>
-                    </div>`;
+                    container.innerHTML += `
+                        <div class="card" onclick="window.location.href='ameaca.html?id=${doc.id}'">
+                            <img src="${d.imgAmeaca || 'https://via.placeholder.com/200x300'}">
+                            <p>${d.nome || 'Ameaça'}</p>
+                            <small style="color:#ff4d4d">VD ${d.vd || '??'}</small>
+                        </div>
+                    `;
                 });
             });
         }
 
+        function criarFicha() {
+            const user = auth.currentUser;
+            const nome = prompt("Nome do Agente:");
+            if (nome) {
+                db.collection("fichas").add({
+                    nome: nome,
+                    owner: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    vidaAtual: 20, vidaMax: 20,
+                    sanAtual: 20, sanMax: 20,
+                    peAtual: 5, peMax: 5
+                }).then(doc => {
+                    window.location.href = "ficha.html?id=" + doc.id;
+                });
+            }
+        }
+
         function criarAmeaca() {
             if(!ehMestre) return;
-            const nome = prompt("Nome da Criatura:");
+            const nome = prompt("Nome da Criatura/Ameaça:");
             if(nome) {
                 db.collection("ameacas").add({
                     nome: nome,
                     vd: "0",
-                    imgAmeaca: "",
-                    elementos: "",
-                    vidaAtual: 100,
-                    vidaMax: 100,
-                    createdAt: new Date()
-                }).then(doc => window.location.href = `ameaca.html?id=${doc.id}`);
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(doc => {
+                    window.location.href = "ameaca.html?id=" + doc.id;
+                });
             }
+        }
+
+        function sair() {
+            auth.signOut().then(() => window.location.href = "login.html");
         }
     </script>
 </body>
