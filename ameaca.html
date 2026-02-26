@@ -1,263 +1,200 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C.R.I.S. - Ficha de Ameaça</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ameaça</title>
 
-        body { 
-            background: #050505; 
-            color: #e0e0e0; 
-            font-family: 'Special Elite', sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
-        .nav-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-        }
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
-        .btn-voltar { 
-            background: transparent; 
-            border: 1px solid #444; 
-            color: #888; 
-            padding: 8px 15px; 
-            cursor: pointer; 
-            font-family: 'Special Elite'; 
-            text-decoration: none; 
-        }
-        #status-save { font-size: 0.8rem; color: #444; }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
 
-        .ficha-full { 
-            width: 100%; 
-            background: #0a0a0a; 
-            border: 1px solid #220000; 
-            padding: 25px; 
-            box-sizing: border-box; 
-            flex-grow: 1;
-        }
-        
-        .header-main { 
-            display: grid; 
-            grid-template-columns: 1fr auto; 
-            gap: 20px; 
-            border-bottom: 2px solid #ff4d4d; 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
-        }
+body{
+background:#0b0b0b;
+color:white;
+font-family:'Special Elite';
+margin:0;
+display:flex;
+justify-content:center;
+padding:20px;
+}
 
-        .nome-area input { 
-            background: transparent; 
-            border: none; 
-            color: #ff4d4d; 
-            font-size: 3.5rem; 
-            font-family: 'Special Elite'; 
-            width: 100%; 
-            outline: none; 
-        }
+.container{
+width:100%;
+max-width:800px;
+border:1px solid #7f1d1d;
+padding:20px;
+background:#111;
+}
 
-        .vd-area { color: #ff4d4d; font-size: 2rem; display: flex; align-items: center; gap: 10px; }
-        .vd-area input { 
-            width: 100px; 
-            background: #1a1a1a; 
-            border: 1px solid #441111; 
-            color: white; 
-            text-align: center; 
-            font-size: 2rem; 
-            font-family: 'Special Elite';
-        }
+.header{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+align-items:center;
+border-bottom:1px solid #7f1d1d;
+padding-bottom:20px;
+}
 
-        .grid-info { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 20px; 
-            margin-bottom: 30px; 
-        }
-        .box-info { display: flex; flex-direction: column; }
-        .box-info label { font-size: 0.8rem; color: #555; margin-bottom: 5px; }
-        .box-info input { background: #111; border: 1px solid #333; color: white; padding: 10px; font-family: 'Special Elite'; outline: none; }
+.portrait{
+width:140px;
+height:140px;
+background:#000;
+border:1px solid #7f1d1d;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+}
 
-        /* Layout 3 Colunas Full Width */
-        .layout-corpo { 
-            display: grid; 
-            grid-template-columns: 300px 1fr 1fr; 
-            gap: 30px; 
-        }
+.portrait img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
 
-        .img-container { width: 100%; position: relative; }
-        .img-display { width: 100%; aspect-ratio: 2/3; background: #000; border: 1px solid #333; object-fit: cover; cursor: pointer; }
+input, textarea{
+background:#000;
+border:1px solid #333;
+color:white;
+padding:6px;
+font-family:'Special Elite';
+width:100%;
+}
 
-        .attr-container { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
-            margin: 20px 0;
-        }
-        .attr-item { 
-            border: 1px solid #ff4d4d; 
-            border-radius: 50%; 
-            height: 80px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        .attr-item input { width: 40px; background: transparent; border: none; color: white; text-align: center; font-size: 1.8rem; font-family: 'Special Elite'; outline: none; }
-        .attr-item span { font-size: 0.7rem; color: #ff4d4d; }
+.section{
+margin-top:20px;
+border-top:1px solid #333;
+padding-top:15px;
+}
 
-        .pv-container { background: #200; border: 1px solid #ff4d4d; padding: 20px; text-align: center; }
-        .pv-inputs { display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .pv-inputs input { width: 80px; background: transparent; border: none; color: #ff4d4d; font-size: 2rem; text-align: center; font-family: 'Special Elite'; outline: none; }
+h2{
+color:#b91c1c;
+margin:0 0 10px 0;
+}
 
-        .titulo-sec { background: #300; color: #ff4d4d; padding: 8px 15px; margin-bottom: 10px; border-left: 4px solid #ff4d4d; letter-spacing: 2px; }
-        textarea { 
-            width: 100%; 
-            background: #0f0f0f; 
-            border: 1px solid #222; 
-            color: #ccc; 
-            font-family: 'Special Elite'; 
-            padding: 15px; 
-            box-sizing: border-box; 
-            outline: none; 
-            resize: vertical; 
-            margin-bottom: 20px;
-            font-size: 1rem;
-            line-height: 1.4;
-        }
-        textarea:focus { border-color: #ff4d4d; }
+button{
+background:#7f1d1d;
+border:none;
+color:white;
+padding:10px 15px;
+cursor:pointer;
+margin-top:15px;
+}
+button:hover{ background:#991b1b; }
 
-        @media (max-width: 1200px) { .layout-corpo { grid-template-columns: 1fr; } }
-    </style>
+@media(max-width:600px){
+.header{flex-direction:column;align-items:flex-start;}
+.portrait{width:100%;height:200px;}
+}
+</style>
 </head>
 <body>
 
-    <div class="nav-header">
-        <a href="index.html" class="btn-voltar">← HUB</a>
-        <div id="status-save">Sincronizado</div>
-    </div>
+<div class="container">
 
-    <div class="ficha-full">
-        <div class="header-main">
-            <div class="nome-area">
-                <input type="text" id="nome" placeholder="NOME DA AMEAÇA" onchange="autoSalvar('nome', this.value)">
-            </div>
-            <div class="vd-area">
-                <span>VD</span>
-                <input type="number" id="vd" onchange="autoSalvar('vd', this.value)">
-            </div>
-        </div>
+<div class="header">
+<div class="portrait" onclick="document.getElementById('imgUpload').click()">
+<img id="preview">
+</div>
 
-        <div class="grid-info">
-            <div class="box-info"><label>ELEMENTOS</label><input type="text" id="elementos" onchange="autoSalvar('elementos', this.value)"></div>
-            <div class="box-info"><label>CLASSE</label><input type="text" id="classe" onchange="autoSalvar('classe', this.value)"></div>
-            <div class="box-info"><label>TAMANHO</label><input type="text" id="tamanho" onchange="autoSalvar('tamanho', this.value)"></div>
-            <div class="box-info"><label>TIPO</label><input type="text" id="tipo" onchange="autoSalvar('tipo', this.value)"></div>
-        </div>
+<div style="flex:1">
+<label>Nome</label>
+<input id="nome">
+<label>VD</label>
+<input id="vd" type="number">
+<label>Tipo</label>
+<input id="tipo">
+<label>Descrição Breve</label>
+<textarea id="descricao"></textarea>
+</div>
+</div>
 
-        <div class="layout-corpo">
-            <div>
-                <img src="" id="display-img" class="img-display" onclick="document.getElementById('file-in').click()">
-                <input type="file" id="file-in" style="display:none;" onchange="upload(this)">
-                
-                <div class="attr-container">
-                    <div class="attr-item"><span>AGI</span><input type="number" id="agi" onchange="autoSalvar('agi', this.value)"></div>
-                    <div class="attr-item"><span>FOR</span><input type="number" id="for" onchange="autoSalvar('for', this.value)"></div>
-                    <div class="attr-item"><span>INT</span><input type="number" id="int" onchange="autoSalvar('int', this.value)"></div>
-                    <div class="attr-item"><span>VIG</span><input type="number" id="vig" onchange="autoSalvar('vig', this.value)"></div>
-                    <div class="attr-item"><span>PRE</span><input type="number" id="pre" onchange="autoSalvar('pre', this.value)"></div>
-                </div>
+<div class="section">
+<h2>Atributos</h2>
+AGI <input id="agi" type="number">
+FOR <input id="for" type="number">
+INT <input id="int" type="number">
+PRE <input id="pre" type="number">
+VIG <input id="vig" type="number">
+</div>
 
-                <div class="pv-container">
-                    <div style="font-size: 0.8rem; color: #ff4d4d; margin-bottom: 5px;">PONTOS DE VIDA</div>
-                    <div class="pv-inputs">
-                        <input type="number" id="vidaAtual" onchange="autoSalvar('vidaAtual', this.value)">
-                        <span style="color:#444">/</span>
-                        <input type="number" id="vidaMax" onchange="autoSalvar('vidaMax', this.value)">
-                    </div>
-                </div>
-            </div>
+<div class="section">
+<h2>Combate</h2>
+Defesa <input id="defesa" type="number">
+Vida <input id="vida" type="number">
+Deslocamento <input id="deslocamento">
+Presença Perturbadora <textarea id="presenca"></textarea>
+</div>
 
-            <div>
-                <div class="titulo-sec">DEFESA / RESISTÊNCIAS</div>
-                <textarea id="defesa" rows="4" onchange="autoSalvar('defesa', this.value)"></textarea>
+<button onclick="salvar()">Salvar</button>
+<br><br>
+<a href="index.html" style="color:#b91c1c;">Voltar</a>
 
-                <div class="titulo-sec">PERÍCIAS</div>
-                <textarea id="pericias" rows="6" onchange="autoSalvar('pericias', this.value)"></textarea>
+<input type="file" id="imgUpload" style="display:none">
 
-                <div class="titulo-sec">DESCRIÇÃO</div>
-                <textarea id="descricao" rows="10" onchange="autoSalvar('descricao', this.value)"></textarea>
-            </div>
+</div>
 
-            <div>
-                <div class="titulo-sec">AÇÕES E ATAQUES</div>
-                <textarea id="acoes" rows="28" onchange="autoSalvar('acoes', this.value)"></textarea>
-            </div>
-        </div>
-    </div>
+<script>
+const firebaseConfig={
+apiKey:"AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+authDomain:"fichasrpg-7fc69.firebaseapp.com",
+projectId:"fichasrpg-7fc69",
+storageBucket:"fichasrpg-7fc69.firebasestorage.app",
+};
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
-            authDomain: "fichasrpg-7fc69.firebaseapp.com",
-            projectId: "fichasrpg-7fc69",
-            storageBucket: "fichasrpg-7fc69.firebasestorage.app",
-            messagingSenderId: "758802032764",
-            appId: "1:758802032764:web:40467e15fdc24c570081f9"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const id = new URLSearchParams(window.location.search).get('id');
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+const storage=firebase.storage();
 
-        if (!id) window.location.href = 'index.html';
+const params=new URLSearchParams(window.location.search);
+const id=params.get("id");
 
-        // Carregar Realtime
-        db.collection("ameacas").doc(id).onSnapshot(doc => {
-            if (!doc.exists) return;
-            const d = doc.data();
-            Object.keys(d).forEach(k => {
-                const el = document.getElementById(k);
-                if (el && document.activeElement !== el) el.value = d[k];
-            });
-            if (d.imgAmeaca) document.getElementById('display-img').src = d.imgAmeaca;
-        });
+if(id){
+db.collection("ameacas").doc(id).get().then(doc=>{
+if(doc.exists){
+let d=doc.data();
+for(let k in d){
+if(document.getElementById(k))
+document.getElementById(k).value=d[k];
+}
+if(d.imagem) document.getElementById('preview').src=d.imagem;
+}
+});
+}
 
-        async function autoSalvar(campo, valor) {
-            const status = document.getElementById('status-save');
-            status.innerText = "Salvando...";
-            try {
-                const el = document.getElementById(campo);
-                const valFinal = el.type === 'number' ? Number(valor) : valor;
-                let data = {}; data[campo] = valFinal;
-                await db.collection("ameacas").doc(id).update(data);
-                status.innerText = "Sincronizado";
-            } catch (e) { status.innerText = "Erro ao salvar!"; }
-        }
+async function salvar(){
+let dados={
+nome:nome.value,
+vd:vd.value,
+tipo:tipo.value,
+descricao:descricao.value,
+agi:agi.value,
+for:for.value,
+int:int.value,
+pre:pre.value,
+vig:vig.value,
+defesa:defesa.value,
+vida:vida.value,
+deslocamento:deslocamento.value,
+presenca:presenca.value
+};
 
-        function upload(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const base64 = e.target.result;
-                document.getElementById('display-img').src = base64;
-                await db.collection("ameacas").doc(id).update({ imgAmeaca: base64 });
-            };
-            reader.readAsDataURL(file);
-        }
-    </script>
+await db.collection("ameacas").doc(id).update(dados);
+alert("Salvo.");
+}
+
+document.getElementById('imgUpload').addEventListener('change',async e=>{
+let file=e.target.files[0];
+let ref=storage.ref().child("ameacas/"+id);
+await ref.put(file);
+let url=await ref.getDownloadURL();
+document.getElementById('preview').src=url;
+await db.collection("ameacas").doc(id).update({imagem:url});
+});
+</script>
 </body>
 </html>
