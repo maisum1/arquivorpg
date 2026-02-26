@@ -8,32 +8,58 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; color: white; }
+        
         #main-wrapper { display: flex; flex-direction: row; align-items: flex-end; padding: 20px; gap: 25px; }
+        
+        /* QUADRO DA IMAGEM */
         #image-frame { position: relative; width: 250px; height: 350px; overflow: hidden; }
         #personagem-img { position: absolute; transition: all 0.4s ease-out; }
         
-        /* Contêiner de textos alinhado no OBS com margem negativa original */
+        /* PE SOBREPOSTO NA IMAGEM (Brilho Roxo) */
+        #pe-container {
+            position: absolute; bottom: 10px; left: 10px; font-size: 40px; 
+            color: #ffffff; 
+            text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 15px #cc66ff;
+            z-index: 10;
+        }
+
+        /* CONTÊINER DE TEXTOS (Lado direito) */
         #stats-container { display: flex; flex-direction: column; margin-left: -40px; position: relative; z-index: 10; }
         
-        /* Nome desalinhado organicamente para a esquerda */
-        #nome-val { font-size: 40px; text-transform: uppercase; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000; color: white; margin-left: -20px; }
+        /* ALINHAMENTO ORGÂNICO (Desalinhados) */
+        #nome-val { 
+            font-size: 40px; text-transform: uppercase; color: white;
+            text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
+            margin-left: -20px; margin-bottom: 10px; line-height: 0.9;
+        }
         
-        /* Vida desalinhada organicamente para a direita */
-        #vida-text { font-size: 36px; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000; color: white; margin-left: 15px; }
+        #vida-text { 
+            font-size: 36px; color: white;
+            text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
+            margin-left: 15px; margin-bottom: 5px; line-height: 1;
+        }
         
-        /* Sanidade desalinhada organicamente ainda mais para a direita, quebrando o padrão robotico */
-        #san-text { font-size: 36px; text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff; color: white; margin-left: 30px; }
+        #san-text { 
+            font-size: 36px; color: white;
+            text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 15px #0066ff; 
+            margin-left: 30px; line-height: 1;
+        }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
-        <div id="image-frame"><img id="personagem-img" src=""></div>
+        <div id="image-frame">
+            <img id="personagem-img" src="">
+            <div id="pe-container"><span id="pe-val">0</span></div>
+        </div>
+
         <div id="stats-container">
             <div id="nome-val">...</div>
             <div id="vida-text">0/0</div>
             <div id="san-text">0/0</div>
         </div>
     </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
@@ -51,15 +77,20 @@
             db.collection("fichas").doc(id).onSnapshot(doc => {
                 const d = doc.data();
                 if(!d) return;
+
+                // ATUALIZAÇÃO DOS TEXTOS (Incluindo PE)
                 document.getElementById('nome-val').innerText = d.nome || "Agente";
+                document.getElementById('pe-val').innerText = d.peAtual || 0;
                 document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
                 document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
 
+                // LÓGICA DE ESTADO
                 let estado = "Normal";
                 if (d.vidaAtual <= 0) estado = "Morto";
                 else if (d.sanAtual <= 0) estado = "Enlouquecendo";
                 else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
 
+                // IMAGEM E RECORTE
                 const imgFinal = d.imgNormal || d.portraitNormal;
                 const imgEl = document.getElementById('personagem-img');
                 if(imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
@@ -71,6 +102,8 @@
                 imgEl.style.width = (zoom * 100) + "%";
                 imgEl.style.left = x + "px";
                 imgEl.style.top = y + "px";
+
+                // FILTRO NEON NA IMAGEM
                 imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
             });
         }
