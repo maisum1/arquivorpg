@@ -234,14 +234,13 @@
 
     <a href="index.html" class="voltar-btn">VOLTAR AO HUB</a>
 
-    <div class="section-box" style="padding: 0; overflow: hidden; border-bottom: 3px solid var(--hp-red);">
-        <div class="portrait" onclick="document.getElementById('fileInput').click()">
-            <img id="img-preview" style="display:none;">
-            <div id="img-placeholder" class="upload-hint">CLIQUE PARA REGISTRO VISUAL</div>
-        </div>
-    </div>
-    
-    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
+    <div class="container">
+        <div class="col-left">
+            <div class="portrait-box">
+                <img id="portrait-img" src="" alt="Sem Imagem" onerror="this.style.display='none'">
+                <span id="portrait-placeholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; font-family: 'Special Elite', cursive;">URL DA IMAGEM</span>
+            </div>
+            <input type="text" id="portrait" class="inline-input save-auto" placeholder="Cole o link da imagem aqui..." style="width: 100%; border-bottom: 1px solid #444;">
             <textarea id="descricao" class="descricao-box save-auto" placeholder="Breve descrição, lore, ou táticas da ameaça..."></textarea>
         </div>
 
@@ -376,12 +375,6 @@
                     if(el.id && d[el.id] !== undefined && el.value !== d[el.id]) {
                         el.value = d[el.id];
                     }
-                    if (d.portrait) {
-    const img = document.getElementById('img-preview');
-    img.src = d.portrait;
-    img.style.display = 'block';
-    document.getElementById('img-placeholder').style.display = 'none';
-}
                 });
                 
                 // Tratar a Imagem
@@ -464,21 +457,6 @@
         // Iniciar subcoleções
         loadSub('acoes', 'lista-acoes', renderAcao);
         loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
-function converterImagem(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const base64 = e.target.result;
-            const img = document.getElementById('img-preview');
-            img.src = base64;
-            img.style.display = 'block'; // Mostra a imagem
-            document.getElementById('img-placeholder').style.display = 'none'; // Esconde o texto
-            
-            update('portrait', base64);
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
     </script>
 </body>
 </html>
