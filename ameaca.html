@@ -1,200 +1,462 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ameaça</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C.R.I.S. - Arquivo de Ameaça</title>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@300;400;700&display=swap');
 
-body{
-background:#0b0b0b;
-color:white;
-font-family:'Special Elite';
-margin:0;
-display:flex;
-justify-content:center;
-padding:20px;
-}
+        :root {
+            --hp-red: #b31d1d;
+            --bg-dark: #090909;
+            --text-main: #e0e0e0;
+        }
 
-.container{
-width:100%;
-max-width:800px;
-border:1px solid #7f1d1d;
-padding:20px;
-background:#111;
-}
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
 
-.header{
-display:flex;
-gap:20px;
-flex-wrap:wrap;
-align-items:center;
-border-bottom:1px solid #7f1d1d;
-padding-bottom:20px;
-}
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
 
-.portrait{
-width:140px;
-height:140px;
-background:#000;
-border:1px solid #7f1d1d;
-display:flex;
-align-items:center;
-justify-content:center;
-overflow:hidden;
-}
+        /* Coluna da Esquerda (Imagem e Descrição) */
+        .col-left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-.portrait img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
+        .portrait-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: #111;
+            border: 2px solid #333;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
 
-input, textarea{
-background:#000;
-border:1px solid #333;
-color:white;
-padding:6px;
-font-family:'Special Elite';
-width:100%;
-}
+        .portrait-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.section{
-margin-top:20px;
-border-top:1px solid #333;
-padding-top:15px;
-}
+        textarea.descricao-box {
+            width: 100%;
+            flex: 1;
+            min-height: 200px;
+            background: #111;
+            border: 1px solid #333;
+            color: #ccc;
+            padding: 15px;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 8px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
 
-h2{
-color:#b91c1c;
-margin:0 0 10px 0;
-}
+        /* Coluna da Direita (Bloco de Status da Ordem) */
+        .stat-block {
+            background-color: #111;
+            border: 3px solid var(--hp-red);
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
 
-button{
-background:#7f1d1d;
-border:none;
-color:white;
-padding:10px 15px;
-cursor:pointer;
-margin-top:15px;
-}
-button:hover{ background:#991b1b; }
+        .inline-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed #555;
+            color: #fff;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            padding: 2px;
+        }
+        .inline-input:focus { border-bottom: 1px solid var(--hp-red); }
 
-@media(max-width:600px){
-.header{flex-direction:column;align-items:flex-start;}
-.portrait{width:100%;height:200px;}
-}
-</style>
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--hp-red);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-nome {
+            font-family: 'Special Elite', cursive;
+            font-size: 2.5em;
+            color: #fff;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .stat-subtitle {
+            color: #aaa;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .stat-vd {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.5em;
+            color: var(--hp-red);
+            white-space: nowrap;
+        }
+
+        /* Atributos Hexagonais/Circulares */
+        .atributos-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .attr-box {
+            text-align: center;
+        }
+
+        .attr-label {
+            font-family: 'Special Elite', cursive;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .attr-input {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--hp-red);
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: 'Special Elite', cursive;
+            outline: none;
+        }
+
+        .separator {
+            border-bottom: 2px solid var(--hp-red);
+            margin: 15px 0;
+        }
+
+        .stat-row {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .stat-label {
+            font-family: 'Special Elite', cursive;
+            color: var(--hp-red);
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .section-title {
+            background-color: var(--hp-red);
+            color: white;
+            padding: 5px 10px;
+            font-family: 'Special Elite', cursive;
+            font-size: 1.2em;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Ações e Habilidades Dinâmicas */
+        .dynamic-item {
+            background: rgba(255,255,255,0.02);
+            border-left: 3px solid #444;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .btn-del {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-add {
+            background: transparent;
+            border: 1px solid var(--hp-red);
+            color: var(--hp-red);
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Special Elite', cursive;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        .btn-add:hover { background: var(--hp-red); color: white; }
+
+        .voltar-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--hp-red);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-family: 'Special Elite', cursive;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
+    <a href="index.html" class="voltar-btn">VOLTAR AO HUB</a>
 
-<div class="header">
-<div class="portrait" onclick="document.getElementById('imgUpload').click()">
-<img id="preview">
-</div>
+    <div class="container">
+        <div class="col-left">
+            <div class="portrait-box">
+                <img id="portrait-img" src="" alt="Sem Imagem" onerror="this.style.display='none'">
+                <span id="portrait-placeholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; font-family: 'Special Elite', cursive;">URL DA IMAGEM</span>
+            </div>
+            <input type="text" id="portrait" class="inline-input save-auto" placeholder="Cole o link da imagem aqui..." style="width: 100%; border-bottom: 1px solid #444;">
+            <textarea id="descricao" class="descricao-box save-auto" placeholder="Breve descrição, lore, ou táticas da ameaça..."></textarea>
+        </div>
 
-<div style="flex:1">
-<label>Nome</label>
-<input id="nome">
-<label>VD</label>
-<input id="vd" type="number">
-<label>Tipo</label>
-<input id="tipo">
-<label>Descrição Breve</label>
-<textarea id="descricao"></textarea>
-</div>
-</div>
+        <div class="stat-block">
+            
+            <div class="stat-header">
+                <div style="flex: 1; padding-right: 20px;">
+                    <input id="nome" class="inline-input save-auto stat-nome" placeholder="NOME DA CRIATURA">
+                    <div class="stat-subtitle">
+                        CRIATURA <span style="color:var(--hp-red)">-</span> 
+                        <input id="tamanho" class="inline-input save-auto" placeholder="TAMANHO" style="width: 80px; text-transform: uppercase;"> <span style="color:var(--hp-red)">-</span> 
+                        <input id="elemento" class="inline-input save-auto" placeholder="ELEMENTO" style="width: 120px; text-transform: uppercase;">
+                    </div>
+                </div>
+                <div class="stat-vd">
+                    VD <input id="vd" class="inline-input save-auto" placeholder="0" style="width: 50px; font-size: 1em; color: var(--hp-red); text-align: center;">
+                </div>
+            </div>
 
-<div class="section">
-<h2>Atributos</h2>
-AGI <input id="agi" type="number">
-FOR <input id="for" type="number">
-INT <input id="int" type="number">
-PRE <input id="pre" type="number">
-VIG <input id="vig" type="number">
-</div>
+            <div class="atributos-container">
+                <div class="attr-box"><div class="attr-label">AGI</div><input id="agi" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">FOR</div><input id="for" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">INT</div><input id="int" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">PRE</div><input id="pre" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">VIG</div><input id="vig" class="attr-input save-auto" placeholder="1"></div>
+            </div>
 
-<div class="section">
-<h2>Combate</h2>
-Defesa <input id="defesa" type="number">
-Vida <input id="vida" type="number">
-Deslocamento <input id="deslocamento">
-Presença Perturbadora <textarea id="presenca"></textarea>
-</div>
+            <div class="separator"></div>
 
-<button onclick="salvar()">Salvar</button>
-<br><br>
-<a href="index.html" style="color:#b91c1c;">Voltar</a>
+            <div class="stat-row">
+                <span class="stat-label">SENTIDOS</span> 
+                Percepção <input id="percepcao" class="inline-input save-auto" placeholder="2d20+10" style="width: 100px;"> 
+                Iniciativa <input id="iniciativa" class="inline-input save-auto" placeholder="2d20+5" style="width: 100px;">
+            </div>
+            
+            <div class="stat-row">
+                <span class="stat-label">DEFESA</span> 
+                <input id="defesa" class="inline-input save-auto" placeholder="20" style="width: 40px; font-weight: bold;"> 
+                Fortitude <input id="fortitude" class="inline-input save-auto" placeholder="2d20+10" style="width: 80px;"> 
+                Reflexos <input id="reflexos" class="inline-input save-auto" placeholder="2d20+5" style="width: 80px;"> 
+                Vontade <input id="vontade" class="inline-input save-auto" placeholder="2d20+5" style="width: 80px;">
+            </div>
 
-<input type="file" id="imgUpload" style="display:none">
+            <div class="stat-row">
+                <span class="stat-label">PONTOS DE VIDA</span> 
+                <input id="pvMax" class="inline-input save-auto" placeholder="200" style="width: 50px; font-weight: bold;"> | 
+                Atual <input id="pvAtual" class="inline-input save-auto" placeholder="200" style="width: 50px; color: var(--hp-red);"> | 
+                Machucado <input id="pvMachucado" class="inline-input save-auto" placeholder="100" style="width: 50px;">
+            </div>
 
-</div>
+            <div class="stat-row">
+                <span class="stat-label">VULNERABILIDADES</span> <input id="vulnerabilidades" class="inline-input save-auto" placeholder="Energia..." style="width: 70%;">
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">RESISTÊNCIAS</span> <input id="resistencias" class="inline-input save-auto" placeholder="Dano físico 10, Sangue 10..." style="width: 75%;">
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">IMUNIDADES</span> <input id="imunidades" class="inline-input save-auto" placeholder="Condições de paralisia..." style="width: 78%;">
+            </div>
 
-<script>
-const firebaseConfig={
-apiKey:"AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
-authDomain:"fichasrpg-7fc69.firebaseapp.com",
-projectId:"fichasrpg-7fc69",
-storageBucket:"fichasrpg-7fc69.firebasestorage.app",
-};
+            <div class="separator"></div>
 
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-const storage=firebase.storage();
+            <div class="stat-row">
+                <span class="stat-label">PERÍCIAS</span> <input id="pericias" class="inline-input save-auto" placeholder="Atletismo 4d20+15, Luta 4d20+15..." style="width: 85%;">
+            </div>
 
-const params=new URLSearchParams(window.location.search);
-const id=params.get("id");
+            <div class="separator"></div>
 
-if(id){
-db.collection("ameacas").doc(id).get().then(doc=>{
-if(doc.exists){
-let d=doc.data();
-for(let k in d){
-if(document.getElementById(k))
-document.getElementById(k).value=d[k];
-}
-if(d.imagem) document.getElementById('preview').src=d.imagem;
-}
-});
-}
+            <div class="stat-row">
+                <span class="stat-label">DESLOCAMENTO</span> <input id="deslocamento" class="inline-input save-auto" placeholder="9m | 6q" style="width: 70%;">
+            </div>
 
-async function salvar(){
-let dados={
-nome:nome.value,
-vd:vd.value,
-tipo:tipo.value,
-descricao:descricao.value,
-agi:agi.value,
-for:for.value,
-int:int.value,
-pre:pre.value,
-vig:vig.value,
-defesa:defesa.value,
-vida:vida.value,
-deslocamento:deslocamento.value,
-presenca:presenca.value
-};
+            <div class="separator"></div>
 
-await db.collection("ameacas").doc(id).update(dados);
-alert("Salvo.");
-}
+            <div>
+                <div class="section-title">AÇÕES</div>
+                <div id="lista-acoes"></div>
+                <button class="btn-add" onclick="addAcao()">+ Adicionar Ação</button>
+            </div>
 
-document.getElementById('imgUpload').addEventListener('change',async e=>{
-let file=e.target.files[0];
-let ref=storage.ref().child("ameacas/"+id);
-await ref.put(file);
-let url=await ref.getDownloadURL();
-document.getElementById('preview').src=url;
-await db.collection("ameacas").doc(id).update({imagem:url});
-});
-</script>
+            <div class="separator"></div>
+
+            <div>
+                <div class="section-title">HABILIDADES</div>
+                <div id="lista-habilidades"></div>
+                <button class="btn-add" onclick="addHabilidade()">+ Adicionar Habilidade</button>
+            </div>
+
+            <div class="separator"></div>
+
+            <div>
+                <div class="section-title">ENIGMA DE MEDO</div>
+                <textarea id="enigma" class="descricao-box save-auto" placeholder="Descreva o enigma de medo e como resolvê-lo..." style="min-height: 100px; border: none; border-bottom: 1px dashed #555; border-radius: 0; background: transparent; padding: 5px;"></textarea>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // COLOQUE SUAS CREDENCIAIS DO FIREBASE AQUI (As mesmas do index.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+            authDomain: "SEU_AUTH_DOMAIN",
+            projectId: "SEU_PROJECT_ID",
+            storageBucket: "SEU_STORAGE_BUCKET",
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        
+        const db = firebase.firestore();
+        const urlParams = new URLSearchParams(window.location.search);
+        const atual = urlParams.get('id');
+
+        if(!atual) { window.location.href = "index.html"; }
+
+        // Salvamento Automático dos campos fixos
+        let timeout;
+        function updateField(campo, valor) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                let obj = {}; obj[campo] = valor;
+                db.collection("ameacas").doc(atual).update(obj);
+            }, 800);
+        }
+
+        // Carregar Dados Iniciais
+        db.collection("ameacas").doc(atual).onSnapshot(doc => {
+            if(doc.exists) {
+                const d = doc.data();
+                document.querySelectorAll('.save-auto').forEach(el => {
+                    if(el.id && d[el.id] !== undefined && el.value !== d[el.id]) {
+                        el.value = d[el.id];
+                    }
+                });
+                
+                // Tratar a Imagem
+                const imgEl = document.getElementById('portrait-img');
+                const placeholder = document.getElementById('portrait-placeholder');
+                if(d.portrait) {
+                    imgEl.src = d.portrait;
+                    imgEl.style.display = 'block';
+                    placeholder.style.display = 'none';
+                } else {
+                    imgEl.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+            }
+        });
+
+        // Eventos de digitação para salvamento
+        document.querySelectorAll('.save-auto').forEach(el => {
+            el.addEventListener('input', (e) => updateField(e.target.id, e.target.value));
+        });
+
+        // --- SISTEMA DE SUBCOLEÇÕES (Ações e Habilidades) ---
+        function loadSub(col, containerId, renderFunc) {
+            db.collection("ameacas").doc(atual).collection(col).onSnapshot(snap => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = "";
+                snap.forEach(doc => { container.innerHTML += renderFunc(doc.id, doc.data()); });
+            });
+        }
+
+        async function updateSub(id, col, campo, valor) {
+            let obj = {}; obj[campo] = valor;
+            await db.collection("ameacas").doc(atual).collection(col).doc(id).update(obj);
+        }
+
+        async function removerSub(id, col) {
+            if(confirm("Excluir item?")) await db.collection("ameacas").doc(atual).collection(col).doc(id).delete();
+        }
+
+        // Ações
+        async function addAcao() {
+            await db.collection("ameacas").doc(atual).collection("acoes").add({
+                tipo: "Padrão", nome: "Nova Ação", alcance: "Corpo a Corpo", teste: "4d20", dano: "1d10"
+            });
+        }
+
+        function renderAcao(id, data) {
+            return `
+            <div class="dynamic-item">
+                <button class="btn-del" onclick="removerSub('${id}', 'acoes')">X</button>
+                <div style="margin-bottom: 5px;">
+                    <input class="inline-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','acoes','tipo',this.value)" style="width: 70px;"> 
+                    <input class="inline-input" placeholder="Nome" value="${data.nome || ''}" onchange="updateSub('${id}','acoes','nome',this.value)" style="width: 150px; color: var(--hp-red); font-weight: bold; font-family: 'Special Elite', cursive;"> 
+                    (<input class="inline-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','acoes','alcance',this.value)" style="width: 120px;">)
+                </div>
+                <div>
+                    <span class="stat-label">Teste:</span> <input class="inline-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','acoes','teste',this.value)" style="width: 80px;"> | 
+                    <span class="stat-label">Dano:</span> <input class="inline-input" placeholder="2d10+10 Sangue" value="${data.dano || ''}" onchange="updateSub('${id}','acoes','dano',this.value)" style="width: 150px;">
+                </div>
+                <input class="inline-input" placeholder="Efeitos extras (opcional)..." value="${data.efeitos || ''}" onchange="updateSub('${id}','acoes','efeitos',this.value)" style="width: 90%; margin-top: 5px; color: #aaa; font-size: 0.9em;">
+            </div>`;
+        }
+
+        // Habilidades
+        async function addHabilidade() {
+            await db.collection("ameacas").doc(atual).collection("habilidades_ameaca").add({ nome: "Nova Habilidade", descricao: "" });
+        }
+
+        function renderHabilidade(id, data) {
+            return `
+            <div class="dynamic-item">
+                <button class="btn-del" onclick="removerSub('${id}', 'habilidades_ameaca')">X</button>
+                <div style="margin-bottom: 5px;">
+                    <input class="inline-input" placeholder="Nome da Habilidade" value="${data.nome || ''}" onchange="updateSub('${id}','habilidades_ameaca','nome',this.value)" style="width: 250px; color: var(--hp-red); font-weight: bold; font-family: 'Special Elite', cursive;">
+                </div>
+                <textarea class="inline-input" placeholder="Descrição da habilidade..." onchange="updateSub('${id}','habilidades_ameaca','descricao',this.value)" style="width: 90%; height: 50px; resize: vertical; border-bottom: 1px dashed #555;">${data.descricao || ''}</textarea>
+            </div>`;
+        }
+
+        // Iniciar subcoleções
+        loadSub('acoes', 'lista-acoes', renderAcao);
+        loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
+    </script>
 </body>
 </html>
