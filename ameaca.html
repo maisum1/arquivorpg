@@ -3,22 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de Ameaça</title>
+    <title>Ficha de Ameaça - Ordo Realitas</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        body { background: #050505; color: #e0e0e0; font-family: 'Special Elite', sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .ficha-container { width: 100%; max-width: 900px; background: #121212; border: 2px solid #441111; padding: 20px; box-shadow: 0 0 30px rgba(255,0,0,0.1); }
+        
+        /* REMOVE SETAS DE AUMENTAR VALOR */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        body { background: #050505; color: #e0e0e0; font-family: 'Special Elite', sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        
+        .nav-header { width: 100%; max-width: 900px; display: flex; justify-content: flex-start; margin-bottom: 10px; }
+        .btn-voltar { background: transparent; border: 1px solid #444; color: #888; padding: 8px 15px; cursor: pointer; font-family: 'Special Elite'; text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
+        .btn-voltar:hover { border-color: #ff4d4d; color: #ff4d4d; }
+
+        .ficha-container { width: 100%; max-width: 900px; background: #121212; border: 2px solid #441111; padding: 20px; box-sizing: border-box; box-shadow: 0 0 30px rgba(255,0,0,0.1); }
         
         .header { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #ff4d4d; padding-bottom: 15px; margin-bottom: 20px; }
-        .nome-area input { background: transparent; border: none; color: #ff4d4d; font-size: 2.5rem; font-family: 'Special Elite'; width: 100%; }
+        .nome-area input { background: transparent; border: none; color: #ff4d4d; font-size: 2.5rem; font-family: 'Special Elite'; width: 100%; outline: none; }
         .vd-area { text-align: right; color: #ff4d4d; font-size: 1.5rem; }
-        .vd-area input { width: 60px; background: #222; border: 1px solid #ff4d4d; color: white; text-align: center; font-family: 'Special Elite'; }
+        .vd-area input { width: 80px; background: #1a1a1a; border: 1px solid #441111; color: white; text-align: center; font-family: 'Special Elite'; font-size: 1.5rem; }
 
         .top-info { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; font-size: 0.9rem; }
-        .top-info div { display: flex; align-items: center; gap: 5px; }
-        .top-info input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 5px; font-family: 'Special Elite'; }
+        .top-info input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 5px; font-family: 'Special Elite'; outline: none; }
 
         .corpo-ficha { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
         @media (max-width: 768px) { .corpo-ficha { grid-template-columns: 1fr; } }
@@ -26,25 +36,33 @@
         .stats-col { display: flex; flex-direction: column; gap: 20px; }
         .atributos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
         .attr-box { background: #1a1a1a; border: 1px solid #ff4d4d; border-radius: 50%; width: 70px; height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: auto; }
-        .attr-box input { width: 30px; background: transparent; border: none; color: white; text-align: center; font-size: 1.2rem; font-family: 'Special Elite'; }
-        .attr-label { font-size: 0.7rem; color: #ff4d4d; }
-
-        .pericia-area { background: #0a0a0a; padding: 10px; border: 1px solid #333; }
-        textarea { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #ccc; font-family: 'Special Elite'; resize: vertical; padding: 10px; box-sizing: border-box; }
+        .attr-box input { width: 40px; background: transparent; border: none; color: white; text-align: center; font-size: 1.4rem; font-family: 'Special Elite'; outline: none; }
+        .attr-label { font-size: 0.7rem; color: #ff4d4d; font-weight: bold; }
 
         .img-ameaca { width: 100%; border: 1px solid #ff4d4d; min-height: 250px; background: #000; cursor: pointer; object-fit: cover; }
         .section-title { background: #441111; color: white; padding: 5px 10px; margin: 15px 0 10px 0; font-size: 1.1rem; border-left: 5px solid #ff4d4d; }
         
-        .vida-box { display: flex; align-items: center; gap: 10px; background: #221111; padding: 10px; border: 1px solid #ff4d4d; }
-        .vida-box input { width: 80px; font-size: 1.5rem; background: transparent; border: none; color: #ff4d4d; text-align: center; font-family: 'Special Elite'; }
+        textarea { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #ccc; font-family: 'Special Elite'; resize: vertical; padding: 10px; box-sizing: border-box; outline: none; border-radius: 4px; }
+        textarea:focus { border-color: #ff4d4d; }
+
+        .vida-box { display: flex; align-items: center; justify-content: center; gap: 10px; background: #221111; padding: 15px; border: 1px solid #ff4d4d; border-radius: 4px; }
+        .vida-box span { color: #ff4d4d; font-weight: bold; font-size: 1.2rem; }
+        .vida-box input { width: 80px; font-size: 1.8rem; background: transparent; border: none; color: #ff4d4d; text-align: center; font-family: 'Special Elite'; outline: none; }
+
+        .btn-salvar { margin-top: 20px; width: 100%; padding: 15px; background: #ff4d4d; border: none; color: black; font-weight: bold; cursor: pointer; font-family: 'Special Elite'; font-size: 1.2rem; transition: 0.3s; }
+        .btn-salvar:hover { background: #b31d1d; color: white; }
     </style>
 </head>
 <body>
 
+<div class="nav-header">
+    <a href="index.html" class="btn-voltar">← VOLTAR AO HUB</a>
+</div>
+
 <div class="ficha-container">
     <div class="header">
         <div class="nome-area"><input type="text" id="nome" placeholder="NOME DA AMEAÇA"></div>
-        <div class="vd-area">VD <input type="number" id="vd"></div>
+        <div class="vd-area">VD <input type="number" id="vd" placeholder="0"></div>
     </div>
 
     <div class="top-info">
@@ -55,20 +73,22 @@
 
     <div class="corpo-ficha">
         <div class="stats-col">
-            <img src="" id="preview-img" class="img-ameaca" onclick="document.getElementById('file-input').click()">
+            <img src="" id="preview-img" class="img-ameaca" title="Clique para mudar a imagem" onclick="document.getElementById('file-input').click()">
             <input type="file" id="file-input" style="display:none;" onchange="uploadImagem(this)">
             
             <div class="atributos-grid">
-                <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi"></div>
-                <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for"></div>
-                <div class="attr-box"><span class="attr-label">INT</span><input type="number" id="int"></div>
-                <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig"></div>
-                <div class="attr-box"><span class="attr-label">PRE</span><input type="number" id="pre"></div>
+                <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">INT</span><input type="number" id="int" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">PRE</span><input type="number" id="pre" placeholder="0"></div>
             </div>
 
             <div class="vida-box">
                 <span>PV</span>
-                <input type="number" id="vidaAtual"> / <input type="number" id="vidaMax">
+                <input type="number" id="vidaAtual" placeholder="0"> 
+                <span style="color: #444">/</span> 
+                <input type="number" id="vidaMax" placeholder="0">
             </div>
         </div>
 
@@ -86,7 +106,8 @@
             <textarea id="descricao" rows="4" placeholder="Relato de encontro, comportamento..."></textarea>
         </div>
     </div>
-    <button onclick="salvar()" style="margin-top:20px; width:100%; padding:15px; background:#ff4d4d; border:none; color:black; font-weight:bold; cursor:pointer; font-family:'Special Elite'">SALVAR ALTERAÇÕES</button>
+    
+    <button class="btn-salvar" onclick="salvar()">SALVAR ALTERAÇÕES</button>
 </div>
 
 <script>
@@ -100,32 +121,65 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const id = new URLSearchParams(window.location.search).get('id');
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
 
-    // Carregar dados
+    if (!id) {
+        alert("ID não encontrado. Voltando ao Hub.");
+        window.location.href = "index.html";
+    }
+
+    // Carregar dados iniciais
     db.collection("ameacas").doc(id).onSnapshot(doc => {
+        if (!doc.exists) return;
         const d = doc.data();
-        if(!d) return;
-        for (let key in d) {
-            const el = document.getElementById(key);
-            if (el && el.type !== 'file') el.value = d[key];
-        }
-        if(d.imgAmeaca) document.getElementById('preview-img').src = d.imgAmeaca;
+        
+        // Preenche campos de texto e números
+        const campos = ['nome', 'vd', 'elementos', 'classe', 'tamanho', 'agi', 'for', 'int', 'vig', 'pre', 'vidaAtual', 'vidaMax', 'pericias', 'resistencias', 'acoes', 'descricao'];
+        campos.forEach(campo => {
+            const el = document.getElementById(campo);
+            if (el) el.value = d[campo] !== undefined ? d[campo] : "";
+        });
+
+        // Imagem
+        if (d.imgAmeaca) document.getElementById('preview-img').src = d.imgAmeaca;
     });
 
-    function salvar() {
+    async function salvar() {
+        const btn = document.querySelector('.btn-salvar');
+        btn.innerText = "SALVANDO...";
+        
         const dados = {};
-        const inputs = document.querySelectorAll('input, textarea');
-        inputs.forEach(i => { if(i.id) dados[i.id] = i.value; });
-        db.collection("ameacas").doc(id).update(dados).then(() => alert("Ameaça atualizada!"));
+        const campos = ['nome', 'vd', 'elementos', 'classe', 'tamanho', 'agi', 'for', 'int', 'vig', 'pre', 'vidaAtual', 'vidaMax', 'pericias', 'resistencias', 'acoes', 'descricao'];
+        
+        campos.forEach(campo => {
+            const el = document.getElementById(campo);
+            if (el) {
+                // Tenta converter para número se for campo de número
+                dados[campo] = el.type === 'number' ? Number(el.value) : el.value;
+            }
+        });
+
+        try {
+            await db.collection("ameacas").doc(id).update(dados);
+            btn.innerText = "SALVO COM SUCESSO!";
+            setTimeout(() => { btn.innerText = "SALVAR ALTERAÇÕES"; }, 2000);
+        } catch (error) {
+            console.error("Erro ao salvar:", error);
+            alert("Erro ao salvar alterações.");
+            btn.innerText = "ERRO AO SALVAR";
+        }
     }
 
     function uploadImagem(input) {
         const file = input.files[0];
+        if (!file) return;
+        
         const reader = new FileReader();
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
             const base64String = reader.result;
-            db.collection("ameacas").doc(id).update({ imgAmeaca: base64String });
+            document.getElementById('preview-img').src = base64String;
+            await db.collection("ameacas").doc(id).update({ imgAmeaca: base64String });
         };
         reader.readAsDataURL(file);
     }
