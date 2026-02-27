@@ -13,7 +13,14 @@
         
         /* QUADRO DA IMAGEM */
         #image-frame { position: relative; width: 250px; height: 350px; overflow: hidden; }
-        #personagem-img { position: absolute; transition: all 0.4s ease-out; }
+        
+        /* A MESMA LÓGICA DO PREVIEW DA FICHA */
+        #personagem-img { 
+            position: absolute; left: 0; top: 0;
+            width: 100%; height: 100%; 
+            object-fit: cover; 
+            transition: all 0.4s ease-out; 
+        }
         
         /* PE SOBREPOSTO NA IMAGEM (Brilho Roxo) */
         #pe-container {
@@ -78,32 +85,31 @@
                 const d = doc.data();
                 if(!d) return;
 
-                // ATUALIZAÇÃO DOS TEXTOS (Incluindo PE)
                 document.getElementById('nome-val').innerText = d.nome || "Agente";
                 document.getElementById('pe-val').innerText = d.peAtual || 0;
                 document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
                 document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
 
-                // LÓGICA DE ESTADO
                 let estado = "Normal";
                 if (d.vidaAtual <= 0) estado = "Morto";
                 else if (d.sanAtual <= 0) estado = "Enlouquecendo";
                 else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
 
-                // IMAGEM E RECORTE
-                const imgFinal = d.imgNormal || d.portraitNormal;
+                // Puxa a imagem do estado, ou a normal, ou a foto principal da ficha
+                const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait;
                 const imgEl = document.getElementById('personagem-img');
+                
                 if(imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-                const zoom = Number(d["p"+estado+"Zoom"]) || 1;
-                const x = Number(d["p"+estado+"X"]) || 0;
-                const y = Number(d["p"+estado+"Y"]) || 0;
+                // Lê os dados de recorte (Se não existir, usa 50% de eixo e 1 de Zoom)
+                const zoom = d["p"+estado+"Zoom"] !== undefined ? d["p"+estado+"Zoom"] : (d.pZ || 1);
+                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : (d.pX || 50);
+                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : (d.pY || 50);
 
-                imgEl.style.width = (zoom * 100) + "%";
-                imgEl.style.left = x + "px";
-                imgEl.style.top = y + "px";
+                // APLICA O RECORTE EXATAMENTE IGUAL AO PREVIEW DA FICHA
+                imgEl.style.objectPosition = `${x}% ${y}%`;
+                imgEl.style.transform = `scale(${zoom})`;
 
-                // FILTRO NEON NA IMAGEM
                 imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
             });
         }
