@@ -263,9 +263,9 @@
 <div class="section-box" style="margin-top: 10px; padding: 10px;">
     <label style="font-size: 10px; color: #555;">AJUSTE DE RECORTE</label>
     <div style="display: flex; flex-direction: column; gap: 5px;">
-        <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="update('pZ', this.value)">
-        <input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="update('pX', this.value)">
-        <input type="range" id="pY" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="update('pY', this.value)">
+        <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ', this.value)">
+<input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pX', this.value)">
+<input type="range" id="pY" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pY', this.value)">
     </div>
 </div>
 
@@ -505,11 +505,33 @@ function converterImagem(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const base64 = e.target.result;
-            document.getElementById('img-preview').src = base64;
-            document.getElementById('img-preview').style.display = 'block';
-            document.getElementById('img-placeholder').style.display = 'none';
-            update('portrait', base64);
+            const imgElement = new Image();
+            imgElement.src = e.target.result;
+
+            imgElement.onload = function() {
+                // Cria um canvas para reduzir o tamanho da imagem
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Trava a largura em 800px para ficar leve
+                const maxW = 800;
+                const scale = maxW / imgElement.width;
+                canvas.width = maxW;
+                canvas.height = imgElement.height * scale;
+
+                ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+
+                // Transforma em JPEG com 70% de qualidade
+                const base64comprimido = canvas.toDataURL('image/jpeg', 0.7);
+
+                // Mostra na tela
+                document.getElementById('img-preview').src = base64comprimido;
+                document.getElementById('img-preview').style.display = 'block';
+                document.getElementById('img-placeholder').style.display = 'none';
+
+                // Salva no banco com o nome correto
+                updateField('portrait', base64comprimido);
+            };
         };
         reader.readAsDataURL(input.files[0]);
     }
