@@ -2,64 +2,63 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Portrait FIX</title>
+    <title>Portrait Transparente</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Special Elite', sans-serif; background: transparent; color: white; }
         
-        #main-wrapper { display: flex; flex-direction: row; align-items: flex-end; padding: 20px; gap: 25px; }
-        
-        /* QUADRO DA IMAGEM */
-        #image-frame { position: relative; width: 250px; height: 350px; overflow: hidden; }
-        
-        /* A MESMA LÓGICA DO PREVIEW DA FICHA */
-        #personagem-img { 
-            position: absolute; left: 0; top: 0;
-            width: 100%; height: 100%; 
-            object-fit: cover; 
-            transition: all 0.4s ease-out; 
-        }
-        
-        /* PE SOBREPOSTO NA IMAGEM (Brilho Roxo) */
-        #pe-container {
-            position: absolute; bottom: 10px; left: 10px; font-size: 40px; 
-            color: #ffffff; 
-            text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 15px #cc66ff;
-            z-index: 10;
+        /* GARANTE TRANSPARÊNCIA TOTAL */
+        html, body { 
+            margin: 0; padding: 0; overflow: hidden; 
+            background: transparent !important; 
+            background-color: rgba(0,0,0,0) !important;
         }
 
-        /* CONTÊINER DE TEXTOS (Lado direito) */
+        #main-wrapper { 
+            display: flex; flex-direction: row; align-items: flex-end; 
+            padding: 20px; gap: 25px; 
+            background: transparent !important;
+        }
+        
+        /* CAIXA DA IMAGEM */
+        #image-frame { 
+            position: relative; 
+            width: 250px; 
+            height: 350px; 
+            overflow: hidden; 
+            background: transparent !important; /* Remove qualquer fundo aqui */
+        }
+        
+        #personagem-img { 
+            position: absolute; 
+            left: 0; top: 0;
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* Faz a imagem preencher a caixa proporcionalmente */
+            transition: all 0.4s ease-out;
+            background: transparent !important;
+        }
+        
+        /* Se a imagem for transparente, o drop-shadow faz o contorno do personagem */
+        .neon-effect {
+            filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 12px rgba(255,0,0,0.5));
+        }
+
+        /* ESTILOS DE TEXTO (Mantidos do anterior) */
         #stats-container { display: flex; flex-direction: column; margin-left: -40px; position: relative; z-index: 10; }
-        
-        /* ALINHAMENTO ORGÂNICO (Desalinhados) */
-        #nome-val { 
-            font-size: 40px; text-transform: uppercase; color: white;
-            text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
-            margin-left: -20px; margin-bottom: 10px; line-height: 0.9;
-        }
-        
-        #vida-text { 
-            font-size: 36px; color: white;
-            text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 15px #ff0000; 
-            margin-left: 15px; margin-bottom: 5px; line-height: 1;
-        }
-        
-        #san-text { 
-            font-size: 36px; color: white;
-            text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 15px #0066ff; 
-            margin-left: 30px; line-height: 1;
-        }
+        #nome-val { font-size: 40px; text-transform: uppercase; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000; margin-left: -20px; font-family: 'Special Elite'; }
+        #vida-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000; margin-left: 15px; }
+        #san-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff; margin-left: 30px; }
+        #pe-container { position: absolute; bottom: 10px; left: 10px; font-size: 40px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff; z-index: 10; font-family: 'Special Elite'; }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
         <div id="image-frame">
-            <img id="personagem-img" src="">
+            <img id="personagem-img" src="" class="neon-effect">
             <div id="pe-container"><span id="pe-val">0</span></div>
         </div>
-
         <div id="stats-container">
             <div id="nome-val">...</div>
             <div id="vida-text">0/0</div>
@@ -68,6 +67,7 @@
     </div>
 
     <script>
+        // ... (Mantenha as suas configurações de Firebase aqui) ...
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
             authDomain: "fichasrpg-7fc69.firebaseapp.com",
@@ -95,22 +95,19 @@
                 else if (d.sanAtual <= 0) estado = "Enlouquecendo";
                 else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
 
-                // Puxa a imagem do estado, ou a normal, ou a foto principal da ficha
                 const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait;
                 const imgEl = document.getElementById('personagem-img');
                 
                 if(imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-                // Lê os dados de recorte (Se não existir, usa 50% de eixo e 1 de Zoom)
-                const zoom = d["p"+estado+"Zoom"] !== undefined ? d["p"+estado+"Zoom"] : (d.pZ || 1);
-                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : (d.pX || 50);
-                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : (d.pY || 50);
+                // LÓGICA DE RECORTE UNIFICADA (PERCENTAGEM)
+                const zoom = d["p"+estado+"Zoom"] || d.pZ || 1;
+                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : 50;
+                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : 50;
 
-                // APLICA O RECORTE EXATAMENTE IGUAL AO PREVIEW DA FICHA
+                // Aplica a posição e o zoom
                 imgEl.style.objectPosition = `${x}% ${y}%`;
                 imgEl.style.transform = `scale(${zoom})`;
-
-                imgEl.style.filter = "drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 15px #ff0000)";
             });
         }
     </script>
