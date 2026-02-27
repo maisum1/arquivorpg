@@ -34,311 +34,429 @@
             gap: 20px;
         }
 
-        /* AJUSTE NO PORTRAIT PARA NÃO DESALINHAR */
-        .portrait {
+        /* Coluna da Esquerda (Imagem e Descrição) */
+        .col-left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .portrait-box {
             width: 100%;
-            height: 450px;
-            background: #111;
+            aspect-ratio: 1;
+            background-color: #111;
             border: 2px solid #333;
+            border-radius: 8px;
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
         }
-        .portrait img {
+
+        .portrait-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .portrait .upload-hint {
-            position: absolute;
-            color: #555;
-            font-family: 'Special Elite';
-            font-size: 12px;
-            text-align: center;
-            pointer-events: none;
-        }
 
-        .section-box {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid #222;
+        textarea.descricao-box {
+            width: 100%;
+            flex: 1;
+            min-height: 200px;
+            background: #111;
+            border: 1px solid #333;
+            color: #ccc;
             padding: 15px;
-            margin-bottom: 20px;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 8px;
+            resize: vertical;
+            box-sizing: border-box;
         }
 
-        h2 {
-            font-family: 'Special Elite', cursive;
-            color: var(--hp-red);
-            border-bottom: 1px solid var(--hp-red);
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-transform: uppercase;
+        /* Coluna da Direita (Bloco de Status da Ordem) */
+        .stat-block {
+            background-color: #111;
+            border: 3px solid var(--hp-red);
+            padding: 25px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        
-        .stat-field label { display: block; font-size: 0.8em; color: #888; margin-bottom: 3px; }
-        
         .inline-input {
             background: transparent;
             border: none;
-            border-bottom: 1px solid #333;
-            color: white;
+            border-bottom: 1px dashed #555;
+            color: #fff;
             font-family: inherit;
-            width: 100%;
-            padding: 5px 0;
+            font-size: inherit;
+            outline: none;
+            padding: 2px;
         }
-        .inline-input:focus { border-bottom-color: var(--hp-red); outline: none; }
+        .inline-input:focus { border-bottom: 1px solid var(--hp-red); }
 
-        .atributos-circle {
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid var(--hp-red);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-nome {
+            font-family: 'Special Elite', cursive;
+            font-size: 2.5em;
+            color: #fff;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .stat-subtitle {
+            color: #aaa;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .stat-vd {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.5em;
+            color: var(--hp-red);
+            white-space: nowrap;
+        }
+
+        /* Atributos Hexagonais/Circulares */
+        .atributos-container {
             display: flex;
             justify-content: space-around;
-            padding: 20px 0;
-            background: #111;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
 
-        .atrib-item { text-align: center; }
-        .atrib-item label { display: block; color: var(--hp-red); font-weight: bold; font-size: 12px; }
-        .atrib-item input {
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            border: 2px solid #333;
+        .attr-box {
+            text-align: center;
+        }
+
+        .attr-label {
+            font-family: 'Special Elite', cursive;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .attr-input {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
+            border: 2px solid var(--hp-red);
+            background: #1a1a1a;
             color: white;
             text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: 'Special Elite', cursive;
+            outline: none;
+        }
+
+        .separator {
+            border-bottom: 2px solid var(--hp-red);
+            margin: 15px 0;
+        }
+
+        .stat-row {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .stat-label {
+            font-family: 'Special Elite', cursive;
+            color: var(--hp-red);
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .section-title {
+            background-color: var(--hp-red);
+            color: white;
+            padding: 5px 10px;
+            font-family: 'Special Elite', cursive;
             font-size: 1.2em;
-            font-family: 'Special Elite', cursive;
+            display: inline-block;
+            margin-bottom: 10px;
         }
 
-        .btn-add {
-            background: #222;
-            color: #aaa;
-            border: 1px dashed #444;
-            width: 100%;
-            padding: 10px;
-            cursor: pointer;
-            font-family: 'Special Elite', cursive;
-            margin-top: 10px;
-        }
-        .btn-add:hover { background: #333; color: white; border-color: var(--hp-red); }
-
+        /* Ações e Habilidades Dinâmicas */
         .dynamic-item {
-            background: #151515;
+            background: rgba(255,255,255,0.02);
+            border-left: 3px solid #444;
             padding: 10px;
             margin-bottom: 10px;
-            border-left: 3px solid var(--hp-red);
             position: relative;
         }
-
         .btn-del {
             position: absolute;
-            right: 5px;
             top: 5px;
+            right: 5px;
             background: none;
             border: none;
-            color: #444;
+            color: #ff4444;
             cursor: pointer;
+            font-weight: bold;
         }
-        .btn-del:hover { color: var(--hp-red); }
+        .btn-add {
+            background: transparent;
+            border: 1px solid var(--hp-red);
+            color: var(--hp-red);
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Special Elite', cursive;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        .btn-add:hover { background: var(--hp-red); color: white; }
 
+        .voltar-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--hp-red);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-family: 'Special Elite', cursive;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <aside>
-        <div class="portrait" onclick="document.getElementById('fileInput').click()">
-            <img id="img-preview" style="display:none;">
-            <div id="img-placeholder" class="upload-hint">CLIQUE PARA REGISTRO VISUAL</div>
-        </div>
-        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
+    <a href="index.html" class="voltar-btn">VOLTAR AO HUB</a>
 
-        <div class="section-box" style="margin-top:20px;">
-            <h2>Defesas</h2>
-            <div class="stat-field">
-                <label>DEFESA</label>
-                <input class="inline-input" id="defesa" onchange="update('defesa', this.value)">
+    <div class="container">
+        <div class="col-left">
+            <div class="portrait-box">
+                <img id="portrait-img" src="" alt="Sem Imagem" onerror="this.style.display='none'">
+                <span id="portrait-placeholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; font-family: 'Special Elite', cursive;">URL DA IMAGEM</span>
             </div>
-            <div class="stat-field" style="margin-top:10px;">
-                <label>RESISTÊNCIAS</label>
-                <input class="inline-input" id="resistencias" onchange="update('resistencias', this.value)">
-            </div>
+            <input type="text" id="portrait" class="inline-input save-auto" placeholder="Cole o link da imagem aqui..." style="width: 100%; border-bottom: 1px solid #444;">
+            <textarea id="descricao" class="descricao-box save-auto" placeholder="Breve descrição, lore, ou táticas da ameaça..."></textarea>
         </div>
-    </aside>
 
-    <main>
-        <div class="section-box">
-            <input class="inline-input" id="nome" style="font-size: 2em; font-family: 'Special Elite', cursive; color: var(--hp-red);" placeholder="NOME DA AMEAÇA" onchange="update('nome', this.value)">
-            <div class="stats-grid">
-                <div class="stat-field">
-                    <label>VD</label>
-                    <input id="vd" class="inline-input" onchange="update('vd', this.value)">
+        <div class="stat-block">
+            
+            <div class="stat-header">
+                <div style="flex: 1; padding-right: 20px;">
+                    <input id="nome" class="inline-input save-auto stat-nome" placeholder="NOME DA CRIATURA">
+                    <div class="stat-subtitle">
+                        CRIATURA <span style="color:var(--hp-red)">-</span> 
+                        <input id="tamanho" class="inline-input save-auto" placeholder="TAMANHO" style="width: 80px; text-transform: uppercase;"> <span style="color:var(--hp-red)">-</span> 
+                        <input id="elemento" class="inline-input save-auto" placeholder="ELEMENTO" style="width: 120px; text-transform: uppercase;">
+                    </div>
                 </div>
-                <div class="stat-field">
-                    <label>ELEMENTO</label>
-                    <input id="elemento" class="inline-input" onchange="update('elemento', this.value)">
-                </div>
-                <div class="stat-field">
-                    <label>TAMANHO</label>
-                    <input id="tamanho" class="inline-input" onchange="update('tamanho', this.value)">
+                <div class="stat-vd">
+                    VD <input id="vd" class="inline-input save-auto" placeholder="0" style="width: 50px; font-size: 1em; color: var(--hp-red); text-align: center;">
                 </div>
             </div>
-        </div>
 
-        <div class="atributos-circle">
-            <div class="atrib-item"><label>AGI</label><input id="agi" onchange="update('agi', this.value)"></div>
-            <div class="atrib-item"><label>FOR</label><input id="for" onchange="update('for', this.value)"></div>
-            <div class="atrib-item"><label>INT</label><input id="int" onchange="update('int', this.value)"></div>
-            <div class="atrib-item"><label>PRE</label><input id="pre" onchange="update('pre', this.value)"></div>
-            <div class="atrib-item"><label>VIG</label><input id="vig" onchange="update('vig', this.value)"></div>
-        </div>
-
-        <div class="section-box">
-            <h2>Vida e Combate</h2>
-            <div class="stats-grid">
-                <div class="stat-field">
-                    <label>PV ATUAIS</label>
-                    <input id="pvAtual" class="inline-input" onchange="update('pvAtual', this.value)">
-                </div>
-                <div class="stat-field">
-                    <label>PV TOTAL</label>
-                    <input id="pvMax" class="inline-input" onchange="update('pvMax', this.value)">
-                </div>
-                <div class="stat-field">
-                    <label>DESLOCAMENTO</label>
-                    <input id="deslocamento" class="inline-input" onchange="update('deslocamento', this.value)">
-                </div>
+            <div class="atributos-container">
+                <div class="attr-box"><div class="attr-label">AGI</div><input id="agi" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">FOR</div><input id="for" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">INT</div><input id="int" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">PRE</div><input id="pre" class="attr-input save-auto" placeholder="1"></div>
+                <div class="attr-box"><div class="attr-label">VIG</div><input id="vig" class="attr-input save-auto" placeholder="1"></div>
             </div>
+
+            <div class="separator"></div>
+
+            <div class="stat-row">
+                <span class="stat-label">SENTIDOS</span> 
+                Percepção <input id="percepcao" class="inline-input save-auto" placeholder="2d20+10" style="width: 100px;"> 
+                Iniciativa <input id="iniciativa" class="inline-input save-auto" placeholder="2d20+5" style="width: 100px;">
+            </div>
+            
+            <div class="stat-row">
+                <span class="stat-label">DEFESA</span> 
+                <input id="defesa" class="inline-input save-auto" placeholder="20" style="width: 40px; font-weight: bold;"> 
+                Fortitude <input id="fortitude" class="inline-input save-auto" placeholder="2d20+10" style="width: 80px;"> 
+                Reflexos <input id="reflexos" class="inline-input save-auto" placeholder="2d20+5" style="width: 80px;"> 
+                Vontade <input id="vontade" class="inline-input save-auto" placeholder="2d20+5" style="width: 80px;">
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">PONTOS DE VIDA</span> 
+                <input id="pvMax" class="inline-input save-auto" placeholder="200" style="width: 50px; font-weight: bold;"> | 
+                Atual <input id="pvAtual" class="inline-input save-auto" placeholder="200" style="width: 50px; color: var(--hp-red);"> | 
+                Machucado <input id="pvMachucado" class="inline-input save-auto" placeholder="100" style="width: 50px;">
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">VULNERABILIDADES</span> <input id="vulnerabilidades" class="inline-input save-auto" placeholder="Energia..." style="width: 70%;">
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">RESISTÊNCIAS</span> <input id="resistencias" class="inline-input save-auto" placeholder="Dano físico 10, Sangue 10..." style="width: 75%;">
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">IMUNIDADES</span> <input id="imunidades" class="inline-input save-auto" placeholder="Condições de paralisia..." style="width: 78%;">
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="stat-row">
+                <span class="stat-label">PERÍCIAS</span> <input id="pericias" class="inline-input save-auto" placeholder="Atletismo 4d20+15, Luta 4d20+15..." style="width: 85%;">
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="stat-row">
+                <span class="stat-label">DESLOCAMENTO</span> <input id="deslocamento" class="inline-input save-auto" placeholder="9m | 6q" style="width: 70%;">
+            </div>
+
+            <div class="separator"></div>
+
+            <div>
+                <div class="section-title">AÇÕES</div>
+                <div id="lista-acoes"></div>
+                <button class="btn-add" onclick="addAcao()">+ Adicionar Ação</button>
+            </div>
+
+            <div class="separator"></div>
+
+            <div>
+                <div class="section-title">HABILIDADES</div>
+                <div id="lista-habilidades"></div>
+                <button class="btn-add" onclick="addHabilidade()">+ Adicionar Habilidade</button>
+            </div>
+
+            <div class="separator"></div>
+
+            <div>
+                <div class="section-title">ENIGMA DE MEDO</div>
+                <textarea id="enigma" class="descricao-box save-auto" placeholder="Descreva o enigma de medo e como resolvê-lo..." style="min-height: 100px; border: none; border-bottom: 1px dashed #555; border-radius: 0; background: transparent; padding: 5px;"></textarea>
+            </div>
+
         </div>
+    </div>
 
-        <div class="section-box">
-            <h2>Ações</h2>
-            <div id="lista-acoes"></div>
-            <button class="btn-add" onclick="addAcao()">+ ADICIONAR AÇÃO</button>
-        </div>
+    <script>
+        // COLOQUE SUAS CREDENCIAIS DO FIREBASE AQUI (As mesmas do index.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+            authDomain: "fichasrpg-7fc69.firebaseapp.com",
+            projectId: "fichasrpg-7fc69",
+            storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+            messagingSenderId: "758802032764",
+            appId: "1:758802032764:web:40467e15fdc24c570081f9"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        
+        const db = firebase.firestore();
+        const urlParams = new URLSearchParams(window.location.search);
+        const atual = urlParams.get('id');
 
-        <div class="section-box">
-            <h2>Habilidades</h2>
-            <div id="lista-habilidades"></div>
-            <button class="btn-add" onclick="addHabilidade()">+ ADICIONAR HABILIDADE</button>
-        </div>
-    </main>
-</div>
+        if(!atual) { window.location.href = "index.html"; }
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
-        authDomain: "fichasrpg-7fc69.firebaseapp.com",
-        projectId: "fichasrpg-7fc69",
-        storageBucket: "fichasrpg-7fc69.firebasestorage.app"
-    };
+        // Salvamento Automático dos campos fixos
+        let timeout;
+        function updateField(campo, valor) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                let obj = {}; obj[campo] = valor;
+                db.collection("ameacas").doc(atual).update(obj);
+            }, 800);
+        }
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const params = new URLSearchParams(window.location.search);
-    const atual = params.get("id");
-
-    if (atual) {
+        // Carregar Dados Iniciais
         db.collection("ameacas").doc(atual).onSnapshot(doc => {
-            if (doc.exists) {
+            if(doc.exists) {
                 const d = doc.data();
-                for (let key in d) {
-                    const el = document.getElementById(key);
-                    if (el) el.value = d[key];
-                }
-                // Carregar Imagem Base64
-                if (d.portrait) {
-                    const img = document.getElementById('img-preview');
-                    img.src = d.portrait;
-                    img.style.display = 'block';
-                    document.getElementById('img-placeholder').style.display = 'none';
+                document.querySelectorAll('.save-auto').forEach(el => {
+                    if(el.id && d[el.id] !== undefined && el.value !== d[el.id]) {
+                        el.value = d[el.id];
+                    }
+                });
+                
+                // Tratar a Imagem
+                const imgEl = document.getElementById('portrait-img');
+                const placeholder = document.getElementById('portrait-placeholder');
+                if(d.portrait) {
+                    imgEl.src = d.portrait;
+                    imgEl.style.display = 'block';
+                    placeholder.style.display = 'none';
+                } else {
+                    imgEl.style.display = 'none';
+                    placeholder.style.display = 'block';
                 }
             }
         });
-    }
 
-    async function update(campo, valor) {
-        let o = {}; o[campo] = valor;
-        await db.collection("ameacas").doc(atual).update(o);
-    }
-
-    // SISTEMA DE UPLOAD BASE64
-    function converterImagem(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                document.getElementById('img-preview').src = base64;
-                document.getElementById('img-preview').style.display = 'block';
-                document.getElementById('img-placeholder').style.display = 'none';
-                update('portrait', base64);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function loadSub(col, containerId, renderFn) {
-        db.collection("ameacas").doc(atual).collection(col).onSnapshot(snap => {
-            const div = document.getElementById(containerId);
-            div.innerHTML = "";
-            snap.forEach(doc => {
-                div.innerHTML += renderFn(doc.id, doc.data());
-            });
+        // Eventos de digitação para salvamento
+        document.querySelectorAll('.save-auto').forEach(el => {
+            el.addEventListener('input', (e) => updateField(e.target.id, e.target.value));
         });
-    }
 
-    async function updateSub(id, col, campo, valor) {
-        let o = {}; o[campo] = valor;
-        await db.collection("ameacas").doc(atual).collection(col).doc(id).update(o);
-    }
+        // --- SISTEMA DE SUBCOLEÇÕES (Ações e Habilidades) ---
+        function loadSub(col, containerId, renderFunc) {
+            db.collection("ameacas").doc(atual).collection(col).onSnapshot(snap => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = "";
+                snap.forEach(doc => { container.innerHTML += renderFunc(doc.id, doc.data()); });
+            });
+        }
 
-    async function removerSub(id, col) {
-        if(confirm("Excluir item?")) await db.collection("ameacas").doc(atual).collection(col).doc(id).delete();
-    }
+        async function updateSub(id, col, campo, valor) {
+            let obj = {}; obj[campo] = valor;
+            await db.collection("ameacas").doc(atual).collection(col).doc(id).update(obj);
+        }
 
-    // Ações
-    async function addAcao() {
-        await db.collection("ameacas").doc(atual).collection("acoes").add({ nome: "Nova Ação", teste: "", dano: "", efeitos: "" });
-    }
+        async function removerSub(id, col) {
+            if(confirm("Excluir item?")) await db.collection("ameacas").doc(atual).collection(col).doc(id).delete();
+        }
 
-    function renderAcao(id, data) {
-        return `
-        <div class="dynamic-item">
-            <button class="btn-del" onclick="removerSub('${id}', 'acoes')">X</button>
-            <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-                <input class="inline-input" placeholder="Ação" value="${data.nome || ''}" onchange="updateSub('${id}','acoes','nome',this.value)" style="width: 40%; color: var(--hp-red); font-weight: bold;">
-                <input class="inline-input" placeholder="Teste" value="${data.teste || ''}" onchange="updateSub('${id}','acoes','teste',this.value)" style="width: 25%;">
-                <input class="inline-input" placeholder="Dano" value="${data.dano || ''}" onchange="updateSub('${id}','acoes','dano',this.value)" style="width: 25%;">
-            </div>
-            <input class="inline-input" placeholder="Efeitos extras (opcional)..." value="${data.efeitos || ''}" onchange="updateSub('${id}','acoes','efeitos',this.value)" style="width: 90%; margin-top: 5px; color: #aaa; font-size: 0.9em;">
-        </div>`;
-    }
+        // Ações
+        async function addAcao() {
+            await db.collection("ameacas").doc(atual).collection("acoes").add({
+                tipo: "Padrão", nome: "Nova Ação", alcance: "Corpo a Corpo", teste: "4d20", dano: "1d10"
+            });
+        }
 
-    // Habilidades
-    async function addHabilidade() {
-        await db.collection("ameacas").doc(atual).collection("habilidades_ameaca").add({ nome: "Nova Habilidade", descricao: "" });
-    }
+        function renderAcao(id, data) {
+            return `
+            <div class="dynamic-item">
+                <button class="btn-del" onclick="removerSub('${id}', 'acoes')">X</button>
+                <div style="margin-bottom: 5px;">
+                    <input class="inline-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','acoes','tipo',this.value)" style="width: 70px;"> 
+                    <input class="inline-input" placeholder="Nome" value="${data.nome || ''}" onchange="updateSub('${id}','acoes','nome',this.value)" style="width: 150px; color: var(--hp-red); font-weight: bold; font-family: 'Special Elite', cursive;"> 
+                    (<input class="inline-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','acoes','alcance',this.value)" style="width: 120px;">)
+                </div>
+                <div>
+                    <span class="stat-label">Teste:</span> <input class="inline-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','acoes','teste',this.value)" style="width: 80px;"> | 
+                    <span class="stat-label">Dano:</span> <input class="inline-input" placeholder="2d10+10 Sangue" value="${data.dano || ''}" onchange="updateSub('${id}','acoes','dano',this.value)" style="width: 150px;">
+                </div>
+                <input class="inline-input" placeholder="Efeitos extras (opcional)..." value="${data.efeitos || ''}" onchange="updateSub('${id}','acoes','efeitos',this.value)" style="width: 90%; margin-top: 5px; color: #aaa; font-size: 0.9em;">
+            </div>`;
+        }
 
-    function renderHabilidade(id, data) {
-        return `
-        <div class="dynamic-item">
-            <button class="btn-del" onclick="removerSub('${id}', 'habilidades_ameaca')">X</button>
-            <div style="margin-bottom: 5px;">
-                <input class="inline-input" placeholder="Nome da Habilidade" value="${data.nome || ''}" onchange="updateSub('${id}','habilidades_ameaca','nome',this.value)" style="width: 250px; color: var(--hp-red); font-weight: bold; font-family: 'Special Elite', cursive;">
-            </div>
-            <textarea class="inline-input" placeholder="Descrição da habilidade..." onchange="updateSub('${id}','habilidades_ameaca','descricao',this.value)" style="width: 90%; height: 50px; resize: vertical; border-bottom: 1px dashed #555;">${data.descricao || ''}</textarea>
-        </div>`;
-    }
+        // Habilidades
+        async function addHabilidade() {
+            await db.collection("ameacas").doc(atual).collection("habilidades_ameaca").add({ nome: "Nova Habilidade", descricao: "" });
+        }
 
-    loadSub('acoes', 'lista-acoes', renderAcao);
-    loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
-</script>
+        function renderHabilidade(id, data) {
+            return `
+            <div class="dynamic-item">
+                <button class="btn-del" onclick="removerSub('${id}', 'habilidades_ameaca')">X</button>
+                <div style="margin-bottom: 5px;">
+                    <input class="inline-input" placeholder="Nome da Habilidade" value="${data.nome || ''}" onchange="updateSub('${id}','habilidades_ameaca','nome',this.value)" style="width: 250px; color: var(--hp-red); font-weight: bold; font-family: 'Special Elite', cursive;">
+                </div>
+                <textarea class="inline-input" placeholder="Descrição da habilidade..." onchange="updateSub('${id}','habilidades_ameaca','descricao',this.value)" style="width: 90%; height: 50px; resize: vertical; border-bottom: 1px dashed #555;">${data.descricao || ''}</textarea>
+            </div>`;
+        }
 
+        // Iniciar subcoleções
+        loadSub('acoes', 'lista-acoes', renderAcao);
+        loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
+    </script>
 </body>
 </html>
