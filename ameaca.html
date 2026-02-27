@@ -43,15 +43,22 @@
 
         .portrait {
     width: 100%;
-    height: 450px; /* Ajuste a altura conforme sua necessidade */
-    background: #111;
-    border: 2px solid #333;
+    height: 450px;
+    background: #050505;
+    border: 1px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    overflow: hidden;
+    overflow: hidden; /* Importante: corta o que sobra da imagem */
     position: relative;
+}
+
+#img-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Base inicial */
+    transition: transform 0.1s; /* Suaviza o ajuste */
 }
 
 .portrait img {
@@ -248,9 +255,18 @@
 
     <div class="container">
         <div class="col-left">
-            <div class="portrait" onclick="document.getElementById('fileInput').click()">
-    <img id="img-preview" style="display:none;">
-    <div id="img-placeholder" class="upload-hint">CLIQUE PARA ADICIONAR IMAGEM</div>
+           <div class="portrait" onclick="document.getElementById('fileInput').click()">
+    <img id="img-preview" style="display:none; position: absolute; left: 0; top: 0;">
+    <div id="img-placeholder" class="upload-hint">CLIQUE PARA REGISTRO VISUAL</div>
+</div>
+
+<div class="section-box" style="margin-top: 10px; padding: 10px;">
+    <label style="font-size: 10px; color: #555;">AJUSTE DE RECORTE</label>
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <input type="range" id="pZ" min="0.5" max="3" step="0.1" value="1" oninput="ajustarFoto()" onchange="update('pZ', this.value)">
+        <input type="range" id="pX" min="0" max="100" step="1" value="50" oninput="ajustarFoto()" onchange="update('pX', this.value)">
+        <input type="range" id="pY" min="0" max="100" step="1" value="50" oninput="ajustarFoto()" onchange="update('pY', this.value)">
+    </div>
 </div>
 
 <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
@@ -393,6 +409,12 @@
     img.src = d.portrait;
     img.style.display = 'block';
     document.getElementById('img-placeholder').style.display = 'none';
+    
+    // Aplica os valores de recorte salvos
+    if(d.pZ) document.getElementById('pZ').value = d.pZ;
+    if(d.pX) document.getElementById('pX').value = d.pX;
+    if(d.pY) document.getElementById('pY').value = d.pY;
+    ajustarFoto(); // Renderiza a posição correta
 }
                 });
                 
@@ -477,22 +499,31 @@
         loadSub('acoes', 'lista-acoes', renderAcao);
         loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
 
-        function converterImagem(input) {
+        // Função para converter e subir a imagem
+function converterImagem(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const base64 = e.target.result;
-            
-            // 1. Atualiza o visual na hora
             document.getElementById('img-preview').src = base64;
             document.getElementById('img-preview').style.display = 'block';
             document.getElementById('img-placeholder').style.display = 'none';
-            
-            // 2. Salva no Firebase (Usa sua função update padrão)
             update('portrait', base64);
         };
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+// A MÁGICA DO RECORTE: Aplica Zoom e Posição
+function ajustarFoto() {
+    const z = document.getElementById('pZ').value;
+    const x = document.getElementById('pX').value;
+    const y = document.getElementById('pY').value;
+    
+    const img = document.getElementById('img-preview');
+    // Ajusta a posição via object-position e o zoom via scale
+    img.style.objectPosition = `${x}% ${y}%`;
+    img.style.transform = `scale(${z})`;
 }
     </script>
 </body>
