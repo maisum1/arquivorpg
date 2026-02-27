@@ -233,19 +233,34 @@
                 div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    div.innerHTML += `
-                        <div class="ficha-card" style="border-left-color:#444">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome}')">[ APAGAR ]</button>
-                            <div style="flex:1">
-                                <strong>${d.nome}</strong><br>
-                                <small style="color:#b31d1d">PV ${d.vidaAtual}/${d.vidaMax}</small> | 
-                                <small style="color:#034374">SAN ${d.sanAtual}/${d.sanMax}</small>
-                            </div>
-                            <a href="ficha.html?id=${doc.id}" class="btn-open" style="color:#666">VER</a>
-                        </div>`;
-                });
-            });
-        }
+                    // Pega os valores de recorte ou usa o padrão (50% e escala 1)
+
+            const px = d.pX || 50;
+
+            const py = d.pY || 50;
+
+            const pz = d.pZ || 1;
+
+
+            div.innerHTML += `
+                <div class="ficha-card">
+                    <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome}')">[ APAGAR ]</button>
+                    <div style="display:flex; align-items:center; flex:1">
+                        <div class="portrait-mini" style="border-color:#b31d1d; overflow: hidden; position: relative;">
+                            ${d.portrait ? 
+                                `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` 
+                                : ''}
+                        </div>
+                        <div>
+                            <small style="color:#b31d1d">PV ${d.vidaAtual}/${d.vidaMax}</small> | 
+                            <small style="color:#034374">SAN ${d.sanAtual}/${d.sanMax}</small>
+                        </div>
+                    </div>
+                     <a href="ficha.html?id=${doc.id}" class="btn-open" style="color:#666">VER</a>
+                </div>`;
+        });
+    });
+}
 
         async function criarNovaFicha() {
             const user = auth.currentUser;
