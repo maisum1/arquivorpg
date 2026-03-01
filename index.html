@@ -171,10 +171,23 @@
         }
 
         async function deletarDocumento(colecao, id, nome) {
-            if (confirm(`CONFIRMAR EXCLUSÃO DE: ${nome.toUpperCase()}?\nEsta operação não pode ser desfeita.`)) {
-                await db.collection(colecao).doc(id).delete();
-            }
+    if (colecao === 'fichas') {
+        // Trava de segurança apenas para Fichas de Agentes
+        const digitado = prompt(`ATENÇÃO: Você está prestes a apagar o agente ${nome.toUpperCase()}.\nEsta operação não pode ser desfeita!\n\nPara confirmar, digite EXCLUIR abaixo:`);
+        
+        if (digitado === "EXCLUIR") {
+            await db.collection(colecao).doc(id).delete();
+        } else if (digitado !== null) {
+            // Se ele digitou errado (e não clicou apenas em Cancelar)
+            alert("Palavra incorreta. A exclusão do agente foi cancelada.");
         }
+    } else {
+        // Confirmação simples para Ameaças
+        if (confirm(`CONFIRMAR EXCLUSÃO DE: ${nome.toUpperCase()}?\nEsta operação não pode ser desfeita.`)) {
+            await db.collection(colecao).doc(id).delete();
+        }
+    }
+}
 
         function carregarFichasJogador(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
