@@ -190,22 +190,34 @@
 }
 
         function carregarFichasJogador(uid) {
-            db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById('lista-fichas');
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    div.innerHTML += `
-                        <div class="ficha-card">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome}')">[ APAGAR ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini">${d.portrait ? `<img src="${d.portrait}">` : ''}</div>
-                                <div><strong>${d.nome || 'AGENTE'}</strong><br><small style="color:#666">NEX ${d.nex || '5%'}</small></div>
-                            </div>
-                            <a href="ficha.html?id=${doc.id}" class="btn-open">ACESSAR</a>
-                        </div>`;
-                });
-            });
+    db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
+        const div = document.getElementById('lista-fichas');
+        div.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            
+            // Puxa os dados de recorte ou usa o padrão
+            const px = d.pX !== undefined ? d.pX : 50;
+            const py = d.pY !== undefined ? d.pY : 50;
+            const pz = d.pZ !== undefined ? d.pZ : 1;
+
+            div.innerHTML += `
+                <div class="ficha-card">
+                    <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
+                    <div style="display:flex; align-items:center; flex:1">
+                        <div class="portrait-mini" style="overflow: hidden; position: relative;">
+                            ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                        </div>
+                        <div>
+                            <strong>${d.nome || 'AGENTE'}</strong><br>
+                            <small style="color:#666">NEX ${d.nex || '5%'}</small>
+                        </div>
+                    </div>
+                    <a href="ficha.html?id=${doc.id}" class="btn-open">ACESSAR</a>
+                </div>`;
+        });
+    });
+}
         }
 
        function listarAmeacas() {
@@ -241,35 +253,31 @@
 }
 
         function carregarMonitorMestre() {
-            db.collection("fichas").onSnapshot(snap => {
-                const div = document.getElementById('monitor-mestre');
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    // Pega os valores de recorte ou usa o padrão (50% e escala 1)
-
-            const px = d.pX || 50;
-
-            const py = d.pY || 50;
-
-            const pz = d.pZ || 1;
-
+    db.collection("fichas").onSnapshot(snap => {
+        const div = document.getElementById('monitor-mestre');
+        div.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            
+            // Puxa os dados de recorte para o mestre também ver a foto bonitinha
+            const px = d.pX !== undefined ? d.pX : 50;
+            const py = d.pY !== undefined ? d.pY : 50;
+            const pz = d.pZ !== undefined ? d.pZ : 1;
 
             div.innerHTML += `
-                <div class="ficha-card">
-                    <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome}')">[ APAGAR ]</button>
+                <div class="ficha-card" style="border-left-color:#444">
+                    <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
                     <div style="display:flex; align-items:center; flex:1">
-                        <div class="portrait-mini" style="border-color:#b31d1d; overflow: hidden; position: relative;">
-                            ${d.portrait ? 
-                                `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` 
-                                : ''}
+                        <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: #444;">
+                            ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
                         </div>
                         <div>
-                            <small style="color:#b31d1d">PV ${d.vidaAtual}/${d.vidaMax}</small> | 
-                            <small style="color:#034374">SAN ${d.sanAtual}/${d.sanMax}</small>
+                            <strong>${d.nome || 'AGENTE'}</strong> <small style="color:#666">| NEX ${d.nex || '5%'}</small><br>
+                            <small style="color:#b31d1d">PV ${d.vidaAtual !== undefined ? d.vidaAtual : 0}/${d.vidaMax || 0}</small> | 
+                            <small style="color:#034374">SAN ${d.sanAtual !== undefined ? d.sanAtual : 0}/${d.sanMax || 0}</small>
                         </div>
                     </div>
-                     <a href="ficha.html?id=${doc.id}" class="btn-open" style="color:#666">VER</a>
+                    <a href="ficha.html?id=${doc.id}" class="btn-open" style="color:#666">VER</a>
                 </div>`;
         });
     });
