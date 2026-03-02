@@ -9,30 +9,30 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
-        /* --- CORREÇÃO DE CARREGAMENTO --- */
-        #login-section, #hub-section {
-            display: none;
-        }
+        /* Esconde as telas principais no carregamento */
+#login-section, #hub-section {
+    display: none;
+}
 
-        #loading-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #090909;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            color: #eab308;
-            font-family: 'Special Elite', serif;
-            font-size: 24px;
-        }
-        /* -------------------------------- */
-
+/* Tela de Loading que aparece primeiro */
+#loading-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #090909;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: #eab308; /* Cor do C.R.I.S. */
+    font-family: 'Special Elite', serif;
+    font-size: 24px;
+}
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         
         body { 
-            background: #000;
+            
+            background: #000; 
             color: white; 
             font-family: 'Special Elite', sans-serif; 
             margin: 0; 
@@ -43,25 +43,43 @@
             overflow-x: hidden;
         }
         
-        #login-content { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; gap: 40px; text-align: center; }
         h1 { font-size: 3.5rem; letter-spacing: 8px; margin: 0; color: #fff; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
         
-        #dashboard { width: 95%; max-width: 1200px; padding: 40px 20px; text-align: center; }
+        #dashboard { display: none; width: 95%; max-width: 1200px; padding: 40px 20px; text-align: center; }
         
+        /* ESTILO GERAL DAS ABAS */
         .tab-btn { 
-            background: none; border: none; color: #444; font-family: 'Special Elite', sans-serif; 
-            font-size: 1.1rem; cursor: pointer; padding: 10px 15px; transition: 0.3s; border-bottom: 2px solid transparent;
+            background: none; 
+            border: none; 
+            color: #444; 
+            font-family: 'Special Elite', sans-serif; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            padding: 10px 15px; 
+            transition: 0.3s;
+            border-bottom: 2px solid transparent;
         }
         .tab-btn:hover { color: #999; }
-        #btn-jog.active { color: #EAB308; border-bottom-color: #EAB308; }
-        #btn-ameacas.active { color: #b31d1d; border-bottom-color: #b31d1d; }
-        #btn-mestre.active { color: #fff; border-bottom-color: #fff; }
+
+        /* CORES ESPECÃFICAS QUANDO ATIVAS */
+        #btn-jog.active { color: #EAB308; border-bottom-color: #EAB308; } /* Amarelo */
+        #btn-ameacas.active { color: #b31d1d; border-bottom-color: #b31d1d; } /* Vermelho */
+        #btn-mestre.active { color: #fff; border-bottom-color: #fff; } /* Branco */
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
         
         .ficha-card, .ameaca-card { 
-            background: #0a0a0a; padding: 20px; border-radius: 4px; border: 1px solid #222;
-            display: flex; align-items: center; justify-content: space-between; text-align: left; position: relative; transition: 0.2s;
+            background: #0a0a0a; 
+            padding: 20px; 
+            border-radius: 4px; 
+            border: 1px solid #222;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            text-align: left; 
+            position: relative;
+            transition: 0.2s;
         }
         .ficha-card { border-left: 5px solid #EAB308; }
         .ameaca-card { border-left: 5px solid #b31d1d; }
@@ -73,13 +91,18 @@
         .btn-google { background: white; color: black; border: none; padding: 12px 25px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Special Elite', sans-serif; transition: 0.3s; margin-top: 10px; }
         .btn-google:hover { background: #ccc; }
 
-        .btn-del-node { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #333; font-family: 'Special Elite', sans-serif; font-size: 11px; cursor: pointer; transition: 0.3s; padding: 2px 5px; letter-spacing: 1px; }
+        .btn-del-node {
+            position: absolute; top: 8px; right: 8px; background: none; border: none;
+            color: #333; font-family: 'Special Elite', sans-serif; font-size: 11px;
+            cursor: pointer; transition: 0.3s; padding: 2px 5px; letter-spacing: 1px;
+        }
         .btn-del-node:hover { color: #ff4444; text-shadow: 0 0 5px #ff4444; }
 
         .btn-open { color: inherit; text-decoration: none; font-size: 13px; font-weight: bold; padding: 5px 10px; border: 1px solid transparent; transition: 0.3s; }
         .ficha-card .btn-open { color: #EAB308; }
         .ameaca-card .btn-open { color: #b31d1d; }
         .btn-open:hover { border-color: currentColor; background: rgba(255,255,255,0.05); }
+
     </style>
 </head>
 <body>
@@ -87,56 +110,51 @@
         <span>CARREGANDO SISTEMA...</span>
     </div>
 
-    <div id="login-section">
-        <div id="login-content">
-            <h1>C.R.I.S.</h1>
-            <p style="color: #666;">AUTENTICAÇÃO NECESSÁRIA</p>
-            <button class="btn-google" onclick="login()">ACESSAR TERMINAL</button>
-        </div>
+    <div id="login-screen">
+        <h1>C.R.I.S.</h1>
+        <p style="color: #666;">AUTENTICAÃÃO NECESSÃRIA</p>
+        <button class="btn-google" onclick="login()">ACESSAR TERMINAL</button>
     </div>
 
-    <div id="hub-section">
-        <div id="dashboard">
-            <h2 id="welcome" style="color: #fff; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;">SISTEMA ONLINE</h2>
-            
-            <div id="menu-abas" style="margin-bottom: 30px; border-bottom: 1px solid #222; display: flex; justify-content: center; gap: 20px;">
-                <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MEUS AGENTES</button> 
-                <button id="btn-ameacas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('ameacas')">AMEAÇAS</button>
-                <button id="btn-mestre" class="tab-btn" style="display:none;" onclick="mudarAbaHub('mestre')">MONITORAMENTO</button>
-            </div>
-
-            <div id="hub-jogador" class="conteudo-hub">
-                <div class="grid" id="lista-fichas"></div>
-                <button class="btn-google" onclick="criarNovaFicha()" style="background:#111; color:white; border:1px solid #333;">+ REGISTRAR AGENTE</button>
-            </div>
-
-            <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
-                <div id="lista-ameacas" class="grid" style="max-width: 900px; margin: 0 auto;"></div>
-                <button class="btn-google" style="background: #200; color: #b31d1d; border: 1px solid #b31d1d;" onclick="criarNovaAmeaca()">+ IDENTIFICAR AMEAÇA</button>
-            </div>
-
-            <div id="hub-mestre" class="conteudo-hub" style="display:none;">
-                <div id="monitor-mestre" class="grid"></div>
-            </div>
-
-            <br><br>
-            <button onclick="firebase.auth().signOut()" style="background:transparent; color:#333; border:none; cursor:pointer; font-family: 'Special Elite'; font-size: 10px;">ENCERRAR SESSÃO</button>
+    <div id="dashboard">
+        <h2 id="welcome" style="color: #fff; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;">SISTEMA ONLINE</h2>
+        
+        <div id="menu-abas" style="margin-bottom: 30px; border-bottom: 1px solid #222; display: flex; justify-content: center; gap: 20px;">
+            <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MEUS AGENTES</button> 
+            <button id="btn-ameacas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('ameacas')">AMEAÃAS</button>
+            <button id="btn-mestre" class="tab-btn" style="display:none;" onclick="mudarAbaHub('mestre')">MONITORAMENTO</button>
         </div>
+
+        <div id="hub-jogador" class="conteudo-hub">
+            <div class="grid" id="lista-fichas"></div>
+            <button class="btn-google" onclick="criarNovaFicha()" style="background:#111; color:white; border:1px solid #333;">+ REGISTRAR AGENTE</button>
+        </div>
+
+        <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
+            <div id="lista-ameacas" class="grid" style="max-width: 900px; margin: 0 auto;"></div>
+            <button class="btn-google" style="background: #200; color: #b31d1d; border: 1px solid #b31d1d;" onclick="criarNovaAmeaca()">+ IDENTIFICAR AMEAÃA</button>
+        </div>
+
+        <div id="hub-mestre" class="conteudo-hub" style="display:none;">
+            <div id="monitor-mestre" class="grid"></div>
+        </div>
+
+        <br><br>
+        <button onclick="firebase.auth().signOut()" style="background:transparent; color:#333; border:none; cursor:pointer; font-family: 'Special Elite'; font-size: 10px;">ENCERRAR SESSÃO</button>
     </div>
 
     <script>
-        // Verificação imediata de Cache
         document.addEventListener("DOMContentLoaded", () => {
-            const estavaLogado = localStorage.getItem('cris_logado') === 'true';
-            if (estavaLogado) {
-                document.getElementById('hub-section').style.display = 'block';
-                document.getElementById('loading-screen').style.display = 'none';
-            } else {
-                document.getElementById('login-section').style.display = 'block';
-                document.getElementById('loading-screen').style.display = 'none';
-            }
-        });
-
+    // Verifica instantaneamente se estava logado na Ãºltima visita
+    const estavaLogado = localStorage.getItem('cris_logado') === 'true';
+    
+    if (estavaLogado) {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('hub-section').style.display = 'block';
+        document.getElementById('loading-screen').style.display = 'none';
+    }
+});
+        // --- COLOQUE SUAS CHAVES AQUI ---
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
             authDomain: "fichasrpg-7fc69.firebaseapp.com",
@@ -150,150 +168,175 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const EMAIL_MESTRE = "pedroacpr@gmail.com";
+        const EMAIL_MESTRE = "pedroacpr@gmail.com"; 
 
         auth.onAuthStateChanged(user => {
-            const loading = document.getElementById('loading-screen');
-            const loginSec = document.getElementById('login-section');
-            const hubSec = document.getElementById('hub-section');
+    const loading = document.getElementById('loading-screen');
+    const loginSec = document.getElementById('login-section');
+    const hubSec = document.getElementById('hub-section');
 
-            if (user) {
-                localStorage.setItem('cris_logado', 'true');
-                loginSec.style.display = 'none';
-                hubSec.style.display = 'block';
-                
-                if (user.email === EMAIL_MESTRE) {
-                    document.getElementById('btn-ameacas').style.display = 'inline-block';
-                    document.getElementById('btn-mestre').style.display = 'inline-block';
-                }
+    if (user) {
+        // Confirma que estÃ¡ logado e salva na memÃ³ria
+        localStorage.setItem('cris_logado', 'true');
+        
+        loginSec.style.display = 'none';
+        hubSec.style.display = 'block';
+        
+        // Chama suas funÃ§Ãµes para preencher a tela
+        carregarFichasJogador(user.uid);
+        carregarMonitorMestre(); // Se essa funÃ§Ã£o for chamada aqui no seu cÃ³digo
+        
+    } else {
+        // NÃ£o tem ninguÃ©m logado
+        localStorage.setItem('cris_logado', 'false');
+        
+        loginSec.style.display = 'block';
+        hubSec.style.display = 'none';
+    }
 
-                carregarFichasJogador(user.uid);
-                listarAmeacas();
-                carregarMonitorMestre();
-            } else {
-                localStorage.setItem('cris_logado', 'false');
-                loginSec.style.display = 'block';
-                hubSec.style.display = 'none';
-            }
-
-            setTimeout(() => {
-                loading.style.display = 'none';
-            }, 300);
-        });
-
+    // Desliga a tela de carregamento (caso seja o primeiro acesso e ela ainda esteja aparecendo)
+    setTimeout(() => {
+        loading.style.display = 'none';
+    }, 300); // Um atrasozinho de 0.3s sÃ³ pra dar um efeito mais fluido
+});
         function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
         function mudarAbaHub(aba) {
             document.querySelectorAll('.conteudo-hub').forEach(d => d.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
             document.getElementById('hub-' + aba).style.display = 'block';
+            
+            // LÃ³gica para ativar a classe no botÃ£o correto
             if (aba === 'jogador') document.getElementById('btn-jog').classList.add('active');
             if (aba === 'ameacas') document.getElementById('btn-ameacas').classList.add('active');
             if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
         }
 
         async function deletarDocumento(colecao, id, nome) {
-            if (colecao === 'fichas') {
-                const digitado = prompt(`ATENÇÃO: Você está prestes a apagar o agente ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
-                if (digitado === "EXCLUIR") {
-                    await db.collection(colecao).doc(id).delete();
-                } else if (digitado !== null) {
-                    alert("Palavra incorreta. Operação cancelada.");
-                }
-            } else {
-                if (confirm(`CONFIRMAR EXCLUSÃO DE: ${nome.toUpperCase()}?`)) {
-                    await db.collection(colecao).doc(id).delete();
-                }
-            }
+    if (colecao === 'fichas') {
+        // Trava de seguranÃ§a apenas para Fichas de Agentes
+        const digitado = prompt(`ATENÃÃO: VocÃª estÃ¡ prestes a apagar o agente ${nome.toUpperCase()}.\nEsta operaÃ§Ã£o nÃ£o pode ser desfeita!\n\nPara confirmar, digite EXCLUIR abaixo:`);
+        
+        if (digitado === "EXCLUIR") {
+            await db.collection(colecao).doc(id).delete();
+        } else if (digitado !== null) {
+            // Se ele digitou errado (e nÃ£o clicou apenas em Cancelar)
+            alert("Palavra incorreta. A exclusÃ£o do agente foi cancelada.");
         }
+    } else {
+        // ConfirmaÃ§Ã£o simples para AmeaÃ§as
+        if (confirm(`CONFIRMAR EXCLUSÃO DE: ${nome.toUpperCase()}?\nEsta operaÃ§Ã£o nÃ£o pode ser desfeita.`)) {
+            await db.collection(colecao).doc(id).delete();
+        }
+    }
+}
 
         function carregarFichasJogador(uid) {
-            db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById('lista-fichas');
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
-                    div.innerHTML += `
-                        <div class="ficha-card">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="overflow: hidden; position: relative;">
-                                    ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                                </div>
-                                <div>
-                                    <strong>${d.nome || 'AGENTE'}</strong><br>
-                                    <small style="color:#666">NEX ${d.nex || '5%'}</small>
-                                </div>
-                            </div>
-                            <a href="ficha.html?id=${doc.id}" class="btn-open">ACESSAR</a>
-                        </div>`;
-                });
-            });
-        }
+    db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
+        const div = document.getElementById('lista-fichas');
+        div.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            
+            // Puxa os dados de recorte ou usa o padrÃ£o
+            const px = d.pX !== undefined ? d.pX : 50;
+            const py = d.pY !== undefined ? d.pY : 50;
+            const pz = d.pZ !== undefined ? d.pZ : 1;
 
-        function listarAmeacas() {
-            db.collection("ameacas").onSnapshot(snap => {
-                const div = document.getElementById("lista-ameacas");
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
-                    div.innerHTML += `
-                        <div class="ameaca-card">
-                            <button class="btn-del-node" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ APAGAR ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="border-color:#b31d1d; overflow: hidden; position: relative;">
-                                    ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                                </div>
-                                <div>
-                                    <strong style="color:#fff">${d.nome}</strong><br>
-                                    <small style="color:#b31d1d">VD ${d.vd} | ${d.elemento}</small>
-                                </div>
-                            </div>
-                            <a href="ameaca.html?id=${doc.id}" class="btn-open">ARQUIVO</a>
-                        </div>`;
-                });
-            });
-        }
+            div.innerHTML += `
+                <div class="ficha-card">
+                    <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
+                    <div style="display:flex; align-items:center; flex:1">
+                        <div class="portrait-mini" style="overflow: hidden; position: relative;">
+                            ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                        </div>
+                        <div>
+                            <strong>${d.nome || 'AGENTE'}</strong><br>
+                            <small style="color:#666">NEX ${d.nex || '5%'}</small>
+                        </div>
+                    </div>
+                    <a href="ficha.html?id=${doc.id}" class="btn-open">ACESSAR</a>
+                </div>`;
+        });
+    });
+}
+
+       function listarAmeacas() {
+    db.collection("ameacas").onSnapshot(snap => {
+        const div = document.getElementById("lista-ameacas");
+        div.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+
+            // Pega os valores de recorte ou usa o padrÃ£o (50% e escala 1)
+            const px = d.pX || 50;
+            const py = d.pY || 50;
+            const pz = d.pZ || 1;
+
+            div.innerHTML += `
+                <div class="ameaca-card">
+                    <button class="btn-del-node" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ APAGAR ]</button>
+                    <div style="display:flex; align-items:center; flex:1">
+                        <div class="portrait-mini" style="border-color:#b31d1d; overflow: hidden; position: relative;">
+                            ${d.portrait ? 
+                                `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` 
+                                : ''}
+                        </div>
+                        <div>
+                            <strong style="color:#fff">${d.nome}</strong><br>
+                            <small style="color:#b31d1d">VD ${d.vd} | ${d.elemento}</small>
+                        </div>
+                    </div>
+                    <a href="ameaca.html?id=${doc.id}" class="btn-open">ARQUIVO</a>
+                </div>`;
+        });
+    });
+}
 
         function carregarMonitorMestre() {
-            db.collection("fichas").onSnapshot(snap => {
-                const div = document.getElementById('monitor-mestre');
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
-                    div.innerHTML += `
-                        <div class="ficha-card" style="border-left-color:#444">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: #444;">
-                                    ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                                </div>
-                                <div>
-                                    <strong>${d.nome || 'AGENTE'}</strong> <small style="color:#666">| NEX ${d.nex || '5%'}</small><br>
-                                    <small style="color:#b31d1d">PV ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> | 
-                                    <small style="color:#034374">SAN ${d.sanAtual || 0}/${d.sanMax || 0}</small>
-                                </div>
-                            </div>
-                            <a href="ficha.html?id=${doc.id}" class="btn-open" style="color:#666">VER</a>
-                        </div>`;
-                });
-            });
-        }
+    db.collection("fichas").onSnapshot(snap => {
+        const div = document.getElementById('monitor-mestre');
+        div.innerHTML = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            
+            // Puxa os dados de recorte para o mestre tambÃ©m ver a foto bonitinha
+            const px = d.pX !== undefined ? d.pX : 50;
+            const py = d.pY !== undefined ? d.pY : 50;
+            const pz = d.pZ !== undefined ? d.pZ : 1;
+
+            div.innerHTML += `
+                <div class="ficha-card" style="border-left-color:#444">
+                    <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
+                    <div style="display:flex; align-items:center; flex:1">
+                        <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: #444;">
+                            ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                        </div>
+                        <div>
+                            <strong>${d.nome || 'AGENTE'}</strong> <small style="color:#666">| NEX ${d.nex || '5%'}</small><br>
+                            <small style="color:#b31d1d">PV ${d.vidaAtual !== undefined ? d.vidaAtual : 0}/${d.vidaMax || 0}</small> | 
+                            <small style="color:#034374">SAN ${d.sanAtual !== undefined ? d.sanAtual : 0}/${d.sanMax || 0}</small>
+                        </div>
+                    </div>
+                    <a href="ficha.html?id=${doc.id}" class="btn-open" style="color:#666">VER</a>
+                </div>`;
+        });
+    });
+}
 
         async function criarNovaFicha() {
             const user = auth.currentUser;
-            const ref = await db.collection("fichas").add({ dono: user.uid, nome: "NOVO AGENTE", nex: "5%", vidaAtual: 20, vidaMax: 20, sanAtual: 20, sanMax: 20, peAtual: 2, peMax: 2, pX: 50, pY: 50, pZ: 1 });
+            const ref = await db.collection("fichas").add({ dono: user.uid, nome: "NOVO AGENTE", nex: "5%", vidaAtual: 20, vidaMax: 20, sanAtual: 20, sanMax: 20, peAtual: 2, peMax: 2 });
             window.location.href = `ficha.html?id=${ref.id}`;
         }
 
         async function criarNovaAmeaca() {
             const user = auth.currentUser;
-            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ALVO NÃO IDENTIFICADO", elemento: "SANGUE", vd: "20", pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
+            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ALVO NÃO IDENTIFICADO", elemento: "SANGUE", vd: "20", pvAtual: 100, pvMax: 100 });
             window.location.href = `ameaca.html?id=${ref.id}`;
         }
     </script>
 </body>
 </html>
+
