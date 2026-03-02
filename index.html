@@ -9,29 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
-        /* Esconde as telas principais no carregamento */
-#login-section, #hub-section {
-    display: none;
-}
-
-/* Tela de Loading que aparece primeiro */
-#loading-screen {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: #090909;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    color: #eab308; /* Cor do C.R.I.S. */
-    font-family: 'Special Elite', serif;
-    font-size: 24px;
-}
         @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
         
         body { 
-            
             background: #000; 
             color: white; 
             font-family: 'Special Elite', sans-serif; 
@@ -106,9 +86,6 @@
     </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <span>CARREGANDO SISTEMA...</span>
-    </div>
 
     <div id="login-screen">
         <h1>C.R.I.S.</h1>
@@ -144,16 +121,6 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-    // Verifica instantaneamente se estava logado na Ãºltima visita
-    const estavaLogado = localStorage.getItem('cris_logado') === 'true';
-    
-    if (estavaLogado) {
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('hub-section').style.display = 'block';
-        document.getElementById('loading-screen').style.display = 'none';
-    }
-});
         // --- COLOQUE SUAS CHAVES AQUI ---
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
@@ -171,34 +138,24 @@
         const EMAIL_MESTRE = "pedroacpr@gmail.com"; 
 
         auth.onAuthStateChanged(user => {
-    const loading = document.getElementById('loading-screen');
-    const loginSec = document.getElementById('login-section');
-    const hubSec = document.getElementById('hub-section');
+            if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                // Atualiza o nome (que agora Ã© branco pelo CSS/HTML)
+                document.getElementById('welcome').innerText = `AGENTE: ${user.displayName?.toUpperCase() || 'DESCONHECIDO'}`;
+                carregarFichasJogador(user.uid);
+                if (user.email === EMAIL_MESTRE) {
+                    document.getElementById('btn-mestre').style.display = 'inline-block';
+                    document.getElementById('btn-ameacas').style.display = 'inline-block';
+                    carregarMonitorMestre();
+                    listarAmeacas();
+                }
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        });
 
-    if (user) {
-        // Confirma que estÃ¡ logado e salva na memÃ³ria
-        localStorage.setItem('cris_logado', 'true');
-        
-        loginSec.style.display = 'none';
-        hubSec.style.display = 'block';
-        
-        // Chama suas funÃ§Ãµes para preencher a tela
-        carregarFichasJogador(user.uid);
-        carregarMonitorMestre(); // Se essa funÃ§Ã£o for chamada aqui no seu cÃ³digo
-        
-    } else {
-        // NÃ£o tem ninguÃ©m logado
-        localStorage.setItem('cris_logado', 'false');
-        
-        loginSec.style.display = 'block';
-        hubSec.style.display = 'none';
-    }
-
-    // Desliga a tela de carregamento (caso seja o primeiro acesso e ela ainda esteja aparecendo)
-    setTimeout(() => {
-        loading.style.display = 'none';
-    }, 300); // Um atrasozinho de 0.3s sÃ³ pra dar um efeito mais fluido
-});
         function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
         function mudarAbaHub(aba) {
@@ -339,4 +296,3 @@
     </script>
 </body>
 </html>
-
