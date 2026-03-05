@@ -45,7 +45,7 @@
         .attr-box { position: absolute; width: 55px; height: 55px; background: #090909; border: 2px solid #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .attr-label { font-size: 9px; font-weight: bold; color: #888; margin-top: -2px; }
         .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 22px; font-family: 'Special Elite'; font-weight: bold; }
-        .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .int { top: 75px; right: 5px; } .pre { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
+        .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .int { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
         .mid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-family: 'Special Elite'; }
         .stat-box { border: 1px solid #333; background: #0a0a0a; padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -163,6 +163,7 @@
             .defesa-colunas { width: 100%; justify-content: space-around; }
             .pericia-header, .pericia-row { grid-template-columns: 1fr 45px 40px 45px 35px; font-size: 11px; gap: 2px; }
             .treino-select { font-size: 9px; }
+            #pericias-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
@@ -252,7 +253,7 @@
             <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="salvarFicha()"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
             <div class="attr-box int"><span class="attr-label">INT</span><input type="number" id="attr-int" onchange="recalcularBases()"></div>
-            <div class="attr-box pre"><span class="attr-label">PRE</span><input type="number" id="attr-pre" onchange="recalcularBases()"></div>
+            <div class="attr-box von"><span class="attr-label">VON</span><input type="number" id="attr-von" onchange="recalcularBases()"></div>
             <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="recalcularBases()"></div>
         </div>
 
@@ -359,15 +360,32 @@
             <button class="tab-btn" onclick="mudarAba('inventario')">Inventário</button>
         </nav>
 
-        <div id="aba-pericias" class="tab-content active pericias-box" style="border: none; background: transparent; padding: 0;">
-            <div class="pericia-header">
-                <span>Nome</span>
-                <span title="Atributo Base">Atrib.</span>
-                <span>Bônus</span>
-                <span>Treino</span>
-                <span>Soma</span>
+        <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
+            <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="pericias-box">
+                    <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Special Elite'; color:var(--cris-purple); text-align:center; font-size:14px; letter-spacing: 1px;">PESSOAIS</h3>
+                    <div class="pericia-header">
+                        <span>Nome</span>
+                        <span title="Atributo Base">Atrib.</span>
+                        <span>Bônus</span>
+                        <span>Treino</span>
+                        <span>Soma</span>
+                    </div>
+                    <div id="lista-pericias-pessoais"></div>
+                </div>
+                
+                <div class="pericias-box">
+                    <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Special Elite'; color:var(--cris-purple); text-align:center; font-size:14px; letter-spacing: 1px;">PROFISSÃO</h3>
+                    <div class="pericia-header">
+                        <span>Nome</span>
+                        <span title="Atributo Base">Atrib.</span>
+                        <span>Bônus</span>
+                        <span>Treino</span>
+                        <span>Soma</span>
+                    </div>
+                    <div id="lista-pericias-profissao"></div>
+                </div>
             </div>
-            <div id="lista-pericias"></div>
         </div>
         
         <div id="aba-combate" class="tab-content">
@@ -449,7 +467,6 @@
     
     let menusAbertos = new Set();
     
-    /* --- NOVO SISTEMA DE CROP E UPLOAD (BASE64) --- */
     let modoCrop = ""; 
     let ritualIdAtual = "";
 
@@ -470,7 +487,6 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    // Compressão ainda mais forte para garantir que caiba no Banco de Dados
                     const maxW = 600; 
                     const scale = maxW / imgElement.width;
                     canvas.width = maxW;
@@ -554,28 +570,28 @@
     }
 
     const bancoPericias = {
-        "Acrobacia": { attr: "AGI", desc: "Usada para equilibrar-se, cair com segurança e escapar de amarras." },
-        "Atletismo": { attr: "FOR", desc: "Define sua capacidade física para correr, nadar, pular e escalar." },
-        "Atualidades": { attr: "INT", desc: "Seu conhecimento sobre o mundo, cultura pop, notícias e política." },
-        "Ciências": { attr: "INT", desc: "Conhecimento em matemática, física, química e biologia." },
-        "Crime": { attr: "AGI", desc: "Habilidade de arrombar fechaduras, pungar, falsificar e desarmar dispositivos." },
-        "Diplomacia": { attr: "PRE", desc: "Usada para persuadir os outros com argumentos lícitos e empatia." },
-        "Enganação": { attr: "PRE", desc: "A arte de mentir, blefar e enganar pessoas." },
-        "Fortitude": { attr: "VIG", desc: "Resistência física a venenos, doenças e fadiga. Também afeta seu Bloqueio." },
-        "Furtividade": { attr: "AGI", desc: "Capacidade de se esconder, mover-se em silêncio e passar despercebido." },
-        "Intuição": { attr: "PRE", desc: "Sua capacidade de ler pessoas, perceber mentiras e 'sentir' intenções." },
-        "Investigação": { attr: "INT", desc: "Usada para procurar pistas, analisar cenas e encontrar coisas ocultas." },
-        "Luta": { attr: "FOR", desc: "Sua habilidade em combate corpo a corpo (armado ou desarmado)." },
-        "Medicina": { attr: "INT", desc: "Conhecimento para realizar primeiros socorros e tratar ferimentos." },
-        "Ocultismo": { attr: "INT", desc: "Conhecimento sobre o paranormal, criaturas, rituais e símbolos." },
-        "Percepção": { attr: "PRE", desc: "Seus sentidos (visão, audição, etc.) para notar coisas à sua volta." },
-        "Pontaria": { attr: "AGI", desc: "Habilidade em atirar com armas de fogo ou arremessar objetos." },
-        "Reflexos": { attr: "AGI", desc: "Tempo de reação rápida, usado principalmente para se Esquivar." },
-        "Religião": { attr: "PRE", desc: "Conhecimento sobre teologia, seitas, religiões e crenças populares." },
-        "Sobrevivência": { attr: "INT", desc: "Capacidade de se orientar na selva, caçar, pescar e acampar." },
-        "Tática": { attr: "INT", desc: "Conhecimento militar, planejamento de combate e leitura do campo de batalha." },
-        "Tecnologia": { attr: "INT", desc: "Habilidade para usar, programar e hackear computadores e eletrônicos." },
-        "Vontade": { attr: "PRE", desc: "Sua resistência mental contra o medo, rituais e efeitos paranormais." }
+        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Usada para equilibrar-se, cair com segurança e escapar de amarras." },
+        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Define sua capacidade física para correr, nadar, pular e escalar." },
+        "Atualidades": { attr: "INT", tipo: "pessoal", desc: "Seu conhecimento sobre o mundo, cultura pop, notícias e política." },
+        "Ciências": { attr: "INT", tipo: "profissao", desc: "Conhecimento em matemática, física, química e biologia." },
+        "Crime": { attr: "AGI", tipo: "profissao", desc: "Habilidade de arrombar fechaduras, pungar, falsificar e desarmar dispositivos." },
+        "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Usada para persuadir os outros com argumentos lícitos e empatia." },
+        "Enganação": { attr: "VON", tipo: "pessoal", desc: "A arte de mentir, blefar e enganar pessoas." },
+        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência física a venenos, doenças e fadiga. Também afeta seu Bloqueio." },
+        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Capacidade de se esconder, mover-se em silêncio e passar despercebido." },
+        "Intuição": { attr: "VON", tipo: "pessoal", desc: "Sua capacidade de ler pessoas, perceber mentiras e 'sentir' intenções." },
+        "Investigação": { attr: "INT", tipo: "pessoal", desc: "Usada para procurar pistas, analisar cenas e encontrar coisas ocultas." },
+        "Luta": { attr: "FOR", tipo: "pessoal", desc: "Sua habilidade em combate corpo a corpo (armado ou desarmado)." },
+        "Medicina": { attr: "INT", tipo: "profissao", desc: "Conhecimento para realizar primeiros socorros e tratar ferimentos." },
+        "Ocultismo": { attr: "INT", tipo: "profissao", desc: "Conhecimento sobre o paranormal, criaturas, rituais e símbolos." },
+        "Percepção": { attr: "VON", tipo: "pessoal", desc: "Seus sentidos (visão, audição, etc.) para notar coisas à sua volta." },
+        "Pontaria": { attr: "AGI", tipo: "pessoal", desc: "Habilidade em atirar com armas de fogo ou arremessar objetos." },
+        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Tempo de reação rápida, usado principalmente para se Esquivar." },
+        "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre teologia, seitas, religiões e crenças populares." },
+        "Sobrevivência": { attr: "INT", tipo: "pessoal", desc: "Capacidade de se orientar na selva, caçar, pescar e acampar." },
+        "Tática": { attr: "INT", tipo: "profissao", desc: "Conhecimento militar, planejamento de combate e leitura do campo de batalha." },
+        "Tecnologia": { attr: "INT", tipo: "profissao", desc: "Habilidade para usar, programar e hackear computadores e eletrônicos." },
+        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Sua resistência mental contra o medo, rituais e efeitos paranormais." }
     };
     const nomesPericias = Object.keys(bancoPericias);
 
@@ -606,16 +622,19 @@
     }
 
     function gerarPericiasBase() {
-        document.getElementById('lista-pericias').innerHTML = nomesPericias.map(p => {
+        let htmlPessoais = "";
+        let htmlProfissao = "";
+        
+        nomesPericias.forEach(p => {
             const info = bancoPericias[p];
-            return `
+            const bloco = `
             <div class="pericia-row" id="row-${p}">
                 <span class="pericia-nome" onclick="toggleDescricao('${p}')" title="Clique para detalhes">${p}</span>
                 <select id="attr-${p}" class="treino-select" onchange="salvarFicha()" style="background:transparent; border:none; border-bottom:1px solid #333; cursor:pointer;">
                     <option value="AGI" ${info.attr==='AGI'?'selected':''}>AGI</option>
                     <option value="FOR" ${info.attr==='FOR'?'selected':''}>FOR</option>
                     <option value="INT" ${info.attr==='INT'?'selected':''}>INT</option>
-                    <option value="PRE" ${info.attr==='PRE'?'selected':''}>PRE</option>
+                    <option value="VON" ${info.attr==='VON'?'selected':''}>VON</option>
                     <option value="VIG" ${info.attr==='VIG'?'selected':''}>VIG</option>
                 </select>
                 <input type="number" id="bonus-${p}" class="treino-select" value="0" style="background:transparent; border:none; border-bottom:1px solid #333;" onchange="salvarFicha()">
@@ -626,7 +645,16 @@
             </div>
             <div id="desc-${p}" class="pericia-desc">${info.desc}</div>
             `;
-        }).join('');
+            
+            if (info.tipo === "profissao") {
+                htmlProfissao += bloco;
+            } else {
+                htmlPessoais += bloco;
+            }
+        });
+        
+        document.getElementById('lista-pericias-pessoais').innerHTML = htmlPessoais;
+        document.getElementById('lista-pericias-profissao').innerHTML = htmlProfissao;
     }
 
     function toggleDescricao(nome) {
@@ -636,7 +664,7 @@
 
     function recalcularBases() {
         const vig = parseInt(document.getElementById('attr-vig').value) || 0;
-        const pre = parseInt(document.getElementById('attr-pre').value) || 0;
+        const von = parseInt(document.getElementById('attr-von').value) || 0;
         const int = parseInt(document.getElementById('attr-int').value) || 0;
         const nivel = parseInt(document.getElementById('nivel-personagem').value) || 1;
         const nexStr = document.getElementById('nex-personagem').value || "0%";
@@ -644,7 +672,7 @@
 
         const novaVida = 10 + (2 * vig) + (2 * nivel);
         const novaSan = 50 + (10 * vig + 10 * int);
-        const novoPe = 4 + 2 * vig + pre + Math.floor(nex / 10);
+        const novoPe = 4 + 2 * vig + von + Math.floor(nex / 10);
         
         document.getElementById('vida-max').value = novaVida;
         document.getElementById('san-max').value = novaSan;
@@ -688,9 +716,13 @@
                 document.getElementById('label-portrait').style.display = 'none';
             }
 
-            ['agi','for','int','pre','vig'].forEach(a => { 
+            ['agi','for','int','von','vig'].forEach(a => { 
                 if(document.getElementById(`attr-${a}`)) {
-                    document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 1;
+                    if (a === 'von') {
+                        document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 1);
+                    } else {
+                        document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 1;
+                    }
                 } 
             });
 
@@ -809,7 +841,7 @@
             agi: parseInt(document.getElementById('attr-agi').value) || 0,
             for: parseInt(document.getElementById('attr-for').value) || 0,
             int: parseInt(document.getElementById('attr-int').value) || 0,
-            pre: parseInt(document.getElementById('attr-pre').value) || 0,
+            von: parseInt(document.getElementById('attr-von').value) || 0,
             vig: parseInt(document.getElementById('attr-vig').value) || 0,
             vidaAtual: parseInt(document.getElementById('vida-atual').value) || 0,
             vidaMax: parseInt(document.getElementById('vida-max').value) || 1,
@@ -1092,5 +1124,3 @@
 </script>
 </body>
 </html>
-
-
