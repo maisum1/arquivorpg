@@ -164,6 +164,8 @@
 
         const EMAIL_MESTRE = "pedroacpr@gmail.com";
 
+        // ... Procure a função auth.onAuthStateChanged no seu código e substitua por esta:
+
         auth.onAuthStateChanged(user => {
             const loading = document.getElementById('loading-screen');
             const loginSec = document.getElementById('login-screen');
@@ -177,8 +179,9 @@
                 loginSec.style.display = 'none';
                 hubSec.style.display = 'block';
                 
-                // Exibe o nome do jogador (ou email) na tela
-                welcomeText.innerText = `JOGADOR: ${user.email}`;
+                // PEGA O NOME CADASTRADO NO GOOGLE. SE NÃO TIVER, USA O EMAIL.
+                const nomeUsuario = user.displayName ? user.displayName : user.email;
+                welcomeText.innerText = `JOGADOR: ${nomeUsuario}`;
 
                 if (user.email === EMAIL_MESTRE) {
                     btnAmeacas.style.display = 'inline-block';
@@ -197,7 +200,7 @@
                 hubSec.style.display = 'none';
                 btnAmeacas.style.display = 'none';
                 btnMestre.style.display = 'none';
-                welcomeText.innerText = "SISTEMA ONLINE"; // Reseta o texto
+                welcomeText.innerText = "SISTEMA ONLINE";
             }
 
             setTimeout(() => {
