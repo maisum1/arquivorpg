@@ -108,7 +108,7 @@
     </div>
 
     <div id="dashboard">
-        <h2 id="welcome" style="color: #fff; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;">SISTEMA ONLINE</h2>
+        <h2 id="welcome" style="color: #fff; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;">JOGADOR: CONECTANDO...</h2>
         
         <div id="menu-abas" style="margin-bottom: 30px; border-bottom: 1px solid #222; display: flex; justify-content: center; gap: 20px;">
             <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MEUS AGENTES</button> 
@@ -170,12 +170,16 @@
             const hubSec = document.getElementById('dashboard');
             const btnAmeacas = document.getElementById('btn-ameacas');
             const btnMestre = document.getElementById('btn-mestre');
+            const welcomeText = document.getElementById('welcome');
 
             if (user) {
                 localStorage.setItem('cris_logado', 'true');
                 loginSec.style.display = 'none';
                 hubSec.style.display = 'block';
                 
+                // Exibe o nome do jogador (ou email) na tela
+                welcomeText.innerText = `JOGADOR: ${user.email}`;
+
                 if (user.email === EMAIL_MESTRE) {
                     btnAmeacas.style.display = 'inline-block';
                     btnMestre.style.display = 'inline-block';
@@ -186,13 +190,14 @@
 
                 carregarFichasJogador(user.uid);
                 listarAmeacas();
-                carregarMonitorMestre(); 
+                carregarMonitorMestre();
             } else {
                 localStorage.setItem('cris_logado', 'false');
                 loginSec.style.display = 'block';
                 hubSec.style.display = 'none';
                 btnAmeacas.style.display = 'none';
                 btnMestre.style.display = 'none';
+                welcomeText.innerText = "SISTEMA ONLINE"; // Reseta o texto
             }
 
             setTimeout(() => {
