@@ -47,7 +47,7 @@
         .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 22px; font-family: 'Special Elite'; font-weight: bold; }
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
-        .mid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-family: 'Special Elite'; }
+        .mid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; font-family: 'Special Elite'; }
         .stat-box { border: 1px solid #333; background: #0a0a0a; padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .stat-box label { font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif; text-transform: uppercase; }
         .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Special Elite'; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
@@ -80,7 +80,8 @@
         .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: #111; border: 1px solid #333; border-radius: 3px; color: #666; font-family: 'Special Elite'; font-size: 11px; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
         .mini-cond-label:hover { border-color: #666; color: #ccc; }
         #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #fff; font-weight: bold; }
-        #chk-sequela:checked + .mini-cond-label { background: var(--san-purple); color: #fff; border-color: #fff; font-weight: bold; }
+        /* Alterado cor de selecionado para cinza claro / escuro no texto */
+        #chk-sequela:checked + .mini-cond-label { background: #e0e0e0; color: #000; border-color: #fff; font-weight: bold; }
 
         .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
         .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; }
@@ -140,7 +141,6 @@
 
         .condicao-select, .condicao-text { width: 100%; background: #000; color: #fff; border: 1px solid #333; font-family: 'Roboto'; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; }
 
-        /* ESTILOS DA ENGRENAGEM DE CONFIGURAÇÃO DO PORTRAIT */
         .btn-config {
             position: fixed; top: 10px; right: 10px; z-index: 999;
             background: none; border: none; color: var(--cris-purple);
@@ -272,7 +272,11 @@
             </div>
             <div class="stat-box">
                 <label>NEX</label>
-                <select id="nex-personagem" onchange="recalcularBases()"></select>
+                <select id="nex-personagem" onchange="mudouNex()"></select>
+            </div>
+            <div class="stat-box">
+                <label>RESSONÂNCIA</label>
+                <select id="grau-ressonancia" onchange="salvarFicha()"></select>
             </div>
             <div class="stat-box">
                 <div style="display:flex; align-items:center; gap:5px;">
@@ -615,10 +619,29 @@
         "Sobrevivência": { attr: "SAG", tipo: "pessoal", desc: "Capacidade de se orientar na selva, caçar, pescar e acampar." },
         "Tática": { attr: "SAG", tipo: "profissao", desc: "Conhecimento militar, planejamento de combate e leitura do campo de batalha." },
         "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Habilidade para usar, programar e hackear computadores e eletrônicos." },
-        "Determinação": { attr: "VON", tipo: "pessoal", desc: "Sua resistência mental contra o medo, rituais e efeitos paranormais." },
-        "Educação": { attr: "SAG", tipo: "pessoal", desc: "Seu grau de escolaridade e capital informacional." }
+        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Sua resistência mental contra o medo, rituais e efeitos paranormais." }
     };
     const nomesPericias = Object.keys(bancoPericias);
+
+    function atualizarOpcoesRessonancia(nexValue) {
+        const resSel = document.getElementById('grau-ressonancia');
+        if (!resSel) return;
+        const valorAtual = resSel.value;
+        let options = '';
+        if (nexValue === 0) {
+            options += `<option value="Nulo">Nulo</option>`;
+        }
+        options += `<option value="1º Grau">1º Grau</option>`;
+        options += `<option value="2º Grau">2º Grau</option>`;
+        options += `<option value="3º Grau">3º Grau</option>`;
+        options += `<option value="4º Grau">4º Grau</option>`;
+        options += `<option value="5º Grau">5º Grau</option>`;
+        resSel.innerHTML = options;
+        
+        if (options.includes(`"${valorAtual}"`)) {
+            resSel.value = valorAtual;
+        }
+    }
 
     function gerarOpcoesNivelNex() {
         const nivelSel = document.getElementById('nivel-personagem');
@@ -628,9 +651,14 @@
 
         const nexSel = document.getElementById('nex-personagem');
         let nexHtml = '';
-        for(let i=0; i<=95; i+=5) nexHtml += `<option value="${i}%">${i}%</option>`;
+        for(let i=0; i<=95; i+=5) {
+            if(i === 5) nexHtml += `<option value="${i}%" selected>${i}%</option>`;
+            else nexHtml += `<option value="${i}%">${i}%</option>`;
+        }
         nexHtml += '<option value="99%">99%</option><option value="100%">100%</option>';
         nexSel.innerHTML = nexHtml;
+
+        atualizarOpcoesRessonancia(5);
     }
 
     async function init() {
@@ -687,6 +715,24 @@
         desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
     }
 
+    function mudouNex() {
+        const nexStr = document.getElementById('nex-personagem').value || "5%";
+        const nex = parseInt(nexStr) || 0;
+        
+        atualizarOpcoesRessonancia(nex);
+        
+        let grauCalculado = "1º Grau";
+        if (nex === 0) grauCalculado = "Nulo";
+        else if (nex < 20) grauCalculado = "1º Grau";
+        else if (nex < 40) grauCalculado = "2º Grau";
+        else if (nex < 60) grauCalculado = "3º Grau";
+        else if (nex < 80) grauCalculado = "4º Grau";
+        else grauCalculado = "5º Grau";
+        
+        document.getElementById('grau-ressonancia').value = grauCalculado;
+        recalcularBases();
+    }
+
     function recalcularBases() {
         const vig = parseInt(document.getElementById('attr-vig').value) || 0;
         const von = parseInt(document.getElementById('attr-von').value) || 0;
@@ -705,7 +751,7 @@
         if (classe === "Esotérico") {
             novoPe += (2 * sag);
             novoLimitePe += (2 * sag);
-        } else if (classe === "Canalizador" && nivel >= 2) {
+        } else if (classe === "Canalizador" && nivel > 2) {
             novoPe += (nivel - 2) * 3;
         }
         
@@ -792,6 +838,21 @@
             }
 
             const nex = parseInt(d.nex) || 0;
+            
+            atualizarOpcoesRessonancia(nex);
+            if (d.ressonancia) {
+                document.getElementById('grau-ressonancia').value = d.ressonancia;
+            } else {
+                let grauCalculado = "1º Grau";
+                if (nex === 0) grauCalculado = "Nulo";
+                else if (nex < 20) grauCalculado = "1º Grau";
+                else if (nex < 40) grauCalculado = "2º Grau";
+                else if (nex < 60) grauCalculado = "3º Grau";
+                else if (nex < 80) grauCalculado = "4º Grau";
+                else grauCalculado = "5º Grau";
+                document.getElementById('grau-ressonancia').value = grauCalculado;
+            }
+
             const vig = parseInt(d.vig) || 0;
             const von = d.von !== undefined ? parseInt(d.von) : (parseInt(d.pre) || 0);
             const sag = d.sag !== undefined ? parseInt(d.sag) : (parseInt(d.int) || 0);
@@ -932,6 +993,7 @@
             peMax: parseInt(document.getElementById('pe-max').value) || 1,
             nivel: document.getElementById('nivel-personagem').value,
             nex: document.getElementById('nex-personagem').value,
+            ressonancia: document.getElementById('grau-ressonancia').value,
             deslocamento: document.getElementById('deslocamento-personagem').value,
             bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
             pericias: periciasObj,
@@ -1253,6 +1315,3 @@
 </script>
 </body>
 </html>
-
-
-
