@@ -54,7 +54,10 @@
         .desloc-box { grid-column: span 2; flex-direction: column-reverse; }
 
         .status-container { margin-bottom: 12px; }
-        .status-header { font-size: 11px; font-weight: bold; color: #aaa; text-align: center; margin-bottom: 4px; }
+        .status-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .status-header { font-size: 11px; font-weight: bold; color: #aaa; text-align: center; flex-grow: 1; }
+        .btn-status-action { background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 3px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Special Elite'; transition: 0.2s; }
+        .btn-status-action:hover { background: #333; }
         .bar-bg { width: 100%; height: 32px; background: #111; position: relative; border: 1px solid #222; overflow: hidden; display: flex; align-items: center; }
         .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
         .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Special Elite'; align-items: center; transition: opacity 0.3s; }
@@ -67,6 +70,11 @@
         .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #fff; }
         .btn-curar { background: #222; color: #fff; border: 1px solid #555; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; font-family: 'Special Elite'; transition: 0.2s; }
         .btn-curar:hover { background: var(--cris-purple); color: #000; border-color: var(--cris-purple); }
+
+        .it-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(3, 67, 116, 0.85); align-items: center; justify-content: center; gap: 8px; font-family: 'Special Elite'; font-size: 12px; font-weight: bold; }
+        .it-state.active { display: flex; }
+        .it-round { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; display: inline-block; cursor: pointer; background: transparent; }
+        .it-round.active { background: #fff; }
 
         .mini-cond-chk { display: none; }
         .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: #111; border: 1px solid #333; border-radius: 3px; color: #666; font-family: 'Special Elite'; font-size: 11px; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
@@ -238,7 +246,7 @@
                     </div>
                     <div class="sub-input-group" id="grupo-arquetipo" style="display: none;">
                         <label>ARQUÉTIPO</label>
-                        <select id="classe-personagem" onchange="salvarFicha()">
+                        <select id="classe-personagem" onchange="recalcularBases()">
                             <option value="">Selecione...</option>
                             <option value="Canalizador">Canalizador</option>
                             <option value="Esotérico">Esotérico</option>
@@ -280,7 +288,10 @@
         </div>
 
         <div class="status-container">
-            <div class="status-header">VIDA</div>
+            <div class="status-header-container">
+                <div class="status-header">VIDA</div>
+                <button class="btn-status-action" onclick="instakill()" title="Zerar Vida">I.K</button>
+            </div>
             <div class="bar-bg">
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
@@ -299,7 +310,10 @@
         </div>
 
         <div class="status-container">
-            <div class="status-header">SANIDADE</div>
+            <div class="status-header-container">
+                <div class="status-header">SANIDADE</div>
+                <button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Insano Temporariamente">I.T</button>
+            </div>
             <div class="bar-bg">
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
@@ -313,6 +327,14 @@
                     <input type="checkbox" id="enlou-2" onchange="salvarFicha()">
                     <input type="checkbox" id="enlou-3" onchange="salvarFicha()">
                     <button class="btn-curar" onclick="curarStatus('san')">CURAR 1 SAN</button>
+                </div>
+                <div class="it-state" id="it-san">
+                    <span>INSANO: </span>
+                    <div class="it-round" id="it-1" onclick="marcarIT(1)"></div>
+                    <div class="it-round" id="it-2" onclick="marcarIT(2)"></div>
+                    <div class="it-round" id="it-3" onclick="marcarIT(3)"></div>
+                    <div class="it-round" id="it-4" onclick="marcarIT(4)"></div>
+                    <button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">FIM</button>
                 </div>
             </div>
         </div>
@@ -469,6 +491,8 @@
     
     let modoCrop = ""; 
     let ritualIdAtual = "";
+    
+    let isITActive = false;
 
     function abrirUpload(tipo, id = "") {
         modoCrop = tipo;
@@ -598,7 +622,7 @@
     function gerarOpcoesNivelNex() {
         const nivelSel = document.getElementById('nivel-personagem');
         let lvlHtml = '';
-        for(let i=1; i<=6; i++) lvlHtml += `<option value="${i}">${i}</option>`;
+        for(let i=0; i<=5; i++) lvlHtml += `<option value="${i}">${i}</option>`;
         nivelSel.innerHTML = lvlHtml;
 
         const nexSel = document.getElementById('nex-personagem');
@@ -666,13 +690,23 @@
         const vig = parseInt(document.getElementById('attr-vig').value) || 0;
         const von = parseInt(document.getElementById('attr-von').value) || 0;
         const sag = parseInt(document.getElementById('attr-sag').value) || 0;
-        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 1;
+        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
         const nexStr = document.getElementById('nex-personagem').value || "0%";
         const nex = parseInt(nexStr) || 0;
+        const classe = document.getElementById('classe-personagem').value;
 
-        const novaVida = 12 + (2 * vig) + (2 * nivel);
+        const novaVida = 12 + (2 * vig) + (3 * nivel);
         const novaSan = 50 + (10 * von + 10 * sag);
-        const novoPe = 4 + 2 * vig + von + Math.floor(nex / 10);
+        
+        let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10);
+        let novoLimitePe = 1 + vig + von + nivel;
+
+        if (classe === "Esotérico") {
+            novoPe += (2 * sag);
+            novoLimitePe += (2 * sag);
+        } else if (classe === "Canalizador" && nivel >= 2) {
+            novoPe += (3 * nivel);
+        }
         
         const oldVidaMax = parseInt(document.getElementById('vida-max').value) || 1;
         const oldSanMax = parseInt(document.getElementById('san-max').value) || 1;
@@ -699,8 +733,11 @@
         atualizarStatus('san', sanAtual, novaSan);
         atualizarStatus('pe', peAtual, novoPe);
 
+        const bLimitePe = parseInt(document.getElementById('bonus-limite-pe').value) || 0;
+        document.getElementById('display-limite-pe').innerText = novoLimitePe + bLimitePe;
+
         const divArq = document.getElementById('grupo-arquetipo');
-        if (nivel >= 3) {
+        if (nivel >= 2) {
             divArq.style.display = 'flex';
         } else {
             divArq.style.display = 'none';
@@ -741,23 +778,30 @@
                 } 
             });
 
-            const nivel = parseInt(d.nivel) || 1;
+            const nivel = parseInt(d.nivel) || 0;
             document.getElementById('nivel-personagem').value = nivel;
             document.getElementById('nex-personagem').value = d.nex || "5%";
             document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
 
             const divArq = document.getElementById('grupo-arquetipo');
-            if (nivel >= 3) {
+            if (nivel >= 2) {
                 divArq.style.display = 'flex';
             } else {
                 divArq.style.display = 'none';
             }
 
             const nex = parseInt(d.nex) || 0;
+            const vig = parseInt(d.vig) || 0;
+            const von = d.von !== undefined ? parseInt(d.von) : (parseInt(d.pre) || 0);
             const sag = d.sag !== undefined ? parseInt(d.sag) : (parseInt(d.int) || 0);
+            const classe = d.classe || "";
+            
+            let limitePeBase = 1 + vig + von + nivel;
+            if (classe === "Esotérico") limitePeBase += (2 * sag);
+            
             const bLimitePe = parseInt(d.bonusLimitePe) || 0;
             document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
-            document.getElementById('display-limite-pe').innerText = (2 * nivel) + sag + Math.floor(nex / 5) + bLimitePe;
+            document.getElementById('display-limite-pe').innerText = limitePeBase + bLimitePe;
 
             atualizarStatus('vida', d.vidaAtual ?? 20, d.vidaMax ?? 20);
             atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
@@ -826,10 +870,26 @@
             if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
 
             document.getElementById('dt-val').innerText = 10 + sag + nivel + bDt;
+
+            isITActive = d.insanoTemporario || false;
+            const itState = document.getElementById('it-san');
+            const contentSan = document.getElementById('content-san');
+            if (isITActive) {
+                itState.classList.add('active');
+                contentSan.style.opacity = '0';
+                for(let i=1; i<=4; i++) {
+                    const el = document.getElementById(`it-${i}`);
+                    if(el) {
+                        if(i <= (d.itRounds || 0)) el.classList.add('active');
+                        else el.classList.remove('active');
+                    }
+                }
+            } else {
+                itState.classList.remove('active');
+                if(parseInt(d.sanAtual) > 0) contentSan.style.opacity = '1';
+            }
         });
     }
-
-    function aplicarClasse() { salvarFicha(); }
 
     function salvarFicha() {
         const periciasObj = {};
@@ -847,6 +907,11 @@
                 totalSpan.innerText = bVal + tVal + attrValue;
             }
         });
+
+        let itRounds = 0;
+        for(let i=1; i<=4; i++) {
+            if(document.getElementById(`it-${i}`).classList.contains('active')) itRounds = i;
+        }
 
         db.collection("fichas").doc(atual).update({
             nome: document.getElementById('nome-personagem').value,
@@ -886,7 +951,10 @@
             mor2: document.getElementById('mor-2').checked,
             mor3: document.getElementById('mor-3').checked,
             localLesao: document.getElementById('local-lesao').value,
-            descSequela: document.getElementById('desc-sequela').value
+            descSequela: document.getElementById('desc-sequela').value,
+            
+            insanoTemporario: isITActive,
+            itRounds: itRounds
         });
     }
 
@@ -909,11 +977,15 @@
             const zeroState = document.getElementById(`zero-${tipo}`);
             const contentState = document.getElementById(`content-${tipo}`);
             if (at <= 0) {
-                zeroState.classList.add('active');
-                contentState.style.opacity = '0'; 
+                if (tipo !== 'san' || !isITActive) {
+                    zeroState.classList.add('active');
+                    contentState.style.opacity = '0'; 
+                }
             } else {
                 zeroState.classList.remove('active');
-                contentState.style.opacity = '1';
+                if (tipo !== 'san' || !isITActive) {
+                    contentState.style.opacity = '1';
+                }
                 if (tipo === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; }
                 if (tipo === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; }
             }
@@ -945,6 +1017,47 @@
         const mx = parseInt(document.getElementById(`${tipo}-max`).value) || 1;
         document.getElementById(`${tipo}-atual`).value = 1;
         atualizarStatus(tipo, 1, mx);
+        salvarFicha();
+    }
+    
+    function instakill() {
+        const mx = parseInt(document.getElementById(`vida-max`).value) || 1;
+        document.getElementById(`vida-atual`).value = 0;
+        atualizarStatus('vida', 0, mx);
+        salvarFicha();
+    }
+
+    function toggleInsanoTemporario() {
+        isITActive = !isITActive;
+        const itState = document.getElementById('it-san');
+        const contentSan = document.getElementById('content-san');
+        const zeroSan = document.getElementById('zero-san');
+        
+        if (isITActive) {
+            itState.classList.add('active');
+            contentSan.style.opacity = '0';
+            zeroSan.classList.remove('active');
+        } else {
+            itState.classList.remove('active');
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`it-${i}`).classList.remove('active');
+            }
+            const sanAtual = parseInt(document.getElementById('san-atual').value) || 0;
+            if (sanAtual <= 0) {
+                zeroSan.classList.add('active');
+            } else {
+                contentSan.style.opacity = '1';
+            }
+        }
+        salvarFicha();
+    }
+
+    function marcarIT(round) {
+        for(let i=1; i<=4; i++) {
+            const el = document.getElementById(`it-${i}`);
+            if (i <= round) el.classList.add('active');
+            else el.classList.remove('active');
+        }
         salvarFicha();
     }
 
@@ -1139,6 +1252,3 @@
 </script>
 </body>
 </html>
-
-
-
