@@ -826,18 +826,20 @@
                 document.getElementById('label-portrait').style.display = 'none';
             }
 
-            ['agi','for','sag','von','vig'].forEach(a => { 
-                if(document.getElementById(`attr-${a}`)) {
-                    if (a === 'von') {
-                        document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 1);
-                    } else if (a === 'sag') {
-                        document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 1);
-                    } else {
-                        document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 1;
-                    }
-                } 
-            });
-
+           ['agi','for','sag','von','vig'].forEach(a => { 
+    if(document.getElementById(`attr-${a}`)) {
+        if (a === 'von') {
+            // Se não existir 'von', tenta pegar 'pre'. Se nenhum existir, define como 0.
+            document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0);
+        } else if (a === 'sag') {
+            // Se não existir 'sag', tenta pegar 'int'. Se nenhum existir, define como 0.
+            document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0);
+        } else {
+            // Define como 0 se o atributo não existir no banco.
+            document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0;
+        }
+    } 
+});
             const nivel = parseInt(d.nivel) || 0;
             document.getElementById('nivel-personagem').value = nivel;
             document.getElementById('nex-personagem').value = d.nex || "5%";
@@ -1333,4 +1335,5 @@
 </script>
 </body>
 </html>
+
 
