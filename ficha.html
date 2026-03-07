@@ -633,6 +633,7 @@
         if (!resSel) return;
         const valorAtual = resSel.value;
         let options = '';
+        
         if (nexValue === 0) {
             options += `<option value="Nulo">Nulo</option>`;
         }
@@ -641,9 +642,15 @@
         options += `<option value="3º Grau">3º Grau</option>`;
         options += `<option value="4º Grau">4º Grau</option>`;
         options += `<option value="5º Grau">5º Grau</option>`;
+        
+        if (nexValue >= 100) {
+             options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`;
+        }
+
         resSel.innerHTML = options;
         
-        if (options.includes(`"${valorAtual}"`)) {
+        // Tenta manter a seleção atual se ela ainda existir na nova lista
+        if (options.includes(`value="${valorAtual}"`)) {
             resSel.value = valorAtual;
         }
     }
@@ -728,11 +735,12 @@
         
         let grauCalculado = "1º Grau";
         if (nex === 0) grauCalculado = "Nulo";
-        else if (nex < 20) grauCalculado = "1º Grau";
-        else if (nex < 40) grauCalculado = "2º Grau";
-        else if (nex < 60) grauCalculado = "3º Grau";
-        else if (nex < 80) grauCalculado = "4º Grau";
-        else grauCalculado = "5º Grau";
+        else if (nex >= 5 && nex <= 20) grauCalculado = "1º Grau";
+        else if (nex >= 25 && nex <= 40) grauCalculado = "2º Grau";
+        else if (nex >= 45 && nex <= 60) grauCalculado = "3º Grau";
+        else if (nex >= 65 && nex <= 80) grauCalculado = "4º Grau";
+        else if (nex >= 85 && nex <= 99) grauCalculado = "5º Grau";
+        else if (nex >= 100) grauCalculado = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡";
         
         document.getElementById('grau-ressonancia').value = grauCalculado;
         recalcularBases();
@@ -850,11 +858,12 @@
             } else {
                 let grauCalculado = "1º Grau";
                 if (nex === 0) grauCalculado = "Nulo";
-                else if (nex < 20) grauCalculado = "1º Grau";
-                else if (nex < 40) grauCalculado = "2º Grau";
-                else if (nex < 60) grauCalculado = "3º Grau";
-                else if (nex < 80) grauCalculado = "4º Grau";
-                else grauCalculado = "5º Grau";
+                else if (nex >= 5 && nex <= 20) grauCalculado = "1º Grau";
+                else if (nex >= 25 && nex <= 40) grauCalculado = "2º Grau";
+                else if (nex >= 45 && nex <= 60) grauCalculado = "3º Grau";
+                else if (nex >= 65 && nex <= 80) grauCalculado = "4º Grau";
+                else if (nex >= 85 && nex <= 99) grauCalculado = "5º Grau";
+                else if (nex >= 100) grauCalculado = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡";
                 document.getElementById('grau-ressonancia').value = grauCalculado;
             }
 
@@ -1324,3 +1333,4 @@
 </script>
 </body>
 </html>
+
