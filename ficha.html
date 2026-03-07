@@ -47,7 +47,7 @@
         .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 22px; font-family: 'Special Elite'; font-weight: bold; }
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
-        .mid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; font-family: 'Special Elite'; }
+        .mid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-family: 'Special Elite'; }
         .stat-box { border: 1px solid #333; background: #0a0a0a; padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .stat-box label { font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif; text-transform: uppercase; }
         .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Special Elite'; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
@@ -80,7 +80,6 @@
         .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: #111; border: 1px solid #333; border-radius: 3px; color: #666; font-family: 'Special Elite'; font-size: 11px; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
         .mini-cond-label:hover { border-color: #666; color: #ccc; }
         #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #fff; font-weight: bold; }
-        /* Alterado cor de selecionado para cinza claro / escuro no texto */
         #chk-sequela:checked + .mini-cond-label { background: #e0e0e0; color: #000; border-color: #fff; font-weight: bold; }
 
         .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
@@ -270,14 +269,19 @@
                 <label>NÍVEL</label>
                 <select id="nivel-personagem" onchange="recalcularBases()"></select>
             </div>
-            <div class="stat-box">
-                <label>NEX</label>
-                <select id="nex-personagem" onchange="mudouNex()"></select>
+            
+            <div class="stat-box" style="flex-direction: row; padding: 0;">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
+                    <label>NEX</label>
+                    <select id="nex-personagem" onchange="mudouNex()"></select>
+                </div>
+                <div style="width: 1px; background: #333; height: 80%; align-self: center;"></div>
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
+                    <label>RESSONÂNCIA</label>
+                    <select id="grau-ressonancia" onchange="salvarFicha()"></select>
+                </div>
             </div>
-            <div class="stat-box">
-                <label>RESSONÂNCIA</label>
-                <select id="grau-ressonancia" onchange="salvarFicha()"></select>
-            </div>
+
             <div class="stat-box">
                 <div style="display:flex; align-items:center; gap:5px;">
                     <label>LIMITE PE</label>
@@ -285,6 +289,7 @@
                 </div>
                 <div id="display-limite-pe" style="font-size:18px; color:#fff;">1</div>
             </div>
+            
             <div class="stat-box">
                 <label>DESLOCAMENTO</label>
                 <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q">
@@ -954,6 +959,9 @@
     }
 
     function salvarFicha() {
+        const currentUser = auth.currentUser;
+        const nomeJogadorData = currentUser ? (currentUser.displayName || currentUser.email) : "Desconhecido";
+
         const periciasObj = {};
         nomesPericias.forEach(p => {
             const bVal = document.getElementById(`bonus-${p}`) ? parseInt(document.getElementById(`bonus-${p}`).value) || 0 : 0;
@@ -976,6 +984,7 @@
         }
 
         db.collection("fichas").doc(atual).update({
+            nomeJogador: nomeJogadorData,
             nome: document.getElementById('nome-personagem').value,
             origem: document.getElementById('origem-personagem').value,
             classe: document.getElementById('classe-personagem').value,
