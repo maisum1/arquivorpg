@@ -111,14 +111,14 @@
         <h2 id="welcome" style="color: #fff; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;">JOGADOR: CONECTANDO...</h2>
         
         <div id="menu-abas" style="margin-bottom: 30px; border-bottom: 1px solid #222; display: flex; justify-content: center; gap: 20px;">
-            <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MEUS AGENTES</button> 
+            <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MINHAS PERSONAS</button> 
             <button id="btn-ameacas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('ameacas')">AMEAÇAS</button>
             <button id="btn-mestre" class="tab-btn" style="display:none;" onclick="mudarAbaHub('mestre')">MONITORAMENTO</button>
         </div>
 
         <div id="hub-jogador" class="conteudo-hub">
             <div class="grid" id="lista-fichas"></div>
-            <button class="btn-google" onclick="criarNovaFicha()" style="background:#111; color:white; border:1px solid #333;">+ REGISTRAR AGENTE</button>
+            <button class="btn-google" onclick="criarNovaFicha()" style="background:#111; color:white; border:1px solid #333;">+ REGISTRAR PERSONA</button>
         </div>
 
         <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
@@ -218,7 +218,7 @@
 
         async function deletarDocumento(colecao, id, nome) {
             if (colecao === 'fichas') {
-                const digitado = prompt(`ATENÇÃO: Você está prestes a apagar o agente ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
+                const digitado = prompt(`ATENÇÃO: Você está prestes a apagar a persona ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
                 if (digitado === "EXCLUIR") {
                     await db.collection(colecao).doc(id).delete();
                 } else if (digitado !== null) {
@@ -240,13 +240,13 @@
                     const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
                     div.innerHTML += `
                         <div class="ficha-card">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
+                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ APAGAR ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="overflow: hidden; position: relative;">
                                     ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
                                 </div>
                                 <div>
-                                    <strong>${d.nome || 'AGENTE'}</strong><br>
+                                    <strong>${d.nome || 'PERSONA'}</strong><br>
                                     <small style="color:#666">NEX ${d.nex || '5%'}</small>
                                 </div>
                             </div>
@@ -290,7 +290,7 @@
                     const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
                     div.innerHTML += `
                         <div class="ficha-card" style="border-left-color:#444">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Agente'}')">[ APAGAR ]</button>
+                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ APAGAR ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: #444;">
                                     ${d.portrait ? `<img src="${d.portrait}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
