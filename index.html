@@ -309,11 +309,21 @@
         }
 
         async function criarNovaFicha() {
-            const user = auth.currentUser;
-            const nomeJogador = user.displayName ? user.displayName : user.email; // Salva o nome do usuário
-            const ref = await db.collection("fichas").add({ dono: user.uid, nomeJogador: nomeJogador, nome: "NOVO AGENTE", nex: "5%", vidaAtual: 20, vidaMax: 20, sanAtual: 20, sanMax: 20, peAtual: 2, peMax: 2, pX: 50, pY: 50, pZ: 1 });
-            window.location.href = `ficha.html?id=${ref.id}`;
-        }
+    const user = auth.currentUser;
+    const ref = await db.collection("fichas").add({ 
+        dono: user.uid, 
+        nome: "NOVO AGENTE", 
+        nex: "5%", 
+        // Atributos começando em 0
+        forca: 0, agilidade: 0, intelecto: 0, vigor: 0, presenca: 0,
+        // Valores base de exemplo (ajuste conforme sua regra)
+        vidaAtual: 12, vidaMax: 12, 
+        sanAtual: 12, sanMax: 12, 
+        peAtual: 2, peMax: 2, 
+        pX: 50, pY: 50, pZ: 1 
+    });
+    window.location.href = `ficha.html?id=${ref.id}`;
+}
 
         async function criarNovaAmeaca() {
             const user = auth.currentUser;
