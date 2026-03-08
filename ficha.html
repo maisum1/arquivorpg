@@ -3,167 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C.R.I.S. - Persona Completo</title>
+    <title>A.R.Q.U.I.V.O. - Dossiê</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700&display=swap');
 
         :root {
-            --cris-purple: #eab308;
-            --hp-red: #b31d1d;
-            --san-purple: #034374;
-            --pe-orange: #5A0C92;
-            --bg-dark: #101010;
+            --cris-purple: #a68a64; /* Dourado envelhecido / Latão */
+            --hp-red: #8b1c1c; /* Sangue seco */
+            --san-purple: #2f4f4f; /* Slate / Mar Profundo */
+            --pe-orange: #5c4033; /* Marrom couro escuro */
+            --bg-dark: #121212; /* Chumbo */
+            --bg-panel: #1a1a1a;
             
-            --cor-morte: #1a1a1a;
-            --cor-sangue: #8b0000;
-            --cor-energia: #5a009d;
-            --cor-conhecimento: #cead00;
+            --cor-morte: #2a2a2a;
+            --cor-sangue: #8b1c1c;
+            --cor-energia: #483d8b; 
+            --cor-conhecimento: #b8860b;
             --cor-geral: #555;
-            --cor-fixo: #eab308;
+            --cor-fixo: #a68a64;
         }
 
-        body { background-color: var(--bg-dark); color: #e0e0e0; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; }
+        body { background-color: var(--bg-dark); color: #d3d3d3; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
         .grid-container { display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; }
 
-        .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 24px; padding: 5px 0; margin-bottom: 10px; outline: none; }
+        .header-name { width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; color: #fff; font-family: 'Crimson Text', serif; font-size: 28px; font-weight: bold; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; }
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .sub-input-group { flex: 1; display: flex; flex-direction: column; }
-        .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Roboto'; text-transform: uppercase; }
-        .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 16px; padding: 5px 0; outline: none; }
-        .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; }
+        .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+        .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; padding: 5px 0; outline: none; }
+        .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px;}
 
-        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; }
-        .attr-box { position: absolute; width: 55px; height: 55px; background: #090909; border: 2px solid #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .attr-label { font-size: 9px; font-weight: bold; color: #888; margin-top: -2px; }
-        .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 22px; font-family: 'Special Elite'; font-weight: bold; }
+        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(50%) opacity(0.8);}
+        .attr-box { position: absolute; width: 55px; height: 55px; background: var(--bg-panel); border: 1px solid #555; border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);}
+        .attr-label { font-size: 9px; font-weight: bold; color: #a68a64; margin-top: -2px; letter-spacing: 1px;}
+        .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; }
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
-        .mid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-family: 'Special Elite'; }
-        .stat-box { border: 1px solid #333; background: #0a0a0a; padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .stat-box label { font-size: 10px; color: #888; font-weight: bold; font-family: 'Roboto', sans-serif; text-transform: uppercase; }
-        .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Special Elite'; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
+        .mid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; font-family: 'Crimson Text', serif; }
+        .stat-box { border: 1px solid #333; background: var(--bg-panel); padding: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2px;}
+        .stat-box label { font-size: 9px; color: #888; font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;}
+        .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
         .desloc-box { grid-column: span 2; flex-direction: column-reverse; }
 
         .status-container { margin-bottom: 12px; }
         .status-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .status-header { font-size: 11px; font-weight: bold; color: #aaa; text-align: center; flex-grow: 1; }
-        .btn-status-action { background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 3px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Special Elite'; transition: 0.2s; }
-        .btn-status-action:hover { background: #333; }
-        .bar-bg { width: 100%; height: 32px; background: #111; position: relative; border: 1px solid #222; overflow: hidden; display: flex; align-items: center; }
-        .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
-        .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Special Elite'; align-items: center; transition: opacity 0.3s; }
-        .bar-content input { background: transparent; border: none; color: #fff; width: 35px; text-align: center; font-size: 16px; font-family: 'Special Elite'; }
-        .bar-btn { cursor: pointer; color: #fff; font-size: 18px; opacity: 0.6; user-select: none; }
+        .status-header { font-size: 11px; font-weight: bold; color: #a68a64; text-align: center; flex-grow: 1; letter-spacing: 2px; font-family: 'Inter'; }
+        .btn-status-action { background: transparent; color: #666; border: 1px solid #444; border-radius: 2px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Inter'; font-weight: bold; transition: 0.2s; }
+        .btn-status-action:hover { background: #333; color: #fff; }
+        .bar-bg { width: 100%; height: 28px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
+        .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.9; }
+        .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Crimson Text', serif; align-items: center; transition: opacity 0.3s; }
+        .bar-content input { background: transparent; border: none; color: #fff; width: 35px; text-align: center; font-size: 18px; font-family: 'Crimson Text', serif; font-weight: bold;}
+        .bar-btn { cursor: pointer; color: #fff; font-size: 16px; opacity: 0.5; user-select: none; font-family: 'Inter';}
         .bar-btn:hover { opacity: 1; }
 
-        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; gap: 8px; font-family: 'Special Elite'; font-size: 12px; font-weight: bold; }
+        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(18,18,18,0.9); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #8b1c1c;}
         .zero-state.active { display: flex; }
-        .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #fff; }
-        .btn-curar { background: #222; color: #fff; border: 1px solid #555; padding: 2px 6px; font-size: 10px; cursor: pointer; border-radius: 3px; font-family: 'Special Elite'; transition: 0.2s; }
-        .btn-curar:hover { background: var(--cris-purple); color: #000; border-color: var(--cris-purple); }
+        .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #8b1c1c; }
+        .btn-curar { background: #222; color: #d3d3d3; border: 1px solid #555; padding: 3px 8px; font-size: 10px; cursor: pointer; border-radius: 2px; font-family: 'Inter', sans-serif; transition: 0.2s; text-transform: uppercase; font-weight: bold;}
+        .btn-curar:hover { background: #d3d3d3; color: #000; border-color: #d3d3d3; }
 
-        .it-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(3, 67, 116, 0.85); align-items: center; justify-content: center; gap: 8px; font-family: 'Special Elite'; font-size: 12px; font-weight: bold; }
+        .it-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(47, 79, 79, 0.95); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #668888;}
         .it-state.active { display: flex; }
-        .it-round { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; display: inline-block; cursor: pointer; background: transparent; }
+        .it-round { width: 16px; height: 16px; border-radius: 2px; border: 1px solid #fff; display: inline-block; cursor: pointer; background: transparent; }
         .it-round.active { background: #fff; }
 
         .mini-cond-chk { display: none; }
-        .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: #111; border: 1px solid #333; border-radius: 3px; color: #666; font-family: 'Special Elite'; font-size: 11px; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
-        .mini-cond-label:hover { border-color: #666; color: #ccc; }
-        #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #fff; font-weight: bold; }
-        #chk-sequela:checked + .mini-cond-label { background: #e0e0e0; color: #000; border-color: #fff; font-weight: bold; }
+        .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: var(--bg-panel); border: 1px solid #333; border-radius: 2px; color: #888; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
+        .mini-cond-label:hover { border-color: #555; color: #ccc; }
+        #chk-lesionado:checked + .mini-cond-label { background: var(--hp-red); color: #fff; border-color: #ff4d4d; }
+        #chk-sequela:checked + .mini-cond-label { background: #d3d3d3; color: #121212; border-color: #fff; }
 
-        .pericias-box { background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #111; }
-        .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; }
+        .pericias-box { background: var(--bg-panel); padding: 15px; border-radius: 2px; border: 1px solid #2a2a2a; }
+        .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; letter-spacing: 1px;}
         .pericia-header > span:first-child { text-align: left; }
-        .pericia-row { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; gap: 5px; padding: 6px 4px; border-bottom: 1px solid #1a1a1a; font-size: 13px; align-items: center; transition: background 0.3s; text-align: center; }
+        .pericia-row { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; gap: 5px; padding: 5px 4px; border-bottom: 1px solid #222; font-size: 13px; align-items: center; transition: background 0.3s; text-align: center; }
         .pericia-row > span:first-child { text-align: left; }
-        .pericia-nome { cursor: pointer; color: #e0e0e0; transition: 0.2s; position: relative; }
+        .pericia-nome { cursor: pointer; color: #d3d3d3; transition: 0.2s; position: relative; font-family: 'Inter', sans-serif;}
         .pericia-nome:hover { color: var(--cris-purple); text-decoration: underline dashed 1px var(--cris-purple); text-underline-offset: 4px; }
-        .pericia-nome::after { content: ' ▼'; font-size: 8px; opacity: 0.5; }
-        .pericia-desc { display: none; background: rgba(0,0,0,0.4); border-left: 2px solid var(--cris-purple); padding: 8px 10px; font-size: 11px; color: #aaa; margin-bottom: 4px; line-height: 1.4; font-family: 'Roboto', sans-serif; }
-        .treino-select { background: #0a0a0a; color: #ccc; border: 1px solid #333; font-size: 11px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; }
+        .pericia-nome::after { content: ' ▼'; font-size: 8px; opacity: 0.3; }
+        .pericia-desc { display: none; background: #121212; border-left: 2px solid var(--cris-purple); padding: 10px; font-size: 11px; color: #aaa; margin-bottom: 4px; line-height: 1.5; font-family: 'Inter', sans-serif; font-style: italic;}
+        .treino-select { background: transparent; color: #ccc; border: 1px solid #333; font-size: 12px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; font-family: 'Inter', sans-serif;}
 
-        .p-verde { background: rgba(34, 197, 94, 0.2) !important; }
-        .p-azul { background: rgba(59, 130, 246, 0.2) !important; }
-        .p-laranja { background: rgba(255, 180, 68, 0.2) !important; }
-        .p-vermelho { background: rgba(239, 0, 0, 0.2) !important; }
+        .p-verde { background: rgba(166, 138, 100, 0.1) !important; }
+        .p-azul { background: rgba(166, 138, 100, 0.2) !important; }
+        .p-laranja { background: rgba(166, 138, 100, 0.3) !important; }
+        .p-vermelho { background: rgba(166, 138, 100, 0.4) !important; }
 
         .defesa-grid { display: flex; align-items: center; gap: 20px; margin-top: 10px; margin-bottom: 20px; }
-        .defesa-shield { width: 70px; height: 75px; background: url('https://www.ordemparanormal.com.br/assets/rituais/escudo_defesa.png') no-repeat center; background-size: contain; display: flex; align-items: center; justify-content: center; font-family: 'Special Elite'; font-size: 24px; font-weight: bold; flex-shrink: 0; }
+        .defesa-shield { width: 65px; height: 70px; background: url('https://www.ordemparanormal.com.br/assets/rituais/escudo_defesa.png') no-repeat center; background-size: contain; display: flex; align-items: center; justify-content: center; font-family: 'Crimson Text', serif; font-size: 26px; font-weight: bold; flex-shrink: 0; filter: grayscale(100%) brightness(0.8);}
         .defesa-colunas { display: flex; gap: 20px; flex: 1; justify-content: space-between; }
-        .def-item { display: flex; flex-direction: column; align-items: center; }
-        .def-header-row { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
-        .def-label { font-size: 10px; color: #aaa; font-weight: bold; text-transform: uppercase; }
-        .def-input-bonus { width: 30px; background: transparent; border: 1px solid #444; color: #fff; font-size: 10px; text-align: center; outline: none; border-radius: 2px; }
-        .def-val-total { font-size: 20px; font-family: 'Special Elite'; border-bottom: 1px solid #fff; min-width: 45px; text-align: center; padding-bottom: 2px; }
-        .def-formula { font-size: 8px; color: #555; margin-top: 2px; text-align: center; }
+        .def-item { display: flex; flex-direction: column; align-items: center; background: var(--bg-panel); border: 1px solid #333; padding: 10px; border-radius: 2px; width: 100%;}
+        .def-header-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+        .def-label { font-size: 10px; color: #a68a64; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
+        .def-input-bonus { width: 30px; background: transparent; border: 1px solid #444; color: #fff; font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Inter';}
+        .def-val-total { font-size: 22px; font-family: 'Crimson Text', serif; font-weight: bold; border-bottom: 1px solid #555; min-width: 45px; text-align: center; padding-bottom: 2px; }
+        .def-formula { font-size: 8px; color: #666; margin-top: 4px; text-align: center; font-family: 'Inter'; letter-spacing: 1px;}
 
         .info-row { margin-top: 15px; }
-        .info-row label { display: block; font-size: 10px; font-weight: bold; color: #666; margin-bottom: 3px; }
-        .info-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-size: 13px; padding: 4px 0; outline: none; }
+        .info-row label { display: block; font-size: 10px; font-weight: bold; color: #a68a64; margin-bottom: 3px; letter-spacing: 1px; text-transform: uppercase;}
+        .info-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #d3d3d3; font-size: 14px; padding: 4px 0; outline: none; font-family: 'Inter', sans-serif;}
+        .info-field:focus { border-bottom-color: var(--cris-purple); }
 
-        .tabs-nav { display: flex; gap: 5px; border-bottom: 1px solid #333; margin-bottom: 15px; }
-        .tab-btn { background: transparent; border: none; color: #666; padding: 10px 15px; cursor: pointer; font-size: 12px; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
-        .tab-btn.active { color: #fff; border-bottom: 2px solid var(--cris-purple); }
+        .tabs-nav { display: flex; gap: 5px; border-bottom: 1px solid #333; margin-bottom: 20px; }
+        .tab-btn { background: transparent; border: none; color: #666; padding: 12px 15px; cursor: pointer; font-size: 12px; text-transform: uppercase; font-weight: bold; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 1px;}
+        .tab-btn.active { color: #a68a64; border-bottom: 2px solid var(--cris-purple); background: rgba(166, 138, 100, 0.05);}
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
-        .ritual-card { background: #121212; border-left: 4px solid var(--cor-geral); margin-bottom: 10px; border-radius: 0 4px 4px 0; transition: border-color 0.3s; }
-        .card-header { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); align-items: center; font-family: 'Special Elite'; }
-        .card-body { padding: 15px; display: none; border-top: 1px solid #222; }
-        .cris-textarea { width: 100%; background: #080808; border: 1px solid #333; color: #fff; font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Roboto', sans-serif;}
-        .cris-btn { background: var(--cris-purple); border: none; color: #000; padding: 8px 16px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 2px; }
-        .cris-btn:hover { background: var(--cris-purple) !important; filter: brightness(1.1); }
+        .ritual-card { background: var(--bg-panel); border: 1px solid #333; border-left: 4px solid var(--cor-geral); margin-bottom: 10px; border-radius: 2px; transition: border-color 0.3s; }
+        .card-header { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Crimson Text', serif; font-size: 18px;}
+        .card-body { padding: 15px; display: none; border-top: 1px solid #2a2a2a; background: #151515;}
+        .cris-textarea { width: 100%; background: #121212; border: 1px solid #333; color: #d3d3d3; font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Inter', sans-serif; line-height: 1.5; border-radius: 2px;}
+        .cris-btn { background: transparent; border: 1px solid var(--cris-purple); color: var(--cris-purple); padding: 8px 16px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 2px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;}
+        .cris-btn:hover { background: var(--cris-purple) !important; color: #121212 !important; }
 
-        .rit-layout-top { display: flex; gap: 15px; margin-bottom: 12px; align-items: flex-start; }
-        .rit-symbol-box { width: 80px; height: 80px; border: 1px dashed #444; background: #080808; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 3px; overflow: hidden; position: relative; }
+        .rit-layout-top { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
+        .rit-symbol-box { width: 80px; height: 80px; border: 1px dashed #555; background: #121212; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; overflow: hidden; position: relative; }
         .rit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
         .rit-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 12px; }
         .rit-field { display: flex; flex-direction: column; }
-        .rit-label { font-size: 10px; color: var(--cor-fixo); text-transform: uppercase; font-weight: bold; font-family: 'Roboto'; margin-bottom: 2px; }
-        .rit-input { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Special Elite'; font-size: 14px; outline: none; padding: 3px 0; transition: 0.2s; }
-        .rit-input:focus { border-bottom: 1px solid var(--cor-fixo); }
-        .rit-checkbox-row { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 4px; border: 1px solid #222;}
+        .rit-label { font-size: 9px; color: var(--cris-purple); text-transform: uppercase; font-weight: bold; font-family: 'Inter', sans-serif; margin-bottom: 3px; letter-spacing: 1px;}
+        .rit-input { background: transparent; border: none; border-bottom: 1px solid #444; color: #fff; font-family: 'Crimson Text', serif; font-size: 16px; outline: none; padding: 3px 0; transition: 0.2s; }
+        .rit-input:focus { border-bottom: 1px solid var(--cris-purple); }
+        .rit-checkbox-row { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; background: var(--bg-panel); padding: 10px; border-radius: 2px; border: 1px solid #333; letter-spacing: 1px;}
         .rit-checkbox-row label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
-        .rit-checkbox-row input[type="checkbox"] { accent-color: var(--cor-fixo); width: 14px; height: 14px; cursor: pointer; }
+        .rit-checkbox-row input[type="checkbox"] { accent-color: var(--cris-purple); width: 14px; height: 14px; cursor: pointer; }
         .hidden { display: none !important; }
 
-        .condicao-select, .condicao-text { width: 100%; background: #000; color: #fff; border: 1px solid #333; font-family: 'Roboto'; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; }
+        .condicao-select, .condicao-text { width: 100%; background: #121212; color: #d3d3d3; border: 1px solid #444; font-family: 'Inter', sans-serif; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; border-radius: 2px;}
 
-        .btn-config {
-            position: fixed; top: 10px; right: 10px; z-index: 999;
-            background: none; border: none; color: var(--cris-purple);
-            font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s;
-        }
-        .btn-config:hover { opacity: 1; transform: rotate(90deg); }
+        .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--cris-purple);}
 
         #modal-config {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #111; border: 2px solid var(--cris-purple); padding: 20px;
-            z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0,0,0,0.9);
-            border-radius: 5px; 
+            background: #181818; border: 1px solid var(--cris-purple); padding: 25px;
+            z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            border-radius: 2px; 
         }
 
-        .btn-copy-link { background: var(--pe-orange); color: white; border: none; padding: 10px; width: 100%; cursor: pointer; margin-top: 10px; font-family: 'Special Elite'; font-weight: bold;}
+        .btn-copy-link { background: #333; color: white; border: 1px solid #555; padding: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px; transition: 0.2s;}
+        .btn-copy-link:hover { background: #444; border-color: #888;}
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         @media (max-width: 900px) {
-            .grid-container { grid-template-columns: 1fr; gap: 20px; }
+            .grid-container { grid-template-columns: 1fr; gap: 30px; }
             .header-sub-row { flex-wrap: wrap; }
             .sub-input-group { min-width: 45%; }
-            .tabs-nav { flex-wrap: wrap; justify-content: space-between; }
-            .tab-btn { flex: 1 1 30%; text-align: center; padding: 10px 5px; font-size: 11px; border-bottom: 1px solid transparent; }
+            .tabs-nav { flex-wrap: wrap; justify-content: flex-start; }
+            .tab-btn { flex: 1 1 30%; text-align: center; padding: 10px 5px; font-size: 10px; border-bottom: 1px solid transparent; }
             .rit-grid-2, .rit-grid-3 { grid-template-columns: 1fr; }
             .rit-layout-top { flex-direction: column; align-items: center; text-align: center; }
             .defesa-grid { flex-direction: column; align-items: center; }
@@ -181,72 +180,73 @@
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurar Overlay OBS">⚙️</button>
 
 <div id="modal-config">
-    <h3 style="margin-top:0; font-family:'Special Elite'; color:var(--cris-purple); text-align:center;">CONFIGURAÇÕES DA LIVE (OBS)</h3>
-    <p style="font-size: 11px; color: #aaa; text-align: center; margin-bottom: 20px;">Clique nos botões abaixo para enviar e recortar a imagem de cada estado.</p>
+    <h3 style="margin-top:0; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE TRANSMISSÃO</h3>
+    <p style="font-size: 11px; color: #888; text-align: center; margin-bottom: 25px; font-family: 'Inter', sans-serif;">Envie as fotografias referentes a cada estado clínico do agente.</p>
 
-    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
-        <button onclick="abrirUpload('Normal')" class="cris-btn" style="background: #222; color: #fff; border: 1px solid #444; width: 100%;">📷 UPAR FOTO NORMAL</button>
-        <button onclick="abrirUpload('Machucado')" class="cris-btn" style="background: #3a1111; color: #ff6666; border: 1px solid #b31d1d; width: 100%;">🩸 UPAR FOTO MACHUCADO (< 50% Vida)</button>
-        <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn" style="background: #111a3a; color: #6699ff; border: 1px solid var(--san-purple); width: 100%;">🌀 UPAR FOTO ENLOUQUECENDO (0 San)</button>
-        <button onclick="abrirUpload('Morto')" class="cris-btn" style="background: #111; color: #888; border: 1px dashed #555; width: 100%;">💀 UPAR FOTO MORTO (0 Vida)</button>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+        <button onclick="abrirUpload('Normal')" class="cris-btn" style="border-color: #555; color: #d3d3d3; width: 100%;">📷 FOTOGRAFIA PADRÃO</button>
+        <button onclick="abrirUpload('Machucado')" class="cris-btn" style="border-color: var(--hp-red); color: #ff6666; width: 100%;">🩸 ESTADO CRÍTICO (< 50% VIT)</button>
+        <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn" style="border-color: #483d8b; color: #887ebd; width: 100%;">🌀 ESTADO DE CHOQUE (0 LUC)</button>
+        <button onclick="abrirUpload('Morto')" class="cris-btn" style="border-style: dashed; border-color: #444; color: #666; width: 100%;">💀 ÓBITO CONFIRMADO (0 VIT)</button>
     </div>
 
     <button class="btn-copy-link" onclick="copiarLinkOBS()">COPIAR LINK PARA OBS</button>
-    <button onclick="toggleElem('modal-config')" style="margin-top:10px; width:100%; background:#444; color:white; border:none; padding:10px; cursor:pointer; font-family:'Special Elite'; font-weight:bold;">FECHAR</button>
+    <button onclick="toggleElem('modal-config')" style="margin-top:10px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
 
-<div id="crop-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 20px; border: 2px solid var(--cris-purple); z-index: 10000; text-align: center; border-radius: 8px; width: 250px; box-shadow: 0 0 30px #000;">
-    <h3 style="margin:0 0 15px 0; font-family:'Special Elite'; color: var(--cris-purple);">AJUSTAR IMAGEM</h3>
+<div id="crop-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; padding: 25px; border: 1px solid var(--cris-purple); z-index: 10000; text-align: center; border-radius: 2px; width: 260px; box-shadow: 0 10px 40px #000;">
+    <h3 style="margin:0 0 20px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">CALIBRAR ENQUADRAMENTO</h3>
     
-    <div id="crop-preview" style="width: 150px; height: 180px; margin: 0 auto 15px; border: 1px solid #444; overflow: hidden; position: relative; background:  #222;">
-        <img id="temp-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0;">
+    <div id="crop-preview" style="width: 150px; height: 180px; margin: 0 auto 20px; border: 1px solid #555; overflow: hidden; position: relative; background: #121212;">
+        <img id="temp-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0; filter: grayscale(20%);">
     </div>
     
-    <div style="text-align:left; font-size:10px; color:#888; margin-bottom: 2px;">ZOOM</div>
-    <input type="range" id="crop-zoom" min="0.5" max="5" step="0.1" value="1" style="width:100%; margin-bottom:10px;" oninput="atualizarPreview()">
+    <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px;">ZOOM EIXO ÓPTICO</div>
+    <input type="range" id="crop-zoom" min="0.5" max="5" step="0.1" value="1" style="width:100%; margin-bottom:15px;" oninput="atualizarPreview()">
     
+    <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px;">COORDENADAS (X / Y)</div>
     <input type="range" id="crop-x" min="-200" max="300" value="50" style="width:100%; margin-bottom:10px;" oninput="atualizarPreview()">
-    <input type="range" id="crop-y" min="-200" max="300" value="50" style="width:100%; margin-bottom:15px;" oninput="atualizarPreview()">
+    <input type="range" id="crop-y" min="-200" max="300" value="50" style="width:100%; margin-bottom:20px;" oninput="atualizarPreview()">
     
     <div style="display:flex; gap:10px; justify-content:center;">
-        <button class="cris-btn" onclick="confirmarCrop()">SALVAR</button>
-        <button class="cris-btn" style="background:#444; color:#fff" onclick="fecharModal()">CANCELAR</button>
+        <button class="cris-btn" onclick="confirmarCrop()">GRAVAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="fecharModal()">CANCELAR</button>
     </div>
 </div>
 
 <div class="grid-container">
     <section style="min-width: 0; overflow: hidden;">
-        <div style="margin-bottom: 20px;">
-            <button onclick="window.location.href='index.html'" class="cris-btn" style="background: #222; border: 1px solid #444; color: #fff; display: flex; align-items: center; gap: 8px;">
-                <span>←</span> VOLTAR AO HUB
+        <div style="margin-bottom: 25px;">
+            <button onclick="window.location.href='index.html'" class="cris-btn" style="border-color: #444; color: #888; display: flex; align-items: center; gap: 8px;">
+                <span>←</span> FECHAR DOSSIÊ
             </button>
         </div>
         
-        <div style="display:flex; gap: 20px; margin-bottom: 20px;">
-            <div onclick="abrirUpload('portrait')" style="width: 100px; height: 130px; border: 2px solid #333; background: #090909; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border-radius: 5px; position: relative;">
-                <img id="display-portrait" src="" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0;">
-                <span id="label-portrait" style="font-size: 10px; color: #555; text-align: center; font-weight: bold;">FOTO<br>(Clique)</span>
+        <div style="display:flex; gap: 25px; margin-bottom: 25px;">
+            <div onclick="abrirUpload('portrait')" style="width: 110px; height: 140px; border: 1px solid #444; background: var(--bg-panel); cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border-radius: 2px; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.5);">
+                <img id="display-portrait" src="" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; filter: grayscale(20%) contrast(110%);">
+                <span id="label-portrait" style="font-size: 10px; color: #666; text-align: center; font-weight: bold; letter-spacing: 1px;">ANEXAR<br>FOTOGRAFIA</span>
             </div>
             
             <div style="flex: 1;">
-                <div style="display:flex; gap:15px; align-items:flex-end; margin-bottom: 15px;">
-                    <input type="text" id="nome-personagem" class="header-name" placeholder="NOME DA PERSONA" onchange="salvarFicha()" style="flex:1; margin-bottom:0;">
+                <div style="display:flex; gap:20px; align-items:flex-end; margin-bottom: 15px;">
+                    <input type="text" id="nome-personagem" class="header-name" placeholder="IDENTIFICAÇÃO DO SUJEITO" onchange="salvarFicha()" style="flex:1; margin-bottom:0;">
                     
-                    <div style="display:flex; flex-direction:column; width:40px;">
-                        <label style="font-size:10px; color:#888; font-weight:bold; margin-bottom:5px; text-transform:uppercase;">IDADE</label>
-                        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent; border:none; border-bottom:1px solid #333; color:#fff; font-family:'Special Elite'; font-size:16px; padding:5px 0; outline:none; text-align: center;">
+                    <div style="display:flex; flex-direction:column; width:50px;">
+                        <label style="font-size:10px; color:#a68a64; font-weight:bold; margin-bottom:5px; text-transform:uppercase; letter-spacing: 1px;">IDADE</label>
+                        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent; border:none; border-bottom:1px solid #444; color:#fff; font-family:'Crimson Text', serif; font-size:18px; padding:5px 0; outline:none; text-align: center;">
                     </div>
                 </div>
 
                 <div class="header-sub-row" style="margin-bottom: 0;">
                     <div class="sub-input-group">
-                        <label>ORIGEM</label>
+                        <label>HISTÓRICO PRÉVIO (ORIGEM)</label>
                         <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
                     </div>
                     <div class="sub-input-group" id="grupo-arquetipo" style="display: none;">
-                        <label>ARQUÉTIPO</label>
+                        <label>CLASSIFICAÇÃO OPERACIONAL</label>
                         <select id="classe-personagem" onchange="recalcularBases()">
-                            <option value="">Selecione...</option>
+                            <option value="">Indefinido...</option>
                             <option value="Canalizador">Canalizador</option>
                             <option value="Esotérico">Esotérico</option>
                             <option value="Focalizador">Focalizador</option>
@@ -266,40 +266,40 @@
 
         <div class="mid-stats">
             <div class="stat-box">
-                <label>NÍVEL</label>
+                <label>GRAU DE RISCO (NÍVEL)</label>
                 <select id="nivel-personagem" onchange="recalcularBases()"></select>
             </div>
             
             <div class="stat-box" style="flex-direction: row; padding: 0;">
                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
-                    <label>NEX</label>
+                    <label>EXPOSIÇÃO</label>
                     <select id="nex-personagem" onchange="mudouNex()"></select>
                 </div>
                 <div style="width: 1px; background: #333; height: 80%; align-self: center;"></div>
                 <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
                     <label>RESSONÂNCIA</label>
-                    <select id="grau-ressonancia" onchange="salvarFicha()"></select>
+                    <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 14px; font-family: 'Inter', sans-serif;"></select>
                 </div>
             </div>
 
             <div class="stat-box">
                 <div style="display:flex; align-items:center; gap:5px;">
-                    <label>LIMITE PE</label>
+                    <label>TETO DE RESERVA</label>
                     <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="salvarFicha()">
                 </div>
-                <div id="display-limite-pe" style="font-size:18px; color:#fff;">1</div>
+                <div id="display-limite-pe" style="font-size:20px; color:#d3d3d3; font-weight: bold;">1</div>
             </div>
             
             <div class="stat-box">
-                <label>DESLOCAMENTO</label>
+                <label>MOBILIDADE TÁTICA</label>
                 <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q">
             </div>
         </div>
 
         <div class="status-container">
             <div class="status-header-container">
-                <div class="status-header">VIDA</div>
-                <button class="btn-status-action" onclick="instakill()" title="Zerar Vida">I.K</button>
+                <div class="status-header">VITALIDADE</div>
+                <button class="btn-status-action" onclick="instakill()" title="Declarar Óbito">ÓBITO</button>
             </div>
             <div class="bar-bg">
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
@@ -309,19 +309,19 @@
                     <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-vida">
-                    <span style="color:var(--hp-red);">MORRENDO</span>
+                    <span style="color:#ff4d4d; letter-spacing: 2px;">ESTADO CRÍTICO</span>
                     <input type="checkbox" id="mor-1" onchange="salvarFicha()">
                     <input type="checkbox" id="mor-2" onchange="salvarFicha()">
                     <input type="checkbox" id="mor-3" onchange="salvarFicha()">
-                    <button class="btn-curar" onclick="curarStatus('vida')">CURAR 1 PV</button>
+                    <button class="btn-curar" onclick="curarStatus('vida')">ESTABILIZAR</button>
                 </div>
             </div>
         </div>
 
         <div class="status-container">
             <div class="status-header-container">
-                <div class="status-header">SANIDADE</div>
-                <button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Insano Temporariamente">I.T</button>
+                <div class="status-header">LUCIDEZ</div>
+                <button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Choque Psicológico">CHOQUE</button>
             </div>
             <div class="bar-bg">
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
@@ -330,26 +330,26 @@
                     <div><input type="number" id="san-atual" onchange="salvarFicha()"> / <input type="number" id="san-max" onchange="salvarFicha()"></div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
-                <div class="zero-state" id="zero-san">
-                    <span style="color:#00aeff;">ENLOUQUECENDO</span>
+                <div class="zero-state" id="zero-san" style="border-color: #2f4f4f;">
+                    <span style="color:#887ebd; letter-spacing: 2px;">COLAPSO MENTAL</span>
                     <input type="checkbox" id="enlou-1" onchange="salvarFicha()">
                     <input type="checkbox" id="enlou-2" onchange="salvarFicha()">
                     <input type="checkbox" id="enlou-3" onchange="salvarFicha()">
-                    <button class="btn-curar" onclick="curarStatus('san')">CURAR 1 SAN</button>
+                    <button class="btn-curar" onclick="curarStatus('san')">ACALMAR</button>
                 </div>
                 <div class="it-state" id="it-san">
-                    <span>INSANO: </span>
+                    <span style="letter-spacing: 1px;">CHOQUE: </span>
                     <div class="it-round" id="it-1" onclick="marcarIT(1)"></div>
                     <div class="it-round" id="it-2" onclick="marcarIT(2)"></div>
                     <div class="it-round" id="it-3" onclick="marcarIT(3)"></div>
                     <div class="it-round" id="it-4" onclick="marcarIT(4)"></div>
-                    <button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">FIM</button>
+                    <button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">RECUPERAR</button>
                 </div>
             </div>
         </div>
 
         <div class="status-container">
-            <div class="status-header">ESFORÇO</div>
+            <div class="status-header">RESERVA (FÔLEGO / ADRENALINA)</div>
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content" id="content-pe">
@@ -360,10 +360,10 @@
             </div>
         </div>
 
-        <div style="display: flex; gap: 15px; margin-top: 15px;">
-            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+        <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <div style="flex: 1; background: var(--bg-panel); border: 1px solid #333; padding: 12px; border-radius: 2px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-lesionado" class="mini-cond-chk" onchange="toggleMiniCond('lesionado'); salvarFicha();">
-                <label for="chk-lesionado" class="mini-cond-label">LESIONADO</label>
+                <label for="chk-lesionado" class="mini-cond-label">FERIMENTO GRAVE</label>
                 <select id="local-lesao" class="condicao-select" onchange="salvarFicha()" style="display:none; margin-top:8px;">
                     <option value="Membros Superiores">Membros Superiores</option>
                     <option value="Membros Inferiores">Membros Inferiores</option>
@@ -372,10 +372,10 @@
                 </select>
             </div>
             
-            <div style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 10px; border-radius: 4px; box-sizing: border-box;">
+            <div style="flex: 1; background: var(--bg-panel); border: 1px solid #333; padding: 12px; border-radius: 2px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
-                <label for="chk-sequela" class="mini-cond-label">SEQUELAS</label>
-                <textarea id="desc-sequela" class="condicao-text" placeholder="Descreva a sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
+                <label for="chk-sequela" class="mini-cond-label">SEQUELA PERMANENTE</label>
+                <textarea id="desc-sequela" class="condicao-text" placeholder="Relatório médico da sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
             </div>
         </div>
 
@@ -383,18 +383,18 @@
     
     <section>
         <nav class="tabs-nav">
-            <button class="tab-btn active" onclick="mudarAba('pericias')">Perícias</button>
-            <button class="tab-btn" onclick="mudarAba('combate')">Combate</button>
-            <button class="tab-btn" onclick="mudarAba('habilidades')">Habilidades</button>
-            <button class="tab-btn" onclick="mudarAba('rituais')">Rituais</button>
-            <button class="tab-btn" onclick="mudarAba('poderes')">Poderes</button>
-            <button class="tab-btn" onclick="mudarAba('inventario')">Inventário</button>
+            <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
+            <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
+            <button class="tab-btn" onclick="mudarAba('habilidades')">TRAÇOS</button>
+            <button class="tab-btn" onclick="mudarAba('rituais')">ANOMALIAS</button>
+            <button class="tab-btn" onclick="mudarAba('poderes')">ESPECIALIZAÇÕES</button>
+            <button class="tab-btn" onclick="mudarAba('inventario')">ARQUIVO</button>
         </nav>
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="pericias-box">
-                    <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Special Elite'; color:var(--cris-purple); text-align:center; font-size:14px; letter-spacing: 1px;">PESSOAIS</h3>
+                    <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">APTIDÕES NATURAIS</h3>
                     <div class="pericia-header">
                         <span>Nome</span>
                         <span title="Atributo Base">Atrib.</span>
@@ -406,7 +406,7 @@
                 </div>
                 
                 <div class="pericias-box">
-                    <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Special Elite'; color:var(--cris-purple); text-align:center; font-size:14px; letter-spacing: 1px;">PROFISSÃO</h3>
+                    <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">FORMAÇÃO ACADÊMICA/TÉCNICA</h3>
                     <div class="pericia-header">
                         <span>Nome</span>
                         <span title="Atributo Base">Atrib.</span>
@@ -420,7 +420,7 @@
         </div>
         
         <div id="aba-combate" class="tab-content">
-            <div class="defesa-grid" style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 5px;">
+            <div class="defesa-grid" style="background: var(--bg-panel); border: 1px solid #333; padding: 15px; border-radius: 2px;">
                 <div class="defesa-shield" id="display-defesa">10</div>
                 <div class="defesa-colunas">
                     <div class="def-item">
@@ -447,35 +447,37 @@
                 </div>
             </div>
 
-            <div class="info-row"><label>PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
-            <div class="info-row"><label>RESISTÊNCIAS</label><input type="text" id="info-res" class="info-field" onchange="salvarFicha()"></div>
-            <div class="info-row"><label>PROFICIÊNCIAS</label><input type="text" id="info-prof" class="info-field" onchange="salvarFicha()"></div>
+            <div class="info-row"><label>EQUIPAMENTO DE PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
+            <div class="info-row"><label>TOLERÂNCIAS FISIOLÓGICAS (RESISTÊNCIAS)</label><input type="text" id="info-res" class="info-field" onchange="salvarFicha()"></div>
+            <div class="info-row"><label>PROFICIÊNCIAS TÁTICAS</label><input type="text" id="info-prof" class="info-field" onchange="salvarFicha()"></div>
             
-            <p style="margin-top:20px; color:#444; font-size:12px;">Em desenvolvimento: Ataques e Armas...</p>
+            <p style="margin-top:30px; color:#666; font-size:12px; font-style: italic; border-top: 1px dashed #333; padding-top: 10px;">Registro de Armamentos em processo de arquivamento (Em desenvolvimento)...</p>
         </div>
 
         <div id="aba-rituais" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
-                <div class="cris-btn" onclick="novoRitual()">+ Novo Ritual</div>
-                <div style="font-family:'Special Elite'; display:flex; align-items:center;">
-                    DT <span id="dt-val" style="margin-left:5px; color:var(--cris-purple);">10</span>
-                    <input type="number" id="bonus-dt" placeholder="+0" onchange="salvarFicha()" style="width:30px; background:transparent; border:1px solid #444; color:#aaa; font-size:12px; text-align:center; margin-left:10px; outline:none; font-family:'Roboto'; border-radius:3px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                <div class="cris-btn" onclick="novoRitual()">+ REGISTRAR ANOMALIA</div>
+                <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 12px; font-weight: bold; color: #888;">
+                    DIFICULDADE BASE (DT) <span id="dt-val" style="margin-left:8px; color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 20px;">10</span>
+                    <input type="number" id="bonus-dt" placeholder="+0" onchange="salvarFicha()" style="width:35px; background:transparent; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; margin-left:10px; outline:none; font-family:'Inter'; border-radius:2px; padding: 2px;">
                 </div>
             </div>
             <div id="lista-rituais"></div>
         </div>
 
         <div id="aba-poderes" class="tab-content">
-            <div class="cris-btn" onclick="novoPoder()" style="margin-bottom:15px;">+ Novo Poder</div>
+            <div class="cris-btn" onclick="novoPoder()" style="margin-bottom:20px; display: inline-block;">+ DESCREVER ESPECIALIZAÇÃO</div>
             <div id="lista-poderes"></div>
         </div>
 
         <div id="aba-habilidades" class="tab-content">
-            <div class="cris-btn" onclick="novaHabilidade()" style="margin-bottom:15px;">+ Nova Habilidade</div>
+            <div class="cris-btn" onclick="novaHabilidade()" style="margin-bottom:20px; display: inline-block;">+ INSERIR TRAÇO</div>
             <div id="lista-habilidades"></div>
         </div>
 
-        <div id="aba-inventario" class="tab-content">Em desenvolvimento...</div>
+        <div id="aba-inventario" class="tab-content">
+             <p style="color:#666; font-size:12px; font-style: italic;">Logística de itens em processo de auditoria (Em desenvolvimento)...</p>
+        </div>
     </section>
 </div>
 
@@ -497,15 +499,12 @@
     let atual = urlParams.get('id');
     
     let menusAbertos = new Set();
-    
     let modoCrop = ""; 
     let ritualIdAtual = "";
-    
     let isITActive = false;
 
     function abrirUpload(tipo, id = "") {
-        modoCrop = tipo;
-        ritualIdAtual = id;
+        modoCrop = tipo; ritualIdAtual = id;
         document.getElementById('fileUploader').click();
     }
 
@@ -515,17 +514,13 @@
             reader.onload = function(e) {
                 const imgElement = new Image();
                 imgElement.src = e.target.result;
-
                 imgElement.onload = function() {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-
                     const maxW = 600; 
                     const scale = maxW / imgElement.width;
-                    canvas.width = maxW;
-                    canvas.height = imgElement.height * scale;
+                    canvas.width = maxW; canvas.height = imgElement.height * scale;
                     ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
-                    
                     const base64comprimido = canvas.toDataURL('image/webp', 0.6);
 
                     document.getElementById('temp-img').src = base64comprimido;
@@ -535,17 +530,11 @@
                     atualizarPreview();
 
                     const preview = document.getElementById('crop-preview');
-                    if(modoCrop === 'ritual') {
-                        preview.style.width = "80px"; 
-                        preview.style.height = "80px"; 
-                    } else {
-                        preview.style.width = "100px"; 
-                        preview.style.height = "130px"; 
-                    }
+                    if(modoCrop === 'ritual') { preview.style.width = "80px"; preview.style.height = "80px"; } 
+                    else { preview.style.width = "110px"; preview.style.height = "140px"; }
 
                     document.getElementById('modal-config').style.display = 'none';
                     document.getElementById('crop-modal').style.display = 'block';
-                    
                     input.value = "";
                 };
             };
@@ -562,9 +551,7 @@
         img.style.transform = `scale(${z})`;
     }
 
-    function fecharModal() { 
-        document.getElementById('crop-modal').style.display = 'none'; 
-    }
+    function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
 
     async function confirmarCrop() {
         const url = document.getElementById('temp-img').src;
@@ -575,7 +562,7 @@
         try {
             if(modoCrop === 'portrait') {
                 await db.collection("fichas").doc(atual).update({ portrait: url, pX: x, pY: y, pZ: z });
-                alert("Foto de perfil atualizada!");
+                alert("Registro fotográfico anexado com sucesso!");
             } else if (modoCrop === 'ritual') {
                 await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: url, sX: x, sY: y, sZ: z });
             } else {
@@ -584,14 +571,13 @@
                 dados[`p${modoCrop}X`] = x;
                 dados[`p${modoCrop}Y`] = y;
                 dados[`p${modoCrop}Zoom`] = z; 
-                
                 await db.collection("fichas").doc(atual).update(dados);
-                alert(`Foto do estado ${modoCrop} atualizada para a live!`);
+                alert(`Evidência de estado crítico (${modoCrop}) arquivada para a transmissão!`);
             }
             fecharModal();
         } catch (e) {
             console.error(e);
-            alert("Erro ao salvar! Arquivo muito grande ou conexão perdida.");
+            alert("Falha no arquivamento! Tamanho de arquivo excede os protocolos de segurança da rede.");
         }
     }
 
@@ -599,7 +585,7 @@
         const urlBase = window.location.href.split('ficha.html')[0];
         const linkFull = `${urlBase}portrait.html?id=${atual}`;
         navigator.clipboard.writeText(linkFull);
-        alert("Link copiado!\nNo OBS, adicione uma fonte 'Navegador' (Browser).\nCole o link.\nLargura: 400 | Altura: 550");
+        alert("Link criptografado copiado!\nNo software de transmissão (OBS), adicione uma fonte 'Navegador'.\nCole o link.\nDimensões sugeridas: Largura 400 | Altura 550");
     }
 
     const bancoPericias = {
@@ -633,26 +619,17 @@
         if (!resSel) return;
         const valorAtual = resSel.value;
         let options = '';
-        
-        if (nexValue === 0) {
-            options += `<option value="Nulo">Nulo</option>`;
-        }
+        if (nexValue === 0) { options += `<option value="Nulo">Nulo</option>`; }
         options += `<option value="1º Grau">1º Grau</option>`;
         options += `<option value="2º Grau">2º Grau</option>`;
         options += `<option value="3º Grau">3º Grau</option>`;
         options += `<option value="4º Grau">4º Grau</option>`;
         options += `<option value="5º Grau">5º Grau</option>`;
-        
         if (nexValue >= 100) {
-             options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`;
+             options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', serif;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`;
         }
-
         resSel.innerHTML = options;
-        
-        // Tenta manter a seleção atual se ela ainda existir na nova lista
-        if (options.includes(`value="${valorAtual}"`)) {
-            resSel.value = valorAtual;
-        }
+        if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; }
     }
 
     function gerarOpcoesNivelNex() {
@@ -669,15 +646,13 @@
         }
         nexHtml += '<option value="99%">99%</option><option value="100%">100%</option>';
         nexSel.innerHTML = nexHtml;
-
         atualizarOpcoesRessonancia(5);
     }
 
     async function init() {
         gerarOpcoesNivelNex();
-        if (!atual) {
-            window.location.href = "index.html";
-        } else {
+        if (!atual) { window.location.href = "index.html"; } 
+        else {
             gerarPericiasBase();
             carregarFicha();
             carregarRituais();
@@ -703,19 +678,16 @@
                     <option value="VIG" ${info.attr==='VIG'?'selected':''}>VIG</option>
                 </select>
                 <input type="number" id="bonus-${p}" class="treino-select" value="0" style="background:transparent; border:none; border-bottom:1px solid #333;" onchange="salvarFicha()">
-                <select id="treino-${p}" class="treino-select" style="cursor:pointer;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
-                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                <select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
+                    <option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option>
                 </select>
-                <span id="total-${p}" style="font-family:'Special Elite'; color:var(--cris-purple); font-size:16px;">0</span>
+                <span id="total-${p}" style="font-family:'Crimson Text', serif; color:#fff; font-size:16px; font-weight: bold;">0</span>
             </div>
             <div id="desc-${p}" class="pericia-desc">${info.desc}</div>
             `;
             
-            if (info.tipo === "profissao") {
-                htmlProfissao += bloco;
-            } else {
-                htmlPessoais += bloco;
-            }
+            if (info.tipo === "profissao") { htmlProfissao += bloco; } 
+            else { htmlPessoais += bloco; }
         });
         
         document.getElementById('lista-pericias-pessoais').innerHTML = htmlPessoais;
@@ -754,13 +726,14 @@
         const nexStr = document.getElementById('nex-personagem').value || "0%";
         const nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
-
+        
+        // Base ajustada para 12 em vez de fixar em 50
         const novaVida = 12 + (2 * vig) + (3 * nivel);
-        const novaSan = 50 + (10 * von + 10 * sag);
+        const novaSan = 12 + (10 * von + 10 * sag);
         
         let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10);
         let novoLimitePe = 1 + vig + von + nivel;
-
+        
         if (classe === "Esotérico") {
             novoPe += (2 * sag);
             novoLimitePe += (2 * sag);
@@ -778,10 +751,8 @@
 
         let vidaAtual = parseInt(document.getElementById('vida-atual').value) || 0;
         if (novaVida !== oldVidaMax) vidaAtual = novaVida;
-
         let sanAtual = parseInt(document.getElementById('san-atual').value) || 0;
         if (novaSan !== oldSanMax) sanAtual = novaSan;
-
         let peAtual = parseInt(document.getElementById('pe-atual').value) || 0;
         if (novoPe !== oldPeMax) peAtual = novoPe;
 
@@ -795,14 +766,10 @@
 
         const bLimitePe = parseInt(document.getElementById('bonus-limite-pe').value) || 0;
         document.getElementById('display-limite-pe').innerText = novoLimitePe + bLimitePe;
-
+        
         const divArq = document.getElementById('grupo-arquetipo');
-        if (nivel >= 2) {
-            divArq.style.display = 'flex';
-        } else {
-            divArq.style.display = 'none';
-            document.getElementById('classe-personagem').value = ""; 
-        }
+        if (nivel >= 2) { divArq.style.display = 'flex'; } 
+        else { divArq.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
 
         salvarFicha();
     }
@@ -826,34 +793,28 @@
                 document.getElementById('label-portrait').style.display = 'none';
             }
 
-           ['agi','for','sag','von','vig'].forEach(a => { 
-    if(document.getElementById(`attr-${a}`)) {
-        if (a === 'von') {
-            // Se não existir 'von', tenta pegar 'pre'. Se nenhum existir, define como 0.
-            document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0);
-        } else if (a === 'sag') {
-            // Se não existir 'sag', tenta pegar 'int'. Se nenhum existir, define como 0.
-            document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0);
-        } else {
-            // Define como 0 se o atributo não existir no banco.
-            document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0;
-        }
-    } 
-});
+            ['agi','for','sag','von','vig'].forEach(a => { 
+                if(document.getElementById(`attr-${a}`)) {
+                    if (a === 'von') {
+                        document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0);
+                    } else if (a === 'sag') {
+                        document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0);
+                    } else {
+                        document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0;
+                    }
+                } 
+            });
+            
             const nivel = parseInt(d.nivel) || 0;
             document.getElementById('nivel-personagem').value = nivel;
             document.getElementById('nex-personagem').value = d.nex || "5%";
             document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
-
+            
             const divArq = document.getElementById('grupo-arquetipo');
-            if (nivel >= 2) {
-                divArq.style.display = 'flex';
-            } else {
-                divArq.style.display = 'none';
-            }
+            if (nivel >= 2) { divArq.style.display = 'flex'; } 
+            else { divArq.style.display = 'none'; }
 
             const nex = parseInt(d.nex) || 0;
-            
             atualizarOpcoesRessonancia(nex);
             if (d.ressonancia) {
                 document.getElementById('grau-ressonancia').value = d.ressonancia;
@@ -880,10 +841,11 @@
             const bLimitePe = parseInt(d.bonusLimitePe) || 0;
             document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
             document.getElementById('display-limite-pe').innerText = limitePeBase + bLimitePe;
-
-            atualizarStatus('vida', d.vidaAtual ?? 20, d.vidaMax ?? 20);
-            atualizarStatus('san', d.sanAtual ?? 20, d.sanMax ?? 20);
-            atualizarStatus('pe', d.peAtual ?? 5, d.peMax ?? 5);
+            
+            // Vida e Sanidade alterados para puxar base 12 no lugar do 20/50 anterior
+            atualizarStatus('vida', d.vidaAtual ?? 12, d.vidaMax ?? 12);
+            atualizarStatus('san', d.sanAtual ?? 12, d.sanMax ?? 12);
+            atualizarStatus('pe', d.peAtual ?? 2, d.peMax ?? 2);
 
             let fortTreino = 0;
             if(d.pericias) {
@@ -901,9 +863,8 @@
                         atualizarCorPericia(p, tField.value);
                         if(p === "Fortitude") fortTreino = parseInt(tField.value);
                     }
-                    if(aField && dadosPericia.atributo) {
-                        aField.value = dadosPericia.atributo;
-                    }
+                    if(aField && dadosPericia.atributo) { aField.value = dadosPericia.atributo; }
+                    
                     if(totalSpan) {
                         const attrUsado = dadosPericia.atributo || bancoPericias[p].attr;
                         const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
@@ -921,12 +882,11 @@
             const bEsq = parseInt(d.bonusEsquiva) || 0;
             const bBloq = parseInt(d.bonusBloqueio) || 0;
             const bDt = parseInt(d.bonusDt) || 0;
-
             document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
             document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
             document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
             document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
-
+            
             const defBase = 10 + (parseInt(d.agi) || 0);
             document.getElementById('display-defesa').innerText = defBase + bDef;
             document.getElementById('display-esquiva').innerText = defBase + bEsq;
@@ -943,10 +903,8 @@
             document.getElementById('chk-sequela').checked = d.condSequela || false;
             toggleMiniCond('lesionado');
             toggleMiniCond('sequela');
-            
             if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
             if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
-
             document.getElementById('dt-val').innerText = 10 + sag + nivel + bDt;
 
             isITActive = d.insanoTemporario || false;
@@ -978,7 +936,6 @@
             const bVal = document.getElementById(`bonus-${p}`) ? parseInt(document.getElementById(`bonus-${p}`).value) || 0 : 0;
             const tVal = document.getElementById(`treino-${p}`) ? parseInt(document.getElementById(`treino-${p}`).value) || 0 : 0;
             const aVal = document.getElementById(`attr-${p}`) ? document.getElementById(`attr-${p}`).value : bancoPericias[p].attr;
-            
             periciasObj[p] = { bonus: bVal, treino: tVal, atributo: aVal };
 
             const totalSpan = document.getElementById(`total-${p}`);
@@ -1006,11 +963,11 @@
             von: parseInt(document.getElementById('attr-von').value) || 0,
             vig: parseInt(document.getElementById('attr-vig').value) || 0,
             vidaAtual: parseInt(document.getElementById('vida-atual').value) || 0,
-            vidaMax: parseInt(document.getElementById('vida-max').value) || 1,
+            vidaMax: parseInt(document.getElementById('vida-max').value) || 12,
             sanAtual: parseInt(document.getElementById('san-atual').value) || 0,
-            sanMax: parseInt(document.getElementById('san-max').value) || 1,
+            sanMax: parseInt(document.getElementById('san-max').value) || 12,
             peAtual: parseInt(document.getElementById('pe-atual').value) || 0,
-            peMax: parseInt(document.getElementById('pe-max').value) || 1,
+            peMax: parseInt(document.getElementById('pe-max').value) || 2,
             nivel: document.getElementById('nivel-personagem').value,
             nex: document.getElementById('nex-personagem').value,
             ressonancia: document.getElementById('grau-ressonancia').value,
@@ -1046,9 +1003,8 @@
         if(!el) return;
         el.classList.remove('p-verde', 'p-azul', 'p-laranja', 'p-vermelho');
         if(valor == "1") el.classList.add('p-verde');
-        else if(valor == "2") el.classList.add('p-azul');
         else if(valor == "3") el.classList.add('p-laranja');
-        else if(valor == "4") el.classList.add('p-vermelho');
+        else if(valor == "5") el.classList.add('p-vermelho');
     }
 
     function atualizarStatus(tipo, at, mx) {
@@ -1066,9 +1022,7 @@
                 }
             } else {
                 zeroState.classList.remove('active');
-                if (tipo !== 'san' || !isITActive) {
-                    contentState.style.opacity = '1';
-                }
+                if (tipo !== 'san' || !isITActive) { contentState.style.opacity = '1'; }
                 if (tipo === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; }
                 if (tipo === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; }
             }
@@ -1078,11 +1032,8 @@
         if(inputMx) inputMx.value = mx;
         if(bar) {
             bar.style.width = Math.max(0, Math.min((at / mx) * 100, 100)) + "%";
-            if(mx > 0 && at <= (mx / 2)) {
-                bar.style.filter = "brightness(0.35)";
-            } else {
-                bar.style.filter = "brightness(1)";
-            }
+            if(mx > 0 && at <= (mx / 2)) { bar.style.filter = "brightness(0.35)"; } 
+            else { bar.style.filter = "brightness(1)"; }
         }
     }
 
@@ -1115,22 +1066,16 @@
         const itState = document.getElementById('it-san');
         const contentSan = document.getElementById('content-san');
         const zeroSan = document.getElementById('zero-san');
-        
         if (isITActive) {
             itState.classList.add('active');
             contentSan.style.opacity = '0';
             zeroSan.classList.remove('active');
         } else {
             itState.classList.remove('active');
-            for(let i=1; i<=4; i++) {
-                document.getElementById(`it-${i}`).classList.remove('active');
-            }
+            for(let i=1; i<=4; i++) { document.getElementById(`it-${i}`).classList.remove('active'); }
             const sanAtual = parseInt(document.getElementById('san-atual').value) || 0;
-            if (sanAtual <= 0) {
-                zeroSan.classList.add('active');
-            } else {
-                contentSan.style.opacity = '1';
-            }
+            if (sanAtual <= 0) { zeroSan.classList.add('active'); } 
+            else { contentSan.style.opacity = '1'; }
         }
         salvarFicha();
     }
@@ -1145,18 +1090,15 @@
     }
 
     function toggleMiniCond(tipo) {
-        if (tipo === 'lesionado') {
-            document.getElementById('local-lesao').style.display = document.getElementById('chk-lesionado').checked ? 'block' : 'none';
-        } else if (tipo === 'sequela') {
-            document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none';
-        }
+        if (tipo === 'lesionado') { document.getElementById('local-lesao').style.display = document.getElementById('chk-lesionado').checked ? 'block' : 'none'; } 
+        else if (tipo === 'sequela') { document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
     }
 
     function carregarRituais() {
         db.collection("fichas").doc(atual).collection("rituais").onSnapshot(snap => {
             const container = document.getElementById('lista-rituais');
             container.innerHTML = "";
-            const coresElem = { "Morte": "#9ca3af", "Sangue": "#ff4d4d", "Energia": "#a855f7", "Conhecimento": "#cead00", "Nenhum": "#555" };
+            const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "#555" };
             
             snap.forEach(doc => {
                 const r = doc.data();
@@ -1169,18 +1111,18 @@
                 container.innerHTML += `
                 <div class="ritual-card" style="border-left-color: ${cor}">
                     <div class="card-header" onclick="toggleElem('rit-${id}')">
-                        <span style="color:${cor}; font-weight:bold">${r.nome || 'Novo Ritual'}</span> 
-                        <span style="font-size:10px; opacity:0.6">${(r.elemento || 'Morte').toUpperCase()}</span>
+                        <span style="color:${cor}; font-weight:bold">${r.nome || 'Nova Anomalia'}</span> 
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${(r.elemento || 'Morte').toUpperCase()}</span>
                     </div>
                     <div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}">
                         <div class="rit-layout-top">
                            <div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">
-                                ${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0;">` : `<span>SÍMBOLO<br>(Clique)</span>`}
+                                ${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: screen;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:#555;">REGISTRO<br>(Clique)</span>`}
                             </div>
                             <div class="rit-grid-2">
-                                <div class="rit-field"><span class="rit-label" style="color:${cor}">Nome do Ritual</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div>
+                                <div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div>
                                 <div class="rit-field">
-                                    <span class="rit-label" style="color:${cor}">Elemento</span>
+                                    <span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span>
                                     <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)">
                                         <option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option>
                                         <option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option>
@@ -1192,26 +1134,26 @@
                             </div>
                         </div>
                         <div class="rit-checkbox-row">
-                            <label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Ritual Aprendido</label>
-                            <label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Primeira Conjuração</label>
+                            <label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label>
+                            <label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label>
                         </div>
-                        <div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Tempo até Aprendizado</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div>
+                        <div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div>
                         <div class="rit-grid-2">
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Conjuração</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Duração</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div>
                         </div>
                         <div class="rit-grid-2" style="margin-top: 10px;">
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo PE</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo Sanidade</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Desgaste Físico (Reserva)</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div>
                         </div>
-                        <div class="rit-field" style="margin-top: 10px;">
-                            <span class="rit-label" style="color:${cor}">Descrição</span>
+                        <div class="rit-field" style="margin-top: 15px;">
+                            <span class="rit-label" style="color:${cor}">Registro Detalhado</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea>
                         </div>
                         <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">Remover</button>
+                            <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
                         </div>
                     </div>
                 </div>`;
@@ -1223,7 +1165,7 @@
         db.collection("fichas").doc(atual).collection("poderes").onSnapshot(snap => {
             const container = document.getElementById('lista-poderes');
             container.innerHTML = "";
-            const coresElem = { "Morte": "#9ca3af", "Sangue": "#ff4d4d", "Energia": "#a855f7", "Conhecimento": "#cead00", "Geral": "#555", "Nenhum": "#555" };
+            const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "#555", "Nenhum": "#555" };
             
             snap.forEach(doc => {
                 const p = doc.data();
@@ -1234,14 +1176,14 @@
                 container.innerHTML += `
                 <div class="ritual-card" style="border-left-color: ${cor}">
                     <div class="card-header" onclick="toggleElem('pod-${id}')">
-                        <span style="color:${cor}; font-weight:bold">${p.nome || 'Sem nome'}</span> 
-                        <span style="font-size:10px; opacity:0.6">${(p.elemento || 'Geral').toUpperCase()}</span>
+                        <span style="color:${cor}; font-weight:bold">${p.nome || 'Especialização Desconhecida'}</span> 
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${(p.elemento || 'Geral').toUpperCase()}</span>
                     </div>
                     <div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}">
                         <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Nome do Poder</span><input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div>
                             <div class="rit-field">
-                                <span class="rit-label" style="color:${cor}">Elemento</span>
+                                <span class="rit-label" style="color:${cor}">Vínculo Oculto</span>
                                 <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
                                     <option value="Nenhum" ${p.elemento=='Nenhum'?'selected':''}>Nenhum</option>
                                     <option value="Morte" ${p.elemento=='Morte'?'selected':''}>Morte</option>
@@ -1253,15 +1195,15 @@
                             </div>
                         </div>
                         <div class="rit-field">
-                            <span class="rit-label" style="color:${cor}">Descrição</span>
+                            <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea>
                         </div>
-                        <div style="margin-top:10px; padding:10px; border:1px solid #00e5ff33; background:#00e5ff05; border-radius: 4px;">
-                            <span class="rit-label" style="color:#00e5ff; font-weight:bold;">Afinidade</span>
-                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Efeito de afinidade...">${p.afinidade || ""}</textarea>
+                        <div style="margin-top:15px; padding:15px; border:1px solid rgba(166, 138, 100, 0.3); background:rgba(0,0,0,0.5); border-radius: 2px;">
+                            <span class="rit-label" style="color:var(--cris-purple); font-weight:bold;">Sintoma de Exposição Avançada (Afinidade)</span>
+                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos do vínculo...">${p.afinidade || ""}</textarea>
                         </div>
                         <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">Remover</button>
+                            <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button>
                         </div>
                     </div>
                 </div>`;
@@ -1280,12 +1222,12 @@
 
                 container.innerHTML += `
                 <div class="ritual-card">
-                    <div class="card-header" onclick="toggleElem('hab-${id}')"><span>${h.nome || 'Sem nome'}</span></div>
+                    <div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:#d3d3d3;">${h.nome || 'Traço Indefinido'}</span></div>
                     <div class="card-body" id="hab-${id}" style="display:${isOpen ? 'block' : 'none'}">
-                        <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px;">
+                        <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px solid #444; font-family: 'Crimson Text', serif; font-size: 16px;">
                         <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
                         <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="background:#b31d1d; color:white;" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">Remover</button>
+                            <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button>
                         </div>
                     </div>
                 </div>`;
@@ -1295,13 +1237,13 @@
 
     async function novoRitual() { 
         await db.collection("fichas").doc(atual).collection("rituais").add({ 
-            nome: "Novo Ritual", elemento: "Morte", descricao: "", 
+            nome: "Nova Anomalia", elemento: "Morte", descricao: "", 
             aprendido: false, primeiraConjuracao: false, tempoAprendizado: "",
             tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: ""
-        }); 
+        });
     }
-    async function novoPoder() { await db.collection("fichas").doc(atual).collection("poderes").add({ nome: "Novo Poder", elemento: "Geral", descricao: "", afinidade: "" }); }
-    async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Nova Habilidade", descricao: "" }); }
+    async function novoPoder() { await db.collection("fichas").doc(atual).collection("poderes").add({ nome: "Nova Especialização", elemento: "Geral", descricao: "", afinidade: "" }); }
+    async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Novo Traço", descricao: "" }); }
     
     async function updateSub(id, col, campo, valor) { 
         let o = {}; o[campo] = valor; 
@@ -1311,10 +1253,10 @@
         await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); 
     }
     
-    async function removerSub(id, col) { if(confirm("Excluir?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
+    async function removerSub(id, col) { if(confirm("Remover este arquivo confidencial?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
     
     function toggleElem(id) { 
-        const b = document.getElementById(id); 
+        const b = document.getElementById(id);
         if(!b) return;
         if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } 
         else { b.style.display = 'block'; menusAbertos.add(id); }
@@ -1330,17 +1272,8 @@
 
     auth.onAuthStateChanged(user => {
         if (user) { init(); } 
-        else { alert("Sessão expirada. Voltando ao Hub."); window.location.href = "index.html"; }
+        else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; }
     });
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
