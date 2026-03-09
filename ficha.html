@@ -11,12 +11,13 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700&display=swap');
+        
         :root {
-            --cris-purple: #a68a64;
-            --hp-red: #8b1c1c;
-            --san-purple: #2f4f4f;
-            --pe-orange: #5c4033;
-            --bg-dark: #121212;
+            --cris-purple: #a68a64; /* Dourado envelhecido / Latão */
+            --hp-red: #8b1c1c; /* Sangue seco */
+            --san-purple: #2f4f4f; /* Slate / Mar Profundo */
+            --pe-orange: #5c4033; /* Marrom couro escuro */
+            --bg-dark: #121212; /* Chumbo */
             --bg-panel: #1a1a1a;
             
             --cor-morte: #2a2a2a;
@@ -27,7 +28,15 @@
             --cor-fixo: #a68a64;
         }
 
-        body { background-color: var(--bg-dark); color: #d3d3d3; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        /* TEMA HEXATOMBE (BUFF ATIVADO) */
+        body.tema-hexatombe {
+            --cris-purple: #8b1c1c; /* Transforma detalhes dourados em vermelho sangue */
+            --bg-panel: #1c0a0a; /* Fundo dos paineis fica avermelhado escuro */
+            --cor-fixo: #8b1c1c;
+            transition: all 0.5s ease;
+        }
+
+        body { background-color: var(--bg-dark); color: #d3d3d3; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; transition: background-color 0.5s ease; }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -41,42 +50,62 @@
         .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; padding: 5px 0; outline: none; }
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px;}
 
-        /* --- ALTERAÇÃO: PENTAGRAMA NO FUNDO (::before) --- */
-        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(50%) opacity(0.8);}
-        
-        .sigilo-container::before {
-            content: "";
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%; height: 90%;
-            background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); /* Sua imagem entrará aqui */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.15; /* Intensidade do pentagrama */
-            z-index: 0;
-            pointer-events: none; /* Para os botões continuarem clicáveis */
+        /* EFEITO DE TELA TREMENDO (COMANDO SECRETO) */
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
-        /* ------------------------------------------------ */
+        .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
+
+        /* PENTAGRAMA DE FUNDO */
+        .sigilo-container { 
+            position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; 
+            background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; 
+            background-size: contain; filter: grayscale(50%) opacity(0.8);
+        }
+        .sigilo-container::before {
+            content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 110%; height: 110%;
+            background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: 0.15; z-index: -1; pointer-events: none; transition: all 1s ease;
+        }
+
+        /* EFEITO PENTAGRAMA DE SANGUE (NEX 100%) */
+        .sigilo-container.brilho-sangue::before {
+            filter: drop-shadow(0 0 20px #8b1c1c) sepia(1) hue-rotate(-50deg) saturate(5);
+            opacity: 0.8;
+            animation: pulsar-sangue 2s infinite;
+        }
+        @keyframes pulsar-sangue {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5;}
+            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.9;}
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5;}
+        }
 
         .attr-box { position: absolute; width: 55px; height: 55px; background: var(--bg-panel); border: 1px solid #555; border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); z-index: 1;}
-        .attr-label { font-size: 9px; font-weight: bold; color: #a68a64; margin-top: -2px; letter-spacing: 1px;}
+        .attr-label { font-size: 9px; font-weight: bold; color: var(--cris-purple); margin-top: -2px; letter-spacing: 1px;}
         .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
-        /* --- ALTERAÇÃO: TRAVAMENTO DE LAYOUT COM !IMPORTANT --- */
+        /* GRID FIXO (2 colunas) PARA STATUS SUPERIORES */
         .mid-stats { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px; font-family: 'Crimson Text', serif; }
-        .tabs-nav { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; margin-bottom: 25px; }
-        /* ------------------------------------------------------ */
-
         .stat-box { border: 1px solid #333; background: var(--bg-panel); padding: 8px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2px;}
         .stat-box label { font-size: 9px; color: #888; font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; text-align: center;}
         .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
 
         .status-container { margin-bottom: 15px; }
         .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 4px; padding: 0;}
-        .status-header { font-size: 11px; font-weight: bold; color: #a68a64; letter-spacing: 2px; font-family: 'Inter'; text-align: center; }
+        .status-header { font-size: 11px; font-weight: bold; color: var(--cris-purple); letter-spacing: 2px; font-family: 'Inter'; text-align: center; }
         .btn-status-action { position: absolute; right: 0; background: transparent; color: #666; border: 1px solid #444; border-radius: 2px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Inter'; font-weight: bold; transition: 0.2s; }
         .btn-status-action:hover { background: #333; color: #fff; }
         .bar-bg { width: 100%; height: 30px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
@@ -86,9 +115,9 @@
         .bar-btn { cursor: pointer; color: #fff; font-size: 16px; opacity: 0.5; user-select: none; font-family: 'Inter'; padding: 0 5px;}
         .bar-btn:hover { opacity: 1; }
 
-        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(18,18,18,0.9); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #8b1c1c;}
+        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(18,18,18,0.9); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid var(--hp-red);}
         .zero-state.active { display: flex; }
-        .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #8b1c1c; }
+        .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--hp-red); }
         .btn-curar { background: #222; color: #d3d3d3; border: 1px solid #555; padding: 3px 8px; font-size: 10px; cursor: pointer; border-radius: 2px; font-family: 'Inter', sans-serif; transition: 0.2s; text-transform: uppercase; font-weight: bold;}
         .btn-curar:hover { background: #d3d3d3; color: #000; border-color: #d3d3d3; }
 
@@ -123,7 +152,7 @@
         .defesa-colunas { display: flex; gap: 20px; flex: 1; justify-content: space-between; }
         .def-item { display: flex; flex-direction: column; align-items: center; background: var(--bg-panel); border: 1px solid #333; padding: 10px; border-radius: 2px; width: 100%;}
         .def-header-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-        .def-label { font-size: 10px; color: #a68a64; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
+        .def-label { font-size: 10px; color: var(--cris-purple); font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
         .def-input-bonus { width: 30px; background: transparent; border: 1px solid #444; color: #fff; font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Inter';}
         .def-val-total { font-size: 22px; font-family: 'Crimson Text', serif; font-weight: bold; border-bottom: 1px solid #555; min-width: 45px; text-align: center; padding-bottom: 2px; }
         .def-formula { font-size: 8px; color: #666; margin-top: 4px; text-align: center; font-family: 'Inter'; letter-spacing: 1px;}
@@ -133,8 +162,10 @@
         .info-field { flex: 1; background: transparent; border: none; border-bottom: 1px solid #333; color: #d3d3d3; font-size: 14px; padding: 4px 5px; outline: none; font-family: 'Inter', sans-serif;}
         .info-field:focus { border-bottom-color: var(--cris-purple); }
 
+        /* GRID FIXO (3 colunas) PARA NAVEGAÇÃO */
+        .tabs-nav { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; margin-bottom: 25px; }
         .tab-btn { background: transparent; border: 1px solid #333; color: #666; padding: 12px 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 1px; border-radius: 2px; text-align: center;}
-        .tab-btn.active { color: #a68a64; border-color: var(--cris-purple); background: rgba(166, 138, 100, 0.05);}
+        .tab-btn.active { color: var(--cris-purple); border-color: var(--cris-purple); background: rgba(166, 138, 100, 0.05);}
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
@@ -165,12 +196,7 @@
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--cris-purple);}
 
-        #modal-config {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #181818; border: 1px solid var(--cris-purple); padding: 25px;
-            z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            border-radius: 2px; 
-        }
+        #modal-config { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; border: 1px solid var(--cris-purple); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; }
 
         .btn-copy-link { background: #333; color: white; border: 1px solid #555; padding: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px; transition: 0.2s;}
         .btn-copy-link:hover { background: #444; border-color: #888;}
@@ -181,24 +207,17 @@
             .grid-container { grid-template-columns: 1fr; gap: 30px; }
             .header-sub-row { flex-wrap: wrap; }
             .sub-input-group { min-width: 45%; }
-            
-            /* --- ALTERAÇÃO: PRESERVANDO COLUNAS NO MOBILE --- */
-            .tabs-nav { grid-template-columns: repeat(3, 1fr) !important; }
-            .mid-stats { grid-template-columns: 1fr 1fr !important; }
-            /* ------------------------------------------------ */
-
             .rit-grid-2 { grid-template-columns: 1fr; }
             .rit-layout-top { flex-direction: column; align-items: center; text-align: center; }
             .defesa-grid { flex-direction: column; align-items: center; }
             .defesa-colunas { width: 100%; flex-wrap: wrap; justify-content: space-around; }
             .pericia-header, .pericia-row { grid-template-columns: 1fr 45px 40px 45px 35px; font-size: 11px; gap: 2px; }
-            
-            .tab-btn { font-size: 9px !important; padding: 10px 2px !important; letter-spacing: 0px !important;}
             .treino-select { font-size: 9px; }
             #pericias-grid { grid-template-columns: 1fr !important; }
             #aba-background > div { grid-template-columns: 1fr !important; }
             #bgEncontros-container { grid-column: span 1 !important; }
             .info-label { width: 100%; margin-bottom: 5px;}
+            .tab-btn { font-size: 9px !important; padding: 10px 2px !important; letter-spacing: 0px !important; }
         }
     </style>
 </head>
@@ -210,14 +229,12 @@
 <div id="modal-config">
     <h3 style="margin-top:0; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE TRANSMISSÃO</h3>
     <p style="font-size: 11px; color: #888; text-align: center; margin-bottom: 25px; font-family: 'Inter', sans-serif;">Envie as fotografias referentes a cada estado clínico do agente.</p>
-
     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
         <button onclick="abrirUpload('Normal')" class="cris-btn" style="border-color: #555; color: #d3d3d3; width: 100%;">📷 FOTOGRAFIA PADRÃO</button>
         <button onclick="abrirUpload('Machucado')" class="cris-btn" style="border-color: var(--hp-red); color: #ff6666; width: 100%;">🩸 ESTADO CRÍTICO (< 50% VIT)</button>
         <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn" style="border-color: #483d8b; color: #887ebd; width: 100%;">🌀 ESTADO DE CHOQUE (0 LUC)</button>
         <button onclick="abrirUpload('Morto')" class="cris-btn" style="border-style: dashed; border-color: #444; color: #666; width: 100%;">💀 ÓBITO CONFIRMADO (0 VIT)</button>
     </div>
-
     <button class="btn-copy-link" onclick="copiarLinkOBS()">COPIAR LINK PARA OBS</button>
     <button onclick="toggleElem('modal-config')" style="margin-top:10px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
@@ -255,9 +272,8 @@
             <div style="flex: 1;">
                 <div style="display:flex; gap:20px; align-items:flex-end; margin-bottom: 15px;">
                     <input type="text" id="nome-personagem" class="header-name" placeholder="IDENTIFICAÇÃO DO SUJEITO" onchange="salvarFicha()" style="flex:1; margin-bottom:0;">
-                    
                     <div style="display:flex; flex-direction:column; width:50px;">
-                        <label style="font-size:10px; color:#a68a64; font-weight:bold; margin-bottom:5px; text-transform:uppercase; letter-spacing: 1px;">IDADE</label>
+                        <label style="font-size:10px; color:var(--cris-purple); font-weight:bold; margin-bottom:5px; text-transform:uppercase; letter-spacing: 1px;">IDADE</label>
                         <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent; border:none; border-bottom:1px solid #444; color:#fff; font-family:'Crimson Text', serif; font-size:18px; padding:5px 0; outline:none; text-align: center;">
                     </div>
                 </div>
@@ -280,12 +296,12 @@
             </div>
         </div>
 
-        <div class="sigilo-container">
-            <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="salvarFicha()"></div>
+        <div class="sigilo-container" id="sigilo-box">
+            <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="recalcularBases(); salvarFicha();"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
-            <div class="attr-box sag"><span class="attr-label">SAG</span><input type="number" id="attr-sag" onchange="recalcularBases()"></div>
-            <div class="attr-box von"><span class="attr-label">VON</span><input type="number" id="attr-von" onchange="recalcularBases()"></div>
-            <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="recalcularBases()"></div>
+            <div class="attr-box sag"><span class="attr-label">SAG</span><input type="number" id="attr-sag" onchange="recalcularBases(); salvarFicha();"></div>
+            <div class="attr-box von"><span class="attr-label">VON</span><input type="number" id="attr-von" onchange="recalcularBases(); salvarFicha();"></div>
+            <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="recalcularBases(); salvarFicha();"></div>
         </div>
 
         <div class="mid-stats">
@@ -294,25 +310,31 @@
                 <select id="nivel-personagem" onchange="recalcularBases()"></select>
             </div>
             
-            <div class="stat-box" style="flex-direction: row; padding: 0; justify-content: space-evenly;">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
-                    <label>EXPOSIÇÃO</label>
-                    <select id="nex-personagem" onchange="mudouNex()" style="font-size: 16px;"></select>
+            <div class="stat-box" id="box-exposicao" style="flex-direction: row; padding: 0; justify-content: space-evenly;">
+                <div id="content-exposicao-real" style="display: none; width: 100%; flex-direction: row; justify-content: space-evenly;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
+                        <label>EXPOSIÇÃO</label>
+                        <select id="nex-personagem" onchange="mudouNex()" style="font-size: 16px;"></select>
+                    </div>
+                    <div style="width: 1px; background: #333; height: 80%; align-self: center;"></div>
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
+                        <label>RESSONÂNCIA</label>
+                        <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 13px; font-family: 'Inter', sans-serif; padding-top: 3px;"></select>
+                    </div>
                 </div>
-                <div style="width: 1px; background: #333; height: 80%;"></div>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
-                    <label>RESSONÂNCIA</label>
-                    <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 13px; font-family: 'Inter', sans-serif; padding-top: 3px;"></select>
+                <div id="content-exposicao-fake" style="display: flex; width: 100%; justify-content: center; align-items: center; font-family: 'Inter'; font-size: 11px; font-weight: bold; color: #555; letter-spacing: 2px;">
+                    STATUS: MUNDANO
                 </div>
             </div>
 
-            <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <label style="text-align: center; width: 100%;">TETO DE RESERVA</label>
-                <div style="display:flex; align-items:center; justify-content: center; gap:5px; margin-top: 5px;">
-                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="salvarFicha()" style="font-size: 14px; border-color: #555; width: 35px; text-align: center;">
+            <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <label style="width: 100%;">TETO DE RESERVA</label>
+                <div style="display:flex; align-items:center; justify-content: center; gap:8px; width: auto; margin-top: 2px;">
+                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="salvarFicha()" style="font-size: 14px; border-color: #555; width: 45px; text-align: center;">
                     <div id="display-limite-pe" style="font-size:22px; color:#fff; font-weight: bold; line-height: 1;">1</div>
                 </div>
             </div>
+            
             <div class="stat-box">
                 <label>MOBILIDADE</label>
                 <input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q" style="font-size: 16px;">
@@ -321,7 +343,7 @@
 
         <div class="status-container">
             <div class="status-header-container">
-                <div class="status-header">VITALIDADE</div>
+                <div class="status-header" style="color: var(--hp-red);">VITALIDADE</div>
                 <button class="btn-status-action" onclick="instakill()" title="Declarar Óbito">ÓBITO</button>
             </div>
             <div class="bar-bg">
@@ -343,7 +365,7 @@
 
         <div class="status-container">
             <div class="status-header-container">
-                <div class="status-header">LUCIDEZ</div>
+                <div class="status-header" style="color: #668888;">LUCIDEZ</div>
                 <button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Choque Psicológico">CHOQUE</button>
             </div>
             <div class="bar-bg">
@@ -373,7 +395,7 @@
 
         <div class="status-container">
             <div class="status-header-container">
-                 <div class="status-header" style="color: #8b6e4f;">RESERVA (FÔLEGO / ADRENALINA)</div>
+                 <div class="status-header" style="color: #8b6e4f; text-align: center; width: 100%;">RESERVA (FÔLEGO / ADRENALINA)</div>
             </div>
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
@@ -396,22 +418,20 @@
                     <option value="Crânio">Crânio</option>
                 </select>
             </div>
-            
             <div style="flex: 1; background: var(--bg-panel); border: 1px solid #333; padding: 12px; border-radius: 2px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
                 <label for="chk-sequela" class="mini-cond-label">SEQUELA PERMANENTE</label>
                 <textarea id="desc-sequela" class="condicao-text" placeholder="Relatório médico da sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
             </div>
         </div>
-
     </section>
     
     <section>
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
             <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
-            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E ESPECIALIZAÇÕES</button>
-            <button class="tab-btn" onclick="mudarAba('rituais')">ANOMALIAS</button>
+            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E ESPEC.</button>
+            <button class="tab-btn" id="tab-anomalias" onclick="mudarAba('rituais')" style="display: none;">ANOMALIAS</button>
             <button class="tab-btn" onclick="mudarAba('inventario')">ARQUIVO E ITENS</button>
             <button class="tab-btn" onclick="mudarAba('background')">PERFIL PSICOLÓGICO</button>
         </nav>
@@ -429,7 +449,6 @@
                     </div>
                     <div id="lista-pericias-pessoais"></div>
                 </div>
-                
                 <div class="pericias-box">
                     <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">FORMAÇÃO ACADÊMICA/TÉCNICA</h3>
                     <div class="pericia-header">
@@ -445,68 +464,54 @@
         </div>
         
         <div id="aba-combate" class="tab-content">
-            <div class="defesa-grid" style="background: var(--bg-panel); border: 1px solid #333; padding: 15px; border-radius: 2px;">
-                <div class="defesa-shield" id="display-defesa">10</div>
-                <div class="defesa-colunas">
-                    <div class="def-item" style="flex-direction: row; justify-content: space-around; flex-wrap: wrap; gap: 15px;">
-                        
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div class="def-header-row"><label class="def-label">DEFESA (10+AGI)</label></div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="bonus-defesa" class="def-input-bonus" placeholder="0" onchange="salvarFicha()">
-                            </div>
-                        </div>
-
-                        <div style="width: 1px; background: #333;"></div>
-
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div class="def-header-row"><label class="def-label">BLOQUEIO</label></div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="bonus-bloqueio" class="def-input-bonus" placeholder="0" onchange="salvarFicha()">
-                            </div>
-                            <div class="def-val-total" id="display-bloqueio">0</div>
-                        </div>
-
-                        <div style="width: 1px; background: #333;"></div>
-
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div class="def-header-row"><label class="def-label">ESQUIVA</label></div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="bonus-esquiva" class="def-input-bonus" placeholder="0" onchange="salvarFicha()">
-                            </div>
-                            <div class="def-val-total" id="display-esquiva">10</div>
-                        </div>
-
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #333; text-align: center;">
+                    <label style="display:block; font-size: 10px; color: var(--cris-purple); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">DEFESA (10 + AGI)</label>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                        <input type="number" id="bonus-defesa" class="def-input-bonus" placeholder="+0" onchange="salvarFicha()" style="width: 40px; text-align: center;">
+                        <span id="display-defesa" style="font-size: 32px; font-family: 'Crimson Text', serif; color: #fff; font-weight: bold; border-bottom: 2px solid var(--cris-purple); padding: 0 10px;">10</span>
+                    </div>
+                </div>
+                <div style="background: rgba(139, 28, 28, 0.05); padding: 15px; border-radius: 5px; border: 1px solid #442222; text-align: center;">
+                    <label style="display:block; font-size: 10px; color: var(--hp-red); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">CARGA DE PRESSÃO TOTAL</label>
+                    <div style="font-family:'Crimson Text', serif; font-size: 32px; font-weight: bold; color: #d3d3d3; margin-top: 5px;">
+                        <span id="pressao-atual-combate">0</span> <span style="color: #666; font-size: 24px;">/</span> <span id="pressao-max-combate" style="color: var(--hp-red);">2</span>
                     </div>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; margin-top: 25px; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                <div class="cris-btn" onclick="novoAtaque()">+ ADICIONAR ATAQUE</div>
-                <div style="font-family:'Inter', sans-serif; font-size: 12px; font-weight: bold; color: #888;">
-                    PRESSÃO TOTAL <span id="pressao-total-combate" style="color:#fff; font-family: 'Crimson Text', serif; font-size: 20px; margin-left: 8px;">0</span> / <span class="pressao-max-display" style="color:var(--hp-red); font-family: 'Crimson Text', serif; font-size: 20px;">2</span>
+            <div class="stat-row" style="display: flex; align-items: center; margin-bottom: 25px; flex-wrap: wrap; background: #151515; padding: 10px; border: 1px solid #222;">
+                <span class="info-label" style="width: auto; margin-right: 15px;">REAÇÕES (BÔNUS)</span> 
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span style="font-size: 11px; color:#888;">Fortitude (Bloqueio)</span> 
+                    <input id="bonus-bloqueio" type="number" class="info-field" placeholder="0" onchange="salvarFicha()" style="width: 60px; flex: none;"> 
+                    <span style="font-size: 11px; color:#888;">Reflexos (Esquiva)</span> 
+                    <input id="bonus-esquiva" type="number" class="info-field" placeholder="0" onchange="salvarFicha()" style="width: 60px; flex: none;"> 
                 </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                <h3 style="font-family: 'Crimson Text', serif; color: var(--cris-purple); font-size: 20px; margin: 0; letter-spacing: 1px;">SISTEMAS DE ARMAS E ATAQUES</h3>
+                <button class="cris-btn" onclick="novoAtaque()">+ INSERIR ARMA/ATAQUE</button>
             </div>
             
             <div id="lista-ataques"></div>
 
-            <div class="separator" style="border-bottom: 1px solid #333; margin-top: 25px; margin-bottom: 15px;"></div>
-            <div class="info-row"><label class="info-label">EQUIPAMENTO DE PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
+            <div class="info-row" style="margin-top: 25px;"><label class="info-label">EQUIPAMENTO DE PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
             <div class="info-row"><label class="info-label">VULNERABILIDADES</label><input type="text" id="info-vuln" class="info-field" placeholder="Fogo, Morte..." onchange="salvarFicha()"></div>
             <div class="info-row"><label class="info-label">TOLERÂNCIAS (RESISTÊNCIAS)</label><input type="text" id="info-res" class="info-field" onchange="salvarFicha()"></div>
             <div class="info-row"><label class="info-label">PROFICIÊNCIAS TÁTICAS</label><input type="text" id="info-prof" class="info-field" onchange="salvarFicha()"></div>
         </div>
+
         <div id="aba-tracos" class="tab-content">
             <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; flex-wrap: wrap;">
                 <div class="cris-btn" onclick="novaHabilidade()">+ INSERIR TRAÇO</div>
                 <div class="cris-btn" onclick="novoPoder()" style="border-color: #8b1c1c; color: #8b1c1c;">+ DESCREVER ESPECIALIZAÇÃO</div>
             </div>
-
             <div style="margin-bottom: 30px;">
                 <h3 style="font-family: 'Crimson Text', serif; color: var(--text-main); font-size: 20px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;">COMPORTAMENTOS E TRAÇOS</h3>
                 <div id="lista-habilidades"></div>
             </div>
-
             <div>
                 <h3 style="font-family: 'Crimson Text', serif; color: var(--hp-red); font-size: 20px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;">VÍNCULOS E ESPECIALIZAÇÕES</h3>
                 <div id="lista-poderes"></div>
@@ -514,21 +519,24 @@
         </div>
 
         <div id="aba-rituais" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                 <div class="cris-btn" onclick="novoRitual()">+ REGISTRAR ANOMALIA</div>
-                <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 12px; font-weight: bold; color: #888;">
-                    DIFICULDADE BASE (DT) <span id="dt-val" style="margin-left:8px; color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 20px;">10</span>
-                    <input type="number" id="bonus-dt" placeholder="+0" onchange="salvarFicha()" style="width:35px; background:transparent; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; margin-left:10px; outline:none; font-family:'Inter'; border-radius:2px; padding: 2px;">
-                    </div>
+                <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: #888; background: var(--bg-panel); padding: 8px 15px; border-radius: 4px; border: 1px solid #333;">
+                    DIFICULDADE BASE DE RITUAL (10 + SAG)
+                    <span style="margin: 0 10px;">+</span>
+                    <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(); salvarFicha();" style="width:45px; background:#121212; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; outline:none; font-family:'Inter'; padding: 4px;">
+                    <span style="margin: 0 10px;">=</span>
+                    <span id="dt-val" style="color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 24px;">10</span>
+                </div>
             </div>
             <div id="lista-rituais"></div>
         </div>
 
         <div id="aba-inventario" class="tab-content">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                <div class="cris-btn" onclick="novoItem()" style="border-color: #555; color: #d3d3d3;">+ ADICIONAR ITEM</div>
+                <div class="cris-btn" onclick="novoItem()" style="border-color: #555; color: #d3d3d3;">+ ADICIONAR ITEM GERAL</div>
                 <div style="font-family:'Inter', sans-serif; font-size: 12px; font-weight: bold; color: #888;">
-                    PRESSÃO TOTAL <span id="pressao-total-inv" style="color:#fff; font-family: 'Crimson Text', serif; font-size: 20px; margin-left: 8px;">0</span> / <span class="pressao-max-display" style="color:var(--hp-red); font-family: 'Crimson Text', serif; font-size: 20px;">2</span>
+                    CARGA DE PRESSÃO <span id="pressao-atual-inv" style="color:#fff; font-family: 'Crimson Text', serif; font-size: 20px; margin-left: 8px;">0</span> / <span id="pressao-max-inv" style="color:var(--hp-red); font-family: 'Crimson Text', serif; font-size: 20px;">2</span>
                 </div>
             </div>
             <div id="lista-inventario"></div>
@@ -574,7 +582,6 @@
                 </div>
             </div>
         </div>
-
     </section>
 </div>
 
@@ -587,7 +594,7 @@
         messagingSenderId: "758802032764",
         appId: "1:758802032764:web:40467e15fdc24c570081f9",
     };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -600,17 +607,41 @@
     let ritualIdAtual = "";
     let isITActive = false;
 
-    // --- VARIÁVEIS DE CONTROLE DE PRESSÃO ---
-    let pressaoArmasVal = 0;
-    let pressaoInvVal = 0;
+    // --- VARIÁVEIS DE SEGREDOS ---
+    let isRevelado = false;
+    let isHexatombe = false;
+    let pressaoInventarioGeral = 0;
 
-    function atualizarPressaoTotal() {
-        const total = pressaoArmasVal + pressaoInvVal;
-        if(document.getElementById('pressao-total-combate')) document.getElementById('pressao-total-combate').innerText = total;
-        if(document.getElementById('pressao-total-inv')) document.getElementById('pressao-total-inv').innerText = total;
+    // --- LISTENER DE COMANDOS SECRETOS ---
+    let cheatCode = "";
+    document.addEventListener('keydown', (e) => {
+        // Ignora se estiver digitando em campos de texto
+        const active = document.activeElement;
+        if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
+
+        cheatCode += e.key.toLowerCase();
+        if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
+
+        if (cheatCode.includes("despertar")) {
+            ativarSegredo('revelado', !isRevelado);
+            cheatCode = "";
+        }
+        if (cheatCode.includes("hexatombe")) {
+            ativarSegredo('hexatombe', !isHexatombe);
+            cheatCode = "";
+        }
+    });
+
+    async function ativarSegredo(campo, valor) {
+        document.body.classList.add('shake'); // Tremer Tela
+        setTimeout(async () => {
+            document.body.classList.remove('shake');
+            let o = {}; o[campo] = valor;
+            await db.collection("fichas").doc(atual).update(o);
+        }, 800);
     }
-    // ----------------------------------------
 
+    // --- FUNÇÕES DE UPLOAD DE IMAGEM ---
     function abrirUpload(tipo, id = "") {
         modoCrop = tipo; ritualIdAtual = id;
         document.getElementById('fileUploader').click();
@@ -767,7 +798,7 @@
             carregarPoderes();
             carregarHabilidades();
             carregarInventario();
-            carregarAtaques(); /* --- ALTERAÇÃO: CARREGA OS ATAQUES --- */
+            carregarAtaques();
         }
     }
 
@@ -811,7 +842,13 @@
 
     function mudouNex() {
         const nexStr = document.getElementById('nex-personagem').value || "5%";
-        const nex = parseInt(nexStr) || 0;
+        let nex = parseInt(nexStr) || 0;
+
+        // Se o segredo nao foi revelado, mascara o 0% e 100% para não dar dicas absurdas
+        if (!isRevelado) {
+            if (nex === 0) nex = 5;
+            if (nex === 100) nex = 99;
+        }
         
         atualizarOpcoesRessonancia(nex);
         
@@ -829,13 +866,25 @@
     }
 
     function recalcularBases() {
-        const vig = parseInt(document.getElementById('attr-vig').value) || 0;
-        const von = parseInt(document.getElementById('attr-von').value) || 0;
-        const sag = parseInt(document.getElementById('attr-sag').value) || 0;
+        let vig = parseInt(document.getElementById('attr-vig').value) || 0;
+        let von = parseInt(document.getElementById('attr-von').value) || 0;
+        let sag = parseInt(document.getElementById('attr-sag').value) || 0;
+        let agi = parseInt(document.getElementById('attr-agi').value) || 0; 
         const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
         const nexStr = document.getElementById('nex-personagem').value || "0%";
-        const nex = parseInt(nexStr) || 0;
+        let nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
+
+        // Aplicando Buff Secreto Hexatombe (+2 em tudo base)
+        if (isHexatombe) {
+            vig += 2; von += 2; sag += 2; agi += 2;
+        }
+
+        // Mascarando 0% e 100% caso não revelado
+        if (!isRevelado) {
+            if (nex === 0) nex = 5;
+            if (nex === 100) nex = 99;
+        }
         
         const novaVida = 12 + (2 * vig) + (3 * nivel);
         const novaSan = 12 + (10 * von + 10 * sag);
@@ -875,8 +924,16 @@
 
         const bLimitePe = parseInt(document.getElementById('bonus-limite-pe').value) || 0;
         document.getElementById('display-limite-pe').innerText = novoLimitePe + bLimitePe;
+        
+        // CALCULO DA DEFESA COM AGILIDADE
+        const bDefesa = parseInt(document.getElementById('bonus-defesa').value) || 0;
+        document.getElementById('display-defesa').innerText = 10 + agi + bDefesa;
 
-        // CALCULO DA PRESSÃO MÁXIMA
+        // CALCULO DA DT COM SAGACIDADE
+        const bDtRitual = parseInt(document.getElementById('bonus-dt').value) || 0;
+        document.getElementById('dt-val').innerText = 10 + nivel + sag + bDtRitual;
+
+        // CALCULO DA PRESSÃO
         let numGrau = 0;
         if (nex >= 5 && nex <= 20) numGrau = 1;
         else if (nex >= 25 && nex <= 40) numGrau = 2;
@@ -884,8 +941,8 @@
         else if (nex >= 65 && nex <= 80) numGrau = 4;
         else if (nex >= 85 && nex <= 99) numGrau = 5;
         else if (nex >= 100) numGrau = 6;
-        
-        document.querySelectorAll('.pressao-max-display').forEach(e => e.innerText = numGrau * 2);
+        if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = numGrau * 2;
+        if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = numGrau * 2;
         
         const divArq = document.getElementById('grupo-arquetipo');
         if (nivel >= 2) { divArq.style.display = 'flex'; } 
@@ -898,6 +955,29 @@
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             const d = doc.data();
             if(!d) return;
+
+            // Variáveis Secretas
+            isRevelado = d.revelado || false;
+            isHexatombe = d.hexatombe || false;
+
+            // UI DO MODO HEXATOMBE
+            if (isHexatombe) document.body.classList.add('tema-hexatombe');
+            else document.body.classList.remove('tema-hexatombe');
+
+            // UI DO VÉU REVELADO (Anomalias, Exposição, Pentagrama de Sangue)
+            if (isRevelado) {
+                document.getElementById('content-exposicao-real').style.display = 'flex';
+                document.getElementById('content-exposicao-fake').style.display = 'none';
+                document.getElementById('tab-anomalias').style.display = 'block';
+
+                if(d.nex === "100%") document.getElementById('sigilo-box').classList.add('brilho-sangue');
+                else document.getElementById('sigilo-box').classList.remove('brilho-sangue');
+            } else {
+                document.getElementById('content-exposicao-real').style.display = 'none';
+                document.getElementById('content-exposicao-fake').style.display = 'flex';
+                document.getElementById('tab-anomalias').style.display = 'none';
+                document.getElementById('sigilo-box').classList.remove('brilho-sangue');
+            }
             
             document.getElementById('nome-personagem').value = d.nome || "";
             document.getElementById('origem-personagem').value = d.origem || "";
@@ -950,12 +1030,15 @@
                 document.getElementById('grau-ressonancia').value = grauCalculado;
             }
 
-            const vig = parseInt(d.vig) || 0;
-            const von = d.von !== undefined ? parseInt(d.von) : (parseInt(d.pre) || 0);
-            const sag = d.sag !== undefined ? parseInt(d.sag) : (parseInt(d.int) || 0);
-            const agi = parseInt(d.agi) || 0; // Extraído para o cálculo da defesa
-            
+            let vig = parseInt(d.vig) || 0;
+            let von = d.von !== undefined ? parseInt(d.von) : (parseInt(d.pre) || 0);
+            let sag = d.sag !== undefined ? parseInt(d.sag) : (parseInt(d.int) || 0);
+            let agi = parseInt(d.agi) || 0;
             const classe = d.classe || "";
+
+            if (isHexatombe) {
+                vig += 2; von += 2; sag += 2; agi += 2;
+            }
             
             let limitePeBase = 1 + vig + von + nivel;
             if (classe === "Esotérico") limitePeBase += (2 * sag);
@@ -989,7 +1072,8 @@
                     if(totalSpan) {
                         const attrUsado = dadosPericia.atributo || bancoPericias[p].attr;
                         const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
-                        const attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                        let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                        if(isHexatombe) attrValue += 2; // Adiciona visualmente o buff na pericia
                         totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue;
                     }
                 });
@@ -1004,22 +1088,14 @@
             const bEsq = parseInt(d.bonusEsquiva) || 0;
             const bBloq = parseInt(d.bonusBloqueio) || 0;
             const bDt = parseInt(d.bonusDt) || 0;
-            
             document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
             document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
             document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
             document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
             
-            // --- ALTERAÇÃO: DEFESA SOMA AGI CORRETAMENTE ---
-            const defBase = 10 + agi;
-            document.getElementById('display-defesa').innerText = defBase + bDef;
-            document.getElementById('display-esquiva').innerText = defBase + bEsq;
-            document.getElementById('display-bloqueio').innerText = fortTreino + bBloq;
+            document.getElementById('display-defesa').innerText = 10 + agi + bDef;
+            document.getElementById('dt-val').innerText = 10 + nivel + sag + bDt;
             
-            // --- ALTERAÇÃO: DT SOMA SAGACIDADE CORRETAMENTE ---
-            document.getElementById('dt-val').innerText = 10 + sag + nivel + bDt;
-            // -----------------------------------------------
-
             if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false;
             if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false;
             if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false;
@@ -1052,6 +1128,7 @@
                 if(parseInt(d.sanAtual) > 0) contentSan.style.opacity = '1';
             }
 
+            // Carregamento dos Campos do Perfil Psicológico (Background)
             document.getElementById('bgDescricao').value = d.bgDescricao || "";
             document.getElementById('bgIdeologia').value = d.bgIdeologia || "";
             document.getElementById('bgPessoas').value = d.bgPessoas || "";
@@ -1242,101 +1319,6 @@
         else if (tipo === 'sequela') { document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
     }
 
-    // --- ALTERAÇÃO: RENDERIZAÇÃO DOS ATAQUES (SOMA PRESSÃO) ---
-    function carregarAtaques() {
-        db.collection("fichas").doc(atual).collection("ataques").onSnapshot(snap => {
-            const container = document.getElementById('lista-ataques');
-            container.innerHTML = "";
-            pressaoArmasVal = 0; // Reseta antes de somar
-            
-            snap.forEach(doc => {
-                const a = doc.data();
-                const id = doc.id;
-                
-                const p = parseInt(a.pressao) || 0;
-                pressaoArmasVal += p;
-
-                container.innerHTML += `
-                <div class="ritual-card" style="border-left-color: var(--hp-red);">
-                    <div class="card-header" style="justify-content: space-between; display: flex;">
-                        <input type="text" value="${a.nome || ''}" onchange="updateSub('${id}', 'ataques', 'nome', this.value)" style="background:transparent; border:none; color:#d3d3d3; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold; outline:none; width: 60%;" placeholder="Nome do Ataque">
-                        <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="removerSub('${id}', 'ataques')">X</button>
-                    </div>
-                    <div class="card-body" style="display:block;">
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Dano</span><input type="text" class="rit-input" value="${a.dano || ''}" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Tipo</span><input type="text" class="rit-input" value="${a.tipo || ''}" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div>
-                        </div>
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Alcance</span><input type="text" class="rit-input" value="${a.alcance || ''}" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Munição</span><input type="text" class="rit-input" value="${a.municao || ''}" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Bônus</span><input type="text" class="rit-input" value="${a.bonus || ''}" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Perícia</span><input type="text" class="rit-input" value="${a.pericia || ''}" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Atributo</span><input type="text" class="rit-input" value="${a.atributo || ''}" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao !== undefined ? a.pressao : 1}" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            atualizarPressaoTotal();
-        });
-    }
-
-    function carregarInventario() {
-        db.collection("fichas").doc(atual).collection("inventario").onSnapshot(snap => {
-            const container = document.getElementById('lista-inventario');
-            container.innerHTML = "";
-            pressaoInvVal = 0; // Reseta antes de somar
-            
-            snap.forEach(doc => {
-                const item = doc.data();
-                const id = doc.id;
-                const isOpen = menusAbertos.has('inv-' + id);
-                
-                const p = parseInt(item.pressao) || 0;
-                const q = parseInt(item.quantidade) || 1;
-                pressaoInvVal += (p * q);
-
-                container.innerHTML += `
-                <div class="ritual-card" style="border-left-color: #555;">
-                    <div class="card-header" onclick="toggleElem('inv-${id}')">
-                        <span style="color:#d3d3d3; font-weight:bold">${item.nome || 'Item Não Identificado'}</span> 
-                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span>
-                    </div>
-                    <div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}">
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div>
-                            <div class="rit-field">
-                                <span class="rit-label">Categoria</span>
-                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)">
-                                    <option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option>
-                                    <option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option>
-                                    <option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option>
-                                    <option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option>
-                                    <option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div>
-                            <div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div>
-                        </div>
-                        <div class="rit-field">
-                            <span class="rit-label">Anotações</span>
-                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea>
-                        </div>
-                        <div style="text-align:right; margin-top:10px;">
-                            <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            atualizarPressaoTotal();
-        });
-    }
-
     function carregarRituais() {
         db.collection("fichas").doc(atual).collection("rituais").onSnapshot(snap => {
             const container = document.getElementById('lista-rituais');
@@ -1478,18 +1460,117 @@
         });
     }
 
-    async function novoRitual() { 
-        await db.collection("fichas").doc(atual).collection("rituais").add({ 
-            nome: "Nova Anomalia", elemento: "Morte", descricao: "", 
-            aprendido: false, primeiraConjuracao: false, tempoAprendizado: "",
-            tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: ""
+    function carregarAtaques() {
+        db.collection("fichas").doc(atual).collection("ataques").onSnapshot(snap => {
+            const list = document.getElementById('lista-ataques');
+            list.innerHTML = "";
+            let pressaoAtaques = 0;
+
+            snap.forEach(doc => {
+                const a = doc.data();
+                const id = doc.id;
+                const isOpen = menusAbertos.has('atq-' + id);
+                pressaoAtaques += (parseInt(a.pressao) || 0);
+
+                list.innerHTML += `
+                <div class="ritual-card" style="border-left-color: var(--hp-red);">
+                    <div class="card-header" onclick="toggleElem('atq-${id}')">
+                        <span style="color:var(--hp-red); font-weight:bold">${a.nome || 'Ataque Sem Nome'}</span> 
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span>
+                    </div>
+                    <div class="card-body" id="atq-${id}" style="display:${isOpen ? 'block' : 'none'}">
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>
+                        </div>
+                        <div class="rit-field" style="margin-bottom:10px;">
+                            <span class="rit-label">Carga de Pressão</span>
+                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
+                        </div>
+                        <div style="text-align:right; margin-top:10px;">
+                            <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            if(document.getElementById('pressao-atual-combate')) document.getElementById('pressao-atual-combate').innerText = pressaoAtaques + window.pressaoInventarioGeral;
+            if(document.getElementById('pressao-atual-inv')) document.getElementById('pressao-atual-inv').innerText = pressaoAtaques + window.pressaoInventarioGeral;
         });
     }
+
+    window.pressaoInventarioGeral = 0;
+
+    function carregarInventario() {
+        db.collection("fichas").doc(atual).collection("inventario").onSnapshot(snap => {
+            const container = document.getElementById('lista-inventario');
+            container.innerHTML = "";
+            let pressaoInv = 0;
+            
+            snap.forEach(doc => {
+                const item = doc.data();
+                const id = doc.id;
+                const isOpen = menusAbertos.has('inv-' + id);
+                const p = parseInt(item.pressao) || 0;
+                const q = parseInt(item.quantidade) || 1;
+                pressaoInv += (p * q);
+
+                container.innerHTML += `
+                <div class="ritual-card" style="border-left-color: #555;">
+                    <div class="card-header" onclick="toggleElem('inv-${id}')">
+                        <span style="color:#d3d3d3; font-weight:bold">${item.nome || 'Item Não Identificado'}</span> 
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span>
+                    </div>
+                    <div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}">
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div>
+                            <div class="rit-field">
+                                <span class="rit-label">Categoria</span>
+                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)">
+                                    <option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option>
+                                    <option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option>
+                                    <option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option>
+                                    <option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option>
+                                    <option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div>
+                        </div>
+                        <div class="rit-field">
+                            <span class="rit-label">Anotações</span>
+                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea>
+                        </div>
+                        <div style="text-align:right; margin-top:10px;">
+                            <button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            window.pressaoInventarioGeral = pressaoInv;
+            if(document.getElementById('pressao-atual-inv')) document.getElementById('pressao-atual-inv').innerText = pressaoInv;
+        });
+    }
+
+    async function novoRitual() { await db.collection("fichas").doc(atual).collection("rituais").add({ nome: "Nova Anomalia", elemento: "Morte", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
     async function novoPoder() { await db.collection("fichas").doc(atual).collection("poderes").add({ nome: "Nova Especialização", elemento: "Geral", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { await db.collection("fichas").doc(atual).collection("habilidades").add({ nome: "Novo Traço", descricao: "" }); }
     async function novoItem() { await db.collection("fichas").doc(atual).collection("inventario").add({ nome: "Novo Item", categoria: "Geral", pressao: 1, quantidade: 1, descricao: "" }); }
-    // --- ALTERAÇÃO: NOVO ATAQUE ---
-    async function novoAtaque() { await db.collection("fichas").doc(atual).collection("ataques").add({ nome: "Novo Ataque", dano: "1d6", tipo: "Físico", alcance: "Curto", municao: "-", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 }); }
+    async function novoAtaque() { await db.collection("fichas").doc(atual).collection("ataques").add({ nome: "Arma Desconhecida", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 1 }); }
     
     async function updateSub(id, col, campo, valor) { 
         let o = {}; o[campo] = valor; 
@@ -1497,7 +1578,7 @@
         if (col === 'poderes') menusAbertos.add('pod-' + id);
         if (col === 'habilidades') menusAbertos.add('hab-' + id);
         if (col === 'inventario') menusAbertos.add('inv-' + id);
-        // Não adicionamos os ataques no 'menusAbertos' pois eles não precisam abrir/fechar, já nascem abertos.
+        if (col === 'ataques') menusAbertos.add('atq-' + id);
         await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); 
     }
     
