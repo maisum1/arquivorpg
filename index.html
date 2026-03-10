@@ -110,24 +110,22 @@
         </div>
 
        <div id="hub-mestre" class="conteudo-hub" style="display:none;">
-    
     <div style="background: #151515; border: 1px solid #333; padding: 20px; margin-bottom: 30px; text-align: left; border-radius: 4px;">
         <h3 style="color: #a68a64; font-family: 'Crimson Text', serif; margin-top: 0;">🛠️ CONTROLE MESTRE DOS SEGREDOS</h3>
         <p style="font-size: 12px; color: #888;">Ativa ou desativa mecânicas nas fichas dos jogadores em TEMPO REAL.</p>
         
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
             <button onclick="toggleGlobal('revelado')" style="background: #111; color: #d3d3d3; border: 1px solid #555; padding: 10px; cursor: pointer; flex: 1;">
-                👁️ ERGUER O VÉU (Anomalias/NEX)
+                👁️ ERGUER O VÉU (Anomalias/Ressonância)
             </button>
             <button onclick="toggleGlobal('extremos')" style="background: #111; color: #8b1c1c; border: 1px dashed #8b1c1c; padding: 10px; cursor: pointer; flex: 1;">
-                🩸 REVELAR 100% (Pulsar Pentagrama)
+                🩸 ATIVAR 100% NEX (Pulsar Pentagrama)
             </button>
             <button onclick="toggleGlobal('hexatombe')" style="background: #111; color: #8b1c1c; border: 1px solid #8b1c1c; padding: 10px; cursor: pointer; flex: 1;">
                 💀 MODO HEXATOMBE (Buff Geral)
             </button>
         </div>
     </div>
-    
     <div id="monitor-mestre" class="grid"></div>
 </div>
 
@@ -137,21 +135,22 @@
         
         docRef.get().then((doc) => {
             let estadoAtual = false;
-            // Verifica o estado atual da variavel no banco
+            // Se o doc existir, pega o estado atual daquele botao
             if(doc.exists && doc.data()[campo]) { estadoAtual = doc.data()[campo]; }
             
-            // Inverte o estado
+            // Inverte o que tava
             let o = {}; o[campo] = !estadoAtual;
             
-            // Salva e avisa
+            // Salva de volta
             docRef.set(o, { merge: true }).then(() => {
-                alert(`Configuração Global [ ${campo.toUpperCase()} ] agora está: ${!estadoAtual ? "LIGADA" : "DESLIGADA"}`);
+                alert(`Segredo Mestre [ ${campo.toUpperCase()} ] foi ${!estadoAtual ? "LIGADO" : "DESLIGADO"} para todos.`);
             });
         }).catch((e) => {
             console.error(e);
-            alert("Erro ao alterar! Verifique se seu Firebase permite gravar na coleção 'configuracoes'.");
+            alert("Erro ao alterar! O Firestore não encontrou a rota de configurações.");
         });
     }
+</script>
     // ADICIONE ESTA FUNÇÃO NO SCRIPT DO SEU INDEX.HTML
     function toggleGlobal(campo) {
         const docRef = db.collection("configuracoes").doc("globais");
