@@ -151,25 +151,6 @@
         });
     }
 </script>
-    // ADICIONE ESTA FUNÇÃO NO SCRIPT DO SEU INDEX.HTML
-    function toggleGlobal(campo) {
-        const docRef = db.collection("configuracoes").doc("globais");
-        
-        docRef.get().then((doc) => {
-            let estadoAtual = false;
-            if(doc.exists && doc.data()[campo]) { estadoAtual = doc.data()[campo]; }
-            
-            let o = {}; o[campo] = !estadoAtual;
-            docRef.set(o, { merge: true }).then(() => {
-                alert(`Variável Global [${campo}] alterada para: ${!estadoAtual}`);
-            });
-        }).catch(() => {
-            // Caso o documento não exista, ele cria a primeira vez
-            let o = {}; o[campo] = true;
-            docRef.set(o, { merge: true }).then(() => alert(`Variável Global [${campo}] iniciada e ativada!`));
-        });
-    }
-</script>
 
         <br><br>
         <button onclick="firebase.auth().signOut()" style="background:transparent; color:#555; border:none; cursor:pointer; font-family: 'Inter'; font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-top: 40px; transition: 0.3s;">ENCERRAR SESSÃO</button>
