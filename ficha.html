@@ -27,6 +27,7 @@
             --cor-fixo: #a68a64;
         }
 
+        /* TEMA HEXATOMBE (BUFF ATIVADO) */
         body.tema-hexatombe {
             --cris-purple: #8b1c1c; 
             --bg-panel: #1c0a0a; 
@@ -46,6 +47,7 @@
         .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; padding: 5px 0; outline: none; }
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px;}
 
+        /* EFEITO TELA TREMENDO (COMANDO SECRETO) */
         @keyframes shake {
             0% { transform: translate(2px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -61,6 +63,7 @@
         }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
+        /* PENTAGRAMA DE FUNDO */
         .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(50%) opacity(0.8); }
         .sigilo-container::before {
             content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%;
@@ -119,8 +122,10 @@
         .pericia-nome:hover { color: var(--cris-purple); text-decoration: underline dashed 1px var(--cris-purple); text-underline-offset: 4px; }
         .pericia-nome::after { content: ' ▼'; font-size: 8px; opacity: 0.3; }
         .pericia-desc { display: none; background: #121212; border-left: 2px solid var(--cris-purple); padding: 10px; font-size: 11px; color: #aaa; margin-bottom: 4px; line-height: 1.5; font-family: 'Inter', sans-serif; font-style: italic;}
+        
         .sub-pericias-box { display: none; background: #181818; padding: 10px; border-radius: 2px; border-left: 2px solid #555; margin-bottom: 5px;}
-        .sub-input { width: 30px; background: transparent; border: 1px solid #444; color: #fff; font-size: 11px; text-align: center; border-radius: 2px; }
+        .sub-input { background: transparent; border: 1px solid #444; color: #fff; font-size: 11px; text-align: center; border-radius: 2px; }
+        
         .treino-select { background: transparent; color: #ccc; border: 1px solid #333; font-size: 12px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; font-family: 'Inter', sans-serif;}
 
         .p-verde { background: rgba(166, 138, 100, 0.1) !important; }
@@ -289,11 +294,11 @@
         </div>
 
         <div class="sigilo-container" id="sigilo-box">
-            <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="recalcularBases(); salvarFicha();"></div>
+            <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="recalcularBases();"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="salvarFicha()"></div>
-            <div class="attr-box sag"><span class="attr-label">SAG</span><input type="number" id="attr-sag" onchange="recalcularBases(); salvarFicha();"></div>
-            <div class="attr-box von"><span class="attr-label">VON</span><input type="number" id="attr-von" onchange="recalcularBases(); salvarFicha();"></div>
-            <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="recalcularBases(); salvarFicha();"></div>
+            <div class="attr-box sag"><span class="attr-label">SAG</span><input type="number" id="attr-sag" onchange="recalcularBases();"></div>
+            <div class="attr-box von"><span class="attr-label">VON</span><input type="number" id="attr-von" onchange="recalcularBases();"></div>
+            <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="recalcularBases();"></div>
         </div>
 
         <div class="mid-stats">
@@ -322,7 +327,7 @@
             <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
                 <label style="width: 100%;">TETO DE RESERVA</label>
                 <div style="display:flex; align-items:center; justify-content: center; gap:8px; width: auto; margin-top: 2px;">
-                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="salvarFicha()" style="font-size: 14px; border-color: #555; width: 45px; text-align: center;">
+                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases();" style="font-size: 14px; border-color: #555; width: 45px; text-align: center;">
                     <div id="display-limite-pe" style="font-size:22px; color:#fff; font-weight: bold; line-height: 1;">1</div>
                 </div>
             </div>
@@ -342,7 +347,7 @@
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
                     <span class="bar-btn" onclick="ajustar('vida', -1)">« <</span>
-                    <div><input type="number" id="vida-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="vida-max" onchange="salvarFicha()"></div>
+                    <div><input type="number" id="vida-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="vida-max" readonly style="color:#aaa;"></div>
                     <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-vida">
@@ -364,7 +369,7 @@
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
                     <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
-                    <div><input type="number" id="san-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="san-max" onchange="salvarFicha()"></div>
+                    <div><input type="number" id="san-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="san-max" readonly style="color:#aaa;"></div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-san" style="border-color: #2f4f4f;">
@@ -393,7 +398,7 @@
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content" id="content-pe">
                     <span class="bar-btn" onclick="ajustar('pe', -1)">« <</span>
-                    <div><input type="number" id="pe-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pe-max" onchange="salvarFicha()"></div>
+                    <div><input type="number" id="pe-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pe-max" readonly style="color:#aaa;"></div>
                     <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
                 </div>
             </div>
@@ -432,24 +437,12 @@
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="pericias-box">
                     <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">APTIDÕES NATURAIS</h3>
-                    <div class="pericia-header">
-                        <span>Nome</span>
-                        <span title="Atributo Base">Atrib.</span>
-                        <span>Bônus</span>
-                        <span>Treino</span>
-                        <span>Soma</span>
-                    </div>
+                    <div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div>
                     <div id="lista-pericias-pessoais"></div>
                 </div>
                 <div class="pericias-box">
                     <h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">FORMAÇÃO ACADÊMICA/TÉCNICA</h3>
-                    <div class="pericia-header">
-                        <span>Nome</span>
-                        <span title="Atributo Base">Atrib.</span>
-                        <span>Bônus</span>
-                        <span>Treino</span>
-                        <span>Soma</span>
-                    </div>
+                    <div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div>
                     <div id="lista-pericias-profissao"></div>
                 </div>
             </div>
@@ -472,20 +465,16 @@
                 </div>
             </div>
 
-            <div class="stat-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div style="background: #151515; padding: 10px; border: 1px solid #222; text-align: center; border-radius: 4px;">
-                    <span style="font-size: 10px; color:#888; display: block; margin-bottom: 5px; text-transform: uppercase;">BLOQUEIO (Defesa + Fortitude)</span> 
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;">
-                        <input id="bonus-bloqueio" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> 
-                        <span id="display-bloqueio" style="font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; margin-left: 10px;">0</span>
-                    </div>
-                </div>
-                <div style="background: #151515; padding: 10px; border: 1px solid #222; text-align: center; border-radius: 4px;">
-                    <span style="font-size: 10px; color:#888; display: block; margin-bottom: 5px; text-transform: uppercase;">ESQUIVA (Defesa + Reflexos)</span> 
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;">
-                        <input id="bonus-esquiva" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> 
-                        <span id="display-esquiva" style="font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; margin-left: 10px;">0</span>
-                    </div>
+            <div class="stat-row" style="display: flex; align-items: center; margin-bottom: 25px; flex-wrap: wrap; background: #151515; padding: 10px; border: 1px solid #222;">
+                <span class="info-label" style="width: auto; margin-right: 15px;">REAÇÕES (BÔNUS)</span> 
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span style="font-size: 11px; color:#888;">Fortitude (Bloqueio)</span> 
+                    <input id="bonus-bloqueio" type="number" class="info-field" placeholder="0" onchange="recalcularDefesas(); salvarFicha();" style="width: 50px; flex: none;"> 
+                    <span id="display-bloqueio" style="font-size: 20px; font-family: 'Crimson Text', serif; font-weight: bold; margin-right: 15px;">0</span>
+
+                    <span style="font-size: 11px; color:#888;">Reflexos (Esquiva)</span> 
+                    <input id="bonus-esquiva" type="number" class="info-field" placeholder="0" onchange="recalcularDefesas(); salvarFicha();" style="width: 50px; flex: none;"> 
+                    <span id="display-esquiva" style="font-size: 20px; font-family: 'Crimson Text', serif; font-weight: bold;">0</span>
                 </div>
             </div>
 
@@ -520,9 +509,9 @@
             <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                 <button class="cris-btn" onclick="toggleElem('modal-anomalia')">+ REGISTRAR ANOMALIA</button>
                 <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: #888; background: var(--bg-panel); padding: 8px 15px; border-radius: 4px; border: 1px solid #333;">
-                    DIFICULDADE BASE DE RITUAL (10 + NÍVEL + SAG)
+                    DIFICULDADE BASE DE RITUAL (10 + SAG)
                     <span style="margin: 0 10px;">+</span>
-                    <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(); salvarFicha();" style="width:45px; background:#121212; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; outline:none; font-family:'Inter'; padding: 4px;">
+                    <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases();" style="width:45px; background:#121212; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; outline:none; font-family:'Inter'; padding: 4px;">
                     <span style="margin: 0 10px;">=</span>
                     <span id="dt-val" style="color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 24px;">10</span>
                 </div>
@@ -542,42 +531,15 @@
 
         <div id="aba-background" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="bg-section">
-                    <label class="bg-label">DESCRIÇÃO PESSOAL</label>
-                    <textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, estilo de roupas, maneirismos e impressões gerais..."></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">IDEOLOGIA E CRENÇAS</label>
-                    <textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita profundamente? Religioso, cético, supersticioso?"></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">PESSOAS SIGNIFICATIVAS</label>
-                    <textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem é importante para você e por qual motivo?"></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">LOCAIS IMPORTANTES</label>
-                    <textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Um refúgio de infância, a cena de um crime, um túmulo..."></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">POSSES QUERIDAS</label>
-                    <textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Um relógio de bolso antigo, uma carta amassada, uma arma..."></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">CARACTERÍSTICAS MARCANTES</label>
-                    <textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Hedonista, leal até a morte, covarde em crise, sonhador..."></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">FERIMENTOS E CICATRIZES</label>
-                    <textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas físicas que servem de lembrete de eventos passados..."></textarea>
-                </div>
-                <div class="bg-section">
-                    <label class="bg-label">FOBIAS E MANIAS</label>
-                    <textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Claustrofobia, nictofobia, paranoia, obsessão por simetria..."></textarea>
-                </div>
-                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2;">
-                    <label class="bg-label" style="color: var(--hp-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label>
-                    <textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" placeholder="Tomos profanos que leu, anomalias presenciadas, artefatos guardados..." style="min-height: 120px; border-color: #442222; background: rgba(139, 28, 28, 0.05);"></textarea>
-                </div>
+                <div class="bg-section"><label class="bg-label">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, estilo de roupas, maneirismos e impressões gerais..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita profundamente? Religioso, cético, supersticioso?"></textarea></div>
+                <div class="bg-section"><label class="bg-label">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem é importante para você e por qual motivo?"></textarea></div>
+                <div class="bg-section"><label class="bg-label">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Um refúgio de infância, a cena de um crime, um túmulo..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Um relógio de bolso antigo, uma carta amassada, uma arma..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Hedonista, leal até a morte, covarde em crise, sonhador..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas físicas que servem de lembrete de eventos passados..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Claustrofobia, nictofobia, paranoia, obsessão por simetria..."></textarea></div>
+                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2;"><label class="bg-label" style="color: var(--hp-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" placeholder="Tomos profanos que leu, anomalias presenciadas, artefatos guardados..." style="min-height: 120px; border-color: #442222; background: rgba(139, 28, 28, 0.05);"></textarea></div>
             </div>
         </div>
     </section>
@@ -608,8 +570,12 @@
     // --- VARIÁVEIS DE SEGREDOS ---
     let isRevelado = false;
     let isHexatombe = false;
+    let isExtremos = false; // Flag para ativar/desativar 0 e 100%
+
     let globalRevelado = false;
     let globalHexatombe = false;
+    let globalExtremos = false;
+    
     let pressaoInventarioGeral = 0;
 
     // --- LISTENER DE CONFIGURAÇÕES GLOBAIS DO MESTRE ---
@@ -617,6 +583,7 @@
         if(doc.exists) {
             globalRevelado = doc.data().revelado || false;
             globalHexatombe = doc.data().hexatombe || false;
+            globalExtremos = doc.data().extremos || false;
             aplicarSegredosUI();
         }
     });
@@ -630,14 +597,9 @@
         cheatCode += e.key.toLowerCase();
         if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
 
-        if (cheatCode.includes("despertar")) {
-            ativarSegredo('revelado', !isRevelado);
-            cheatCode = "";
-        }
-        if (cheatCode.includes("hexatombe")) {
-            ativarSegredo('hexatombe', !isHexatombe);
-            cheatCode = "";
-        }
+        if (cheatCode.includes("despertar")) { ativarSegredo('revelado', !isRevelado); cheatCode = ""; }
+        if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe', !isHexatombe); cheatCode = ""; }
+        if (cheatCode.includes("extremos")) { ativarSegredo('extremos', !isExtremos); cheatCode = ""; }
     });
 
     async function ativarSegredo(campo, valor) {
@@ -652,6 +614,7 @@
     function aplicarSegredosUI() {
         const reveladoFinal = isRevelado || globalRevelado;
         const hexatombeFinal = isHexatombe || globalHexatombe;
+        const extremosFinal = isExtremos || globalExtremos;
 
         if (hexatombeFinal) document.body.classList.add('tema-hexatombe');
         else document.body.classList.remove('tema-hexatombe');
@@ -662,7 +625,8 @@
             document.getElementById('tab-anomalias').style.display = 'block';
             
             const nexStr = document.getElementById('nex-personagem').value;
-            if(nexStr === "100%") document.getElementById('sigilo-box').classList.add('brilho-sangue');
+            // Pulsar em vermelho APENAS se Extremos estiver ativo e NEX for 100%
+            if(nexStr === "100%" && extremosFinal) document.getElementById('sigilo-box').classList.add('brilho-sangue');
             else document.getElementById('sigilo-box').classList.remove('brilho-sangue');
         } else {
             document.getElementById('content-exposicao-real').style.display = 'none';
@@ -679,19 +643,16 @@
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const imgElement = new Image();
-                imgElement.src = e.target.result;
+                const imgElement = new Image(); imgElement.src = e.target.result;
                 imgElement.onload = function() {
                     const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
                     const maxW = 600; const scale = maxW / imgElement.width;
                     canvas.width = maxW; canvas.height = imgElement.height * scale;
                     ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
                     const base64comprimido = canvas.toDataURL('image/webp', 0.6);
-
                     document.getElementById('temp-img').src = base64comprimido;
                     document.getElementById('crop-zoom').value = 1; document.getElementById('crop-x').value = 50; document.getElementById('crop-y').value = 50;
                     atualizarPreview();
-
                     const preview = document.getElementById('crop-preview');
                     if(modoCrop === 'ritual') { preview.style.width = "80px"; preview.style.height = "80px"; } else { preview.style.width = "110px"; preview.style.height = "140px"; }
                     document.getElementById('modal-config').style.display = 'none'; document.getElementById('crop-modal').style.display = 'block'; input.value = "";
@@ -721,7 +682,7 @@
         const urlBase = window.location.href.split('ficha.html')[0]; const linkFull = `${urlBase}portrait.html?id=${atual}`; navigator.clipboard.writeText(linkFull); alert("Link copiado!");
     }
 
-    // --- BANCO DE PERÍCIAS (AGORA COM SUB-PERÍCIAS) ---
+    // --- BANCO DE PERÍCIAS ---
     const bancoPericias = {
         "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Usada para equilibrar-se, cair com segurança e escapar de amarras." },
         "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Define sua capacidade física para correr, nadar, pular e escalar." },
@@ -732,7 +693,7 @@
         "Enganação": { attr: "VON", tipo: "pessoal", desc: "A arte de mentir, blefar e enganar pessoas." },
         "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência física a venenos, doenças e fadiga. Também afeta seu Bloqueio." },
         "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Capacidade de se esconder, mover-se em silêncio e passar despercebido." },
-        "Idiomas": { attr: "SAG", tipo: "profissao", desc: "A cada 4 pontos combinados nas subperícias, ganha +1 no geral.", subs: ["Inglês", "Espanhol", "Francês", "Latim"] },
+        "Idiomas": { attr: "SAG", tipo: "profissao", desc: "A cada 4 pontos combinados nas subperícias, ganha +1 no geral.", subsInputs: true },
         "Intuição": { attr: "VON", tipo: "pessoal", desc: "Sua capacidade de ler pessoas, perceber mentiras e 'sentir' intenções." },
         "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Usada para procurar pistas, analisar cenas e encontrar coisas ocultas." },
         "Luta": { attr: "FOR", tipo: "pessoal", desc: "Sua habilidade em combate corpo a corpo (armado ou desarmado)." },
@@ -770,7 +731,6 @@
         let lvlHtml = '';
         for(let i=0; i<=5; i++) lvlHtml += `<option value="${i}">${i}</option>`;
         nivelSel.innerHTML = lvlHtml;
-
         const nexSel = document.getElementById('nex-personagem');
         let nexHtml = '';
         for(let i=0; i<=95; i+=5) {
@@ -808,6 +768,15 @@
                     subsHtml += `<div style="display:flex; align-items:center; gap:5px;"><span style="font-size:10px; color:#888;">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()"></div>`;
                 });
                 subsHtml += `</div></div>`;
+            } else if (info.subsInputs) {
+                subsHtml = `<div id="subs-${p}" class="sub-pericias-box" style="display:none; grid-column: 1 / -1;">
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-0" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 1" onchange="salvarFicha()"><input type="number" id="sub-${p}-0" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-1" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 2" onchange="salvarFicha()"><input type="number" id="sub-${p}-1" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-2" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 3" onchange="salvarFicha()"><input type="number" id="sub-${p}-2" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><span style="font-size:10px; color:#888; width:120px; text-align:left;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                    </div>
+                </div>`;
             }
 
             const bloco = `
@@ -831,40 +800,28 @@
             `;
             if (info.tipo === "profissao") { htmlProfissao += bloco; } else { htmlPessoais += bloco; }
         });
-        
-        document.getElementById('lista-pericias-pessoais').innerHTML = htmlPessoais;
-        document.getElementById('lista-pericias-profissao').innerHTML = htmlProfissao;
+        document.getElementById('lista-pericias-pessoais').innerHTML = htmlPessoais; document.getElementById('lista-pericias-profissao').innerHTML = htmlProfissao;
     }
 
     function toggleDescricao(nome) {
-        const desc = document.getElementById(`desc-${nome}`);
-        desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
-        const subs = document.getElementById(`subs-${nome}`);
-        if(subs) subs.style.display = subs.style.display === 'block' ? 'none' : 'block';
+        const desc = document.getElementById(`desc-${nome}`); desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
+        const subs = document.getElementById(`subs-${nome}`); if(subs) subs.style.display = subs.style.display === 'block' ? 'none' : 'block';
     }
 
     function mudouNex() {
         const nexStr = document.getElementById('nex-personagem').value || "5%";
         let nex = parseInt(nexStr) || 0;
         
-        const reveladoFinal = isRevelado || globalRevelado;
-        if (!reveladoFinal) {
-            if (nex === 0) nex = 5;
-            if (nex === 100) nex = 99;
-        }
+        const extremosFinal = isExtremos || globalExtremos;
+        if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
         
         atualizarOpcoesRessonancia(nex);
         let grauCalculado = "1º Grau";
-        if (nex === 0) grauCalculado = "Nulo";
-        else if (nex >= 5 && nex <= 20) grauCalculado = "1º Grau";
-        else if (nex >= 25 && nex <= 40) grauCalculado = "2º Grau";
-        else if (nex >= 45 && nex <= 60) grauCalculado = "3º Grau";
-        else if (nex >= 65 && nex <= 80) grauCalculado = "4º Grau";
-        else if (nex >= 85 && nex <= 99) grauCalculado = "5º Grau";
-        else if (nex >= 100) grauCalculado = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡";
+        if (nex === 0) grauCalculado = "Nulo"; else if (nex >= 5 && nex <= 20) grauCalculado = "1º Grau"; else if (nex >= 25 && nex <= 40) grauCalculado = "2º Grau"; else if (nex >= 45 && nex <= 60) grauCalculado = "3º Grau"; else if (nex >= 65 && nex <= 80) grauCalculado = "4º Grau"; else if (nex >= 85 && nex <= 99) grauCalculado = "5º Grau"; else if (nex >= 100) grauCalculado = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡";
         
         document.getElementById('grau-ressonancia').value = grauCalculado;
         recalcularBases();
+        aplicarSegredosUI(); // Chama UI para ver se precisa piscar o pentagrama
     }
 
     function recalcularDefesas() {
@@ -879,11 +836,12 @@
         const defBase = 10 + agiReal + bDefesa;
         document.getElementById('display-defesa').innerText = defBase;
 
-        const fortTotal = parseInt(document.getElementById('total-Fortitude')?.innerText) || 0;
-        const refTotal = parseInt(document.getElementById('total-Reflexos')?.innerText) || 0;
+        // O Bloqueio e Esquiva somam apenas o TREINO (não o bônus nem o atributo inteiro)
+        const fortTreino = parseInt(document.getElementById('treino-Fortitude')?.value) || 0;
+        const refTreino = parseInt(document.getElementById('treino-Reflexos')?.value) || 0;
 
-        document.getElementById('display-bloqueio').innerText = defBase + fortTotal + bBloqueio;
-        document.getElementById('display-esquiva').innerText = defBase + refTotal + bEsquiva;
+        document.getElementById('display-bloqueio').innerText = defBase + fortTreino + bBloqueio;
+        document.getElementById('display-esquiva').innerText = defBase + refTreino + bEsquiva;
     }
 
     function recalcularBases() {
@@ -898,28 +856,32 @@
         const hexatombeFinal = isHexatombe || globalHexatombe;
         if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
 
-        const reveladoFinal = isRevelado || globalRevelado;
-        if (!reveladoFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
+        const extremosFinal = isExtremos || globalExtremos;
+        if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
         
         const novaVida = 12 + (2 * vig) + (3 * nivel);
-        const novaSan = 50 + (10 * von + 10 * sag);
+        const novaSan = 12 + (10 * von + 10 * sag);
         
         let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10);
         let novoLimitePe = 1 + vig + von + nivel;
         if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } 
         else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
         
-        const oldVidaMax = parseInt(document.getElementById('vida-max').value) || 1;
-        const oldSanMax = parseInt(document.getElementById('san-max').value) || 1;
-        const oldPeMax = parseInt(document.getElementById('pe-max').value) || 1;
+        const oldVidaMax = parseInt(document.getElementById('vida-max').value) || 12;
+        const oldSanMax = parseInt(document.getElementById('san-max').value) || 12;
+        const oldPeMax = parseInt(document.getElementById('pe-max').value) || 2;
 
         document.getElementById('vida-max').value = novaVida;
         document.getElementById('san-max').value = novaSan;
         document.getElementById('pe-max').value = novoPe;
 
-        let vidaAtual = parseInt(document.getElementById('vida-atual').value) || 0; if (novaVida !== oldVidaMax) vidaAtual = novaVida;
-        let sanAtual = parseInt(document.getElementById('san-atual').value) || 0; if (novaSan !== oldSanMax) sanAtual = novaSan;
-        let peAtual = parseInt(document.getElementById('pe-atual').value) || 0; if (novoPe !== oldPeMax) peAtual = novoPe;
+        // Se o valor maximo mudar, reduz o atual proporcionalmente
+        let vidaAtual = parseInt(document.getElementById('vida-atual').value) || 0; 
+        if (novaVida !== oldVidaMax) { vidaAtual += (novaVida - oldVidaMax); if(vidaAtual < 1 && novaVida < oldVidaMax) vidaAtual = 1; }
+        let sanAtual = parseInt(document.getElementById('san-atual').value) || 0; 
+        if (novaSan !== oldSanMax) { sanAtual += (novaSan - oldSanMax); if(sanAtual < 1 && novaSan < oldSanMax) sanAtual = 1; }
+        let peAtual = parseInt(document.getElementById('pe-atual').value) || 0; 
+        if (novoPe !== oldPeMax) { peAtual += (novoPe - oldPeMax); if(peAtual < 1 && novoPe < oldPeMax) peAtual = 1; }
 
         document.getElementById('vida-atual').value = vidaAtual; document.getElementById('san-atual').value = sanAtual; document.getElementById('pe-atual').value = peAtual;
         atualizarStatus('vida', vidaAtual, novaVida); atualizarStatus('san', sanAtual, novaSan); atualizarStatus('pe', peAtual, novoPe);
@@ -929,7 +891,7 @@
         
         // CALCULO DA DT DE RITUAL
         const bDtRitual = parseInt(document.getElementById('bonus-dt').value) || 0;
-        document.getElementById('dt-val').innerText = 10 + nivel + sag + bDtRitual;
+        document.getElementById('dt-val').innerText = 10 + sag + bDtRitual; // Nível removido daqui caso desejado, ou 10 + sag + bDt. Deixando 10+SAG.
 
         // CALCULO DA PRESSÃO MAX
         let numGrau = 0;
@@ -941,16 +903,29 @@
         const divArq = document.getElementById('grupo-arquetipo');
         if (nivel >= 2) { divArq.style.display = 'flex'; } else { divArq.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
 
-        recalcularDefesas(); // Chama a defesa sempre que recalcular as bases
+        recalcularDefesas(); 
+        salvarFicha();
     }
 
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
-            const d = doc.data();
-            if(!d) return;
+            const d_raw = doc.data();
+            if(!d_raw) return;
 
-            isRevelado = d.revelado || false;
-            isHexatombe = d.hexatombe || false;
+            isRevelado = d_raw.revelado || false;
+            isHexatombe = d_raw.hexatombe || false;
+            isExtremos = d_raw.extremos || false;
+            
+            const hexatombeFinal = isHexatombe || globalHexatombe;
+            
+            // Lógica de Load Duplo
+            let d = d_raw;
+            if (hexatombeFinal && d_raw.hexatombe_data) {
+                d = { ...d_raw, ...d_raw.hexatombe_data };
+                // Mantém os atuas da raiz
+                d.vidaAtual = d_raw.vidaAtual; d.sanAtual = d_raw.sanAtual; d.peAtual = d_raw.peAtual;
+            }
+
             aplicarSegredosUI();
             
             document.getElementById('nome-personagem').value = d.nome || "";
@@ -994,7 +969,6 @@
             let vig = parseInt(d.vig) || 0; let von = d.von !== undefined ? parseInt(d.von) : (parseInt(d.pre) || 0); let sag = d.sag !== undefined ? parseInt(d.sag) : (parseInt(d.int) || 0); let agi = parseInt(d.agi) || 0;
             const classe = d.classe || "";
 
-            const hexatombeFinal = isHexatombe || globalHexatombe;
             if (hexatombeFinal) { vig += 2; von += 2; sag += 2; agi += 2; }
             
             let limitePeBase = 1 + vig + von + nivel;
@@ -1005,32 +979,29 @@
             
             atualizarStatus('vida', d.vidaAtual ?? 12, d.vidaMax ?? 12); atualizarStatus('san', d.sanAtual ?? 12, d.sanMax ?? 12); atualizarStatus('pe', d.peAtual ?? 2, d.peMax ?? 2);
 
-            let fortTreino = 0;
+            let fortTreino = 0; let refTreino = 0;
             if(d.pericias) {
                 nomesPericias.forEach(p => {
-                    const bField = document.getElementById(`bonus-${p}`);
-                    const tField = document.getElementById(`treino-${p}`);
-                    const aField = document.getElementById(`attr-${p}`);
-                    const totalSpan = document.getElementById(`total-${p}`);
-
-                    const dadosPericia = d.pericias[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0] };
+                    const bField = document.getElementById(`bonus-${p}`); const tField = document.getElementById(`treino-${p}`); const aField = document.getElementById(`attr-${p}`); const totalSpan = document.getElementById(`total-${p}`);
+                    const dadosPericia = d.pericias[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0], subsNames: ["","","",""] };
                     
                     if(bField) bField.value = dadosPericia.bonus ?? 0;
                     if(tField) {
-                        tField.value = dadosPericia.treino ?? 0;
-                        atualizarCorPericia(p, tField.value);
+                        tField.value = dadosPericia.treino ?? 0; atualizarCorPericia(p, tField.value);
                         if(p === "Fortitude") fortTreino = parseInt(tField.value);
+                        if(p === "Reflexos") refTreino = parseInt(tField.value);
                     }
                     if(aField && dadosPericia.atributo) { aField.value = dadosPericia.atributo; }
 
-                    // Carrega as subperícias
                     let bonusSub = 0;
-                    if (bancoPericias[p].subs) {
+                    if (bancoPericias[p].subs || bancoPericias[p].subsInputs) {
                         for(let i=0; i<4; i++) {
                             const subEl = document.getElementById(`sub-${p}-${i}`);
-                            if(subEl) {
-                                subEl.value = dadosPericia.subs ? (dadosPericia.subs[i] || 0) : 0;
-                                bonusSub += parseInt(subEl.value) || 0;
+                            if(subEl) { subEl.value = dadosPericia.subs ? (dadosPericia.subs[i] || 0) : 0; bonusSub += parseInt(subEl.value) || 0; }
+                            
+                            if(bancoPericias[p].subsInputs && i < 3) {
+                                const subNomeEl = document.getElementById(`sub-nome-${p}-${i}`);
+                                if(subNomeEl) subNomeEl.value = dadosPericia.subsNames ? (dadosPericia.subsNames[i] || "") : "";
                             }
                         }
                     }
@@ -1040,59 +1011,36 @@
                         const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
                         let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
                         if(hexatombeFinal) attrValue += 2; 
-
-                        // Regra do "4 para 1"
-                        const extraSub = Math.floor(bonusSub / 4);
-
-                        totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue + extraSub;
+                        totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue + Math.floor(bonusSub / 4);
                     }
                 });
             }
 
-            document.getElementById('info-prot').value = d.protecao || "";
-            document.getElementById('info-vuln').value = d.vulnerabilidades || "";
-            document.getElementById('info-res').value = d.resistencias || "";
-            document.getElementById('info-prof').value = d.proficiencias || "";
+            document.getElementById('info-prot').value = d.protecao || ""; document.getElementById('info-vuln').value = d.vulnerabilidades || ""; document.getElementById('info-res').value = d.resistencias || ""; document.getElementById('info-prof').value = d.proficiencias || "";
 
             const bDef = parseInt(d.bonusDefesa) || 0; const bEsq = parseInt(d.bonusEsquiva) || 0; const bBloq = parseInt(d.bonusBloqueio) || 0; const bDt = parseInt(d.bonusDt) || 0;
-            document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : "";
-            document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : "";
-            document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : "";
-            document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
+            document.getElementById('bonus-defesa').value = bDef !== 0 ? bDef : ""; document.getElementById('bonus-esquiva').value = bEsq !== 0 ? bEsq : ""; document.getElementById('bonus-bloqueio').value = bBloq !== 0 ? bBloq : ""; document.getElementById('bonus-dt').value = bDt !== 0 ? bDt : "";
             
-            recalcularDefesas(); // Chamada para garantir o calculo visual da Defesa/Esquiva/Bloqueio
-            document.getElementById('dt-val').innerText = 10 + nivel + sag + bDt;
+            recalcularDefesas(); 
+            document.getElementById('dt-val').innerText = 10 + sag + bDt; // 10 + SAG (Nível removido como pedido)
             
-            if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false;
-            if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false;
-            if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false;
-            if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false;
-            if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false;
-            if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
+            if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false; if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false; if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false; if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false; if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false; if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
             
-            document.getElementById('chk-lesionado').checked = d.condLesionado || false; document.getElementById('chk-sequela').checked = d.condSequela || false;
-            toggleMiniCond('lesionado'); toggleMiniCond('sequela');
-            if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores";
-            if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
+            document.getElementById('chk-lesionado').checked = d.condLesionado || false; document.getElementById('chk-sequela').checked = d.condSequela || false; toggleMiniCond('lesionado'); toggleMiniCond('sequela'); if(document.getElementById('local-lesao')) document.getElementById('local-lesao').value = d.localLesao || "Membros Superiores"; if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
 
             isITActive = d.insanoTemporario || false;
             const itState = document.getElementById('it-san'); const contentSan = document.getElementById('content-san');
             if (isITActive) {
                 itState.classList.add('active'); contentSan.style.opacity = '0';
-                for(let i=1; i<=4; i++) {
-                    const el = document.getElementById(`it-${i}`);
-                    if(el) { if(i <= (d.itRounds || 0)) el.classList.add('active'); else el.classList.remove('active'); }
-                }
-            } else {
-                itState.classList.remove('active');
-                if(parseInt(d.sanAtual) > 0) contentSan.style.opacity = '1';
-            }
+                for(let i=1; i<=4; i++) { const el = document.getElementById(`it-${i}`); if(el) { if(i <= (d.itRounds || 0)) el.classList.add('active'); else el.classList.remove('active'); } }
+            } else { itState.classList.remove('active'); if(parseInt(d.sanAtual) > 0) contentSan.style.opacity = '1'; }
 
             document.getElementById('bgDescricao').value = d.bgDescricao || ""; document.getElementById('bgIdeologia').value = d.bgIdeologia || ""; document.getElementById('bgPessoas').value = d.bgPessoas || ""; document.getElementById('bgLocais').value = d.bgLocais || ""; document.getElementById('bgPosses').value = d.bgPosses || ""; document.getElementById('bgTracos').value = d.bgTracos || ""; document.getElementById('bgCicatrizes').value = d.bgCicatrizes || ""; document.getElementById('bgFobias').value = d.bgFobias || ""; document.getElementById('bgEncontros').value = d.bgEncontros || "";
         });
     }
 
     function salvarFicha() {
+        const hexatombeFinal = isHexatombe || globalHexatombe;
         const currentUser = auth.currentUser;
         const nomeJogadorData = currentUser ? (currentUser.displayName || currentUser.email) : "Desconhecido";
 
@@ -1102,22 +1050,22 @@
             const tVal = document.getElementById(`treino-${p}`) ? parseInt(document.getElementById(`treino-${p}`).value) || 0 : 0;
             const aVal = document.getElementById(`attr-${p}`) ? document.getElementById(`attr-${p}`).value : bancoPericias[p].attr;
             
-            let arrSubs = [0,0,0,0];
-            let bonusSub = 0;
-            if (bancoPericias[p].subs) {
+            let arrSubs = [0,0,0,0]; let bonusSub = 0; let arrSubsNames = ["","","",""];
+            if (bancoPericias[p].subs || bancoPericias[p].subsInputs) {
                 for(let i=0; i<4; i++) {
                     const subVal = parseInt(document.getElementById(`sub-${p}-${i}`)?.value) || 0;
-                    arrSubs[i] = subVal;
-                    bonusSub += subVal;
+                    arrSubs[i] = subVal; bonusSub += subVal;
+                    if(bancoPericias[p].subsInputs && i < 3) arrSubsNames[i] = document.getElementById(`sub-nome-${p}-${i}`)?.value || "";
                 }
             }
 
-            periciasObj[p] = { bonus: bVal, treino: tVal, atributo: aVal, subs: arrSubs };
+            periciasObj[p] = { bonus: bVal, treino: tVal, atributo: aVal, subs: arrSubs, subsNames: arrSubsNames };
 
             const totalSpan = document.getElementById(`total-${p}`);
             if(totalSpan) {
                 const attrInput = document.getElementById(`attr-${aVal.toLowerCase()}`);
-                const attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                if(hexatombeFinal) attrValue += 2;
                 totalSpan.innerText = bVal + tVal + attrValue + Math.floor(bonusSub / 4);
             }
         });
@@ -1125,7 +1073,7 @@
         let itRounds = 0;
         for(let i=1; i<=4; i++) { if(document.getElementById(`it-${i}`).classList.contains('active')) itRounds = i; }
 
-        db.collection("fichas").doc(atual).update({
+        let payload = {
             nomeJogador: nomeJogadorData, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
             agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
             vidaAtual: parseInt(document.getElementById('vida-atual').value) || 0, vidaMax: parseInt(document.getElementById('vida-max').value) || 12, sanAtual: parseInt(document.getElementById('san-atual').value) || 0, sanMax: parseInt(document.getElementById('san-max').value) || 12, peAtual: parseInt(document.getElementById('pe-atual').value) || 0, peMax: parseInt(document.getElementById('pe-max').value) || 2,
@@ -1135,7 +1083,21 @@
             condLesionado: document.getElementById('chk-lesionado').checked, condSequela: document.getElementById('chk-sequela').checked, enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked, localLesao: document.getElementById('local-lesao').value, descSequela: document.getElementById('desc-sequela').value,
             insanoTemporario: isITActive, itRounds: itRounds,
             bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
-        });
+        };
+
+        // Lógica de Salvar Isolado
+        let rootUpdates = {
+            revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos,
+            vidaAtual: payload.vidaAtual, sanAtual: payload.sanAtual, peAtual: payload.peAtual // Estes nunca "somem" e mantêm as pontes matemáticas seguras
+        };
+
+        if (hexatombeFinal) {
+            rootUpdates.hexatombe_data = payload;
+        } else {
+            rootUpdates = { ...payload, ...rootUpdates };
+        }
+
+        db.collection("fichas").doc(atual).update(rootUpdates);
     }
 
     function atualizarCorPericia(nome, valor) {
@@ -1306,7 +1268,7 @@
         const val = document.getElementById('select-origem-template').value;
         if(val === "Cultista Arrependido") {
             document.getElementById('origem-personagem').value = "Cultista Arrependido";
-            document.getElementById('treino-Ocultismo').value = 3; // +3 Bonus (Graduado no seu sistema)
+            document.getElementById('treino-Ocultismo').value = 3; 
             salvarFicha();
         }
         toggleElem('modal-origem');
@@ -1314,12 +1276,10 @@
 
     async function aplicarAnomaliaTemplate() {
         const val = document.getElementById('select-anomalia-template').value;
-        if(val === "vazio") {
-            await novoRitual();
-        } else if (val === "toque_medo") {
+        if(val === "vazio") { await novoRitual(); } 
+        else if (val === "toque_medo") {
             await db.collection("fichas").doc(atual).collection("rituais").add({ 
-                nome: "Toque do Medo", elemento: "Morte", descricao: "Acelera a entropia de um alvo tocado, causando envelhecimento precoce e dor.", 
-                aprendido: true, primeiraConjuracao: true, tempoAprendizado: "Concluído", tempoConjuracao: "Padrão", alcance: "Toque", alvo: "1 Ser", duracao: "Instantânea", custoPe: "2", custoSanidade: "1d4", simbolo: ""
+                nome: "Toque do Medo", elemento: "Morte", descricao: "Acelera a entropia de um alvo tocado, causando envelhecimento precoce e dor.", aprendido: true, primeiraConjuracao: true, tempoAprendizado: "Concluído", tempoConjuracao: "Padrão", alcance: "Toque", alvo: "1 Ser", duracao: "Instantânea", custoPe: "2", custoSanidade: "1d4", simbolo: ""
             });
         }
         toggleElem('modal-anomalia');
@@ -1327,22 +1287,14 @@
 
     async function updateSub(id, col, campo, valor) { 
         let o = {}; o[campo] = valor; 
-        if (col === 'rituais') menusAbertos.add('rit-' + id);
-        if (col === 'poderes') menusAbertos.add('pod-' + id);
-        if (col === 'habilidades') menusAbertos.add('hab-' + id);
-        if (col === 'inventario') menusAbertos.add('inv-' + id);
+        if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id);
+        if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id);
         if (col === 'ataques') menusAbertos.add('atq-' + id);
         await db.collection("fichas").doc(atual).collection(col).doc(id).update(o); 
     }
     
     async function removerSub(id, col) { if(confirm("Remover este arquivo confidencial?")) await db.collection("fichas").doc(atual).collection(col).doc(id).delete(); }
-    
-    function toggleElem(id) { 
-        const b = document.getElementById(id);
-        if(!b) return;
-        if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } 
-        else { b.style.display = 'block'; menusAbertos.add(id); }
-    }
+    function toggleElem(id) { const b = document.getElementById(id); if(!b) return; if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } else { b.style.display = 'block'; menusAbertos.add(id); } }
     
     function mudarAba(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1353,10 +1305,8 @@
     }
 
     auth.onAuthStateChanged(user => {
-        if (user) { init(); } 
-        else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; }
+        if (user) { init(); } else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; }
     });
 </script>
 </body>
 </html>
-
