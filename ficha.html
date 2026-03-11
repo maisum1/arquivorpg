@@ -68,8 +68,18 @@
             background-size: contain; background-repeat: no-repeat; background-position: center;
             opacity: 0.15; z-index: -1; pointer-events: none; transition: all 1s ease;
         }
-        .sigilo-container.brilho-sangue::before { filter: drop-shadow(0 0 20px #d60d0d) sepia(1) hue-rotate(-50deg) saturate(5); opacity: 0.9; animation: pulsar-sangue 2s infinite; }
-        @keyframes pulsar-sangue { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5;} 50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.9;} 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5;} }
+
+        /* EFEITO PENTAGRAMA DE SANGUE APRIMORADO */
+        @keyframes pulsar-sangue {
+            0% { filter: drop-shadow(0 0 10px #8b1c1c) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.7;}
+            50% { filter: drop-shadow(0 0 25px #8b1c1c) drop-shadow(0 0 50px #ff0000) brightness(1.5); transform: translate(-50%, -50%) scale(1.03); opacity: 1;}
+            100% { filter: drop-shadow(0 0 10px #8b1c1c) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.7;}
+        }
+        .sigilo-container.brilho-sangue::before { 
+            filter: drop-shadow(0 0 20px #8b1c1c) sepia(1) hue-rotate(-50deg) saturate(5); 
+            opacity: 0.9; 
+            animation: pulsar-sangue 1.5s infinite alternate !important; 
+        }
 
         .attr-box { position: absolute; width: 55px; height: 55px; background: var(--bg-panel); border: 1px solid #555; border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); z-index: 1;}
         .attr-label { font-size: 9px; font-weight: bold; color: var(--cris-purple); margin-top: -2px; letter-spacing: 1px;}
@@ -344,7 +354,11 @@
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
                     <span class="bar-btn" onclick="ajustar('vida', -1)">« <</span>
-                    <div><input type="number" id="vida-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="vida-max" readonly style="color:#aaa; border:none; outline:none;"></div>
+                    <div>
+                        <input type="number" id="vida-atual" onchange="salvarFicha()"> 
+                        <span style="opacity: 0.5;">/</span> 
+                        <input type="number" id="vida-max" onchange="salvarFicha()" style="color:#aaa; border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold;">
+                    </div>
                     <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-vida">
@@ -366,7 +380,11 @@
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
                     <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
-                    <div><input type="number" id="san-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="san-max" readonly style="color:#aaa; border:none; outline:none;"></div>
+                    <div>
+                        <input type="number" id="san-atual" onchange="salvarFicha()"> 
+                        <span style="opacity: 0.5;">/</span> 
+                        <input type="number" id="san-max" onchange="salvarFicha()" style="color:#aaa; border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold;">
+                    </div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-san" style="border-color: #2f4f4f;">
@@ -395,7 +413,11 @@
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content" id="content-pe">
                     <span class="bar-btn" onclick="ajustar('pe', -1)">« <</span>
-                    <div><input type="number" id="pe-atual" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pe-max" readonly style="color:#aaa; border:none; outline:none;"></div>
+                    <div>
+                        <input type="number" id="pe-atual" onchange="salvarFicha()"> 
+                        <span style="opacity: 0.5;">/</span> 
+                        <input type="number" id="pe-max" onchange="salvarFicha()" style="color:#aaa; border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold;">
+                    </div>
                     <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
                 </div>
             </div>
@@ -568,7 +590,10 @@
     let ritualIdAtual = "";
     let isITActive = false;
 
-    // --- VARIÁVEIS DE SEGREDOS ---
+    // --- VARIÁVEIS GLOBAIS DE PRESSÃO E SEGREDOS ---
+    window.valPressaoAtaques = 0;
+    window.valPressaoInventario = 0;
+
     let isRevelado = false;
     let isHexatombe = false;
     let isExtremos = false; 
@@ -576,8 +601,15 @@
     let globalRevelado = false;
     let globalHexatombe = false;
     let globalExtremos = false;
-    
-    let pressaoInventarioGeral = 0;
+
+    // --- SINCRONIZAÇÃO DE PRESSÃO (FUNÇÃO NOVA) ---
+    function syncPressaoVisuais() {
+        const total = window.valPressaoAtaques + window.valPressaoInventario;
+        const elCombate = document.getElementById('pressao-atual-combate');
+        const elInv = document.getElementById('pressao-atual-inv');
+        if (elCombate) elCombate.innerText = total;
+        if (elInv) elInv.innerText = total;
+    }
 
     // --- LISTENER GLOBAIS MESTRE ---
     db.collection("configuracoes").doc("globais").onSnapshot(doc => {
@@ -627,6 +659,7 @@
             document.getElementById('tab-anomalias').style.display = 'block';
             
             const nexStr = document.getElementById('nex-personagem').value;
+            // Pulsar em vermelho APENAS se Extremos estiver ativo e NEX for 100%
             if(nexStr === "100%" && extremosFinal) document.getElementById('sigilo-box').classList.add('brilho-sangue');
             else document.getElementById('sigilo-box').classList.remove('brilho-sangue');
         } else {
@@ -635,7 +668,6 @@
             document.getElementById('tab-anomalias').style.display = 'none';
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
         }
-        recalcularBases(false); 
     }
 
     // --- UPLOAD ---
@@ -788,7 +820,7 @@
         const defBase = 10 + agiReal + bDefesa;
         document.getElementById('display-defesa').innerText = defBase;
 
-        // Pega apenas o valor do TREINO da perícia para bloqueio e esquiva, não o atributo
+        // O Bloqueio e Esquiva somam apenas o TREINO (não o bônus nem o atributo inteiro)
         const fortTreino = parseInt(document.getElementById('treino-Fortitude')?.value) || 0;
         const refTreino = parseInt(document.getElementById('treino-Reflexos')?.value) || 0;
 
@@ -796,7 +828,7 @@
         document.getElementById('display-esquiva').innerText = defBase + refTreino + bEsquiva;
     }
 
-    // O parâmetro 'doDelta' define se os HPs atuais devem diminuir quando os máximos alterarem
+    // Calcula os status primários APENAS quando for chamado sem gerar loop
     function recalcularBases(doDelta = true) {
         let vig = parseInt(document.getElementById('attr-vig').value) || 0;
         let von = parseInt(document.getElementById('attr-von').value) || 0;
@@ -828,7 +860,6 @@
         document.getElementById('san-max').value = novaSan;
         document.getElementById('pe-max').value = novoPe;
 
-        // Matematica de Vida Atual para NUNCA dar loop ou apagar a vida a toa. 
         if (doDelta && oldVidaMax > 0) {
             let vidaAtual = parseInt(document.getElementById('vida-atual').value) || 0; 
             if (novaVida !== oldVidaMax) { vidaAtual += (novaVida - oldVidaMax); if(vidaAtual < 1 && novaVida < oldVidaMax) vidaAtual = 1; }
@@ -857,7 +888,6 @@
         if (nivel >= 2) { divArq.style.display = 'flex'; } else { divArq.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
 
         recalcularDefesas(); 
-        // REMOVIDO: salvarFicha() para quebrar o LOOP INFINITO. O onchange do HTML já chama salvarFicha.
     }
 
     function carregarFicha() {
@@ -877,8 +907,6 @@
                 d = { ...d_raw, ...d_raw.hexatombe_data };
                 d.vidaAtual = d_raw.vidaAtual; d.sanAtual = d_raw.sanAtual; d.peAtual = d_raw.peAtual;
             }
-
-            aplicarSegredosUI(); 
             
             document.getElementById('nome-personagem').value = d.nome || "";
             document.getElementById('origem-personagem').value = d.origem || "";
@@ -928,7 +956,19 @@
             document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
             document.getElementById('display-limite-pe').innerText = limitePeBase + bLimitePe;
             
-            atualizarStatus('vida', d.vidaAtual ?? 12, d.vidaMax ?? 12); atualizarStatus('san', d.sanAtual ?? 12, d.sanMax ?? 12); atualizarStatus('pe', d.peAtual ?? 2, d.peMax ?? 2);
+            // Controle Manual dos Valores Maximos
+            const inptVidaMax = document.getElementById('vida-max');
+            if (inptVidaMax && document.activeElement !== inptVidaMax) inptVidaMax.value = d.vidaMax ?? 12;
+            
+            const inptSanMax = document.getElementById('san-max');
+            if (inptSanMax && document.activeElement !== inptSanMax) inptSanMax.value = d.sanMax ?? 12;
+            
+            const inptPeMax = document.getElementById('pe-max');
+            if (inptPeMax && document.activeElement !== inptPeMax) inptPeMax.value = d.peMax ?? 2;
+
+            atualizarStatus('vida', d.vidaAtual ?? 12, inptVidaMax.value); 
+            atualizarStatus('san', d.sanAtual ?? 12, inptSanMax.value); 
+            atualizarStatus('pe', d.peAtual ?? 2, inptPeMax.value);
 
             if(d.pericias) {
                 nomesPericias.forEach(p => {
@@ -978,6 +1018,8 @@
             } else { itState.classList.remove('active'); if(parseInt(d.sanAtual) > 0) contentSan.style.opacity = '1'; }
 
             document.getElementById('bgDescricao').value = d.bgDescricao || ""; document.getElementById('bgIdeologia').value = d.bgIdeologia || ""; document.getElementById('bgPessoas').value = d.bgPessoas || ""; document.getElementById('bgLocais').value = d.bgLocais || ""; document.getElementById('bgPosses').value = d.bgPosses || ""; document.getElementById('bgTracos').value = d.bgTracos || ""; document.getElementById('bgCicatrizes').value = d.bgCicatrizes || ""; document.getElementById('bgFobias').value = d.bgFobias || ""; document.getElementById('bgEncontros').value = d.bgEncontros || "";
+
+            aplicarSegredosUI(); 
         });
     }
 
@@ -1030,7 +1072,8 @@
         // Lógica de Salvar Isolado
         let rootUpdates = {
             revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos,
-            vidaAtual: payload.vidaAtual, sanAtual: payload.sanAtual, peAtual: payload.peAtual 
+            vidaAtual: payload.vidaAtual, sanAtual: payload.sanAtual, peAtual: payload.peAtual,
+            vidaMax: payload.vidaMax, sanMax: payload.sanMax, peMax: payload.peMax
         };
 
         if (hexatombeFinal) { rootUpdates.hexatombe_data = payload; } 
@@ -1167,12 +1210,11 @@
                     </div>
                 </div>`;
             });
-            if(document.getElementById('pressao-atual-combate')) document.getElementById('pressao-atual-combate').innerText = pressaoAtaques + window.pressaoInventarioGeral;
-            if(document.getElementById('pressao-atual-inv')) document.getElementById('pressao-atual-inv').innerText = pressaoAtaques + window.pressaoInventarioGeral;
+            window.valPressaoAtaques = pressaoAtaques;
+            syncPressaoVisuais();
         });
     }
 
-    window.pressaoInventarioGeral = 0;
     function carregarInventario() {
         db.collection("fichas").doc(atual).collection("inventario").onSnapshot(snap => {
             const container = document.getElementById('lista-inventario'); container.innerHTML = "";
@@ -1191,8 +1233,8 @@
                     </div>
                 </div>`;
             });
-            window.pressaoInventarioGeral = pressaoInv;
-            if(document.getElementById('pressao-atual-inv')) document.getElementById('pressao-atual-inv').innerText = pressaoInv;
+            window.valPressaoInventario = pressaoInv;
+            syncPressaoVisuais();
         });
     }
 
@@ -1249,5 +1291,3 @@
 </script>
 </body>
 </html>
-
-
