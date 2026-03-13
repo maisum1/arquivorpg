@@ -92,17 +92,17 @@
     </div>
 
     <div id="dashboard">
-        <h2 id="welcome" style="color: #a68a64; font-family: 'Crimson Text', serif; font-size: 1.4rem; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px;">AGENTE: CONECTANDO...</h2>
+        <h2 id="welcome" style="color: #a68a64; font-family: 'Crimson Text', serif; font-size: 1.4rem; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px;">PERSONA: CONECTANDO...</h2>
         
         <div id="menu-abas" style="margin-bottom: 30px; border-bottom: 1px solid #222; display: flex; justify-content: center; gap: 20px;">
-            <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">DOSSIÊS PESSOAIS</button> 
+            <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MINHAS PERSONAS</button> 
             <button id="btn-ameacas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('ameacas')">REGISTRO DE ENTIDADES</button>
             <button id="btn-mestre" class="tab-btn" style="display:none;" onclick="mudarAbaHub('mestre')">ARQUIVOS CONFIDENCIAIS</button>
         </div>
 
         <div id="hub-jogador" class="conteudo-hub">
             <div class="grid" id="lista-fichas"></div>
-            <button class="btn-google" onclick="criarNovaFicha()" style="background:#181818; color:#a68a64; border:1px solid #a68a64; margin-top: 30px;">+ NOVO DOSSIÊ</button>
+            <button class="btn-google" onclick="criarNovaFicha()" style="background:#181818; color:#a68a64; border:1px solid #a68a64; margin-top: 30px;">+ NOVA PERSONA</button>
         </div>
 
         <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
@@ -194,7 +194,7 @@
                 hubSec.style.display = 'block';
                 
                 const nomeUsuario = user.displayName ? user.displayName : user.email;
-                welcomeText.innerText = `AGENTE: ${nomeUsuario}`;
+                welcomeText.innerText = `PERSONA: ${nomeUsuario}`;
 
                 if (user.email === EMAIL_MESTRE) {
                     btnAmeacas.style.display = 'inline-block';
@@ -231,7 +231,7 @@
 
         async function deletarDocumento(colecao, id, nome) {
             if (colecao === 'fichas') {
-                const digitado = prompt(`ATENÇÃO: Este dossiê será incinerado permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
+                const digitado = prompt(`ATENÇÃO: Esta persona será incinerado permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
                 if (digitado === "EXCLUIR") { await db.collection(colecao).doc(id).delete(); } 
                 else if (digitado !== null) { alert("Operação cancelada."); }
             } else {
@@ -305,7 +305,7 @@
                                 </div>
                                 <div>
                                     <strong style="font-family: 'Crimson Text', serif;">${d.nome || 'SUJEITO'}</strong> <small style="color:#888">| EXP ${d.nex || '5%'}</small><br>
-                                    <small style="color:#a68a64; font-size:9px; text-transform:uppercase;">AGENTE: ${d.nomeJogador || 'Desconhecido'}</small><br>
+                                    <small style="color:#a68a64; font-size:9px; text-transform:uppercase;">PERSONA: ${d.nomeJogador || 'Desconhecido'}</small><br>
                                     <small style="color:#8b1c1c; font-weight: bold;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:#444">|</span> 
                                     <small style="color:#2f4f4f; font-weight: bold;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>
                                 </div>
