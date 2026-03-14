@@ -137,6 +137,38 @@
         .limb-double { font-size: 12px; color: #666; cursor: pointer; transition: 0.2s; user-select: none; font-weight: bold; }
         .limb-base:hover, .limb-double:hover { transform: scale(1.2); color: #fff; }
 
+        /* Boneco Minimalista */
+.boneco-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
+    height: 150px;
+}
+.membro-svg {
+    fill: none;
+    stroke: var(--text-main);
+    stroke-width: 4;
+    transition: all 0.3s ease;
+}
+/* O "X" vermelho de decepado */
+.membro-decepado {
+    position: relative;
+}
+.membro-decepado::after {
+    content: 'X';
+    position: absolute;
+    color: var(--hp-red);
+    font-size: 2.5em;
+    font-weight: bold;
+    font-family: 'Crimson Text', serif;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
         .pericias-box { background: var(--bg-panel); padding: 15px; border-radius: 2px; border: 1px solid #2a2a2a; }
         .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; letter-spacing: 1px;}
         .pericia-header > span:first-child { text-align: left; }
@@ -429,21 +461,24 @@
                 </div>
             </div>
 
-            <div class="body-map-container">
-                <div style="width: 100%; text-align: center; margin-bottom: 5px; color: var(--hp-red); font-weight: bold; font-family: 'Crimson Text', serif; font-size: 16px; letter-spacing: 1px;">MAPA DE TRAUMAS (CLIQUE NO VALOR)</div>
-                <div class="body-row">
-                    <div class="limb-box" id="limb-cabeca"><div class="limb-title">CABEÇA</div><div class="limb-value"><span class="limb-base" onclick="setLimbState('cabeca', 'lesionado')">0</span><span class="limb-double" onclick="setLimbState('cabeca', 'decepado')">(0)</span></div></div>
-                </div>
-                <div class="body-row">
-                    <div class="limb-box" id="limb-braco-dir"><div class="limb-title">BRAÇO DIR.</div><div class="limb-value"><span class="limb-base" onclick="setLimbState('braco-dir', 'lesionado')">0</span><span class="limb-double" onclick="setLimbState('braco-dir', 'decepado')">(0)</span></div></div>
-                    <div class="limb-box" id="limb-torso"><div class="limb-title">TORSO</div><div class="limb-value"><span class="limb-base" onclick="setLimbState('torso', 'lesionado')">0</span><span class="limb-double" onclick="setLimbState('torso', 'decepado')">(0)</span></div></div>
-                    <div class="limb-box" id="limb-braco-esq"><div class="limb-title">BRAÇO ESQ.</div><div class="limb-value"><span class="limb-base" onclick="setLimbState('braco-esq', 'lesionado')">0</span><span class="limb-double" onclick="setLimbState('braco-esq', 'decepado')">(0)</span></div></div>
-                </div>
-                <div class="body-row">
-                    <div class="limb-box" id="limb-perna-dir"><div class="limb-title">PERNA DIR.</div><div class="limb-value"><span class="limb-base" onclick="setLimbState('perna-dir', 'lesionado')">0</span><span class="limb-double" onclick="setLimbState('perna-dir', 'decepado')">(0)</span></div></div>
-                    <div class="limb-box" id="limb-perna-esq"><div class="limb-title">PERNA ESQ.</div><div class="limb-value"><span class="limb-base" onclick="setLimbState('perna-esq', 'lesionado')">0</span><span class="limb-double" onclick="setLimbState('perna-esq', 'decepado')">(0)</span></div></div>
-                </div>
-            </div>
+            <div class="boneco-container">
+    <svg width="100" height="150" viewBox="0 0 100 150">
+        <circle id="svg-cabeca" class="membro-svg" cx="50" cy="20" r="15" />
+        <line id="svg-tronco" class="membro-svg" x1="50" y1="35" x2="50" y2="90" />
+        <line id="svg-braco-esq" class="membro-svg" x1="50" y1="45" x2="20" y2="80" />
+        <line id="svg-braco-dir" class="membro-svg" x1="50" y1="45" x2="80" y2="80" />
+        <line id="svg-perna-esq" class="membro-svg" x1="50" y1="90" x2="30" y2="140" />
+        <line id="svg-perna-dir" class="membro-svg" x1="50" y1="90" x2="70" y2="140" />
+    </svg>
+</div>
+
+<div class="membro-linha" id="container-cabeca">
+    <span>CABEÇA</span>
+    <div>
+        <span class="val-vermelho" id="red-cabeca" style="color: var(--hp-red);">0</span> / 
+        <span class="val-preto" id="black-cabeca" style="color: #444; cursor: pointer;" onclick="marcarDecepado('cabeca')">0</span>
+    </div>
+</div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px;">
                 <h3 style="font-family: 'Crimson Text', serif; color: var(--cris-purple); font-size: 20px; margin: 0; letter-spacing: 1px;">SISTEMAS DE ARMAS E ATAQUES</h3>
@@ -964,6 +999,31 @@
     function toggleElem(id) { const b = document.getElementById(id); if(!b) return; if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } else { b.style.display = 'block'; menusAbertos.add(id); } }
     function mudarAba(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); const aba = document.getElementById('aba-' + id); if(aba) aba.classList.add('active'); if(event && event.currentTarget) event.currentTarget.classList.add('active'); }
 
+    function atualizarVidaMembros() {
+    let vidaMax = parseInt(document.getElementById('vidaMax').innerText) || 0;
+    let umQuarto = Math.floor(vidaMax / 4);
+    let metade = Math.floor(vidaMax / 2);
+
+    // Atualiza todos os elementos vermelhos e pretos
+    document.querySelectorAll('.val-vermelho').forEach(el => el.innerText = umQuarto);
+    document.querySelectorAll('.val-preto').forEach(el => el.innerText = metade);
+}
+
+function marcarDecepado(membro) {
+    const container = document.getElementById(`container-${membro}`);
+    const svgPart = document.getElementById(`svg-${membro}`);
+    
+    // Alterna a classe que cria o "X" vermelho
+    container.classList.toggle('membro-decepado');
+    
+    // Opcional: Escurece a linha do boneco minimalista
+    if (container.classList.contains('membro-decepado')) {
+        svgPart.style.stroke = '#444';
+    } else {
+        svgPart.style.stroke = 'var(--text-main)';
+    }
+}
+    
     auth.onAuthStateChanged(user => { if (user) { init(); } else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; } });
 </script>
 </body>
