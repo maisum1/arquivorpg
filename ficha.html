@@ -27,7 +27,6 @@
             --cor-fixo: #a68a64;
         }
 
-        /* TEMA HEXATOMBE FORTALECIDO */
         body.tema-hexatombe {
             --cris-purple: #8b1c1c !important; 
             --bg-panel: #1c0a0a !important; 
@@ -41,7 +40,6 @@
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* OVERLAYS VISUAIS DOS ESTADOS */
         #status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; transition: all 0.5s ease; }
         .overlay-sangrando { box-shadow: inset 0 0 150px rgba(139, 28, 28, 0.4); border: 2px solid rgba(139, 28, 28, 0.2); }
         .overlay-machucado { box-shadow: inset 0 0 150px rgba(139, 28, 28, 0.6); animation: pulse-machucado 1.5s infinite alternate; background: rgba(139, 28, 28, 0.05); }
@@ -76,12 +74,7 @@
             50% { filter: drop-shadow(0 0 25px #8b1c1c) drop-shadow(0 0 50px #ff0000) brightness(1.5); transform: translate(-50%, -50%) scale(1.03); opacity: 1;}
             100% { filter: drop-shadow(0 0 10px #8b1c1c) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.7;}
         }
-        .sigilo-container.brilho-sangue::before { 
-            filter: drop-shadow(0 0 20px #8b1c1c) sepia(1) hue-rotate(-50deg) saturate(5); 
-            opacity: 0.9; animation: pulsar-sangue 1.5s infinite alternate !important; 
-        }
-
-        /* RESTRIÇÃO CELESTIAL (APOTEOSE 0%) */
+        .sigilo-container.brilho-sangue::before { filter: drop-shadow(0 0 20px #8b1c1c) sepia(1) hue-rotate(-50deg) saturate(5); opacity: 0.9; animation: pulsar-sangue 1.5s infinite alternate !important; }
         .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)); }
         .sigilo-container.brilho-restricao::before { display: none !important; }
         .sigilo-container.brilho-restricao .attr-box { background: rgba(255, 255, 255, 0.05); border-color: #ffffff; box-shadow: inset 0 0 10px rgba(255,255,255,0.2), 0 0 10px rgba(255,255,255,0.4); }
@@ -126,16 +119,26 @@
         .mini-cond-label:hover { border-color: #555; color: #ccc; }
         #chk-sequela:checked + .mini-cond-label { background: #d3d3d3; color: #121212; border-color: #fff; }
 
-        /* BONECO DETALHADO (OBLIVIO) AUMENTADO */
-        .body-map-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 25px auto; font-family: 'Inter', sans-serif; background: rgba(255,255,255,0.01); border: 1px dashed #333; border-radius: 4px; position: relative; width: 100%; max-width: 480px; height: 500px; }
+        /* BONECO DETALHADO (OBLIVIO) AUMENTADO E ALINHADO */
+        .body-map-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 25px auto; font-family: 'Inter', sans-serif; background: rgba(255,255,255,0.01); border: 1px dashed #333; border-radius: 4px; position: relative; width: 100%; max-width: 480px; height: 520px; }
         .membro-svg { fill: #111; stroke: #555; stroke-width: 3; transition: all 0.3s ease; }
         
-        .limb-box-new { background: #151515; border: 1px solid #444; border-radius: 2px; padding: 5px 10px; width: 80px; text-align: center; position: absolute; z-index: 2; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
+        .limb-box-new { background: #151515; border: 1px solid #444; border-radius: 2px; padding: 5px 10px; width: 80px; text-align: center; position: absolute; z-index: 2; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: 0.3s; }
         .limb-box-new .title { font-size: 9px; color: #888; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;}
         .limb-box-new .values { display: flex; justify-content: space-between; font-family: 'Crimson Text', serif; font-size: 16px; font-weight: bold; color: #d3d3d3; }
         .val-btn { cursor: pointer; transition: 0.2s; user-select: none; padding: 2px 5px; border-radius: 2px; border: 1px solid transparent; width: 35%; box-sizing: border-box; }
         .val-btn:hover { color: #fff; background: rgba(255,255,255,0.1); border-color: #666; }
         
+        /* ESTADOS DE TRAUMA */
+        .limb-box-new.lesionado { background: rgba(139, 28, 28, 0.2); border-color: #ff4d4d; }
+        .limb-box-new.decepado { background: #050505; border-color: #222; }
+        .limb-box-new.decepado::after {
+            content: 'X'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 60px; color: rgba(200, 20, 20, 0.8); font-family: 'Crimson Text', serif; font-weight: bold;
+            pointer-events: none; text-shadow: 2px 2px 5px #000; z-index: 10;
+        }
+        .limb-box-new.decepado * { filter: grayscale(100%) opacity(0.3); } 
+
         .val-btn.lesionado { color: #ff4d4d; border-color: #ff4d4d; background: rgba(139, 28, 28, 0.2); }
         .val-btn.decepado { color: #555; border-color: #222; background: #050505; }
         
@@ -438,23 +441,16 @@
                 </div>
             </div>
 
-            <div class="body-map-container" style="position: relative; width: 100%; max-width: 450px; height: 480px; margin: 25px auto; background: rgba(255,255,255,0.01); border: 1px dashed #333; border-radius: 4px; overflow: visible;">
+            <div class="body-map-container" style="position: relative; width: 100%; max-width: 450px; height: 600px; margin: 25px auto; background: rgba(255,255,255,0.01); border: 1px dashed #333; border-radius: 4px; overflow: visible;">
                 <div style="width: 100%; text-align: center; margin-top: 10px; color: var(--hp-red); font-weight: bold; font-family: 'Crimson Text', serif; font-size: 16px; letter-spacing: 1px; z-index: 10;">MAPA DE TRAUMAS (CLIQUE NO VALOR)</div>
                 
-                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 240px; height: 400px; opacity: 0.9; z-index: 0;">
+                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 480px; opacity: 0.9; z-index: 0;">
                     <path id="svg-cabeca" class="membro-svg" d="M85,20 C85,5 115,5 115,20 C115,35 85,35 85,20 Z"/>
                     <path id="svg-torso" class="membro-svg" d="M75,40 L125,40 L115,130 L85,130 Z"/>
                     <path id="svg-braco-esq" class="membro-svg" d="M65,45 L40,110 L55,115 L70,50 Z"/>
                     <path id="svg-braco-dir" class="membro-svg" d="M135,45 L160,110 L145,115 L130,50 Z"/>
                     <path id="svg-perna-esq" class="membro-svg" d="M85,140 L70,250 L90,250 L100,140 Z"/>
                     <path id="svg-perna-dir" class="membro-svg" d="M115,140 L130,250 L110,250 L100,140 Z"/>
-
-                    <g id="x-cabeca" style="display:none;"><line x1="85" y1="10" x2="115" y2="30" stroke="#ff0000" stroke-width="4"/><line x1="115" y1="10" x2="85" y2="30" stroke="#ff0000" stroke-width="4"/></g>
-                    <g id="x-torso" style="display:none;"><line x1="80" y1="50" x2="120" y2="120" stroke="#ff0000" stroke-width="5"/><line x1="120" y1="50" x2="80" y2="120" stroke="#ff0000" stroke-width="5"/></g>
-                    <g id="x-braco-esq" style="display:none;"><line x1="40" y1="55" x2="65" y2="105" stroke="#ff0000" stroke-width="4"/><line x1="65" y1="55" x2="40" y2="105" stroke="#ff0000" stroke-width="4"/></g>
-                    <g id="x-braco-dir" style="display:none;"><line x1="160" y1="55" x2="135" y2="105" stroke="#ff0000" stroke-width="4"/><line x1="135" y1="55" x2="160" y2="105" stroke="#ff0000" stroke-width="4"/></g>
-                    <g id="x-perna-esq" style="display:none;"><line x1="75" y1="150" x2="95" y2="240" stroke="#ff0000" stroke-width="4"/><line x1="95" y1="150" x2="75" y2="240" stroke="#ff0000" stroke-width="4"/></g>
-                    <g id="x-perna-dir" style="display:none;"><line x1="125" y1="150" x2="105" y2="240" stroke="#ff0000" stroke-width="4"/><line x1="105" y1="150" x2="125" y2="240" stroke="#ff0000" stroke-width="4"/></g>
                 </svg>
                 
                 <div class="limb-box-new" id="limb-cabeca" style="top: 40px; left: 50%; transform: translateX(-50%);">
@@ -466,7 +462,7 @@
                      </div>
                 </div>
                 
-                <div class="limb-box-new" id="limb-braco-esq" style="top: 130px; left: 10px;">
+                <div class="limb-box-new" id="limb-braco-esq" style="top: 160px; left: 10px;">
                      <div class="title">BRAÇO ESQ.</div>
                      <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
                      <div class="values">
@@ -475,7 +471,7 @@
                      </div>
                 </div>
 
-                <div class="limb-box-new" id="limb-torso" style="top: 180px; left: 50%; transform: translateX(-50%);">
+                <div class="limb-box-new" id="limb-torso" style="top: 220px; left: 50%; transform: translateX(-50%);">
                      <div class="title">TORSO</div>
                      <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
                      <div class="values">
@@ -484,7 +480,7 @@
                      </div>
                 </div>
 
-                <div class="limb-box-new" id="limb-braco-dir" style="top: 130px; right: 10px;">
+                <div class="limb-box-new" id="limb-braco-dir" style="top: 160px; right: 10px;">
                      <div class="title">BRAÇO DIR.</div>
                      <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
                      <div class="values">
@@ -493,7 +489,7 @@
                      </div>
                 </div>
 
-                <div class="limb-box-new" id="limb-perna-esq" style="bottom: 40px; left: 30px;">
+                <div class="limb-box-new" id="limb-perna-esq" style="bottom: 50px; left: 30px;">
                      <div class="title">PERNA ESQ.</div>
                      <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
                      <div class="values">
@@ -502,7 +498,7 @@
                      </div>
                 </div>
 
-                <div class="limb-box-new" id="limb-perna-dir" style="bottom: 40px; right: 30px;">
+                <div class="limb-box-new" id="limb-perna-dir" style="bottom: 50px; right: 30px;">
                      <div class="title">PERNA DIR.</div>
                      <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
                      <div class="values">
@@ -584,9 +580,10 @@
 
     window.valPressaoAtaques = 0; window.valPressaoInventario = 0;
     
+    // VARIÁVEIS DE ESTADO E SEGREDOS
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; 
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false;
-    let prevHexatombeFinal = false; 
+    let prevHexatombeFinal = false; // Controle de transição limpa de Hexatombe
 
     let unsubRit, unsubPod, unsubHab, unsubInv, unsubAtq;
     
@@ -614,38 +611,51 @@
         }
     });
 
+    // --- COMANDOS TECLADO CONTINUOS ---
     let cheatCode = "";
     document.addEventListener('keydown', (e) => {
         const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
-        cheatCode += e.key.toLowerCase(); if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
+        cheatCode += e.key.toLowerCase(); 
+        cheatCode = cheatCode.slice(-20); // Mantém sempre os últimos 20 chars
         
         if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; }
         if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; }
         if (cheatCode.includes("apoteose"))  { ativarSegredo('extremos'); cheatCode = ""; } 
     });
 
-    // MÁGICA 1: O botão local do jogador avisa o banco de dados. O onSnapshot vai pegar a mudança e aplicar a matemática.
+    // A Mágica Final de Isolamento: Inverte via Firebase sem sujar a tela local
     function ativarSegredo(campo) {
         document.body.classList.add('shake');
         setTimeout(async () => { 
             document.body.classList.remove('shake'); 
             let doc = await db.collection("fichas").doc(atual).get();
             let valAtual = doc.data()[campo] || false;
+            
+            // Enviamos diretamente pro DB. O onSnapshot lidará com o delta das barras perfeitamente.
             await db.collection("fichas").doc(atual).update({ [campo]: !valAtual });
         }, 800);
     }
 
-    // MÁGICA 2: A matemática pura do Delta acontece aqui para não ter loop com onSnapshot
+    // MÁGICA 2: A matemática pura do Delta (Subtrai Exatamente o que você ganhou, abate os danos no Original)
     function transacionarModos(d_raw, vaiLigar) {
         let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
         let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
 
         let hexData = d_raw.hexatombe_data || {};
-        let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : (vigN + 2);
-        let vonH = hexData.von !== undefined ? parseInt(hexData.von) : (vonN + 2);
-        let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : (sagN + 2);
+        
+        if (vaiLigar && hexData.vig === undefined) {
+            // Cópia inicial limpa da base se não tiver nada
+            hexData.vig = vigN; hexData.for = d_raw.for; hexData.agi = d_raw.agi; 
+            hexData.sag = sagN; hexData.von = vonN;
+            hexData.pericias = d_raw.pericias || {};
+        }
 
-        let maxN_vida = 12 + (2 * vigN) + (3 * nivel); let maxH_vida = 12 + (2 * vigH) + (3 * nivel);
+        let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : vigN;
+        let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN;
+        let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
+
+        let maxN_vida = 12 + (2 * vigN) + (3 * nivel); 
+        let maxH_vida = 12 + (2 * vigH) + (3 * nivel) + 30; // +30 FLAT HP BONUS DO HEXATOMBE
         let maxN_san = 12 + (10 * vonN + 10 * sagN); let maxH_san = 12 + (10 * vonH + 10 * sagH);
         
         let maxN_pe = 2 + (2 * vigN) + vonN + Math.floor(nex / 10);
@@ -659,21 +669,17 @@
         if (vaiLigar) {
             let vAt = parseInt(d_raw.vidaAtual) || 0; let sAt = parseInt(d_raw.sanAtual) || 0; let pAt = parseInt(d_raw.peAtual) || 0;
             hexData.vidaAtual = vAt + deltaVida; hexData.sanAtual = sAt + deltaSan; hexData.peAtual = pAt + deltaPe;
-
-            if(!d_raw.hexatombe_data) {
-                hexData.vig = vigH; hexData.von = vonH; hexData.sag = sagH; hexData.for = (parseInt(d_raw.for) || 0) + 2; hexData.agi = (parseInt(d_raw.agi) || 0) + 2;
-                hexData.pericias = d_raw.pericias || {}; 
-            }
             updates.hexatombe_data = hexData;
         } else {
             let vAtHex = parseInt(hexData.vidaAtual) || 0; let sAtHex = parseInt(hexData.sanAtual) || 0; let pAtHex = parseInt(hexData.peAtual) || 0;
-
+            
+            // Subtrai o buff do Hexatombe do valor que sobrou (ancorando em 1 se ele não estava morto no Hexatombe)
             let nV = vAtHex - deltaVida; if(nV < 1 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; updates.vidaAtual = nV;
             let nS = sAtHex - deltaSan; if(nS < 1 && sAtHex >= 1) nS = 1; else if (nS < 0) nS = 0; updates.sanAtual = nS;
             let nP = pAtHex - deltaPe; if(nP < 0) nP = 0; updates.peAtual = nP;
         }
         
-        prevHexatombeFinal = vaiLigar; // Marca que a transição foi tratada
+        prevHexatombeFinal = vaiLigar;
         db.collection("fichas").doc(atual).update(updates);
     }
 
@@ -728,6 +734,7 @@
         if(st === 'Assustado') overlay.classList.add('overlay-assustado');
     }
 
+    // --- FUNÇÕES BONECO MINIMALISTA ---
     function setLimbState(membro, tipo) {
         if (membrosEstado[membro] === tipo) { 
             membrosEstado[membro] = 'normal'; 
@@ -782,14 +789,14 @@
         
         const extremosFinal = isExtremos || globalExtremos;
 
-        if (nexValue === 0) { 
+        if (nexValue === 0 && extremosFinal) { 
             options += `<option value="Nulo">Nulo</option>`; 
         } else {
             options += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`;
             if (nexValue >= 100 && extremosFinal) { options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', serif;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; }
         }
         resSel.innerHTML = options; 
-        if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; } else { resSel.value = nexValue === 0 ? 'Nulo' : '5º Grau'; }
+        if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; } else { resSel.value = (nexValue === 0 && extremosFinal) ? 'Nulo' : '5º Grau'; }
     }
 
     function gerarOpcoesNivelNex() {
@@ -858,41 +865,34 @@
     }
 
     function alterarAtributoOuNivel() {
-        let vig = parseInt(document.getElementById('attr-vig').value) || 0; let von = parseInt(document.getElementById('attr-von').value) || 0; let sag = parseInt(document.getElementById('attr-sag').value) || 0;
-        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
-        const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
-        const classe = document.getElementById('classe-personagem').value;
-
-        const hexatombeFinal = isHexatombe || globalHexatombe; if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
-        
-        const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
-        let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
-        if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
-        
-        // Full Heal (Aumenta Max e Atual juntos quando muda na raiz)
-        document.getElementById('vida-max').value = novaVida; document.getElementById('vida-atual').value = novaVida;
-        document.getElementById('san-max').value = novaSan; document.getElementById('san-atual').value = novaSan;
-        document.getElementById('pe-max').value = novoPe; document.getElementById('pe-atual').value = novoPe;
-        
-        recalcularBases(); salvarFicha();
+        recalcularBases(true); // Parametro 'true' força o Full Heal da vida Atual e Maxima!
+        salvarFicha();
     }
 
-    function recalcularBases() {
+    function recalcularBases(forcarHeal = false) {
         let vig = parseInt(document.getElementById('attr-vig').value) || 0; let von = parseInt(document.getElementById('attr-von').value) || 0; let sag = parseInt(document.getElementById('attr-sag').value) || 0;
         const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
         const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe; if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
-        const extremosFinal = isExtremos || globalExtremos; if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
+        const hexatombeFinal = isHexatombe || globalHexatombe; 
         
-        const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
+        let novaVida = 12 + (2 * vig) + (3 * nivel); 
+        let novaSan = 12 + (10 * von + 10 * sag);
         let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
         if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
+        
+        if (hexatombeFinal) { novaVida += 30; } // Bônus Fixo de Vida no Hexatombe
         
         const inptVidaMax = document.getElementById('vida-max'); if (inptVidaMax && document.activeElement !== inptVidaMax) inptVidaMax.value = novaVida;
         const inptSanMax = document.getElementById('san-max'); if (inptSanMax && document.activeElement !== inptSanMax) inptSanMax.value = novaSan;
         const inptPeMax = document.getElementById('pe-max'); if (inptPeMax && document.activeElement !== inptPeMax) inptPeMax.value = novoPe;
+
+        if (forcarHeal) {
+            document.getElementById('vida-atual').value = novaVida;
+            document.getElementById('san-atual').value = novaSan;
+            document.getElementById('pe-atual').value = novoPe;
+        }
 
         const lhp = Math.floor(novaVida / 4); const ldouble = Math.floor(novaVida / 2);
         document.querySelectorAll('.val-quarter').forEach(el => el.innerText = lhp); 
@@ -917,17 +917,64 @@
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
 
+            // ISOLAMENTO TOTAL DO DELTA HEXATOMBE (TRANSIÇÃO)
             if (prevHexatombeFinal !== hexatombeFinal) {
-                transacionarModos(d_raw, hexatombeFinal);
-                return; // Bloqueia o render para não quebrar a transição do delta
+                let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
+                let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
+
+                let hexData = d_raw.hexatombe_data || {};
+                
+                // Se ligou hexatombe e não tinha backup salvo, copia da base normal
+                if (hexatombeFinal && hexData.vig === undefined) {
+                    hexData.vig = vigN; hexData.for = d_raw.for; hexData.agi = d_raw.agi; 
+                    hexData.sag = sagN; hexData.von = vonN;
+                    hexData.pericias = d_raw.pericias || {};
+                }
+
+                let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : vigN;
+                let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN;
+                let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
+
+                let maxN_vida = 12 + (2 * vigN) + (3 * nivel); 
+                let maxH_vida = 12 + (2 * vigH) + (3 * nivel) + 30; // +30 FLAT HP BÔNUS DO HEXATOMBE
+                let maxN_san = 12 + (10 * vonN + 10 * sagN); let maxH_san = 12 + (10 * vonH + 10 * sagH);
+                
+                let maxN_pe = 2 + (2 * vigN) + vonN + Math.floor(nex / 10);
+                if (classe === "Esotérico") maxN_pe += (2 * sagN); else if (classe === "Canalizador" && nivel > 2) maxN_pe += (nivel - 2) * 3;
+                let maxH_pe = 2 + (2 * vigH) + vonH + Math.floor(nex / 10);
+                if (classe === "Esotérico") maxH_pe += (2 * sagH); else if (classe === "Canalizador" && nivel > 2) maxH_pe += (nivel - 2) * 3;
+
+                let deltaVida = maxH_vida - maxN_vida; let deltaSan = maxH_san - maxN_san; let deltaPe = maxH_pe - maxN_pe;
+                
+                let updates = {};
+                if (hexatombeFinal) {
+                    let vAt = parseInt(d_raw.vidaAtual) || 0; let sAt = parseInt(d_raw.sanAtual) || 0; let pAt = parseInt(d_raw.peAtual) || 0;
+                    hexData.vidaAtual = vAt + deltaVida; hexData.sanAtual = sAt + deltaSan; hexData.peAtual = pAt + deltaPe;
+                    updates.hexatombe_data = hexData;
+                } else {
+                    let vAtHex = parseInt(hexData.vidaAtual) || 0; let sAtHex = parseInt(hexData.sanAtual) || 0; let pAtHex = parseInt(hexData.peAtual) || 0;
+                    
+                    let nV = vAtHex - deltaVida; if(nV < 1 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; updates.vidaAtual = nV;
+                    let nS = sAtHex - deltaSan; if(nS < 1 && sAtHex >= 1) nS = 1; else if (nS < 0) nS = 0; updates.sanAtual = nS;
+                    let nP = pAtHex - deltaPe; if(nP < 0) nP = 0; updates.peAtual = nP;
+                }
+                
+                prevHexatombeFinal = hexatombeFinal;
+                db.collection("fichas").doc(atual).update(updates);
+                carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
+                return; // Aguarda o DB retornar o update para não bugar a tela
             }
 
             let d = d_raw;
             if (hexatombeFinal && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; }
 
-            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = d.vidaAtual ?? 12;
-            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = d.sanAtual ?? 12;
-            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = d.peAtual ?? 2;
+            let vAt = hexatombeFinal ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual;
+            let sAt = hexatombeFinal ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual;
+            let pAt = hexatombeFinal ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
+
+            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
+            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
             
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
@@ -972,18 +1019,15 @@
             Object.keys(membrosEstado).forEach(k => { 
                 const bx = document.getElementById('limb-'+k); 
                 const svgP = document.getElementById('svg-'+k);
-                const xMark = document.getElementById('x-'+k);
-                const v1 = document.getElementById('val-'+k+'-1');
-                const v2 = document.getElementById('val-'+k+'-2');
                 
                 if (bx) {
                     if (svgP) {
                         svgP.classList.remove('lesionado', 'decepado');
                         if (membrosEstado[k] !== 'normal') svgP.classList.add(membrosEstado[k]);
                     }
-                    if (xMark) {
-                        xMark.style.display = (membrosEstado[k] === 'decepado') ? 'block' : 'none';
-                    }
+                    bx.className = 'limb-box-new ' + (membrosEstado[k] !== 'normal' ? membrosEstado[k] : ''); 
+                    
+                    const v1 = document.getElementById('val-'+k+'-1'); const v2 = document.getElementById('val-'+k+'-2');
                     if (v1 && v2) {
                         v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half';
                         if (membrosEstado[k] === 'lesionado') {
@@ -1008,9 +1052,6 @@
             atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
             aplicarStatusVisual();
             aplicarSegredosUI();
-            
-            // Renderiza listas na transição normal
-            carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
         });
     }
 
@@ -1042,18 +1083,19 @@
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
             enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
-            insanoTemporario: isITActive, itRounds: itRounds,
+            insanoTemporario: isITActive, itRounds: itRounds, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos,
             bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
         };
 
-        let rootUpdates = {};
+        let rootUpdates = { hexatombe: isHexatombe };
+
         let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
         let inS = parseInt(document.getElementById('san-atual').value) || 0; 
         let inP = parseInt(document.getElementById('pe-atual').value) || 0;
 
         if (hexatombeFinal) { 
             rootUpdates.hexatombe_data = payload; 
-            rootUpdates.vidaAtual = inV; rootUpdates.sanAtual = inS; rootUpdates.peAtual = inP; 
+            rootUpdates.hexatombe_data.vidaAtual = inV; rootUpdates.hexatombe_data.sanAtual = inS; rootUpdates.hexatombe_data.peAtual = inP; 
         } else { 
             rootUpdates = { ...payload, ...rootUpdates }; 
             rootUpdates.vidaAtual = inV; rootUpdates.sanAtual = inS; rootUpdates.peAtual = inP; 
@@ -1155,63 +1197,6 @@
     function toggleElem(id) { const b = document.getElementById(id); if(!b) return; if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } else { b.style.display = 'block'; menusAbertos.add(id); } }
     function mudarAba(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); const aba = document.getElementById('aba-' + id); if(aba) aba.classList.add('active'); if(event && event.currentTarget) event.currentTarget.classList.add('active'); }
 
-    async function toggleHexatombe() {
-    globalHexatombe = !globalHexatombe;
-    const body = document.body;
-    const sigilo = document.querySelector('.sigilo-container');
-
-    // Elementos de som e visual
-    if (globalHexatombe) {
-        body.classList.add('tema-hexatombe');
-        sigilo.classList.add('brilho-sangue');
-        const audio = new Audio('https://www.myinstants.com/media/sounds/heartbeat-sound-effect.mp3');
-        audio.play();
-    } else {
-        body.classList.remove('tema-hexatombe');
-        sigilo.classList.remove('brilho-sangue');
-    }
-
-    const campos = ['vida', 'sanidade', 'pe'];
-    const docRef = db.collection("fichas").doc(atual);
-    const snap = await docRef.get();
-    const dados = snap.data();
-
-    let updates = { hexatombe: globalHexatombe };
-
-    campos.forEach(c => {
-        let maxAtual = parseInt(dados[c + 'Max']) || 0;
-        let valAtual = parseInt(dados[c + 'Atual']) || 0;
-
-        if (globalHexatombe) {
-            // ENTRANDO NO MODO: Salva o original e dobra o máximo
-            updates[c + 'OriginalMax'] = maxAtual;
-            updates[c + 'OriginalAtual'] = valAtual;
-            
-            let novoMax = maxAtual * 2;
-            let novoAtual = valAtual * 2; // Garante que a vida atual acompanhe o bônus
-
-            updates[c + 'Max'] = novoMax;
-            updates[c + 'Atual'] = novoAtual;
-        } else {
-            // SAINDO DO MODO: Restaura valores originais salvos
-            // Se por algum motivo não houver backup, divide por 2 como segurança
-            let backupMax = dados[c + 'OriginalMax'] || Math.floor(maxAtual / 2);
-            let backupAtual = dados[c + 'OriginalAtual'] || Math.floor(valAtual / 2);
-
-            updates[c + 'Max'] = backupMax;
-            updates[c + 'Atual'] = Math.min(valAtual, backupMax); // Garante que não exceda o normal
-        }
-    });
-
-    await docRef.update(updates);
-    
-    // Feedback visual de sucesso
-    body.style.animation = "shake 0.3s ease-in-out";
-    setTimeout(() => body.style.animation = "", 300);
-    
-    mudarAba('personagem'); // Atualiza a visualização
-}
-    
     auth.onAuthStateChanged(user => { if (user) { init(); } else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; } });
 </script>
 </body>
