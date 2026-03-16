@@ -38,7 +38,6 @@
 
         body { background-color: var(--bg-dark); color: #d3d3d3; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; transition: background-color 0.5s ease; }
         
-        /* REMOVER SETINHAS DOS INPUTS NUMBERS */
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
@@ -136,8 +135,13 @@
         .val-btn { cursor: pointer; transition: 0.2s; user-select: none; padding: 2px 5px; border-radius: 2px; border: 1px solid transparent; width: 35%; box-sizing: border-box; }
         .val-btn:hover { color: #fff; background: rgba(255,255,255,0.1); border-color: #666; }
         .val-btn.lesionado { color: #ff4d4d; border-color: #ff4d4d; background: rgba(139, 28, 28, 0.2); }
+        
+        /* Modificação: Botão Preto para estado decepado */
+        .val-btn.decepado { color: #555; border-color: #222; background: #050505; }
+        
         .membro-svg.lesionado { fill: rgba(139, 28, 28, 0.4); stroke: #ff4d4d; }
-        .membro-svg.decepado { fill: rgba(139, 28, 28, 0.4); stroke: #ff4d4d; }
+        /* Modificação: SVG preto para estado decepado */
+        .membro-svg.decepado { fill: #0a0a0a; stroke: #222; }
 
         .pericias-box { background: var(--bg-panel); padding: 15px; border-radius: 2px; border: 1px solid #2a2a2a; }
         .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; letter-spacing: 1px;}
@@ -435,8 +439,10 @@
                 </div>
             </div>
 
-            <div class="body-map-container">
-                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 140px; height: 260px; opacity: 0.9; z-index: 0;">
+            <div class="body-map-container" style="position: relative; width: 100%; max-width: 400px; height: 420px; margin: 25px auto; background: rgba(255,255,255,0.01); border: 1px dashed #333; border-radius: 4px; overflow: visible;">
+                <div style="width: 100%; text-align: center; margin-top: 10px; color: var(--hp-red); font-weight: bold; font-family: 'Crimson Text', serif; font-size: 16px; letter-spacing: 1px;">MAPA DE TRAUMAS (CLIQUE NO VALOR)</div>
+                
+                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; height: 380px; opacity: 0.9; z-index: 0;">
                     <path id="svg-cabeca" class="membro-svg" d="M85,20 C85,5 115,5 115,20 C115,35 85,35 85,20 Z"/>
                     <path id="svg-torso" class="membro-svg" d="M75,40 L125,40 L115,130 L85,130 Z"/>
                     <path id="svg-braco-esq" class="membro-svg" d="M65,45 L40,110 L55,115 L70,50 Z"/>
@@ -445,60 +451,58 @@
                     <path id="svg-perna-dir" class="membro-svg" d="M115,140 L130,250 L110,250 L100,140 Z"/>
                 </svg>
                 
-                <div style="width: 100%; text-align: center; margin-bottom: 5px; color: var(--hp-red); font-weight: bold; font-family: 'Crimson Text', serif; font-size: 16px; letter-spacing: 1px; z-index: 1;">MAPA DE TRAUMAS (CLIQUE NO VALOR)</div>
-                <div class="body-row">
-                    <div class="limb-box-new" id="limb-cabeca" style="top: 10px; left: 50%; transform: translateX(-50%);">
-                         <div class="title">CABEÇA</div>
-                         <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
-                         <div class="values">
-                             <span id="val-cabeca-1" class="val-btn val-quarter" onclick="setLimbState('cabeca', 'lesionado')">0</span>
-                             <span id="val-cabeca-2" class="val-btn val-half" onclick="setLimbState('cabeca', 'decepado')">0</span>
-                         </div>
-                    </div>
+                <div class="limb-box-new" id="limb-cabeca" style="top: 40px; left: 50%; transform: translateX(-50%);">
+                     <div class="title">CABEÇA</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-cabeca-1" class="val-btn val-quarter" onclick="setLimbState('cabeca', 'lesionado')">0</span>
+                         <span id="val-cabeca-2" class="val-btn val-half" onclick="setLimbState('cabeca', 'decepado')">0</span>
+                     </div>
                 </div>
-                <div class="body-row">
-                    <div class="limb-box-new" id="limb-braco-esq" style="top: 90px; left: 10px;">
-                         <div class="title">BRAÇO ESQ.</div>
-                         <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
-                         <div class="values">
-                             <span id="val-braco-esq-1" class="val-btn val-quarter" onclick="setLimbState('braco-esq', 'lesionado')">0</span>
-                             <span id="val-braco-esq-2" class="val-btn val-half" onclick="setLimbState('braco-esq', 'decepado')">0</span>
-                         </div>
-                    </div>
-                    <div class="limb-box-new" id="limb-torso" style="top: 140px; left: 50%; transform: translateX(-50%);">
-                         <div class="title">TORSO</div>
-                         <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
-                         <div class="values">
-                             <span id="val-torso-1" class="val-btn val-quarter" onclick="setLimbState('torso', 'lesionado')">0</span>
-                             <span id="val-torso-2" class="val-btn val-half" onclick="setLimbState('torso', 'decepado')">0</span>
-                         </div>
-                    </div>
-                    <div class="limb-box-new" id="limb-braco-dir" style="top: 90px; right: 10px;">
-                         <div class="title">BRAÇO DIR.</div>
-                         <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
-                         <div class="values">
-                             <span id="val-braco-dir-1" class="val-btn val-quarter" onclick="setLimbState('braco-dir', 'lesionado')">0</span>
-                             <span id="val-braco-dir-2" class="val-btn val-half" onclick="setLimbState('braco-dir', 'decepado')">0</span>
-                         </div>
-                    </div>
+                
+                <div class="limb-box-new" id="limb-braco-esq" style="top: 130px; left: 10px;">
+                     <div class="title">BRAÇO ESQ.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-braco-esq-1" class="val-btn val-quarter" onclick="setLimbState('braco-esq', 'lesionado')">0</span>
+                         <span id="val-braco-esq-2" class="val-btn val-half" onclick="setLimbState('braco-esq', 'decepado')">0</span>
+                     </div>
                 </div>
-                <div class="body-row">
-                    <div class="limb-box-new" id="limb-perna-esq" style="top: 270px; left: 20px;">
-                         <div class="title">PERNA ESQ.</div>
-                         <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
-                         <div class="values">
-                             <span id="val-perna-esq-1" class="val-btn val-quarter" onclick="setLimbState('perna-esq', 'lesionado')">0</span>
-                             <span id="val-perna-esq-2" class="val-btn val-half" onclick="setLimbState('perna-esq', 'decepado')">0</span>
-                         </div>
-                    </div>
-                    <div class="limb-box-new" id="limb-perna-dir" style="top: 270px; right: 20px;">
-                         <div class="title">PERNA DIR.</div>
-                         <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
-                         <div class="values">
-                             <span id="val-perna-dir-1" class="val-btn val-quarter" onclick="setLimbState('perna-dir', 'lesionado')">0</span>
-                             <span id="val-perna-dir-2" class="val-btn val-half" onclick="setLimbState('perna-dir', 'decepado')">0</span>
-                         </div>
-                    </div>
+
+                <div class="limb-box-new" id="limb-torso" style="top: 180px; left: 50%; transform: translateX(-50%);">
+                     <div class="title">TORSO</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-torso-1" class="val-btn val-quarter" onclick="setLimbState('torso', 'lesionado')">0</span>
+                         <span id="val-torso-2" class="val-btn val-half" onclick="setLimbState('torso', 'decepado')">0</span>
+                     </div>
+                </div>
+
+                <div class="limb-box-new" id="limb-braco-dir" style="top: 130px; right: 10px;">
+                     <div class="title">BRAÇO DIR.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-braco-dir-1" class="val-btn val-quarter" onclick="setLimbState('braco-dir', 'lesionado')">0</span>
+                         <span id="val-braco-dir-2" class="val-btn val-half" onclick="setLimbState('braco-dir', 'decepado')">0</span>
+                     </div>
+                </div>
+
+                <div class="limb-box-new" id="limb-perna-esq" style="bottom: 20px; left: 30px;">
+                     <div class="title">PERNA ESQ.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-perna-esq-1" class="val-btn val-quarter" onclick="setLimbState('perna-esq', 'lesionado')">0</span>
+                         <span id="val-perna-esq-2" class="val-btn val-half" onclick="setLimbState('perna-esq', 'decepado')">0</span>
+                     </div>
+                </div>
+
+                <div class="limb-box-new" id="limb-perna-dir" style="bottom: 20px; right: 30px;">
+                     <div class="title">PERNA DIR.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-perna-dir-1" class="val-btn val-quarter" onclick="setLimbState('perna-dir', 'lesionado')">0</span>
+                         <span id="val-perna-dir-2" class="val-btn val-half" onclick="setLimbState('perna-dir', 'decepado')">0</span>
+                     </div>
                 </div>
             </div>
 
@@ -577,7 +581,7 @@
     // VARIÁVEIS DE ESTADO E SEGREDOS
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; 
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false;
-    let prevHexatombeFinal = false; // Controle de transição limpa de Hexatombe
+    let prevHexatombeFinal = false; // Isolamento limpo de transição
 
     let unsubRit, unsubPod, unsubHab, unsubInv, unsubAtq;
     
@@ -608,20 +612,17 @@
         if (cheatCode.includes("apoteose"))  { ativarSegredo('extremos'); cheatCode = ""; } 
     });
 
-    // SOLUÇÃO DE VAZAMENTO DE ATRIBUTOS APLICADA AQUI
+    // A Mágica Final de Isolamento: Inverte via Firebase sem sujar a tela local
     function ativarSegredo(campo) {
         document.body.classList.add('shake');
-        setTimeout(() => { 
+        setTimeout(async () => { 
             document.body.classList.remove('shake'); 
-            let updates = {};
-            if(campo === 'revelado') { isRevelado = !isRevelado; updates.revelado = isRevelado; }
-            if(campo === 'extremos') { isExtremos = !isExtremos; updates.extremos = isExtremos; }
-            if(campo === 'hexatombe') { isHexatombe = !isHexatombe; updates.hexatombe = isHexatombe; }
+            let doc = await db.collection("fichas").doc(atual).get();
+            let valAtual = doc.data()[campo] || false;
+            let o = {}; o[campo] = !valAtual;
             
-            // Enviamos diretamente pro DB sem ler os inputs poluídos do DOM. 
-            // O onSnapshot lidará com o delta de stats perfeitamente.
-            db.collection("fichas").doc(atual).update(updates);
-            aplicarSegredosUI();
+            // Enviamos diretamente pro DB. O onSnapshot lidará com o delta das barras perfeitamente.
+            await db.collection("fichas").doc(atual).update(o);
         }, 800);
     }
 
@@ -885,7 +886,7 @@
                 } else {
                     let vAt = parseInt(d_raw.vidaAtual_hexa) || 0; let nV = vAt - deltaVida; if(nV < 1 && vAt >= 1) nV = 1; else if (nV < 0) nV = 0; o.vidaAtual = nV;
                     let sAt = parseInt(d_raw.sanAtual_hexa) || 0; let nS = sAt - deltaSan; if(nS < 1 && sAt >= 1) nS = 1; else if (nS < 0) nS = 0; o.sanAtual = nS;
-                    let pAt = parseInt(d_raw.peAtual_hexa) || 0; let nP = pAt - deltaPe; if(nP < 0) nP = 0; o.peAtual = nP;
+                    let pAt = parseInt(d_raw.peAtual_hexa) || 0; let nP = pAt - deltaPe; if(nP < 1 && pAt >= 1) nP = 1; else if (nP < 0) nP = 0; o.peAtual = nP;
                 }
                 prevHexatombeFinal = hexatombeFinal;
                 db.collection("fichas").doc(atual).update(o);
@@ -958,7 +959,7 @@
                     if (v1 && v2) {
                         v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half';
                         if (membrosEstado[k] === 'lesionado') v1.classList.add('lesionado');
-                        if (membrosEstado[k] === 'decepado') { v1.classList.add('lesionado'); v2.classList.add('lesionado'); }
+                        if (membrosEstado[k] === 'decepado') { v1.classList.add('decepado'); v2.classList.add('decepado'); }
                     }
                 }
             });
@@ -972,12 +973,14 @@
             document.getElementById('bgDescricao').value = d.bgDescricao || ""; document.getElementById('bgIdeologia').value = d.bgIdeologia || ""; document.getElementById('bgPessoas').value = d.bgPessoas || ""; document.getElementById('bgLocais').value = d.bgLocais || ""; document.getElementById('bgPosses').value = d.bgPosses || ""; document.getElementById('bgTracos').value = d.bgTracos || ""; document.getElementById('bgCicatrizes').value = d.bgCicatrizes || ""; document.getElementById('bgFobias').value = d.bgFobias || ""; document.getElementById('bgEncontros').value = d.bgEncontros || "";
 
             recalcularBases();
+            atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
             aplicarStatusVisual();
             aplicarSegredosUI(); 
         });
     }
 
     function salvarFicha() {
+        const hexatombeFinal = isHexatombe || globalHexatombe;
         const currentUser = auth.currentUser; const nomeJogadorData = currentUser ? (currentUser.displayName || currentUser.email) : "Desconhecido";
 
         const periciasObj = {};
@@ -1008,7 +1011,6 @@
             bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
         };
 
-        const hexatombeFinal = isHexatombe || globalHexatombe;
         let rootUpdates = { hexatombe: isHexatombe };
 
         let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
