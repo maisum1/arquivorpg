@@ -1155,6 +1155,63 @@
     function toggleElem(id) { const b = document.getElementById(id); if(!b) return; if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } else { b.style.display = 'block'; menusAbertos.add(id); } }
     function mudarAba(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); const aba = document.getElementById('aba-' + id); if(aba) aba.classList.add('active'); if(event && event.currentTarget) event.currentTarget.classList.add('active'); }
 
+    async function toggleHexatombe() {
+    globalHexatombe = !globalHexatombe;
+    const body = document.body;
+    const sigilo = document.querySelector('.sigilo-container');
+
+    // Elementos de som e visual
+    if (globalHexatombe) {
+        body.classList.add('tema-hexatombe');
+        sigilo.classList.add('brilho-sangue');
+        const audio = new Audio('https://www.myinstants.com/media/sounds/heartbeat-sound-effect.mp3');
+        audio.play();
+    } else {
+        body.classList.remove('tema-hexatombe');
+        sigilo.classList.remove('brilho-sangue');
+    }
+
+    const campos = ['vida', 'sanidade', 'pe'];
+    const docRef = db.collection("fichas").doc(atual);
+    const snap = await docRef.get();
+    const dados = snap.data();
+
+    let updates = { hexatombe: globalHexatombe };
+
+    campos.forEach(c => {
+        let maxAtual = parseInt(dados[c + 'Max']) || 0;
+        let valAtual = parseInt(dados[c + 'Atual']) || 0;
+
+        if (globalHexatombe) {
+            // ENTRANDO NO MODO: Salva o original e dobra o máximo
+            updates[c + 'OriginalMax'] = maxAtual;
+            updates[c + 'OriginalAtual'] = valAtual;
+            
+            let novoMax = maxAtual * 2;
+            let novoAtual = valAtual * 2; // Garante que a vida atual acompanhe o bônus
+
+            updates[c + 'Max'] = novoMax;
+            updates[c + 'Atual'] = novoAtual;
+        } else {
+            // SAINDO DO MODO: Restaura valores originais salvos
+            // Se por algum motivo não houver backup, divide por 2 como segurança
+            let backupMax = dados[c + 'OriginalMax'] || Math.floor(maxAtual / 2);
+            let backupAtual = dados[c + 'OriginalAtual'] || Math.floor(valAtual / 2);
+
+            updates[c + 'Max'] = backupMax;
+            updates[c + 'Atual'] = Math.min(valAtual, backupMax); // Garante que não exceda o normal
+        }
+    });
+
+    await docRef.update(updates);
+    
+    // Feedback visual de sucesso
+    body.style.animation = "shake 0.3s ease-in-out";
+    setTimeout(() => body.style.animation = "", 300);
+    
+    mudarAba('personagem'); // Atualiza a visualização
+}
+    
     auth.onAuthStateChanged(user => { if (user) { init(); } else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; } });
 </script>
 </body>
