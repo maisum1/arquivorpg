@@ -36,6 +36,7 @@
             font-family: 'Inter', sans-serif; margin: 0; padding: 20px; transition: background-color 0.5s ease;
         }
 
+        /* Remove as setinhas dos inputs numericos */
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
@@ -56,8 +57,9 @@
         .inline-input { background: transparent; border: none; border-bottom: 1px dashed #444; color: #fff; font-family: inherit; font-size: inherit; outline: none; padding: 2px; }
         .inline-input:focus { border-bottom: 1px solid var(--hp-red); }
 
-        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px; }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px; }
         .stat-nome { font-family: 'Crimson Text', serif; font-size: 2.5em; font-weight: bold; color: #fff; text-transform: uppercase; width: 100%; letter-spacing: 2px; margin-bottom: 10px; }
+        
         .stat-vd { font-family: 'Crimson Text', serif; font-weight: bold; color: var(--hp-red); white-space: nowrap; display: flex; flex-direction: column; align-items: center; }
 
         .atributos-container { display: flex; justify-content: space-around; margin: 25px 0; background: #121212; padding: 15px 5px; border: 1px solid #333; border-radius: 2px; }
@@ -123,7 +125,7 @@
                 </div>
                 <div class="stat-vd">
                     <span style="font-size: 24px; color: var(--hp-red); letter-spacing: 1px; line-height: 1;">NA</span>
-                    <input id="vd" class="inline-input save-auto" placeholder="0" style="width: 70px; font-size: 1.5em; color: var(--hp-red); text-align: center; border-bottom: 2px solid var(--hp-red);">
+                    <input id="vd" class="inline-input save-auto" placeholder="0" style="width: 80px; font-size: 1.5em; color: var(--hp-red); text-align: center; border-bottom: 2px solid var(--hp-red);">
                 </div>
             </div>
 
@@ -158,7 +160,7 @@
                 <div class="bar-bg">
                     <div id="bar-pv" class="bar-fill" style="background:var(--hp-red)"></div>
                     <div class="bar-content">
-                        <input type="number" id="pv-atual" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pv-max" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        <input type="number" id="pv-atual" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()"> <span style="opacity: 0.5; margin:0 5px;">/</span> <input type="number" id="pv-max" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()" style="color:#aaa;">
                     </div>
                 </div>
             </div>
@@ -168,7 +170,7 @@
                 <div class="bar-bg">
                     <div id="bar-pc" class="bar-fill" style="background:var(--san-purple)"></div>
                     <div class="bar-content">
-                        <input type="number" id="pc-atual" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pc-max" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        <input type="number" id="pc-atual" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()"> <span style="opacity: 0.5; margin:0 5px;">/</span> <input type="number" id="pc-max" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()" style="color:#aaa;">
                     </div>
                 </div>
             </div>
@@ -178,7 +180,7 @@
                 <div class="bar-bg">
                     <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                     <div class="bar-content">
-                        <input type="number" id="pe-atual" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pe-max" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        <input type="number" id="pe-atual" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()"> <span style="opacity: 0.5; margin:0 5px;">/</span> <input type="number" id="pe-max" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()" style="color:#aaa;">
                     </div>
                 </div>
             </div>
@@ -246,7 +248,8 @@
 
         db.collection("configuracoes").doc("globais").onSnapshot(doc => {
             if(doc.exists) {
-                const data = doc.data(); globalHexatombe = data.hexatombe || false; 
+                const data = doc.data(); 
+                globalHexatombe = data.hexatombe || false; 
                 aplicarSegredosAmeaca();
             }
         });
@@ -257,7 +260,11 @@
             cheatCode += e.key.toLowerCase(); if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
             if (cheatCode.includes("hexatombe")) { 
                 document.body.classList.add('shake');
-                setTimeout(async () => { document.body.classList.remove('shake'); let doc = await db.collection("ameacas").doc(atual).get(); let valAtual = doc.data().hexatombe || false; await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); }, 800);
+                setTimeout(async () => { document.body.classList.remove('shake'); 
+                    let doc = await db.collection("ameacas").doc(atual).get(); 
+                    let valAtual = doc.data().hexatombe || false; 
+                    await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
+                }, 800);
                 cheatCode = ""; 
             }
         });
@@ -280,36 +287,40 @@
                 isHexatombe = d_raw.hexatombe || false;
                 const hexatombeFinal = isHexatombe || globalHexatombe;
 
+                if (prevHexatombeFinal !== hexatombeFinal) {
+                    let o = {};
+                    if (hexatombeFinal) {
+                        o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50;
+                        o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0;
+                        o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
+                        o.hexatombe_data = { ...d_raw }; delete o.hexatombe_data.hexatombe_data; 
+                    } else {
+                        let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - 50; if(nPv < 1) nPv = 1;
+                        o.pvAtual = nPv;
+                        o.pcAtual = parseInt(d_raw.pcAtual_hexa) || 0;
+                        o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
+                    }
+                    prevHexatombeFinal = hexatombeFinal;
+                    db.collection("ameacas").doc(atual).update(o);
+                    return; 
+                }
+
                 let d = d_raw;
                 if (hexatombeFinal && d_raw.hexatombe_data) { 
                     d = { ...d_raw, ...d_raw.hexatombe_data }; 
-                    d.pvAtual = d_raw.pvAtual; d.pcAtual = d_raw.pcAtual; d.peAtual = d_raw.peAtual;
                 }
 
-                if (prevHexatombeFinal !== hexatombeFinal) {
-                    let pvInput = document.getElementById('pv-atual'); let pcInput = document.getElementById('pc-atual'); let peInput = document.getElementById('pe-atual');
-                    if (hexatombeFinal) {
-                        pvInput.value = parseInt(d_raw.pvAtual) || 0; pcInput.value = parseInt(d_raw.pcAtual) || 0; peInput.value = parseInt(d_raw.peAtual) || 0;
-                    } else {
-                        let maxPV = parseInt(d_raw.pvMax) || 1; let maxHN = parseInt(d_raw.hexatombe_data?.pvMax) || maxPV;
-                        let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - (maxHN - maxPV); if(nPv < 1 && (parseInt(d_raw.pvAtual_hexa) || 0) >= 1) nPv = 1; else if (nPv < 0) nPv = 0; pvInput.value = nPv;
-                        
-                        let maxPC = parseInt(d_raw.pcMax) || 1; let maxSN = parseInt(d_raw.hexatombe_data?.pcMax) || maxPC;
-                        let nPc = (parseInt(d_raw.pcAtual_hexa) || 0) - (maxSN - maxPC); if(nPc < 1 && (parseInt(d_raw.pcAtual_hexa) || 0) >= 1) nPc = 1; else if (nPc < 0) nPc = 0; pcInput.value = nPc;
-                        
-                        let maxPE = parseInt(d_raw.peMax) || 1; let maxPN = parseInt(d_raw.hexatombe_data?.peMax) || maxPE;
-                        let nPe = (parseInt(d_raw.peAtual_hexa) || 0) - (maxPN - maxPE); if(nPe < 1 && (parseInt(d_raw.peAtual_hexa) || 0) >= 1) nPe = 1; else if (nPe < 0) nPe = 0; peInput.value = nPe;
-                    }
-                    prevHexatombeFinal = hexatombeFinal;
-                    setTimeout(() => salvarAmeaca(), 100); 
-                } else {
-                    let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
-                    let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
-                    let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
-                    if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
-                    if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
-                    if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 100;
-                }
+                let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
+                let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
+                let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
+
+                if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
+                if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
+                if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 100;
+
+                if (document.activeElement !== document.getElementById('pv-max')) document.getElementById('pv-max').value = d.pvMax ?? 100;
+                if (document.activeElement !== document.getElementById('pc-max')) document.getElementById('pc-max').value = d.pcMax ?? 100;
+                if (document.activeElement !== document.getElementById('pe-max')) document.getElementById('pe-max').value = d.peMax ?? 100;
 
                 document.querySelectorAll('.save-auto').forEach(el => {
                     if(el.id && d[el.id] !== undefined && el.value !== d[el.id] && document.activeElement !== el) {
@@ -336,7 +347,7 @@
         function salvarAmeaca() {
             const hexatombeFinal = isHexatombe || globalHexatombe;
             let payload = {
-                nome: document.getElementById('nome').value, vd: parseInt(document.getElementById('vd').value) || 0, elemento: document.getElementById('elemento').value,
+                nome: document.getElementById('nome').value, vd: parseInt(document.getElementById('vd').value) || 0,
                 agi: parseInt(document.getElementById('agi').value) || 0, for: parseInt(document.getElementById('for').value) || 0, int: parseInt(document.getElementById('int').value) || 0, pre: parseInt(document.getElementById('pre').value) || 0, vig: parseInt(document.getElementById('vig').value) || 0,
                 pvMax: parseInt(document.getElementById('pv-max').value) || 1, pcMax: parseInt(document.getElementById('pc-max').value) || 1, peMax: parseInt(document.getElementById('pe-max').value) || 1,
                 descricao: document.getElementById('descricao').value,
@@ -364,8 +375,8 @@
             });
         }
 
-        async function updateSub(id, col, campo, valor) { let obj = {}; obj[campo] = valor; await db.collection("ameacas").doc(atual).collection(col).doc(id).update(obj); }
-        async function removerSub(id, col) { if(confirm("Excluir este registro?")) await db.collection("ameacas").doc(atual).collection(col).doc(id).delete(); }
+        async function updateSub(id, path, campo, valor) { let obj = {}; obj[campo] = valor; await db.collection("ameacas").doc(atual).collection(path).doc(id).update(obj); }
+        async function removerSub(id, path) { if(confirm("Excluir este registro?")) await db.collection("ameacas").doc(atual).collection(path).doc(id).delete(); }
 
         async function addAcao() { const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "Nova Ação", alcance: "Corpo a Corpo", teste: "4d20", dano: "1d10" }); }
         function renderAcao(id, data, path) { return `<div class="dynamic-item"><button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button><div style="margin-bottom: 8px;"><input class="inline-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 70px; font-family: 'Inter'; font-size: 11px;"> <input class="inline-input" placeholder="Nome do Ataque" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="width: 200px; color: var(--hp-red); font-weight: bold; font-family: 'Crimson Text', serif; font-size: 18px;"> (<input class="inline-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','${path}','alcance',this.value)" style="width: 120px; font-family: 'Inter'; font-size: 11px;">)</div><div style="margin-bottom: 5px;"><span class="stat-label">Teste Base:</span> <input class="inline-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 80px; font-family:'Inter'; font-size: 12px;"> | <span class="stat-label">Dano Potencial:</span> <input class="inline-input" placeholder="2d10+10 Sangue" value="${data.dano || ''}" onchange="updateSub('${id}','${path}','dano',this.value)" style="width: 150px; font-family:'Inter'; font-size: 12px;"></div><input class="inline-input" placeholder="Observações e efeitos secundários..." value="${data.efeitos || ''}" onchange="updateSub('${id}','${path}','efeitos',this.value)" style="width: 95%; margin-top: 5px; color: #888; font-size: 11px; font-family: 'Inter'; font-style: italic;"></div>`; }
