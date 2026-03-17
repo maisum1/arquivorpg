@@ -863,8 +863,6 @@
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
 
-            // Mantém compatibilidade com leitura de fichas que já tinham hexatombe_data salvo no passado,
-            // mas o novo salvamento migrará tudo perfeitamente pro root document.
             let d = d_raw;
             if (hexatombeFinal && d_raw.hexatombe_data) {
                 d = { ...d_raw, ...d_raw.hexatombe_data };
@@ -892,7 +890,6 @@
                     sanInput.value = (parseInt(d_raw.sanAtual) || 0) + deltaSan;
                     peInput.value = (parseInt(d_raw.peAtual) || 0) + deltaPe; 
                 } else {
-                    // O novo salvarFicha garante que vidaAtual guarde sempre os valores base desbuffados perfeitamente
                     let nPv = parseInt(d_raw.vidaAtual) || 0; 
                     if(nPv < 1) nPv = 1; 
                     pvInput.value = nPv;
@@ -1027,16 +1024,15 @@
         };
 
         const hexatombeFinal = isHexatombe || globalHexatombe;
-        
-        // Remove a caixa de areia "hexatombe_data". Tudo que for modificado vai pro root e persiste perfeitamente.
-        let rootUpdates = { ...payload, hexatombe: isHexatombe };
+        let rootUpdates = { hexatombe: isHexatombe };
 
         let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
         let inS = parseInt(document.getElementById('san-atual').value) || 0; 
         let inP = parseInt(document.getElementById('pe-atual').value) || 0;
 
         if (hexatombeFinal) { 
-            // Calcula dinamicamente a diferença do buff e salva a versão normal da Vida pra quando você desativar
+            rootUpdates.hexatombe_data = payload; 
+            
             let vig = parseInt(document.getElementById('attr-vig').value) || 0;
             let von = parseInt(document.getElementById('attr-von').value) || 0;
             let sag = parseInt(document.getElementById('attr-sag').value) || 0;
@@ -1069,6 +1065,7 @@
             rootUpdates.sanAtual_hexa = inS;
             rootUpdates.peAtual_hexa = inP; 
         } else { 
+            rootUpdates = { ...payload, ...rootUpdates }; 
             rootUpdates.vidaAtual = inV; 
             rootUpdates.sanAtual = inS; 
             rootUpdates.peAtual = inP; 
