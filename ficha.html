@@ -582,7 +582,6 @@
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; 
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false;
     let prevHexatombeFinal = false; // Controle de transição limpa de Hexatombe
-    let isFirstLoad = true; // Impede cálculos de transição errados caso o F5 seja dado com o modo ativado
 
     let unsubRit, unsubPod, unsubHab, unsubInv, unsubAtq;
     
@@ -864,78 +863,51 @@
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
 
+            // Mantém compatibilidade com leitura de fichas que já tinham hexatombe_data salvo no passado,
+            // mas o novo salvamento migrará tudo perfeitamente pro root document.
             let d = d_raw;
             if (hexatombeFinal && d_raw.hexatombe_data) {
                 d = { ...d_raw, ...d_raw.hexatombe_data };
             }
 
             if (prevHexatombeFinal !== hexatombeFinal) {
-                if (!isFirstLoad) {
-                    let pvInput = document.getElementById('vida-atual');
-                    let sanInput = document.getElementById('san-atual');
-                    let peInput = document.getElementById('pe-atual');
+                let pvInput = document.getElementById('vida-atual');
+                let sanInput = document.getElementById('san-atual');
+                let peInput = document.getElementById('pe-atual');
 
-                    let vig = parseInt(d_raw.vig) || 0; let von = parseInt(d_raw.von) || 0; let sag = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
-                    let maxN_vida = 12 + (2 * vig) + (3 * nivel); let maxH_vida = 12 + (2 * (vig+2)) + (3 * nivel); let deltaVida = maxH_vida - maxN_vida;
-                    let maxN_san = 12 + (10 * von + 10 * sag); let maxH_san = 12 + (10 * (von+2) + 10 * (sag+2)); let deltaSan = maxH_san - maxN_san;
+                let vig = parseInt(d_raw.vig) || 0; let von = parseInt(d_raw.von) || 0; let sag = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
+                let maxN_vida = 12 + (2 * vig) + (3 * nivel); let maxH_vida = 12 + (2 * (vig+2)) + (3 * nivel); let deltaVida = maxH_vida - maxN_vida;
+                let maxN_san = 12 + (10 * von + 10 * sag); let maxH_san = 12 + (10 * (von+2) + 10 * (sag+2)); let deltaSan = maxH_san - maxN_san;
 
-                    // LOGICA DA RESERVA (PE)
-                    let nex = parseInt(d_raw.nex) || 0;
-                    let classe = d_raw.classe || "";
-                    let baseN_pe = 2 + (2 * vig) + von + Math.floor(nex / 10);
-                    let baseH_pe = 2 + (2 * (vig+2)) + (von+2) + Math.floor(nex / 10);
-                    if (classe === "Esotérico") { baseN_pe += (2 * sag); baseH_pe += (2 * (sag+2)); } 
-                    else if (classe === "Canalizador" && nivel > 2) { baseN_pe += (nivel - 2) * 3; baseH_pe += (nivel - 2) * 3; }
-                    let deltaPe = baseH_pe - baseN_pe;
+                let nex = parseInt(d_raw.nex) || 0;
+                let classe = d_raw.classe || "";
+                let baseN_pe = 2 + (2 * vig) + von + Math.floor(nex / 10);
+                let baseH_pe = 2 + (2 * (vig+2)) + (von+2) + Math.floor(nex / 10);
+                if (classe === "Esotérico") { baseN_pe += (2 * sag); baseH_pe += (2 * (sag+2)); } 
+                else if (classe === "Canalizador" && nivel > 2) { baseN_pe += (nivel - 2) * 3; baseH_pe += (nivel - 2) * 3; }
+                let deltaPe = baseH_pe - baseN_pe;
 
-                    let tempUpdates = {};
-
-                    if (hexatombeFinal) {
-                        let nPv = (parseInt(d_raw.vidaAtual) || maxN_vida) + deltaVida;
-                        let nSan = (parseInt(d_raw.sanAtual) || maxN_san) + deltaSan;
-                        let nPe = (parseInt(d_raw.peAtual) || baseN_pe) + deltaPe;
-
-                        pvInput.value = nPv;
-                        sanInput.value = nSan;
-                        peInput.value = nPe;
-
-                        tempUpdates.vidaAtual_hexa = nPv;
-                        tempUpdates.sanAtual_hexa = nSan;
-                        tempUpdates.peAtual_hexa = nPe;
-                    } else {
-                        let baseV = (d_raw.vidaAtual_hexa !== undefined) ? parseInt(d_raw.vidaAtual_hexa) : (parseInt(d_raw.vidaAtual) || maxN_vida);
-                        let nPv = baseV - deltaVida; 
-                        if(nPv < 1) nPv = 1; 
-                        pvInput.value = nPv;
-
-                        let baseS = (d_raw.sanAtual_hexa !== undefined) ? parseInt(d_raw.sanAtual_hexa) : (parseInt(d_raw.sanAtual) || maxN_san);
-                        let nSan = baseS - deltaSan; 
-                        if(nSan < 1) nSan = 1; 
-                        sanInput.value = nSan;
-
-                        let baseP = (d_raw.peAtual_hexa !== undefined) ? parseInt(d_raw.peAtual_hexa) : (parseInt(d_raw.peAtual) || baseN_pe);
-                        let nPe = baseP - deltaPe;
-                        if(nPe < 1) nPe = 1; 
-                        peInput.value = nPe;
-
-                        tempUpdates.vidaAtual = nPv;
-                        tempUpdates.sanAtual = nSan;
-                        tempUpdates.peAtual = nPe;
-                    }
-                    // Atualiza DB imediatamente e ignora setTimeouts falhos que geravam race conditions
-                    db.collection("fichas").doc(atual).update(tempUpdates);
+                if (hexatombeFinal) {
+                    pvInput.value = (parseInt(d_raw.vidaAtual) || 0) + deltaVida;
+                    sanInput.value = (parseInt(d_raw.sanAtual) || 0) + deltaSan;
+                    peInput.value = (parseInt(d_raw.peAtual) || 0) + deltaPe; 
                 } else {
-                    let vAt = hexatombeFinal ? (d_raw.vidaAtual_hexa ?? d_raw.vidaAtual) : d_raw.vidaAtual;
-                    let sAt = hexatombeFinal ? (d_raw.sanAtual_hexa ?? d_raw.sanAtual) : d_raw.sanAtual;
-                    let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
+                    // O novo salvarFicha garante que vidaAtual guarde sempre os valores base desbuffados perfeitamente
+                    let nPv = parseInt(d_raw.vidaAtual) || 0; 
+                    if(nPv < 1) nPv = 1; 
+                    pvInput.value = nPv;
 
-                    if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
-                    if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
-                    if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
+                    let nSan = parseInt(d_raw.sanAtual) || 0; 
+                    if(nSan < 1) nSan = 1; 
+                    sanInput.value = nSan;
+
+                    let nPe = parseInt(d_raw.peAtual) || 0;
+                    if(nPe < 1) nPe = 1; 
+                    peInput.value = nPe;
                 }
-                
                 prevHexatombeFinal = hexatombeFinal;
                 carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
+                setTimeout(() => salvarFicha(), 100);
             } else {
                 let vAt = hexatombeFinal ? (d_raw.vidaAtual_hexa ?? d_raw.vidaAtual) : d_raw.vidaAtual;
                 let sAt = hexatombeFinal ? (d_raw.sanAtual_hexa ?? d_raw.sanAtual) : d_raw.sanAtual;
@@ -946,8 +918,6 @@
                 if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
             }
             
-            isFirstLoad = false;
-
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
             ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
@@ -1057,18 +1027,54 @@
         };
 
         const hexatombeFinal = isHexatombe || globalHexatombe;
-        let rootUpdates = { hexatombe: isHexatombe };
+        
+        // Remove a caixa de areia "hexatombe_data". Tudo que for modificado vai pro root e persiste perfeitamente.
+        let rootUpdates = { ...payload, hexatombe: isHexatombe };
 
         let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
         let inS = parseInt(document.getElementById('san-atual').value) || 0; 
         let inP = parseInt(document.getElementById('pe-atual').value) || 0;
 
         if (hexatombeFinal) { 
-            rootUpdates.hexatombe_data = payload; 
-            rootUpdates.vidaAtual_hexa = inV; rootUpdates.sanAtual_hexa = inS; rootUpdates.peAtual_hexa = inP; 
+            // Calcula dinamicamente a diferença do buff e salva a versão normal da Vida pra quando você desativar
+            let vig = parseInt(document.getElementById('attr-vig').value) || 0;
+            let von = parseInt(document.getElementById('attr-von').value) || 0;
+            let sag = parseInt(document.getElementById('attr-sag').value) || 0;
+            let nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
+            let nex = parseInt(document.getElementById('nex-personagem').value) || 0;
+            let classe = document.getElementById('classe-personagem').value || "";
+
+            let maxN_vida = 12 + (2 * vig) + (3 * nivel);
+            let maxH_vida = 12 + (2 * (vig+2)) + (3 * nivel);
+            let deltaVida = maxH_vida - maxN_vida;
+
+            let maxN_san = 12 + (10 * von + 10 * sag);
+            let maxH_san = 12 + (10 * (von+2) + 10 * (sag+2));
+            let deltaSan = maxH_san - maxN_san;
+
+            let baseN_pe = 2 + (2 * vig) + von + Math.floor(nex / 10);
+            let baseH_pe = 2 + (2 * (vig+2)) + (von+2) + Math.floor(nex / 10);
+            if (classe === "Esotérico") { baseN_pe += (2 * sag); baseH_pe += (2 * (sag+2)); }
+            else if (classe === "Canalizador" && nivel > 2) { baseN_pe += (nivel - 2) * 3; baseH_pe += (nivel - 2) * 3; }
+            let deltaPe = baseH_pe - baseN_pe;
+
+            let baseV = inV - deltaVida; if(baseV < 1) baseV = 1;
+            let baseS = inS - deltaSan; if(baseS < 1) baseS = 1;
+            let baseP = inP - deltaPe; if(baseP < 1) baseP = 1;
+
+            rootUpdates.vidaAtual = baseV;
+            rootUpdates.sanAtual = baseS;
+            rootUpdates.peAtual = baseP;
+            rootUpdates.vidaAtual_hexa = inV;
+            rootUpdates.sanAtual_hexa = inS;
+            rootUpdates.peAtual_hexa = inP; 
         } else { 
-            rootUpdates = { ...payload, ...rootUpdates }; 
-            rootUpdates.vidaAtual = inV; rootUpdates.sanAtual = inS; rootUpdates.peAtual = inP; 
+            rootUpdates.vidaAtual = inV; 
+            rootUpdates.sanAtual = inS; 
+            rootUpdates.peAtual = inP; 
+            rootUpdates.vidaAtual_hexa = inV; 
+            rootUpdates.sanAtual_hexa = inS; 
+            rootUpdates.peAtual_hexa = inP; 
         }
 
         db.collection("fichas").doc(atual).update(rootUpdates);
@@ -1098,9 +1104,12 @@
             const container = document.getElementById('lista-rituais'); container.innerHTML = ""; const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "#555" };
             snap.forEach(doc => {
                 const r = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('rit-' + id); const isAprendido = r.aprendido ? 'checked' : ''; const isPrimeira = r.primeiraConjuracao ? 'checked' : ''; const cor = coresElem[r.elemento] || "#555";
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:bold">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: screen;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:#555;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Desgaste Físico (Reserva)</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor
+                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:bold">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: screen;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:#555;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Desgaste Físico (Reserva)</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`;
+            });
+        });
+    }
 
-     function carregarPoderes() {
+    function carregarPoderes() {
         if(unsubPod) unsubPod();
         const hexatombeFinal = isHexatombe || globalHexatombe;
         const path = hexatombeFinal ? "hexa_poderes" : "poderes";
@@ -1173,4 +1182,3 @@
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
