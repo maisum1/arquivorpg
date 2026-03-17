@@ -581,7 +581,7 @@
     // VARIÁVEIS DE ESTADO E SEGREDOS
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; 
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false;
-    let prevHexatombeFinal = false; // Controle de transição limpa de Hexatombe
+    let prevHexatombeFinal = false;
 
     let unsubRit, unsubPod, unsubHab, unsubInv, unsubAtq;
     
@@ -790,10 +790,7 @@
         const bBloqueio = parseInt(document.getElementById('bonus-bloqueio').value) || 0;
         const bEsquiva = parseInt(document.getElementById('bonus-esquiva').value) || 0;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const agiReal = hexatombeFinal ? agi + 2 : agi;
-
-        const defBase = 10 + agiReal + nivel + bDefesa; 
+        const defBase = 10 + agi + nivel + bDefesa; 
         document.getElementById('display-defesa').innerText = defBase;
 
         const fortTreino = parseInt(document.getElementById('treino-Fortitude')?.value) || 0;
@@ -809,8 +806,6 @@
         const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe; if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
-        
         const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
         let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
         if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
@@ -829,7 +824,6 @@
         const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe; if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
         const extremosFinal = isExtremos || globalExtremos; if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
         
         const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
@@ -869,51 +863,18 @@
             }
 
             if (prevHexatombeFinal !== hexatombeFinal) {
-                let pvInput = document.getElementById('vida-atual');
-                let sanInput = document.getElementById('san-atual');
-                let peInput = document.getElementById('pe-atual');
-
-                let vig = parseInt(d_raw.vig) || 0; let von = parseInt(d_raw.von) || 0; let sag = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
-                let maxN_vida = 12 + (2 * vig) + (3 * nivel); let maxH_vida = 12 + (2 * (vig+2)) + (3 * nivel); let deltaVida = maxH_vida - maxN_vida;
-                let maxN_san = 12 + (10 * von + 10 * sag); let maxH_san = 12 + (10 * (von+2) + 10 * (sag+2)); let deltaSan = maxH_san - maxN_san;
-
-                let nex = parseInt(d_raw.nex) || 0;
-                let classe = d_raw.classe || "";
-                let baseN_pe = 2 + (2 * vig) + von + Math.floor(nex / 10);
-                let baseH_pe = 2 + (2 * (vig+2)) + (von+2) + Math.floor(nex / 10);
-                if (classe === "Esotérico") { baseN_pe += (2 * sag); baseH_pe += (2 * (sag+2)); } 
-                else if (classe === "Canalizador" && nivel > 2) { baseN_pe += (nivel - 2) * 3; baseH_pe += (nivel - 2) * 3; }
-                let deltaPe = baseH_pe - baseN_pe;
-
-                if (hexatombeFinal) {
-                    pvInput.value = (parseInt(d_raw.vidaAtual) || 0) + deltaVida;
-                    sanInput.value = (parseInt(d_raw.sanAtual) || 0) + deltaSan;
-                    peInput.value = (parseInt(d_raw.peAtual) || 0) + deltaPe; 
-                } else {
-                    let nPv = parseInt(d_raw.vidaAtual) || 0; 
-                    if(nPv < 1) nPv = 1; 
-                    pvInput.value = nPv;
-
-                    let nSan = parseInt(d_raw.sanAtual) || 0; 
-                    if(nSan < 1) nSan = 1; 
-                    sanInput.value = nSan;
-
-                    let nPe = parseInt(d_raw.peAtual) || 0;
-                    if(nPe < 1) nPe = 1; 
-                    peInput.value = nPe;
-                }
                 prevHexatombeFinal = hexatombeFinal;
                 carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
                 setTimeout(() => salvarFicha(), 100);
-            } else {
-                let vAt = hexatombeFinal ? (d_raw.vidaAtual_hexa ?? d_raw.vidaAtual) : d_raw.vidaAtual;
-                let sAt = hexatombeFinal ? (d_raw.sanAtual_hexa ?? d_raw.sanAtual) : d_raw.sanAtual;
-                let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
-
-                if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
-                if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
-                if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
             }
+            
+            let vAt = hexatombeFinal ? (d_raw.vidaAtual_hexa ?? d_raw.vidaAtual) : d_raw.vidaAtual;
+            let sAt = hexatombeFinal ? (d_raw.sanAtual_hexa ?? d_raw.sanAtual) : d_raw.sanAtual;
+            let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
+
+            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
+            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
             
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
@@ -941,7 +902,7 @@
                     }
                     if(totalSpan) {
                         const attrUsado = dadosPericia.atributo || bancoPericias[p].attr; const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
-                        let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0; if(hexatombeFinal) attrValue += 2; 
+                        let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0; 
                         totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue + Math.floor(bonusSub / 4);
                     }
                 });
@@ -1033,34 +994,9 @@
         if (hexatombeFinal) { 
             rootUpdates.hexatombe_data = payload; 
             
-            let vig = parseInt(document.getElementById('attr-vig').value) || 0;
-            let von = parseInt(document.getElementById('attr-von').value) || 0;
-            let sag = parseInt(document.getElementById('attr-sag').value) || 0;
-            let nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
-            let nex = parseInt(document.getElementById('nex-personagem').value) || 0;
-            let classe = document.getElementById('classe-personagem').value || "";
-
-            let maxN_vida = 12 + (2 * vig) + (3 * nivel);
-            let maxH_vida = 12 + (2 * (vig+2)) + (3 * nivel);
-            let deltaVida = maxH_vida - maxN_vida;
-
-            let maxN_san = 12 + (10 * von + 10 * sag);
-            let maxH_san = 12 + (10 * (von+2) + 10 * (sag+2));
-            let deltaSan = maxH_san - maxN_san;
-
-            let baseN_pe = 2 + (2 * vig) + von + Math.floor(nex / 10);
-            let baseH_pe = 2 + (2 * (vig+2)) + (von+2) + Math.floor(nex / 10);
-            if (classe === "Esotérico") { baseN_pe += (2 * sag); baseH_pe += (2 * (sag+2)); }
-            else if (classe === "Canalizador" && nivel > 2) { baseN_pe += (nivel - 2) * 3; baseH_pe += (nivel - 2) * 3; }
-            let deltaPe = baseH_pe - baseN_pe;
-
-            let baseV = inV - deltaVida; if(baseV < 1) baseV = 1;
-            let baseS = inS - deltaSan; if(baseS < 1) baseS = 1;
-            let baseP = inP - deltaPe; if(baseP < 1) baseP = 1;
-
-            rootUpdates.vidaAtual = baseV;
-            rootUpdates.sanAtual = baseS;
-            rootUpdates.peAtual = baseP;
+            rootUpdates.vidaAtual = inV;
+            rootUpdates.sanAtual = inS;
+            rootUpdates.peAtual = inP;
             rootUpdates.vidaAtual_hexa = inV;
             rootUpdates.sanAtual_hexa = inS;
             rootUpdates.peAtual_hexa = inP; 
