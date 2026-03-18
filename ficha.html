@@ -432,7 +432,7 @@
                     <path id="svg-torso" class="membro-svg" d="M75,40 L125,40 L115,130 L85,130 Z"/>
                     <path id="svg-braco-esq" class="membro-svg" d="M65,45 L40,110 L55,115 L70,50 Z"/>
                     <path id="svg-braco-dir" class="membro-svg" d="M135,45 L160,110 L145,115 L130,50 Z"/>
-                    <path <path id="svg-perna-esq" class="membro-svg" d="M85,140 L75,220 L92,220 L100,140 Z"/>
+                    <path id="svg-perna-esq" class="membro-svg" d="M85,140 L75,220 L92,220 L100,140 Z"/>
                     <path id="svg-perna-dir" class="membro-svg" d="M115,140 L125,220 L108,220 L100,140 Z"/>
 
                     <g id="x-cabeca" style="display:none;"><line x1="85" y1="10" x2="115" y2="30" stroke="#ff0000" stroke-width="4"/><line x1="115" y1="10" x2="85" y2="30" stroke="#ff0000" stroke-width="4"/></g>
@@ -635,7 +635,7 @@
     // VARIÁVEIS DE ESTADO E SEGREDOS
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; 
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false;
-    let prevHexatombeFinal = false; // Controle de transição limpa de Hexatombe
+    let prevHexatombeFinal = false;
 
     let unsubRit, unsubPod, unsubHab, unsubInv, unsubAtq;
     
@@ -666,7 +666,7 @@
         if (cheatCode.includes("apoteose"))  { ativarSegredo('extremos'); cheatCode = ""; } 
     });
 
-    // SOLUÇÃO DE VAZAMENTO DE ATRIBUTOS APLICADA AQUI
+    // SISTEMA ISOLADO PARA ATRIBUTOS SEM VAZAMENTO
     function ativarSegredo(campo) {
         document.body.classList.add('shake');
         setTimeout(() => { 
@@ -676,8 +676,6 @@
             if(campo === 'extremos') { isExtremos = !isExtremos; updates.extremos = isExtremos; }
             if(campo === 'hexatombe') { isHexatombe = !isHexatombe; updates.hexatombe = isHexatombe; }
             
-            // Enviamos diretamente pro DB sem ler os inputs poluídos do DOM. 
-            // O onSnapshot lidará com o delta de stats perfeitamente.
             db.collection("fichas").doc(atual).update(updates);
             aplicarSegredosUI();
         }, 800);
@@ -847,8 +845,7 @@
         const bBloqueio = parseInt(document.getElementById('bonus-bloqueio').value) || 0;
         const bEsquiva = parseInt(document.getElementById('bonus-esquiva').value) || 0;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const agiReal = hexatombeFinal ? agi + 2 : agi;
+        const agiReal = agi;
 
         const defBase = 10 + agiReal + nivel + bDefesa; 
         document.getElementById('display-defesa').innerText = defBase;
@@ -866,8 +863,6 @@
         const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe; if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
-        
         const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
         let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
         if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
@@ -886,7 +881,6 @@
         const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
         const classe = document.getElementById('classe-personagem').value;
 
-        const hexatombeFinal = isHexatombe || globalHexatombe; if (hexatombeFinal) { vig += 2; von += 2; sag += 2; }
         const extremosFinal = isExtremos || globalExtremos; if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
         
         const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
@@ -923,6 +917,12 @@
             let d = d_raw;
             if (hexatombeFinal && d_raw.hexatombe_data) {
                 d = { ...d_raw, ...d_raw.hexatombe_data };
+                // Garante que atributos originais se mantêm fixos e imutáveis pela transição
+                d.agi = d_raw.agi;
+                d.for = d_raw.for;
+                d.sag = d_raw.sag;
+                d.von = d_raw.von;
+                d.vig = d_raw.vig;
             }
 
             if (prevHexatombeFinal !== hexatombeFinal) {
@@ -930,18 +930,10 @@
                 let sanInput = document.getElementById('san-atual');
                 let peInput = document.getElementById('pe-atual');
 
-                let vig = parseInt(d_raw.vig) || 0; let von = parseInt(d_raw.von) || 0; let sag = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
-                let maxN_vida = 12 + (2 * vig) + (3 * nivel); let maxH_vida = 12 + (2 * (vig+2)) + (3 * nivel); let deltaVida = maxH_vida - maxN_vida;
-                let maxN_san = 12 + (10 * von + 10 * sag); let maxH_san = 12 + (10 * (von+2) + 10 * (sag+2)); let deltaSan = maxH_san - maxN_san;
-
-                // LOGICA DA RESERVA FIXADA A 1 QUANDO CAI
-                let nex = parseInt(d_raw.nex) || 0;
-                let classe = d_raw.classe || "";
-                let baseN_pe = 2 + (2 * vig) + von + Math.floor(nex / 10);
-                let baseH_pe = 2 + (2 * (vig+2)) + (von+2) + Math.floor(nex / 10);
-                if (classe === "Esotérico") { baseN_pe += (2 * sag); baseH_pe += (2 * (sag+2)); } 
-                else if (classe === "Canalizador" && nivel > 2) { baseN_pe += (nivel - 2) * 3; baseH_pe += (nivel - 2) * 3; }
-                let deltaPe = baseH_pe - baseN_pe;
+                // Buffs automáticos removidos. Deltas definidos como zero.
+                let deltaVida = 0;
+                let deltaSan = 0;
+                let deltaPe = 0;
 
                 if (hexatombeFinal) {
                     pvInput.value = (parseInt(d_raw.vidaAtual) || 0) + deltaVida;
@@ -999,7 +991,7 @@
                     }
                     if(totalSpan) {
                         const attrUsado = dadosPericia.atributo || bancoPericias[p].attr; const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
-                        let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0; if(hexatombeFinal) attrValue += 2; 
+                        let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
                         totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue + Math.floor(bonusSub / 4);
                     }
                 });
@@ -1095,10 +1087,21 @@
 
         if (hexatombeFinal) { 
             rootUpdates.hexatombe_data = payload; 
-            rootUpdates.vidaAtual_hexa = inV; rootUpdates.sanAtual_hexa = inS; rootUpdates.peAtual_hexa = inP; 
+            rootUpdates.vidaAtual_hexa = inV; 
+            rootUpdates.sanAtual_hexa = inS; 
+            rootUpdates.peAtual_hexa = inP; 
+            
+            // Garantir que os atributos são salvos na raiz sempre
+            rootUpdates.agi = payload.agi;
+            rootUpdates.for = payload.for;
+            rootUpdates.sag = payload.sag;
+            rootUpdates.von = payload.von;
+            rootUpdates.vig = payload.vig;
         } else { 
             rootUpdates = { ...payload, ...rootUpdates }; 
-            rootUpdates.vidaAtual = inV; rootUpdates.sanAtual = inS; rootUpdates.peAtual = inP; 
+            rootUpdates.vidaAtual = inV; 
+            rootUpdates.sanAtual = inS; 
+            rootUpdates.peAtual = inP; 
         }
 
         db.collection("fichas").doc(atual).update(rootUpdates);
