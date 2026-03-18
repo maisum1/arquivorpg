@@ -857,9 +857,17 @@
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
 
-            let d = d_raw;
-            if (hexatombeFinal && d_raw.hexatombe_data) {
-                d = { ...d_raw, ...d_raw.hexatombe_data };
+            let d;
+            if (hexatombeFinal) {
+                // Carrega a caixa de areia para as perícias e outros
+                d = d_raw.hexatombe_data ? { ...d_raw.hexatombe_data } : { ...d_raw };
+                
+                // Mas FORÇA os atributos e status a serem sempre os da raiz
+                d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
+                d.vidaAtual = d_raw.vidaAtual; d.sanAtual = d_raw.sanAtual; d.peAtual = d_raw.peAtual;
+                d.vidaMax = d_raw.vidaMax; d.sanMax = d_raw.sanMax; d.peMax = d_raw.peMax;
+            } else {
+                d = { ...d_raw };
             }
 
             if (prevHexatombeFinal !== hexatombeFinal) {
@@ -867,9 +875,9 @@
                 carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
             }
             
-            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = d_raw.vidaAtual ?? 12;
-            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = d_raw.sanAtual ?? 12;
-            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = d_raw.peAtual ?? 2;
+            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = d.vidaAtual ?? 12;
+            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = d.sanAtual ?? 12;
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = d.peAtual ?? 2;
             
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
@@ -981,7 +989,6 @@
 
         const hexatombeFinal = isHexatombe || globalHexatombe;
         
-        // Define os valores atuais de status
         payload.vidaAtual = parseInt(document.getElementById('vida-atual').value) || 0;
         payload.sanAtual = parseInt(document.getElementById('san-atual').value) || 0;
         payload.peAtual = parseInt(document.getElementById('pe-atual').value) || 0;
@@ -989,10 +996,25 @@
         let rootUpdates = { hexatombe: isHexatombe };
 
         if (hexatombeFinal) { 
+            // Salva as pericias e o resto na caixa de areia
             rootUpdates.hexatombe_data = payload;
-            // Mesmo no hexatombe, garante que a raiz tenha os status e atributos sempre atualizados
-            rootUpdates = { ...payload, ...rootUpdates };
+            
+            // Forca os atributos e status a serem salvos SEMPRE na raiz, para manter sincronia
+            rootUpdates.agi = payload.agi;
+            rootUpdates.for = payload.for;
+            rootUpdates.sag = payload.sag;
+            rootUpdates.von = payload.von;
+            rootUpdates.vig = payload.vig;
+            
+            rootUpdates.vidaAtual = payload.vidaAtual;
+            rootUpdates.sanAtual = payload.sanAtual;
+            rootUpdates.peAtual = payload.peAtual;
+            
+            rootUpdates.vidaMax = payload.vidaMax;
+            rootUpdates.sanMax = payload.sanMax;
+            rootUpdates.peMax = payload.peMax;
         } else { 
+            // Modo normal: salva tudo direto na raiz
             rootUpdates = { ...payload, ...rootUpdates }; 
         }
 
