@@ -193,7 +193,7 @@
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--cris-purple);}
 
-        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; border: 1px solid var(--cris-purple); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; }
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; border: 1px solid var(--cris-purple); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; }
         .btn-copy-link { background: #333; color: white; border: 1px solid #555; padding: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px; transition: 0.2s;}
         .btn-copy-link:hover { background: #444; border-color: #888;}
 
@@ -207,7 +207,7 @@
 <div id="status-overlay"></div>
 
 <input type="file" id="fileUploader" accept="image/*" style="display:none" onchange="processarArquivo(this)">
-<button class="btn-config" onclick="toggleElem('modal-config')" title="Configurar Overlay OBS">⚙️</button>
+<button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
 
 <div id="modal-config" class="modal-padrao">
     <h3 style="margin-top:0; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE TRANSMISSÃO</h3>
@@ -217,8 +217,14 @@
         <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn" style="border-color: #483d8b; color: #887ebd; width: 100%;">🌀 ESTADO DE CHOQUE (0 LUC)</button>
         <button onclick="abrirUpload('Morto')" class="cris-btn" style="border-style: dashed; border-color: #444; color: #666; width: 100%;">💀 ÓBITO CONFIRMADO (0 VIT)</button>
     </div>
-    <button class="btn-copy-link" onclick="copiarLinkOBS()">COPIAR LINK PARA OBS</button>
-    <button onclick="toggleElem('modal-config')" style="margin-top:10px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
+    
+    <div style="border-top: 1px solid #333; margin-top: 20px; padding-top: 20px;">
+        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Sistema de Segredos (Mobile)</div>
+        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px solid #444; padding: 8px; box-sizing: border-box;">
+        <button class="cris-btn" onclick="verificarCheat()" style="width: 100%; border-color: #888; color: #888;">EXECUTAR COMANDO</button>
+    </div>
+
+    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
 
 <div id="crop-modal" class="modal-padrao" style="width: 260px; text-align: center;">
@@ -251,8 +257,9 @@
 
 <div class="grid-container">
     <section style="min-width: 0; overflow: hidden;">
-        <div style="margin-bottom: 25px;">
+        <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
             <button onclick="window.location.href='index.html'" class="cris-btn" style="border-color: #444; color: #888; display: flex; align-items: center; gap: 8px;"><span>←</span> FECHAR DOSSIÊ</button>
+            <button id="btn-assumir-posse" class="cris-btn" style="display: none; border-color: var(--cris-purple); color: var(--cris-purple);" onclick="assumirPosse()">📥 ASSUMIR POSSE DA FICHA</button>
         </div>
         
         <div style="display:flex; gap: 25px; margin-bottom: 25px;">
@@ -611,7 +618,6 @@
         "Decadência": { nome: "Decadência", elemento: "Morte", descricao: "Apodrece a matéria ao redor, causando dano contínuo em uma área específica.", aprendido: true, primeiraConjuracao: false, tempoAprendizado: "Concluído", tempoConjuracao: "Padrão", alcance: "Curto", alvo: "Área", duracao: "1 Rodada", custoPe: "1", custoSanidade: "1", simbolo: "" }
     };
 
-
     // ==========================================
     // INICIALIZAÇÃO FIREBASE E VARIÁVEIS
     // ==========================================
@@ -655,7 +661,7 @@
         }
     });
 
-    // --- COMANDOS TECLADO ---
+    // --- COMANDOS TECLADO E MOBILE ---
     let cheatCode = "";
     document.addEventListener('keydown', (e) => {
         const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
@@ -665,6 +671,16 @@
         if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; }
         if (cheatCode.includes("apoteose"))  { ativarSegredo('extremos'); cheatCode = ""; } 
     });
+
+    function verificarCheat() {
+        const code = document.getElementById('input-cheat').value.toLowerCase().trim();
+        if (code === "despertar") ativarSegredo('revelado');
+        else if (code === "hexatombe") ativarSegredo('hexatombe');
+        else if (code === "apoteose") ativarSegredo('extremos');
+        else alert("Comando não reconhecido.");
+        document.getElementById('input-cheat').value = "";
+        toggleElem('modal-config');
+    }
 
     // SISTEMA ISOLADO PARA ATRIBUTOS SEM VAZAMENTO
     function ativarSegredo(campo) {
@@ -748,6 +764,23 @@
         let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
         const bar = document.getElementById(`bar-${tipo}`);
         if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; if(max > 0 && curr <= (max / 2)) { bar.style.filter = "brightness(0.35)"; } else { bar.style.filter = "brightness(1)"; } }
+    }
+
+    function assumirPosse() {
+        if(confirm("Transferir a posse desta ficha para sua conta?\nEla passará a aparecer no seu painel principal.")) {
+            const user = auth.currentUser;
+            const nomeJogadorData = user.displayName ? user.displayName : user.email;
+            db.collection("fichas").doc(atual).update({
+                dono: user.uid,
+                nomeJogador: nomeJogadorData
+            }).then(() => {
+                alert("Você agora é o proprietário desta ficha!");
+                document.getElementById('btn-assumir-posse').style.display = 'none';
+            }).catch(e => {
+                console.error(e);
+                alert("Erro ao transferir posse.");
+            });
+        }
     }
 
     function abrirUpload(tipo, id = "") { modoCrop = tipo; ritualIdAtual = id; document.getElementById('fileUploader').click(); }
@@ -910,6 +943,14 @@
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             const d_raw = doc.data(); if(!d_raw) return;
+
+            // Lógica para o botão de transferir Posse
+            const donoDoc = d_raw.dono;
+            if (auth.currentUser && donoDoc !== auth.currentUser.uid) {
+                document.getElementById('btn-assumir-posse').style.display = 'block';
+            } else {
+                document.getElementById('btn-assumir-posse').style.display = 'none';
+            }
 
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
