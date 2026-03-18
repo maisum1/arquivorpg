@@ -69,12 +69,15 @@
         }
         .btn-google:hover { background: #a68a64; color: #121212; border-color: #a68a64;}
 
-        .btn-del-node {
-            position: absolute; top: 8px; right: 8px; background: none; border: none;
+        .btn-action-node {
+            position: absolute; background: none; border: none;
             color: #555; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold;
             cursor: pointer; transition: 0.3s; padding: 2px 5px; letter-spacing: 1px;
         }
-        .btn-del-node:hover { color: #8b1c1c; }
+        .btn-action-node.btn-del { top: 8px; right: 8px; }
+        .btn-action-node.btn-copy { top: 8px; right: 35px; font-size: 12px; color: #a68a64;}
+        .btn-action-node.btn-del:hover { color: #8b1c1c; }
+        .btn-action-node.btn-copy:hover { color: #fff; }
 
         .btn-open { color: inherit; text-decoration: none; font-family: 'Crimson Text', serif; font-size: 14px; font-weight: bold; padding: 5px 10px; border: 1px solid transparent; transition: 0.3s; letter-spacing: 1px; }
         .ficha-card .btn-open { color: #a68a64; }
@@ -158,10 +161,16 @@
         
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore(); // VARIÁVEL DB AGORA ESTÁ ACESSÍVEL PARA O TOGGLEGLOBAL
+        const db = firebase.firestore();
         const EMAIL_MESTRE = "pedroacpr@gmail.com";
 
-        // --- FUNÇÃO DO MESTRE CORRIGIDA (AGORA DENTRO DO SCRIPT CORRETO) ---
+        // Copia o link para transferir ou convidar
+        function copiarLink(id) {
+            const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
+            navigator.clipboard.writeText(url);
+            alert('Link de Compartilhamento Copiado!\nEnvie para o jogador para que ele possa Assumir a Posse.');
+        }
+
         function toggleGlobal(campo) {
             const docRef = db.collection("configuracoes").doc("globais");
             
@@ -248,7 +257,8 @@
                     const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
                     div.innerHTML += `
                         <div class="ficha-card">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
+                            <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">🔗</button>
+                            <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="overflow: hidden; position: relative;">
                                     ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
@@ -273,7 +283,7 @@
                     const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
                     div.innerHTML += `
                         <div class="ameaca-card">
-                            <button class="btn-del-node" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ X ]</button>
+                            <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ X ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="border-color:#8b1c1c; overflow: hidden; position: relative;">
                                     ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
@@ -298,7 +308,8 @@
                     const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
                     div.innerHTML += `
                         <div class="ficha-card" style="border-left-color:#404040">
-                            <button class="btn-del-node" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
+                            <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link para Transferir">🔗</button>
+                            <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: #404040;">
                                     ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
