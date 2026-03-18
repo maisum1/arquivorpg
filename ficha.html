@@ -865,16 +865,11 @@
             if (prevHexatombeFinal !== hexatombeFinal) {
                 prevHexatombeFinal = hexatombeFinal;
                 carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
-                setTimeout(() => salvarFicha(), 100);
             }
             
-            let vAt = hexatombeFinal ? (d_raw.vidaAtual_hexa ?? d_raw.vidaAtual) : d_raw.vidaAtual;
-            let sAt = hexatombeFinal ? (d_raw.sanAtual_hexa ?? d_raw.sanAtual) : d_raw.sanAtual;
-            let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
-
-            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
-            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
-            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
+            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = d_raw.vidaAtual ?? 12;
+            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = d_raw.sanAtual ?? 12;
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = d_raw.peAtual ?? 2;
             
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
@@ -985,29 +980,20 @@
         };
 
         const hexatombeFinal = isHexatombe || globalHexatombe;
+        
+        // Define os valores atuais de status
+        payload.vidaAtual = parseInt(document.getElementById('vida-atual').value) || 0;
+        payload.sanAtual = parseInt(document.getElementById('san-atual').value) || 0;
+        payload.peAtual = parseInt(document.getElementById('pe-atual').value) || 0;
+
         let rootUpdates = { hexatombe: isHexatombe };
 
-        let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
-        let inS = parseInt(document.getElementById('san-atual').value) || 0; 
-        let inP = parseInt(document.getElementById('pe-atual').value) || 0;
-
         if (hexatombeFinal) { 
-            rootUpdates.hexatombe_data = payload; 
-            
-            rootUpdates.vidaAtual = inV;
-            rootUpdates.sanAtual = inS;
-            rootUpdates.peAtual = inP;
-            rootUpdates.vidaAtual_hexa = inV;
-            rootUpdates.sanAtual_hexa = inS;
-            rootUpdates.peAtual_hexa = inP; 
+            rootUpdates.hexatombe_data = payload;
+            // Mesmo no hexatombe, garante que a raiz tenha os status e atributos sempre atualizados
+            rootUpdates = { ...payload, ...rootUpdates };
         } else { 
             rootUpdates = { ...payload, ...rootUpdates }; 
-            rootUpdates.vidaAtual = inV; 
-            rootUpdates.sanAtual = inS; 
-            rootUpdates.peAtual = inP; 
-            rootUpdates.vidaAtual_hexa = inV; 
-            rootUpdates.sanAtual_hexa = inS; 
-            rootUpdates.peAtual_hexa = inP; 
         }
 
         db.collection("fichas").doc(atual).update(rootUpdates);
