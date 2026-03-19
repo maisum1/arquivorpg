@@ -398,7 +398,7 @@
             <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
                 <label style="width: 100%;">TETO DE RESERVA</label>
                 <div style="display:flex; align-items:center; justify-content: center; gap:8px; width: auto; margin-top: 2px;">
-                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(); salvarFicha();" style="font-size: 14px; border-color: #555; width: 45px; text-align: center;">
+                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(true); salvarFicha();" style="font-size: 14px; border-color: #555; width: 45px; text-align: center;">
                     <div id="display-limite-pe" style="font-size:22px; color:#fff; font-weight: bold; line-height: 1;">1</div>
                 </div>
             </div>
@@ -617,7 +617,7 @@
                     <button class="cris-btn" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button>
                 </div>
                 <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: #888; background: var(--bg-panel); padding: 8px 15px; border-radius: 4px; border: 1px solid #333;">
-                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(); salvarFicha();" style="width:45px; background:#121212; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; outline:none; font-family:'Inter'; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 24px;">10</span>
+                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; background:#121212; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; outline:none; font-family:'Inter'; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 24px;">10</span>
                 </div>
             </div>
             <div id="lista-rituais"></div>
@@ -638,15 +638,15 @@
 
         <div id="aba-background" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="bg-section"><label class="bg-label">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que acredita..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
-                <div class="bg-section"><label class="bg-label">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
-                <div class="bg-section"><label class="bg-label">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
-                <div class="bg-section"><label class="bg-label">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
-                <div class="bg-section"><label class="bg-label">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
-                <div class="bg-section"><label class="bg-label">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
-                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2;"><label class="bg-label" style="color: var(--hp-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border-color: #442222; background: rgba(139, 28, 28, 0.05);"></textarea></div>
+                <div class="bg-section"><label class="bg-label">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, trejeitos e biótipo..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita e defende..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem são as pessoas mais importantes para você?"></textarea></div>
+                <div class="bg-section"><label class="bg-label">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Lugares que marcaram a sua vida..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Objetos e heranças de imenso valor emocional..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Manias, forma de falar, costumes visíveis..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas e cicatrizes de batalhas ou acidentes passados..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Medos irracionais e gatilhos emocionais..."></textarea></div>
+                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2; display: none;"><label class="bg-label" style="color: var(--hp-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border-color: #442222; background: rgba(139, 28, 28, 0.05);" placeholder="Relate aqui detalhadamente suas experiências confidenciais com anomalias, artefatos ou situações inexplicáveis..."></textarea></div>
             </div>
         </div>
     </section>
@@ -657,8 +657,8 @@
     // BANCO DE DADOS DE TEMPLATES (Fácil de editar e expandir)
     // ==========================================
     const templatesAtaques = {
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 },
-        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 1 }
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0 },
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }
     };
 
     const templatesTracos = {
@@ -677,8 +677,8 @@
     };
 
     const templatesInventario = {
-        "Bandagem": { nome: "Bandagem", categoria: "Consumível", pressao: 1, quantidade: 1, descricao: "Cura 2d10 PV. Usado com teste de Medicina." },
-        "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 1, quantidade: 1, descricao: "Ilumina áreas escuras. Pode ser acoplada." }
+        "Bandagem": { nome: "Bandagem", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Cura 2d10 PV. Usado com teste de Medicina." },
+        "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas escuras. Pode ser acoplada." }
     };
 
     // PREVIEWS
@@ -762,11 +762,12 @@
         }
     });
 
-    // --- COMANDOS TECLADO E MOBILE ---
+    // --- COMANDOS TECLADO E MOBILE CONTINUOS ---
     let cheatCode = "";
     document.addEventListener('keydown', (e) => {
         const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
-        cheatCode += e.key.toLowerCase(); if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
+        cheatCode += e.key.toLowerCase(); 
+        cheatCode = cheatCode.slice(-20); 
         
         if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; }
         if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; }
@@ -788,15 +789,18 @@
     // SISTEMA ISOLADO PARA ATRIBUTOS SEM VAZAMENTO
     function ativarSegredo(campo) {
         document.body.classList.add('shake');
-        setTimeout(() => { 
+        salvarFicha(); // Previne queda de PE e dados na transição
+        setTimeout(async () => { 
             document.body.classList.remove('shake'); 
+            let doc = await db.collection("fichas").doc(atual).get();
+            let valAtual = doc.data()[campo] || false;
             let updates = {};
-            if(campo === 'revelado') { isRevelado = !isRevelado; updates.revelado = isRevelado; }
-            if(campo === 'extremos') { isExtremos = !isExtremos; updates.extremos = isExtremos; }
-            if(campo === 'hexatombe') { isHexatombe = !isHexatombe; updates.hexatombe = isHexatombe; }
-            if(campo === 'restricao') { isRestricao = !isRestricao; updates.restricao = isRestricao; }
+            if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; }
+            if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; }
+            if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; }
+            if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; }
             
-            db.collection("fichas").doc(atual).update(updates);
+            await db.collection("fichas").doc(atual).update(updates);
             aplicarSegredosUI();
         }, 800);
     }
@@ -810,11 +814,13 @@
         if (hexatombeFinal) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
 
         const nexStr = document.getElementById('nex-personagem').value;
+        const bgEncontrosContainer = document.getElementById('bgEncontros-container');
 
         if (reveladoFinal) {
             document.getElementById('content-exposicao-real').style.display = 'flex'; 
             document.getElementById('content-exposicao-fake').style.display = 'none'; 
             document.getElementById('tab-anomalias').style.display = 'block';
+            if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'flex';
             
             document.getElementById('sigilo-box').classList.remove('brilho-sangue', 'brilho-restricao');
             if(nexStr === "100%" && extremosFinal) {
@@ -836,6 +842,7 @@
             fakeBox.style.textShadow = shadowMundano;
 
             document.getElementById('tab-anomalias').style.display = 'none'; 
+            if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'none';
             
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
             if (nexStr === "0%" && restricaoFinal) {
@@ -931,13 +938,18 @@
 
     function atualizarOpcoesRessonancia(nexValue) {
         const resSel = document.getElementById('grau-ressonancia'); if (!resSel) return;
-        const valorAtual = resSel.value; let options = ''; if (nexValue === 0) { options += `<option value="Nulo">Nulo</option>`; }
-        options += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`;
+        const valorAtual = resSel.value; let options = ''; 
         
         const extremosFinal = isExtremos || globalExtremos;
-        if (nexValue >= 100 && extremosFinal) { options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', serif;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; }
-        
-        resSel.innerHTML = options; if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; } else { resSel.value = '5º Grau'; }
+
+        if (nexValue === 0 && (isRestricao || globalRestricao)) { 
+            options += `<option value="Nulo">Nulo</option>`; 
+        } else {
+            options += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`;
+            if (nexValue >= 100 && extremosFinal) { options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', serif;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; }
+        }
+        resSel.innerHTML = options; 
+        if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; } else { resSel.value = (nexValue === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
     }
 
     function gerarOpcoesNivelNex() {
@@ -982,7 +994,9 @@
         let grauCalculado = "1º Grau";
         if (nex === 0) grauCalculado = "Nulo"; else if (nex >= 5 && nex <= 20) grauCalculado = "1º Grau"; else if (nex >= 25 && nex <= 40) grauCalculado = "2º Grau"; else if (nex >= 45 && nex <= 60) grauCalculado = "3º Grau"; else if (nex >= 65 && nex <= 80) grauCalculado = "4º Grau"; else if (nex >= 85 && nex <= 99) grauCalculado = "5º Grau"; else if (nex >= 100) grauCalculado = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡";
         document.getElementById('grau-ressonancia').value = grauCalculado;
-        aplicarSegredosUI(); salvarFicha(); 
+        aplicarSegredosUI(); 
+        recalcularBases(true); // Forçar Full Heal para acompanhar o novo máximo
+        salvarFicha(); 
     }
 
     function recalcularDefesas() {
@@ -1005,24 +1019,11 @@
     }
 
     function alterarAtributoOuNivel() {
-        let vig = parseInt(document.getElementById('attr-vig').value) || 0; let von = parseInt(document.getElementById('attr-von').value) || 0; let sag = parseInt(document.getElementById('attr-sag').value) || 0;
-        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
-        const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
-        const classe = document.getElementById('classe-personagem').value;
-
-        const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 12 + (10 * von + 10 * sag);
-        let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
-        if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
-        
-        // Full Heal
-        document.getElementById('vida-max').value = novaVida; document.getElementById('vida-atual').value = novaVida;
-        document.getElementById('san-max').value = novaSan; document.getElementById('san-atual').value = novaSan;
-        document.getElementById('pe-max').value = novoPe; document.getElementById('pe-atual').value = novoPe;
-        
-        recalcularBases(); salvarFicha();
+        recalcularBases(true); // Full Heal nos atributos e Nível
+        salvarFicha();
     }
 
-    function recalcularBases() {
+    function recalcularBases(forcarHeal = false) {
         let vig = parseInt(document.getElementById('attr-vig').value) || 0; let von = parseInt(document.getElementById('attr-von').value) || 0; let sag = parseInt(document.getElementById('attr-sag').value) || 0;
         const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
         const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
@@ -1036,26 +1037,17 @@
         
         const inptVidaMax = document.getElementById('vida-max'); if (inptVidaMax && document.activeElement !== inptVidaMax) inptVidaMax.value = novaVida;
         const inptSanMax = document.getElementById('san-max'); if (inptSanMax && document.activeElement !== inptSanMax) inptSanMax.value = novaSan;
-        
-        const inptPeMax = document.getElementById('pe-max'); 
-        let oldPeMax = parseInt(inptPeMax.value) || 0;
-        if (inptPeMax && document.activeElement !== inptPeMax) inptPeMax.value = novoPe;
+        const inptPeMax = document.getElementById('pe-max'); if (inptPeMax && document.activeElement !== inptPeMax) inptPeMax.value = novoPe;
 
-        const inptPeAtual = document.getElementById('pe-atual');
-        // Faz a reserva PE acompanhar a subida se houver ganho real de Maximo (ex: UP de NEX) ou se for o setup inicial da ficha
-        if (novoPe > oldPeMax && oldPeMax > 0) {
-            if (inptPeAtual && document.activeElement !== inptPeAtual) {
-                inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (novoPe - oldPeMax);
-            }
-        } else if (oldPeMax === 0 && novoPe > 0) {
-            if (inptPeAtual && document.activeElement !== inptPeAtual) {
-                inptPeAtual.value = novoPe;
-            }
+        if (forcarHeal) {
+            document.getElementById('vida-atual').value = novaVida;
+            document.getElementById('san-atual').value = novaSan;
+            document.getElementById('pe-atual').value = novoPe;
         }
 
         const lhp = Math.floor(novaVida / 4); const ldouble = Math.floor(novaVida / 2);
         document.querySelectorAll('.val-quarter').forEach(el => el.innerText = lhp); 
-        document.querySelectorAll('.val-half').forEach(el => el.innerText = ldouble);
+        document.querySelectorAll('.val-half').forEach(el => el.innerText = `(${ldouble})`);
 
         const bLimitePe = parseInt(document.getElementById('bonus-limite-pe').value) || 0; document.getElementById('display-limite-pe').innerText = novoLimitePe + bLimitePe;
         const bDtRitual = parseInt(document.getElementById('bonus-dt').value) || 0; document.getElementById('dt-val').innerText = 10 + sag + bDtRitual; 
@@ -1088,52 +1080,65 @@
             if (hexatombeFinal && d_raw.hexatombe_data) {
                 d = { ...d_raw, ...d_raw.hexatombe_data };
                 // Garante que atributos originais se mantêm fixos e imutáveis pela transição
-                d.agi = d_raw.agi;
-                d.for = d_raw.for;
-                d.sag = d_raw.sag;
-                d.von = d_raw.von;
-                d.vig = d_raw.vig;
+                d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
             }
 
+            // ISOLAMENTO TOTAL DO DELTA HEXATOMBE (TRANSIÇÃO ESTÁVEL)
             if (prevHexatombeFinal !== hexatombeFinal) {
-                let pvInput = document.getElementById('vida-atual');
-                let sanInput = document.getElementById('san-atual');
-                let peInput = document.getElementById('pe-atual');
+                let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
+                let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
 
-                // Buffs automáticos removidos. Deltas definidos como zero.
-                let deltaVida = 0;
-                let deltaSan = 0;
-                let deltaPe = 0;
-
-                if (hexatombeFinal) {
-                    pvInput.value = (parseInt(d_raw.vidaAtual) || 0) + deltaVida;
-                    sanInput.value = (parseInt(d_raw.sanAtual) || 0) + deltaSan;
-                    peInput.value = (parseInt(d_raw.peAtual) || 0) + deltaPe; 
-                } else {
-                    let nPv = (parseInt(d_raw.vidaAtual_hexa) || 0) - deltaVida; 
-                    if(nPv < 1) nPv = 1; 
-                    pvInput.value = nPv;
-
-                    let nSan = (parseInt(d_raw.sanAtual_hexa) || 0) - deltaSan; 
-                    if(nSan < 1) nSan = 1; 
-                    sanInput.value = nSan;
-
-                    let nPe = (parseInt(d_raw.peAtual_hexa) || 0) - deltaPe;
-                    if(nPe < 1) nPe = 1; 
-                    peInput.value = nPe;
+                let hexData = d_raw.hexatombe_data || {};
+                
+                // Cópia inicial limpa da base se não tiver nada
+                if (hexatombeFinal && hexData.vig === undefined) {
+                    hexData.vig = vigN; hexData.for = d_raw.for; hexData.agi = d_raw.agi; 
+                    hexData.sag = sagN; hexData.von = vonN;
+                    hexData.pericias = d_raw.pericias || {};
                 }
-                prevHexatombeFinal = hexatombeFinal;
-                carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
-                setTimeout(() => salvarFicha(), 100);
-            } else {
-                let vAt = hexatombeFinal ? (d_raw.vidaAtual_hexa ?? d_raw.vidaAtual) : d_raw.vidaAtual;
-                let sAt = hexatombeFinal ? (d_raw.sanAtual_hexa ?? d_raw.sanAtual) : d_raw.sanAtual;
-                let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
 
-                if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
-                if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
-                if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
+                let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : vigN;
+                let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN;
+                let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
+
+                let maxN_vida = 12 + (2 * vigN) + (3 * nivel); 
+                let maxH_vida = 12 + (2 * vigH) + (3 * nivel) + 30; // +30 FLAT HP BONUS DO HEXATOMBE
+                let maxN_san = 12 + (10 * vonN + 10 * sagN); let maxH_san = 12 + (10 * vonH + 10 * sagH);
+                
+                let maxN_pe = 2 + (2 * vigN) + vonN + Math.floor(nex / 10);
+                if (classe === "Esotérico") maxN_pe += (2 * sagN); else if (classe === "Canalizador" && nivel > 2) maxN_pe += (nivel - 2) * 3;
+                let maxH_pe = 2 + (2 * vigH) + vonH + Math.floor(nex / 10);
+                if (classe === "Esotérico") maxH_pe += (2 * sagH); else if (classe === "Canalizador" && nivel > 2) maxH_pe += (nivel - 2) * 3;
+
+                let deltaVida = maxH_vida - maxN_vida; let deltaSan = maxH_san - maxN_san; let deltaPe = maxH_pe - maxN_pe;
+                
+                let updates = {};
+                if (hexatombeFinal) {
+                    let vAt = parseInt(d_raw.vidaAtual) || 0; let sAt = parseInt(d_raw.sanAtual) || 0; let pAt = parseInt(d_raw.peAtual) || 0;
+                    hexData.vidaAtual = vAt + deltaVida; hexData.sanAtual = sAt + deltaSan; hexData.peAtual = pAt + deltaPe;
+                    updates.hexatombe_data = hexData;
+                } else {
+                    let vAtHex = parseInt(hexData.vidaAtual) || 0; let sAtHex = parseInt(hexData.sanAtual) || 0; let pAtHex = parseInt(hexData.peAtual) || 0;
+                    
+                    // Subtrai o buff, ancorando em 1 se não estava morto no Hexatombe
+                    let nV = vAtHex - deltaVida; if(nV <= 0 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; updates.vidaAtual = nV;
+                    let nS = sAtHex - deltaSan; if(nS <= 0 && sAtHex >= 1) nS = 1; else if (nS < 0) nS = 0; updates.sanAtual = nS;
+                    let nP = pAtHex - deltaPe; if(nP < 0) nP = 0; updates.peAtual = nP;
+                }
+                
+                prevHexatombeFinal = hexatombeFinal;
+                db.collection("fichas").doc(atual).update(updates);
+                carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
+                return; // Aguarda o DB retornar o update do delta para não bugar a tela
             }
+
+            let vAt = hexatombeFinal ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual;
+            let sAt = hexatombeFinal ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual;
+            let pAt = hexatombeFinal ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
+
+            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
+            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
             
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
@@ -1194,8 +1199,7 @@
                         v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half';
                         if (membrosEstado[k] === 'lesionado') {
                             v1.classList.add('lesionado');
-                        }
-                        if (membrosEstado[k] === 'decepado') {
+                        } else if (membrosEstado[k] === 'decepado') {
                             v1.classList.add('decepado'); 
                             v2.classList.add('decepado'); 
                         }
@@ -1212,12 +1216,14 @@
             document.getElementById('bgDescricao').value = d.bgDescricao || ""; document.getElementById('bgIdeologia').value = d.bgIdeologia || ""; document.getElementById('bgPessoas').value = d.bgPessoas || ""; document.getElementById('bgLocais').value = d.bgLocais || ""; document.getElementById('bgPosses').value = d.bgPosses || ""; document.getElementById('bgTracos').value = d.bgTracos || ""; document.getElementById('bgCicatrizes').value = d.bgCicatrizes || ""; document.getElementById('bgFobias').value = d.bgFobias || ""; document.getElementById('bgEncontros').value = d.bgEncontros || "";
 
             recalcularBases();
+            atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
             aplicarStatusVisual();
             aplicarSegredosUI(); 
         });
     }
 
     function salvarFicha() {
+        const hexatombeFinal = isHexatombe || globalHexatombe;
         const currentUser = auth.currentUser; const nomeJogadorData = currentUser ? (currentUser.displayName || currentUser.email) : "Desconhecido";
 
         const periciasObj = {};
@@ -1248,7 +1254,6 @@
             bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
         };
 
-        const hexatombeFinal = isHexatombe || globalHexatombe;
         let rootUpdates = { hexatombe: isHexatombe, restricao: isRestricao };
 
         let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
@@ -1257,16 +1262,11 @@
 
         if (hexatombeFinal) { 
             rootUpdates.hexatombe_data = payload; 
-            rootUpdates.vidaAtual_hexa = inV; 
-            rootUpdates.sanAtual_hexa = inS; 
-            rootUpdates.peAtual_hexa = inP; 
+            rootUpdates.hexatombe_data.vidaAtual = inV; 
+            rootUpdates.hexatombe_data.sanAtual = inS; 
+            rootUpdates.hexatombe_data.peAtual = inP; 
             
-            // Garantir que os atributos são salvos na raiz sempre
-            rootUpdates.agi = payload.agi;
-            rootUpdates.for = payload.for;
-            rootUpdates.sag = payload.sag;
-            rootUpdates.von = payload.von;
-            rootUpdates.vig = payload.vig;
+            rootUpdates.agi = payload.agi; rootUpdates.for = payload.for; rootUpdates.sag = payload.sag; rootUpdates.von = payload.von; rootUpdates.vig = payload.vig;
         } else { 
             rootUpdates = { ...payload, ...rootUpdates }; 
             rootUpdates.vidaAtual = inV; 
@@ -1363,7 +1363,7 @@
             snap.forEach(doc => {
                 const item = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('inv-' + id);
                 const p = parseInt(item.pressao) || 0; const q = parseInt(item.quantidade) || 1; pressaoInv += (p * q);
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: #555;"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:#d3d3d3; font-weight:bold">${item.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span></div><div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`;
+                container.innerHTML += `<div class="ritual-card" style="border-left-color: #555;"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:#d3d3d3; font-weight:bold">${item.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span></div><div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`;
             });
             window.valPressaoInventario = pressaoInv; syncPressaoVisuais();
         });
@@ -1372,8 +1372,8 @@
     async function novoRitual() { const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Anomalia", elemento: "Morte", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
     async function novoPoder() { const path = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Especialização", elemento: "Geral", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Traço", descricao: "" }); }
-    async function novoItem() { const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Item", categoria: "Geral", pressao: 1, quantidade: 1, descricao: "" }); }
-    async function novoAtaque() { const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Arma Desconhecida", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 1 }); }
+    async function novoItem() { const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); }
+    async function novoAtaque() { const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Arma Desconhecida", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }); }
 
     // FUNÇÃO QUE INJETA O TEMPLATE SELECIONADO NO BANCO DE DADOS
     async function aplicarTemplate(colecao, chave) {
