@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.R.Q.U.I.V.O. - Documento Confidencial</title>
+    <title>A.R.Q.U.I.V.O. - Arquivo de Ameaça</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700;900&family=Special+Elite&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700;900&family=Special+Elite&family=Caveat:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
 
         :root {
@@ -25,6 +25,13 @@
             /* Status Cores Pálidas */
             --san-purple: #2b3a4a;
             --pe-orange: #665235;
+        }
+
+        /* TEMA ESCURO MODO PAPEL CARBONO */
+        body.dark-theme {
+            --op-red: #ff4d4d; --op-dark-red: #8b0000; --op-ink: #e0e0e0; 
+            --bg-desk: #000000; --bg-paper: #1a1a1a; --paper-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            --san-purple: #887ebd; --pe-orange: #a68a64;
         }
 
         /* TEMA HEXATOMBE (ARQUIVO CORROMPIDO) */
@@ -44,17 +51,13 @@
         body.tema-hexatombe .dynamic-item-highlight { background: rgba(50,0,0,0.4) !important; border-color: #500 !important; border-left-color: #f00 !important; }
         body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important;}
         body.tema-hexatombe .watermark-confidential { color: rgba(255,0,0,0.08) !important; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-        body.tema-hexatombe .portrait { filter: contrast(120%) sepia(30%) grayscale(50%); background: #111; }
-        body.tema-hexatombe .defesa-badge { border-color: #ff3333 !important; }
-        body.tema-hexatombe .defesa-badge input { color: #fff !important; }
-        body.tema-hexatombe .btn-add { border-color: #ff3333 !important; color: #ff3333 !important; text-shadow: 0 0 5px rgba(255,0,0,0.5); }
-        body.tema-hexatombe .btn-add:hover { background: rgba(255,50,50,0.15) !important; color: #fff !important; }
+        body.tema-hexatombe .portrait { filter: contrast(150%) grayscale(100%) invert(1); background: #111; }
 
         body {
             background-color: var(--bg-desk);
             background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
             font-family: 'Courier Prime', monospace; margin: 0; padding: 40px 10px;
-            color: var(--op-ink); min-height: 100vh;
+            color: var(--op-ink); min-height: 100vh; transition: 0.5s;
         }
 
         /* Remove setinhas numéricas */
@@ -76,6 +79,7 @@
             transition: all 0.5s ease;
             overflow: hidden;
         }
+        body.dark-theme .book-container { border-color: #333; }
 
         /* MARCA D'ÁGUA CONFIDENCIAL */
         .watermark-confidential {
@@ -93,7 +97,9 @@
             color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; 
             outline: none; padding: 2px 4px; transition: 0.3s; position: relative; z-index: 2;
         }
+        body.dark-theme .book-input { border-bottom-color: rgba(255,255,255,0.4); }
         .book-input:focus { background: rgba(0,0,0,0.05); border-bottom: 1px solid var(--op-red); }
+        body.dark-theme .book-input:focus { background: rgba(255,255,255,0.05); }
 
         /* CABEÇALHO DO DOCUMENTO */
         .doc-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #555; position: relative; z-index: 2;}
@@ -109,7 +115,7 @@
             border: 4px solid var(--op-red); color: var(--op-red); 
             padding: 5px 15px; transform: rotate(5deg); opacity: 0.9;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(163, 21, 21, 0.03); mix-blend-mode: multiply;
+            background: rgba(163, 21, 21, 0.03); mix-blend-mode: normal;
         }
         .vd-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin-bottom: -5px; }
         .vd-input { width: 60px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.5rem; font-weight: 900; outline: none; font-family: 'Inter', sans-serif;}
@@ -121,20 +127,15 @@
         }
         .attr-box {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 70px; height: 70px;
-            border: 3px solid var(--op-ink); border-radius: 50%;
-            background: transparent;
-            position: relative;
+            width: 70px; height: 70px; border: 3px solid var(--op-ink); border-radius: 50%; background: transparent; position: relative;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
+        body.dark-theme .attr-box { box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
         .attr-label {
             font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 900; color: var(--op-ink);
             position: absolute; top: -18px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px;
         }
-        .attr-box input {
-            background: transparent; border: none; color: var(--op-ink); text-align: center;
-            width: 100%; font-size: 30px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none;
-        }
+        .attr-box input { background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; font-size: 30px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none; }
 
         /* GRID PRINCIPAL (Status e Imagem) */
         .book-grid { display: grid; grid-template-columns: 1fr 340px; gap: 50px; position: relative; z-index: 2;}
@@ -144,9 +145,9 @@
         .stat-label { color: var(--op-ink); font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; font-size: 13px; }
         .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; }
 
-        /* DEFESA EM DESTAQUE */
-        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 10px; border-radius: 2px; background: transparent;}
-        .defesa-badge input { color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
+        /* DEFESA EM DESTAQUE (Tarja Preta) */
+        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--op-ink); padding: 2px 10px; border-radius: 2px;}
+        .defesa-badge input { color: var(--bg-paper); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
 
         /* BARRAS DE STATUS (Estilo Fita/Régua) */
         .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 2px; margin-bottom: 10px;}
@@ -154,62 +155,42 @@
         .resource-inputs input { width: 40px; text-align: center; font-size: 18px; color: var(--op-ink);}
         
         .thin-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.3); position: relative; overflow: hidden; flex: 1; border-radius: 0;}
+        body.dark-theme .thin-bar-bg { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
         .thin-bar-fill { height: 100%; position: absolute; left: 0; top: 0; transition: 0.3s; }
-        #bar-pv { background: var(--op-red); }
-        #bar-pc { background: var(--san-purple); }
-        #bar-pe { background: var(--pe-orange); }
+        #bar-pv { background: var(--op-red); } #bar-pc { background: var(--san-purple); } #bar-pe { background: var(--pe-orange); }
 
         /* TÍTULOS DE SESSÃO (Estilo Tarja Dymo) */
-        .section-header { 
-            background: var(--op-ink); color: var(--bg-paper); font-family: 'Inter', sans-serif; font-weight: 900; 
-            font-size: 1.1rem; padding: 4px 12px; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
-            display: inline-block; position: relative; z-index: 2;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-        }
+        .section-header { background: var(--op-ink); color: var(--bg-paper); font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.1rem; padding: 4px 12px; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px; display: inline-block; position: relative; z-index: 2; box-shadow: 2px 2px 0px rgba(0,0,0,0.3);}
 
         /* FOTOGRAFIA (Estilo foto anexada com fita) */
         .portrait-container { width: 100%; position: relative; margin-bottom: 30px;}
-        /* Fita Crepe */
-        .portrait-container::before {
-            content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
-            width: 120px; height: 35px; background: rgba(230,225,210,0.7);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.05); z-index: 10;
-        }
-        .portrait { 
-            width: 100%; height: 380px; background: #e0e0e0; border: 5px solid #fff; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; 
-            overflow: hidden; position: relative; box-shadow: 3px 5px 15px rgba(0,0,0,0.4); 
-            transform: rotate(1.5deg); 
-        }
-        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%) grayscale(100%) sepia(20%); mix-blend-mode: normal;}
-        .upload-hint { position: absolute; color: #333; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.8;}
+        .portrait-container::before { content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 120px; height: 35px; background: rgba(230,225,210,0.7); box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.05); z-index: 10;}
+        body.dark-theme .portrait-container::before { filter: brightness(0.6); }
+        .portrait { width: 100%; height: 380px; background: #000; border: 5px solid #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; box-shadow: 3px 5px 15px rgba(0,0,0,0.4); transform: rotate(1.5deg); }
+        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%) grayscale(100%); mix-blend-mode: normal;}
+        .upload-hint { position: absolute; color: #fff; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.5;}
         
         /* BLOCOS DINÂMICOS COM DESTAQUE VISUAL (Sombreado Ficha) */
-        .dynamic-item-highlight { 
-            background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-left: 5px solid var(--op-ink); 
-            padding: 15px; margin-bottom: 15px; position: relative; z-index: 2;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); transition: 0.3s;
-        }
+        .dynamic-item-highlight { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-left: 5px solid var(--op-ink); padding: 15px; margin-bottom: 15px; position: relative; z-index: 2; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); transition: 0.3s;}
+        body.dark-theme .dynamic-item-highlight { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
         .btn-del { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--op-red); cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 16px; opacity: 0.4;}
         .btn-del:hover { opacity: 1; transform: scale(1.2);}
 
         /* BOTÕES GERAIS */
-        .btn-add { 
-            display: block; width: fit-content; text-align: left;
-            background: transparent; border: 1px dashed var(--op-ink); 
-            color: var(--op-ink); padding: 8px 15px; cursor: pointer; 
-            font-family: 'Courier Prime', monospace; font-size: 12px; 
-            font-weight: bold; margin-top: 10px; transition: 0.3s; 
-            position: relative; z-index: 2; margin-left: 0;
-        }
+        .btn-add { display: block; width: fit-content; text-align: left; background: transparent; border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 15px; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; margin-top: 10px; transition: 0.3s; position: relative; z-index: 2; margin-left: 0;}
         .btn-add:hover { background: rgba(0,0,0,0.08); }
+        body.dark-theme .btn-add:hover { background: rgba(255,255,255,0.08); }
 
         .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: 0.3s; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
+        body.dark-theme .cris-textarea { border-bottom-color: rgba(255,255,255,0.4); }
         .cris-textarea:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
+        body.dark-theme .cris-textarea:focus { background: rgba(255,255,255,0.03); }
 
-        /* MODAIS E HUD (Design Escuro Mantido pro Sistema) */
+        /* MODAIS E HUD */
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-config:hover { opacity: 1; transform: rotate(90deg); color: #fff;}
+        .btn-theme { position: fixed; top: 15px; left: 15px; background: var(--bg-paper); border: 1px solid var(--op-ink); color: var(--op-ink); font-size: 20px; cursor: pointer; padding: 5px 10px; border-radius: 4px; z-index: 1000; box-shadow: var(--paper-shadow); transition: 0.3s;}
+        .btn-theme:hover { transform: scale(1.1); }
         .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; color:#d3d3d3; border: 1px solid var(--op-red); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; font-family: 'Inter', sans-serif;}
         .modal-padrao h3 { color: var(--op-red) !important;}
         .rit-input { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; font-family: 'Inter', sans-serif; width:100%; box-sizing:border-box;}
@@ -224,7 +205,8 @@
 <body>
 
 <input type="file" id="fileUploader" accept="image/*" style="display:none" onchange="processarArquivo(this)">
-<button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
+<button class="btn-config" onclick="toggleElem('modal-config')">⚙️</button>
+<button id="theme-toggle" onclick="toggleTheme()" class="btn-theme" title="Alternar Tema">🌓</button>
 
 <div id="modal-config" class="modal-padrao">
     <h3 style="margin-top:0; font-family:'Inter', sans-serif; font-weight: 900; text-align:center; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE SISTEMA</h3>
@@ -321,28 +303,11 @@
                 </div>
             </div>
 
-            <div class="book-stat-row">
-                <span class="stat-label">VULNERAB.:</span> 
-                <input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhum..." style="flex: 1;">
-            </div>
-            <div class="book-stat-row">
-                <span class="stat-label">RESISTÊNCIAS:</span> 
-                <input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10..." style="flex: 1;">
-            </div>
-            <div class="book-stat-row">
-                <span class="stat-label">IMUNIDADES:</span> 
-                <input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex: 1;">
-            </div>
-
-            <div class="book-stat-row" style="margin-top: 15px;">
-                <span class="stat-label">PERÍCIAS:</span> 
-                <input id="pericias" class="book-input save-auto" placeholder="Atletismo 4d20+15..." style="flex: 1;">
-            </div>
-            
-            <div class="book-stat-row">
-                <span class="stat-label">DESLOCAMENTO:</span> 
-                <input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q" style="width: 150px;">
-            </div>
+            <div class="book-stat-row"><span class="stat-label">VULNERAB.:</span><input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhum..." style="flex: 1;"></div>
+            <div class="book-stat-row"><span class="stat-label">RESISTÊNCIAS:</span><input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10..." style="flex: 1;"></div>
+            <div class="book-stat-row"><span class="stat-label">IMUNIDADES:</span><input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex: 1;"></div>
+            <div class="book-stat-row" style="margin-top: 15px;"><span class="stat-label">PERÍCIAS:</span><input id="pericias" class="book-input save-auto" placeholder="Atletismo 4d20+15..." style="flex: 1;"></div>
+            <div class="book-stat-row"><span class="stat-label">DESLOCAMENTO:</span><input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q" style="width: 150px;"></div>
         </div>
 
         <div class="col-art">
@@ -363,7 +328,7 @@
     </div>
 
     <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
-
+    
     <div class="section-header">AÇÕES DA ENTIDADE</div>
     <div id="lista-acoes"></div>
     <button class="btn-add" onclick="addAcao()">[+] ANEXAR REGISTRO DE AÇÃO</button>
@@ -383,39 +348,24 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
-        authDomain: "fichasrpg-7fc69.firebaseapp.com",
-        projectId: "fichasrpg-7fc69",
-        storageBucket: "fichasrpg-7fc69.firebasestorage.app",
-        messagingSenderId: "758802032764",
-        appId: "1:758802032764:web:40467e15fdc24c570081f9"
-    };
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme_cris', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    }
+    if(localStorage.getItem('theme_cris') === 'dark') document.body.classList.add('dark-theme');
+
+    const firebaseConfig = { apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI", authDomain: "fichasrpg-7fc69.firebaseapp.com", projectId: "fichasrpg-7fc69", storageBucket: "fichasrpg-7fc69.firebasestorage.app", messagingSenderId: "758802032764", appId: "1:758802032764:web:40467e15fdc24c570081f9" };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore(); const urlParams = new URLSearchParams(window.location.search); const atual = urlParams.get('id');
-
     if(!atual) { window.location.href = "index.html"; }
 
-    // --- SISTEMAS SECRETOS MESTRE ---
-    let isHexatombe = false;
-    let globalHexatombe = false; 
-    let prevHexatombeFinal = false; 
-    let isFirstLoad = true;
-
+    let isHexatombe = false; let globalHexatombe = false; let prevHexatombeFinal = false; let isFirstLoad = true;
     let unsubAcoes, unsubHabilidades;
 
-    function toggleElem(id) { 
-        const b = document.getElementById(id); 
-        if(b.style.display === 'block') b.style.display = 'none'; 
-        else b.style.display = 'block'; 
-    }
+    function toggleElem(id) { const b = document.getElementById(id); if(b.style.display === 'block') b.style.display = 'none'; else b.style.display = 'block'; }
 
     db.collection("configuracoes").doc("globais").onSnapshot(doc => {
-        if(doc.exists) {
-            const data = doc.data(); 
-            globalHexatombe = data.hexatombe || false; 
-            aplicarSegredosAmeaca();
-        }
+        if(doc.exists) { const data = doc.data(); globalHexatombe = data.hexatombe || false; aplicarSegredosAmeaca(); }
     });
 
     let cheatCode = "";
@@ -426,10 +376,8 @@
             document.body.classList.add('shake');
             setTimeout(async () => { document.body.classList.remove('shake'); 
                 let doc = await db.collection("ameacas").doc(atual).get(); 
-                let valAtual = doc.data().hexatombe || false; 
-                await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
-            }, 800);
-            cheatCode = ""; 
+                let valAtual = doc.data().hexatombe || false; await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
+            }, 800); cheatCode = ""; 
         }
     });
 
@@ -439,13 +387,10 @@
             document.body.classList.add('shake');
             setTimeout(async () => { document.body.classList.remove('shake'); 
                 let doc = await db.collection("ameacas").doc(atual).get(); 
-                let valAtual = doc.data().hexatombe || false; 
-                await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
+                let valAtual = doc.data().hexatombe || false; await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
             }, 800);
-        }
-        else alert("Comando não reconhecido.");
-        document.getElementById('input-cheat').value = "";
-        toggleElem('modal-config');
+        } else alert("Comando não reconhecido.");
+        document.getElementById('input-cheat').value = ""; toggleElem('modal-config');
     }
 
     function aplicarSegredosAmeaca() {
@@ -454,56 +399,33 @@
     }
 
     function carregarListas() {
-        if (unsubAcoes) unsubAcoes();
-        if (unsubHabilidades) unsubHabilidades();
-        
+        if (unsubAcoes) unsubAcoes(); if (unsubHabilidades) unsubHabilidades();
         const hexatombeFinal = isHexatombe || globalHexatombe;
-        const pathAcoes = hexatombeFinal ? "hexa_acoes" : "acoes";
-        const pathHab = hexatombeFinal ? "hexa_habilidades_ameaca" : "habilidades_ameaca";
+        const pathAcoes = hexatombeFinal ? "hexa_acoes" : "acoes"; const pathHab = hexatombeFinal ? "hexa_habilidades_ameaca" : "habilidades_ameaca";
 
         unsubAcoes = db.collection("ameacas").doc(atual).collection(pathAcoes).onSnapshot(snap => {
             const container = document.getElementById('lista-acoes'); container.innerHTML = "";
             snap.forEach(doc => { container.innerHTML += renderAcao(doc.id, doc.data(), pathAcoes); });
         });
-
         unsubHabilidades = db.collection("ameacas").doc(atual).collection(pathHab).onSnapshot(snap => {
             const container = document.getElementById('lista-habilidades'); container.innerHTML = "";
             snap.forEach(doc => { container.innerHTML += renderHabilidade(doc.id, doc.data(), pathHab); });
         });
     }
 
-    // --- AUTO-SAVE ---
     let timeout;
     function updateField(campo, valor) {
         clearTimeout(timeout);
         timeout = setTimeout(() => { 
-            const hexatombeFinal = isHexatombe || globalHexatombe;
-            let obj = {}; 
-            
-            const isAtributo = ['agi','for','int','pre','vig'].includes(campo);
-            const isImageMeta = ['portrait','pX','pY','pZ'].includes(campo);
-
+            const hexatombeFinal = isHexatombe || globalHexatombe; let obj = {}; 
+            const isAtributo = ['agi','for','int','pre','vig'].includes(campo); const isImageMeta = ['portrait','pX','pY','pZ'].includes(campo);
             let valFormatado = valor;
-            if (['pv-atual', 'pv-max', 'pc-atual', 'pc-max', 'pe-atual', 'pe-max', 'agi', 'for', 'int', 'pre', 'vig', 'vd', 'defesa'].includes(campo)) {
-                valFormatado = parseInt(valor) || 0;
-            }
+            if (['pv-atual', 'pv-max', 'pc-atual', 'pc-max', 'pe-atual', 'pe-max', 'agi', 'for', 'int', 'pre', 'vig', 'vd', 'defesa'].includes(campo)) { valFormatado = parseInt(valor) || 0; }
 
             if (hexatombeFinal && !isAtributo && !isImageMeta) {
-                if (campo === 'pv-atual') obj['pvAtual_hexa'] = valFormatado;
-                else if (campo === 'pc-atual') obj['pcAtual_hexa'] = valFormatado;
-                else if (campo === 'pe-atual') obj['peAtual_hexa'] = valFormatado;
-                else if (campo === 'pv-max') obj['hexatombe_data.pvMax'] = valFormatado;
-                else if (campo === 'pc-max') obj['hexatombe_data.pcMax'] = valFormatado;
-                else if (campo === 'pe-max') obj['hexatombe_data.peMax'] = valFormatado;
-                else obj[`hexatombe_data.${campo}`] = valFormatado;
+                if (campo === 'pv-atual') obj['pvAtual_hexa'] = valFormatado; else if (campo === 'pc-atual') obj['pcAtual_hexa'] = valFormatado; else if (campo === 'pe-atual') obj['peAtual_hexa'] = valFormatado; else if (campo === 'pv-max') obj['hexatombe_data.pvMax'] = valFormatado; else if (campo === 'pc-max') obj['hexatombe_data.pcMax'] = valFormatado; else if (campo === 'pe-max') obj['hexatombe_data.peMax'] = valFormatado; else obj[`hexatombe_data.${campo}`] = valFormatado;
             } else {
-                if (campo === 'pv-atual') obj['pvAtual'] = valFormatado;
-                else if (campo === 'pc-atual') obj['pcAtual'] = valFormatado;
-                else if (campo === 'pe-atual') obj['peAtual'] = valFormatado;
-                else if (campo === 'pv-max') obj['pvMax'] = valFormatado;
-                else if (campo === 'pc-max') obj['pcMax'] = valFormatado;
-                else if (campo === 'pe-max') obj['peMax'] = valFormatado;
-                else obj[campo] = valFormatado;
+                if (campo === 'pv-atual') obj['pvAtual'] = valFormatado; else if (campo === 'pc-atual') obj['pcAtual'] = valFormatado; else if (campo === 'pe-atual') obj['peAtual'] = valFormatado; else if (campo === 'pv-max') obj['pvMax'] = valFormatado; else if (campo === 'pc-max') obj['pcMax'] = valFormatado; else if (campo === 'pe-max') obj['peMax'] = valFormatado; else obj[campo] = valFormatado;
             }
             db.collection("ameacas").doc(atual).update(obj); 
         }, 500);
@@ -511,55 +433,28 @@
 
     db.collection("ameacas").doc(atual).onSnapshot(doc => {
         if(doc.exists) {
-            const d_raw = doc.data();
-            isHexatombe = d_raw.hexatombe || false;
-            const hexatombeFinal = isHexatombe || globalHexatombe;
+            const d_raw = doc.data(); isHexatombe = d_raw.hexatombe || false; const hexatombeFinal = isHexatombe || globalHexatombe;
 
-            if (isFirstLoad) {
-                prevHexatombeFinal = hexatombeFinal;
-                isFirstLoad = false;
-                carregarListas();
-            }
+            if (isFirstLoad) { prevHexatombeFinal = hexatombeFinal; isFirstLoad = false; carregarListas(); }
 
             if (prevHexatombeFinal !== hexatombeFinal) {
                 let o = {};
                 if (hexatombeFinal) {
-                    o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50;
-                    o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0;
-                    o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
-                    
-                    o.hexatombe_data = { ...d_raw }; 
-                    if(o.hexatombe_data.hexatombe_data) delete o.hexatombe_data.hexatombe_data; 
-                    
-                    // Atualiza localmente para carregar na tela imediatamente sem esperar a DB
-                    d_raw.pvAtual_hexa = o.pvAtual_hexa;
-                    d_raw.pcAtual_hexa = o.pcAtual_hexa;
-                    d_raw.peAtual_hexa = o.peAtual_hexa;
-                    d_raw.hexatombe_data = o.hexatombe_data;
+                    o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50; o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0; o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
+                    o.hexatombe_data = { ...d_raw }; if(o.hexatombe_data.hexatombe_data) delete o.hexatombe_data.hexatombe_data; 
+                    d_raw.pvAtual_hexa = o.pvAtual_hexa; d_raw.pcAtual_hexa = o.pcAtual_hexa; d_raw.peAtual_hexa = o.peAtual_hexa; d_raw.hexatombe_data = o.hexatombe_data;
                 } else {
                     let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - 50; if(nPv < 1) nPv = 1;
-                    o.pvAtual = nPv;
-                    o.pcAtual = parseInt(d_raw.pcAtual_hexa) || 0;
-                    o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
-                    
-                    d_raw.pvAtual = o.pvAtual;
-                    d_raw.pcAtual = o.pcAtual;
-                    d_raw.peAtual = o.peAtual;
+                    o.pvAtual = nPv; o.pcAtual = parseInt(d_raw.pcAtual_hexa) || 0; o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
+                    d_raw.pvAtual = o.pvAtual; d_raw.pcAtual = o.pcAtual; d_raw.peAtual = o.peAtual;
                 }
-                prevHexatombeFinal = hexatombeFinal;
-                carregarListas();
-                db.collection("ameacas").doc(atual).update(o);
+                prevHexatombeFinal = hexatombeFinal; carregarListas(); db.collection("ameacas").doc(atual).update(o);
             }
 
             let d = d_raw;
-            if (hexatombeFinal && d_raw.hexatombe_data) { 
-                d = { ...d_raw, ...d_raw.hexatombe_data }; 
-                d.agi = d_raw.agi; d.for = d_raw.for; d.int = d_raw.int; d.pre = d_raw.pre; d.vig = d_raw.vig;
-            }
+            if (hexatombeFinal && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.int = d_raw.int; d.pre = d_raw.pre; d.vig = d_raw.vig; }
 
-            let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
-            let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
-            let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
+            let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual; let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual; let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
 
             if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
             if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
@@ -569,35 +464,25 @@
             if (document.activeElement !== document.getElementById('pc-max')) document.getElementById('pc-max').value = d.pcMax ?? 100;
             if (document.activeElement !== document.getElementById('pe-max')) document.getElementById('pe-max').value = d.peMax ?? 100;
 
-            document.querySelectorAll('.save-auto').forEach(el => {
-                if(el.id && d[el.id] !== undefined && el.value !== d[el.id] && document.activeElement !== el) {
-                    el.value = d[el.id];
-                }
-            });
+            document.querySelectorAll('.save-auto').forEach(el => { if(el.id && d[el.id] !== undefined && el.value !== d[el.id] && document.activeElement !== el) { el.value = d[el.id]; } });
             
             if (d.portrait) { const img = document.getElementById('img-preview'); img.src = d.portrait; img.style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; if(d.pZ) document.getElementById('pZ').value = d.pZ; if(d.pX) document.getElementById('pX').value = d.pX; if(d.pY) document.getElementById('pY').value = d.pY; ajustarFoto(); }
 
-            atualizarVisualBarra('pv'); atualizarVisualBarra('pc'); atualizarVisualBarra('pe');
-            aplicarSegredosAmeaca();
+            atualizarVisualBarra('pv'); atualizarVisualBarra('pc'); atualizarVisualBarra('pe'); aplicarSegredosAmeaca();
         }
     });
 
     document.querySelectorAll('.save-auto').forEach(el => { el.addEventListener('input', (e) => updateField(e.target.id, e.target.value)); });
 
     function atualizarVisualBarra(tipo) {
-        let atStr = document.getElementById(`${tipo}-atual`).value; let mxStr = document.getElementById(`${tipo}-max`).value;
-        let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
-        const bar = document.getElementById(`bar-${tipo}`);
-        if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; }
+        let atStr = document.getElementById(`${tipo}-atual`).value; let mxStr = document.getElementById(`${tipo}-max`).value; let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
+        const bar = document.getElementById(`bar-${tipo}`); if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; }
     }
 
     async function updateSub(id, path, campo, valor) { let obj = {}; obj[campo] = valor; await db.collection("ameacas").doc(atual).collection(path).doc(id).update(obj); }
     async function removerSub(id, path) { if(confirm("Excluir este registro?")) await db.collection("ameacas").doc(atual).collection(path).doc(id).delete(); }
 
-    async function addAcao() { 
-        const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; 
-        await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "NOVA AÇÃO", alcance: "Curto", teste: "4d20", dano: "1d10" }); 
-    }
+    async function addAcao() { const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "NOVA AÇÃO", alcance: "Curto", teste: "4d20", dano: "1d10" }); }
     
     function renderAcao(id, data, path) { 
         return `
@@ -607,36 +492,26 @@
                 <span style="color:var(--op-ink); font-weight:bold; font-size:16px;">[</span>
                 <input class="book-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 70px; font-weight:bold; font-size: 14px; text-transform:capitalize; text-align:center;">
                 <span style="color:var(--op-ink); font-weight:bold; font-size:16px; margin-right:5px;">]</span>
-                
                 <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--op-red); text-transform: uppercase; min-width: 150px;">
-                
-                <span style="color:#555; margin: 0 5px;">|</span>
-                <span class="sub-label">TESTE:</span>
+                <span style="color:#555; margin: 0 5px;">|</span><span class="sub-label">TESTE:</span>
                 <input class="book-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 90px; font-size: 15px; font-weight:bold;">
-                
-                <span style="color:#555; margin: 0 5px;">|</span>
-                <span class="sub-label">DANO:</span>
+                <span style="color:#555; margin: 0 5px;">|</span><span class="sub-label">DANO:</span>
                 <input class="book-input" placeholder="2d10+10" value="${data.dano || ''}" onchange="updateSub('${id}','${path}','dano',this.value)" style="font-weight:bold; width: 140px; font-size: 15px;">
-                
                 <span style="color:#555; margin: 0 5px;">|</span>
-                
                 <input class="book-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','${path}','alcance',this.value)" style="width: 80px; font-size: 14px;">
             </div>
             <textarea class="cris-textarea" placeholder="Efeitos adicionais, crítico, condições especiais..." onchange="updateSub('${id}','${path}','efeitos',this.value)" style="min-height: 40px; font-style: italic; border:none; width: 95%;">${data.efeitos || ''}</textarea>
         </div>`; 
     }
 
-    async function addHabilidade() { 
-        const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; 
-        await db.collection("ameacas").doc(atual).collection(path).add({ nome: "NOVO COMPORTAMENTO", descricao: "" }); 
-    }
+    async function addHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; await db.collection("ameacas").doc(atual).collection(path).add({ nome: "NOVO COMPORTAMENTO", descricao: "" }); }
     
     function renderHabilidade(id, data, path) { 
         return `
         <div class="dynamic-item-highlight">
             <button class="btn-del" onclick="removerSub('${id}', '${path}')">[x]</button>
             <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 85%; display:block; margin-bottom: 5px;">
-            <textarea class="cris-textarea" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px; border:none; width: 95%;">${data.descricao || ''}</textarea>
+            <textarea class="cris-textarea" placeholder="Detalhes do funcionamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px; border:none; width: 95%;">${data.descricao || ''}</textarea>
         </div>`; 
     }
 
