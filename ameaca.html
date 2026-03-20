@@ -44,7 +44,7 @@
         body.tema-hexatombe .dynamic-item-highlight { background: rgba(50,0,0,0.4) !important; border-color: #500 !important; border-left-color: #f00 !important; }
         body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important;}
         body.tema-hexatombe .watermark-confidential { color: rgba(255,0,0,0.08) !important; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-        body.tema-hexatombe .portrait { filter: contrast(200%) grayscale(100%) invert(1); }
+        body.tema-hexatombe .portrait { filter: contrast(150%) grayscale(100%) invert(1); background: #111; }
 
         body {
             background-color: var(--bg-desk);
@@ -172,13 +172,13 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.05); z-index: 10;
         }
         .portrait { 
-            width: 100%; height: 380px; background: #000; border: 5px solid #fff; 
+            width: 100%; height: 380px; background: #e0e0e0; border: 5px solid #fff; 
             display: flex; align-items: center; justify-content: center; cursor: pointer; 
             overflow: hidden; position: relative; box-shadow: 3px 5px 15px rgba(0,0,0,0.4); 
             transform: rotate(1.5deg); 
         }
-        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(140%) grayscale(100%) brightness(0.9); mix-blend-mode: multiply;}
-        .upload-hint { position: absolute; color: #fff; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.5;}
+        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%) grayscale(100%) brightness(0.9); }
+        .upload-hint { position: absolute; color: #333; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.8;}
         
         /* BLOCOS DINÂMICOS COM DESTAQUE VISUAL (Sombreado Ficha) */
         .dynamic-item-highlight { 
@@ -190,7 +190,14 @@
         .btn-del:hover { opacity: 1; transform: scale(1.2);}
 
         /* BOTÕES GERAIS */
-        .btn-add { background: transparent; border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 15px; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; margin-top: 10px; transition: 0.3s; position: relative; z-index: 2;}
+        .btn-add { 
+            display: block; width: fit-content; text-align: left;
+            background: transparent; border: 1px dashed var(--op-ink); 
+            color: var(--op-ink); padding: 8px 15px; cursor: pointer; 
+            font-family: 'Courier Prime', monospace; font-size: 12px; 
+            font-weight: bold; margin-top: 10px; transition: 0.3s; 
+            position: relative; z-index: 2; margin-left: 0;
+        }
         .btn-add:hover { background: rgba(0,0,0,0.08); }
 
         .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: 0.3s; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
@@ -243,7 +250,7 @@
         </div>
         <div class="vd-badge">
             <span class="vd-label">VD</span>
-            <input id="vd" class="vd-input save-auto" placeholder="0">
+            <input type="number" id="vd" class="vd-input save-auto" placeholder="0">
         </div>
     </div>
 
@@ -266,7 +273,7 @@
             
             <div class="book-stat-row">
                 <span class="stat-label">DEFESA:</span> 
-                <span class="defesa-badge"><input id="defesa" class="book-input save-auto" placeholder="20"></span>
+                <span class="defesa-badge"><input type="number" id="defesa" class="book-input save-auto" placeholder="20"></span>
                 <span class="sub-label" style="margin-left: 10px;">Fort.</span> <input id="fortitude" class="book-input save-auto" placeholder="2d20+10" style="width: 65px;"> 
                 <span class="sub-label" style="margin-left: 5px;">Ref.</span> <input id="reflexos" class="book-input save-auto" placeholder="2d20+5" style="width: 65px;"> 
                 <span class="sub-label" style="margin-left: 5px;">Von.</span> <input id="vontade" class="book-input save-auto" placeholder="2d20+5" style="width: 65px;">
@@ -389,6 +396,9 @@
     let isHexatombe = false;
     let globalHexatombe = false; 
     let prevHexatombeFinal = false; 
+    let isFirstLoad = true;
+
+    let unsubAcoes, unsubHabilidades;
 
     function toggleElem(id) { 
         const b = document.getElementById(id); 
@@ -439,11 +449,60 @@
         if (hexatombeFinal) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
     }
 
+    function carregarListas() {
+        if (unsubAcoes) unsubAcoes();
+        if (unsubHabilidades) unsubHabilidades();
+        
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const pathAcoes = hexatombeFinal ? "hexa_acoes" : "acoes";
+        const pathHab = hexatombeFinal ? "hexa_habilidades_ameaca" : "habilidades_ameaca";
+
+        unsubAcoes = db.collection("ameacas").doc(atual).collection(pathAcoes).onSnapshot(snap => {
+            const container = document.getElementById('lista-acoes'); container.innerHTML = "";
+            snap.forEach(doc => { container.innerHTML += renderAcao(doc.id, doc.data(), pathAcoes); });
+        });
+
+        unsubHabilidades = db.collection("ameacas").doc(atual).collection(pathHab).onSnapshot(snap => {
+            const container = document.getElementById('lista-habilidades'); container.innerHTML = "";
+            snap.forEach(doc => { container.innerHTML += renderHabilidade(doc.id, doc.data(), pathHab); });
+        });
+    }
+
     // --- AUTO-SAVE ---
     let timeout;
     function updateField(campo, valor) {
         clearTimeout(timeout);
-        timeout = setTimeout(() => { let obj = {}; obj[campo] = valor; db.collection("ameacas").doc(atual).update(obj); }, 800);
+        timeout = setTimeout(() => { 
+            const hexatombeFinal = isHexatombe || globalHexatombe;
+            let obj = {}; 
+            
+            const isAtributo = ['agi','for','int','pre','vig'].includes(campo);
+            const isImageMeta = ['portrait','pX','pY','pZ'].includes(campo);
+
+            let valFormatado = valor;
+            if (['pv-atual', 'pv-max', 'pc-atual', 'pc-max', 'pe-atual', 'pe-max', 'agi', 'for', 'int', 'pre', 'vig', 'vd', 'defesa'].includes(campo)) {
+                valFormatado = parseInt(valor) || 0;
+            }
+
+            if (hexatombeFinal && !isAtributo && !isImageMeta) {
+                if (campo === 'pv-atual') obj['pvAtual_hexa'] = valFormatado;
+                else if (campo === 'pc-atual') obj['pcAtual_hexa'] = valFormatado;
+                else if (campo === 'pe-atual') obj['peAtual_hexa'] = valFormatado;
+                else if (campo === 'pv-max') obj['hexatombe_data.pvMax'] = valFormatado;
+                else if (campo === 'pc-max') obj['hexatombe_data.pcMax'] = valFormatado;
+                else if (campo === 'pe-max') obj['hexatombe_data.peMax'] = valFormatado;
+                else obj[`hexatombe_data.${campo}`] = valFormatado;
+            } else {
+                if (campo === 'pv-atual') obj['pvAtual'] = valFormatado;
+                else if (campo === 'pc-atual') obj['pcAtual'] = valFormatado;
+                else if (campo === 'pe-atual') obj['peAtual'] = valFormatado;
+                else if (campo === 'pv-max') obj['pvMax'] = valFormatado;
+                else if (campo === 'pc-max') obj['pcMax'] = valFormatado;
+                else if (campo === 'pe-max') obj['peMax'] = valFormatado;
+                else obj[campo] = valFormatado;
+            }
+            db.collection("ameacas").doc(atual).update(obj); 
+        }, 500);
     }
 
     db.collection("ameacas").doc(atual).onSnapshot(doc => {
@@ -452,14 +511,21 @@
             isHexatombe = d_raw.hexatombe || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
 
+            if (isFirstLoad) {
+                prevHexatombeFinal = hexatombeFinal;
+                isFirstLoad = false;
+                carregarListas();
+            }
+
             if (prevHexatombeFinal !== hexatombeFinal) {
                 let o = {};
                 if (hexatombeFinal) {
                     o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50;
                     o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0;
                     o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
-                    d_raw.agi = d_raw.agi; d_raw.for = d_raw.for; d_raw.int = d_raw.int; d_raw.pre = d_raw.pre; d_raw.vig = d_raw.vig;
-                    o.hexatombe_data = { ...d_raw }; delete o.hexatombe_data.hexatombe_data; 
+                    
+                    o.hexatombe_data = { ...d_raw }; 
+                    if(o.hexatombe_data.hexatombe_data) delete o.hexatombe_data.hexatombe_data; 
                 } else {
                     let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - 50; if(nPv < 1) nPv = 1;
                     o.pvAtual = nPv;
@@ -467,6 +533,7 @@
                     o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
                 }
                 prevHexatombeFinal = hexatombeFinal;
+                carregarListas();
                 db.collection("ameacas").doc(atual).update(o);
                 return; 
             }
@@ -511,18 +578,13 @@
         if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; }
     }
 
-    function loadSub(col, containerId, renderFunc) {
-        const hexatombeFinal = isHexatombe || globalHexatombe; const path = hexatombeFinal ? "hexa_" + col : col;
-        db.collection("ameacas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById(containerId); container.innerHTML = "";
-            snap.forEach(doc => { container.innerHTML += renderFunc(doc.id, doc.data(), path); });
-        });
-    }
-
     async function updateSub(id, path, campo, valor) { let obj = {}; obj[campo] = valor; await db.collection("ameacas").doc(atual).collection(path).doc(id).update(obj); }
     async function removerSub(id, path) { if(confirm("Excluir este registro?")) await db.collection("ameacas").doc(atual).collection(path).doc(id).delete(); }
 
-    async function addAcao() { const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "Nova Ação", alcance: "Curto", teste: "4d20", dano: "1d10" }); }
+    async function addAcao() { 
+        const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; 
+        await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "NOVA AÇÃO", alcance: "Curto", teste: "4d20", dano: "1d10" }); 
+    }
     
     function renderAcao(id, data, path) { 
         return `
@@ -551,7 +613,10 @@
         </div>`; 
     }
 
-    async function addHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; await db.collection("ameacas").doc(atual).collection(path).add({ nome: "Novo Comportamento", descricao: "" }); }
+    async function addHabilidade() { 
+        const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; 
+        await db.collection("ameacas").doc(atual).collection(path).add({ nome: "NOVO COMPORTAMENTO", descricao: "" }); 
+    }
     
     function renderHabilidade(id, data, path) { 
         return `
@@ -561,8 +626,6 @@
             <textarea class="cris-textarea" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px; border:none; width: 95%;">${data.descricao || ''}</textarea>
         </div>`; 
     }
-
-    loadSub('acoes', 'lista-acoes', renderAcao); loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
 
     function converterImagem(input) {
         if (input.files && input.files[0]) {
