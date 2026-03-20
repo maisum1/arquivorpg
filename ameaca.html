@@ -76,10 +76,10 @@
         .status-container { margin-bottom: 15px; }
         .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 4px; padding: 0;}
         .status-header { font-size: 11px; font-weight: bold; letter-spacing: 2px; font-family: 'Inter'; text-align: center; }
-        .bar-bg { width: 100%; height: 25px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
+        .bar-bg { width: 100%; height: 20px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
         .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
         .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: center; padding: 0; font-weight: bold; font-family: 'Crimson Text', serif; align-items: center; transition: opacity 0.3s; }
-        .bar-content input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-size: 16px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
+        .bar-content input { background: transparent; border: none; color: #fff; width: 35px; text-align: center; font-size: 14px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
 
         .dynamic-item { background: #151515; border-left: 3px solid #555; padding: 15px; margin-bottom: 10px; position: relative; border-radius: 2px; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: none; border: none; color: #555; cursor: pointer; font-weight: bold; transition: 0.2s; }
@@ -139,18 +139,35 @@
 
             <div class="separator"></div>
 
-            <div class="stat-row">
-                <span class="stat-label">SENTIDOS</span> 
-                Percepção <input id="percepcao" class="inline-input save-auto" placeholder="2d20+10" style="width: 100px;"> 
-                Iniciativa <input id="iniciativa" class="inline-input save-auto" placeholder="2d20+5" style="width: 100px;">
+            <div class="stat-row" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: baseline;">
+                <div style="display: flex; align-items: baseline; flex: 1; min-width: 150px;">
+                    <span class="stat-label">SENTIDOS</span> 
+                    <span style="font-size: 13px; margin-right: 5px; color:#aaa;">Percepção</span>
+                    <input id="percepcao" class="inline-input save-auto" placeholder="2d20+10" style="flex: 1;"> 
+                </div>
+                <div style="display: flex; align-items: baseline; flex: 1; min-width: 120px;">
+                    <span style="font-size: 13px; margin-right: 5px; color:#aaa;">Iniciativa</span>
+                    <input id="iniciativa" class="inline-input save-auto" placeholder="2d20+5" style="flex: 1;">
+                </div>
             </div>
             
-            <div class="stat-row">
-                <span class="stat-label">DEFESA</span> 
-                <input id="defesa" class="inline-input save-auto" placeholder="20" style="width: 40px; font-weight: bold; font-family: 'Crimson Text', serif; font-size: 18px;"> 
-                Fortitude <input id="fortitude" class="inline-input save-auto" placeholder="2d20+10" style="width: 80px;"> 
-                Reflexos <input id="reflexos" class="inline-input save-auto" placeholder="2d20+5" style="width: 80px;"> 
-                Vontade <input id="vontade" class="inline-input save-auto" placeholder="2d20+5" style="width: 80px;">
+            <div class="stat-row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; margin-top: 10px;">
+                <div style="display: flex; align-items: baseline;">
+                    <span class="stat-label">DEFESA</span> 
+                    <input id="defesa" class="inline-input save-auto" placeholder="20" style="width: 45px; font-weight: bold; font-family: 'Crimson Text', serif; font-size: 18px; text-align: center;"> 
+                </div>
+                <div style="display: flex; align-items: baseline; flex: 1;">
+                    <span style="font-size: 13px; margin-right: 5px; color:#aaa;">Fortitude</span>
+                    <input id="fortitude" class="inline-input save-auto" placeholder="2d20+10" style="flex: 1;"> 
+                </div>
+                <div style="display: flex; align-items: baseline; flex: 1;">
+                    <span style="font-size: 13px; margin-right: 5px; color:#aaa;">Reflexos</span>
+                    <input id="reflexos" class="inline-input save-auto" placeholder="2d20+5" style="flex: 1;"> 
+                </div>
+                <div style="display: flex; align-items: baseline; flex: 1;">
+                    <span style="font-size: 13px; margin-right: 5px; color:#aaa;">Vontade</span>
+                    <input id="vontade" class="inline-input save-auto" placeholder="2d20+5" style="flex: 1;">
+                </div>
             </div>
 
             <div class="separator"></div>
@@ -161,7 +178,11 @@
                     <div class="bar-bg">
                         <div id="bar-pv" class="bar-fill" style="background:var(--hp-red)"></div>
                         <div class="bar-content">
-                            <div><input type="number" id="pv-atual" onchange="salvarAmeaca()">/<input type="number" id="pv-max" onchange="salvarAmeaca()" style="color:#aaa; border:none; background:transparent; width:30px; font-weight:bold; font-family:'Crimson Text', serif; font-size:15px;"></div>
+                            <div style="display: flex; align-items: baseline;">
+                                <input type="number" id="pv-atual" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()" style="color:#fff; text-align: right;">
+                                <span style="color:#666; margin: 0 2px;">/</span>
+                                <input type="number" id="pv-max" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()" style="color:#aaa; text-align: left;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,7 +192,11 @@
                     <div class="bar-bg">
                         <div id="bar-pc" class="bar-fill" style="background:var(--san-purple)"></div>
                         <div class="bar-content">
-                            <div><input type="number" id="pc-atual" onchange="salvarAmeaca()">/<input type="number" id="pc-max" onchange="salvarAmeaca()" style="color:#aaa; border:none; background:transparent; width:30px; font-weight:bold; font-family:'Crimson Text', serif; font-size:15px;"></div>                            
+                            <div style="display: flex; align-items: baseline;">
+                                <input type="number" id="pc-atual" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()" style="color:#fff; text-align: right;">
+                                <span style="color:#666; margin: 0 2px;">/</span>
+                                <input type="number" id="pc-max" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()" style="color:#aaa; text-align: left;">
+                            </div>                            
                         </div>
                     </div>
                 </div>
@@ -181,7 +206,11 @@
                     <div class="bar-bg">
                         <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                         <div class="bar-content">
-                            <div><input type="number" id="pe-atual" onchange="salvarAmeaca()">/<input type="number" id="pe-max" onchange="salvarAmeaca()" style="color:#aaa; border:none; background:transparent; width:30px; font-weight:bold; font-family:'Crimson Text', serif; font-size:15px;"></div>
+                            <div style="display: flex; align-items: baseline;">
+                                <input type="number" id="pe-atual" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()" style="color:#fff; text-align: right;">
+                                <span style="color:#666; margin: 0 2px;">/</span>
+                                <input type="number" id="pe-max" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()" style="color:#aaa; text-align: left;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -189,20 +218,36 @@
 
             <div class="separator"></div>
 
-            <div class="stat-row">
-                <span class="stat-label">VULNERABILIDADES</span> <input id="vulnerabilidades" class="inline-input save-auto" placeholder="Energia..." style="width: 70%;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: baseline;">
+                    <span class="stat-label">VULNERAB.</span> 
+                    <input id="vulnerabilidades" class="inline-input save-auto" placeholder="Ex: Energia..." style="flex: 1;">
+                </div>
+                <div style="display: flex; align-items: baseline;">
+                    <span class="stat-label">RESISTÊNCIAS</span> 
+                    <input id="resistencias" class="inline-input save-auto" placeholder="Ex: Físico 10..." style="flex: 1;">
+                </div>
             </div>
-            <div class="stat-row">
-                <span class="stat-label">RESISTÊNCIAS</span> <input id="resistencias" class="inline-input save-auto" placeholder="Dano físico 10, Sangue 10..." style="width: 75%;">
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">IMUNIDADES</span> <input id="imunidades" class="inline-input save-auto" placeholder="Condições de paralisia..." style="width: 78%;">
+
+            <div class="stat-row" style="display: flex; align-items: baseline;">
+                <span class="stat-label">IMUNIDADES</span> 
+                <input id="imunidades" class="inline-input save-auto" placeholder="Condições de paralisia..." style="flex: 1;">
             </div>
 
             <div class="separator"></div>
-            <div class="stat-row"><span class="stat-label">PERÍCIAS NOTÁVEIS</span> <input id="pericias" class="inline-input save-auto" placeholder="Atletismo 4d20+15, Luta 4d20+15..." style="width: 75%;"></div>
+            
+            <div class="stat-row" style="display: flex; align-items: baseline;">
+                <span class="stat-label">PERÍCIAS NOTÁVEIS</span> 
+                <input id="pericias" class="inline-input save-auto" placeholder="Atletismo 4d20+15, Luta 4d20+15..." style="flex: 1;">
+            </div>
+            
             <div class="separator"></div>
-            <div class="stat-row"><span class="stat-label">MOBILIDADE TÁTICA</span> <input id="deslocamento" class="inline-input save-auto" placeholder="9m | 6q" style="width: 70%;"></div>
+            
+            <div class="stat-row" style="display: flex; align-items: baseline;">
+                <span class="stat-label">MOBILIDADE TÁTICA</span> 
+                <input id="deslocamento" class="inline-input save-auto" placeholder="9m | 6q" style="flex: 1;">
+            </div>
+            
             <div class="separator"></div>
 
             <div>
