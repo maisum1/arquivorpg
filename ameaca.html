@@ -44,7 +44,11 @@
         body.tema-hexatombe .dynamic-item-highlight { background: rgba(50,0,0,0.4) !important; border-color: #500 !important; border-left-color: #f00 !important; }
         body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important;}
         body.tema-hexatombe .watermark-confidential { color: rgba(255,0,0,0.08) !important; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-        body.tema-hexatombe .portrait { filter: contrast(150%) grayscale(100%) invert(1); background: #111; }
+        body.tema-hexatombe .portrait { filter: contrast(120%) sepia(30%) grayscale(50%); background: #111; }
+        body.tema-hexatombe .defesa-badge { border-color: #ff3333 !important; }
+        body.tema-hexatombe .defesa-badge input { color: #fff !important; }
+        body.tema-hexatombe .btn-add { border-color: #ff3333 !important; color: #ff3333 !important; text-shadow: 0 0 5px rgba(255,0,0,0.5); }
+        body.tema-hexatombe .btn-add:hover { background: rgba(255,50,50,0.15) !important; color: #fff !important; }
 
         body {
             background-color: var(--bg-desk);
@@ -140,9 +144,9 @@
         .stat-label { color: var(--op-ink); font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; font-size: 13px; }
         .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; }
 
-        /* DEFESA EM DESTAQUE (Tarja Preta) */
-        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--op-ink); padding: 2px 10px; border-radius: 2px;}
-        .defesa-badge input { color: var(--bg-paper); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
+        /* DEFESA EM DESTAQUE */
+        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 10px; border-radius: 2px; background: transparent;}
+        .defesa-badge input { color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
 
         /* BARRAS DE STATUS (Estilo Fita/Régua) */
         .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 2px; margin-bottom: 10px;}
@@ -177,7 +181,7 @@
             overflow: hidden; position: relative; box-shadow: 3px 5px 15px rgba(0,0,0,0.4); 
             transform: rotate(1.5deg); 
         }
-        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%) grayscale(100%) brightness(0.9); }
+        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%) grayscale(100%) sepia(20%); mix-blend-mode: normal;}
         .upload-hint { position: absolute; color: #333; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.8;}
         
         /* BLOCOS DINÂMICOS COM DESTAQUE VISUAL (Sombreado Ficha) */
@@ -526,16 +530,25 @@
                     
                     o.hexatombe_data = { ...d_raw }; 
                     if(o.hexatombe_data.hexatombe_data) delete o.hexatombe_data.hexatombe_data; 
+                    
+                    // Atualiza localmente para carregar na tela imediatamente sem esperar a DB
+                    d_raw.pvAtual_hexa = o.pvAtual_hexa;
+                    d_raw.pcAtual_hexa = o.pcAtual_hexa;
+                    d_raw.peAtual_hexa = o.peAtual_hexa;
+                    d_raw.hexatombe_data = o.hexatombe_data;
                 } else {
                     let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - 50; if(nPv < 1) nPv = 1;
                     o.pvAtual = nPv;
                     o.pcAtual = parseInt(d_raw.pcAtual_hexa) || 0;
                     o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
+                    
+                    d_raw.pvAtual = o.pvAtual;
+                    d_raw.pcAtual = o.pcAtual;
+                    d_raw.peAtual = o.peAtual;
                 }
                 prevHexatombeFinal = hexatombeFinal;
                 carregarListas();
                 db.collection("ameacas").doc(atual).update(o);
-                return; 
             }
 
             let d = d_raw;
