@@ -3,44 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.R.Q.U.I.V.O. - Arquivo de Ameaça</title>
+    <title>A.R.Q.U.I.V.O. - Documento Confidencial</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700;800&family=Special+Elite&family=Caveat:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700;900&family=Special+Elite&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
 
         :root {
-            /* Paleta Tinta e Papel */
-            --op-red: #a31515;
-            --op-ink: #2b2522;
-            --bg-desk: #111111;
-            --bg-paper: #e9e1d3;
-            --paper-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            /* Paleta Bureaucrática / Backrooms */
+            --op-red: #9e0b0f;
+            --op-dark-red: #5a0000;
+            --op-ink: #1a1a1a;
+            --bg-desk: #0a0a0a;
+            --bg-paper: #dcd7cb;
+            --paper-shadow: 0 20px 50px rgba(0,0,0,0.9);
             
-            /* Status do Papel */
-            --san-purple: #3a4b5c;
-            --pe-orange: #8a6c42;
+            /* Status Cores Pálidas */
+            --san-purple: #2b3a4a;
+            --pe-orange: #665235;
         }
 
-        /* TEMA HEXATOMBE FORTALECIDO (Papel Queimado / Ensanguentado) */
+        /* TEMA HEXATOMBE (ARQUIVO CORROMPIDO) */
         body.tema-hexatombe .book-container {
-            background-color: #1a0808 !important;
-            background-image: radial-gradient(circle, #2a0a0a 0%, #110202 100%) !important;
-            color: #ffb3b3 !important;
-            border-color: #500 !important;
-            box-shadow: 0 0 50px rgba(200,0,0,0.4) !important;
+            background-color: #120303 !important;
+            background-image: 
+                radial-gradient(circle at center, rgba(150,0,0,0.1) 0%, #0a0000 100%),
+                url('data:image/svg+xml,%3Csvg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="150" height="150" filter="url(%23noise)" opacity="0.15"/%3E%3C/svg%3E') !important;
+            color: #d3d3d3 !important;
+            border-color: #300 !important;
+            box-shadow: 0 0 50px rgba(255,0,0,0.3), inset 0 0 100px rgba(0,0,0,0.9) !important;
         }
-        body.tema-hexatombe .book-input, body.tema-hexatombe .cris-textarea { color: #fff !important; text-shadow: 0 0 5px rgba(255,0,0,0.5); border-bottom-color: #552222 !important; }
-        body.tema-hexatombe .stat-label, body.tema-hexatombe .section-header { color: #ff3333 !important; }
-        body.tema-hexatombe .sigilo-container { filter: grayscale(0) invert(0) drop-shadow(0 0 10px #f00) !important; }
+        body.tema-hexatombe .book-input, body.tema-hexatombe .cris-textarea { color: #ffcccc !important; text-shadow: 0 0 3px rgba(255,0,0,0.8); border-bottom-color: #400 !important; }
+        body.tema-hexatombe .stat-label, body.tema-hexatombe .sub-label { color: #ff3333 !important; }
+        body.tema-hexatombe .attr-box { background: #1a0505 !important; border-color: #ff1a1a !important; box-shadow: 0 0 15px rgba(255,0,0,0.5) !important;}
+        body.tema-hexatombe .attr-box input { color: #fff !important; text-shadow: 0 0 5px #f00 !important;}
+        body.tema-hexatombe .dynamic-item-highlight { background: rgba(50,0,0,0.4) !important; border-color: #500 !important; border-left-color: #f00 !important; }
+        body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important;}
+        body.tema-hexatombe .watermark-confidential { color: rgba(255,0,0,0.08) !important; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
+        body.tema-hexatombe .portrait { filter: contrast(200%) grayscale(100%) invert(1); }
 
         body {
             background-color: var(--bg-desk);
             background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
-            font-family: 'Inter', sans-serif; margin: 0; padding: 40px 10px;
+            font-family: 'Courier Prime', monospace; margin: 0; padding: 40px 10px;
             color: var(--op-ink); min-height: 100vh;
         }
 
@@ -51,120 +60,148 @@
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* DOSSIÊ (PÁGINA DO LIVRO/ARQUIVO) */
+        /* DOSSIÊ (PÁGINA DO ARQUIVO) */
         .book-container { 
-            max-width: 1000px; margin: 0 auto; 
+            max-width: 1050px; margin: 0 auto; 
             background-color: var(--bg-paper); 
             background-image: 
-                url('data:image/svg+xml,%3Csvg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="200" height="200" filter="url(%23noise)" opacity="0.04"/%3E%3C/svg%3E'),
-                linear-gradient(to right, rgba(0,0,0,0.02) 0%, transparent 2%, transparent 98%, rgba(0,0,0,0.02) 100%);
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'),
+                linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
             box-shadow: var(--paper-shadow); 
-            border: 1px solid #c2b59b; position: relative; padding: 50px 60px; border-radius: 4px;
+            border: 1px solid #b3a996; position: relative; padding: 50px 60px; border-radius: 2px;
             transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        /* MARCA D'ÁGUA CONFIDENCIAL */
+        .watermark-confidential {
+            position: absolute; top: 35%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-family: 'Inter', sans-serif; font-weight: 900; font-size: 8rem;
+            color: rgba(163, 21, 21, 0.06); pointer-events: none; z-index: 0;
+            white-space: nowrap; border: 8px solid rgba(163, 21, 21, 0.06); padding: 10px 40px;
+            user-select: none;
         }
 
         /* ESTILOS DE INPUT DATILOGRAFADO */
         .book-input { 
-            background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.3); 
+            background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); 
             color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; 
-            outline: none; padding: 2px 4px; transition: 0.3s; 
+            outline: none; padding: 2px 4px; transition: 0.3s; position: relative; z-index: 2;
         }
-        .book-input:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
+        .book-input:focus { background: rgba(0,0,0,0.05); border-bottom: 1px solid var(--op-red); }
 
-        /* CABEÇALHO */
-        .book-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--op-ink); padding-bottom: 15px; margin-bottom: 25px; position: relative;}
-        .book-title { font-family: 'Crimson Text', serif; font-size: 3.5rem; font-weight: bold; color: var(--op-ink); text-transform: uppercase; width: 85%; letter-spacing: 1px; margin: 0; line-height: 0.9; border: none; }
+        /* CABEÇALHO DO DOCUMENTO */
+        .doc-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #555; position: relative; z-index: 2;}
+        .barcode { font-family: 'Libre Barcode 39 Text', cursive; font-size: 40px; color: var(--op-ink); line-height: 0.8;}
         
-        .tipo-criatura { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13px; color: #5a4b41; text-transform: uppercase; letter-spacing: 3px; display: block; width: 100%; border: none;}
+        .book-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px double var(--op-ink); padding-bottom: 10px; margin-bottom: 25px; position: relative; z-index: 2;}
+        .book-title { font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 80%; letter-spacing: -1px; margin: 0; line-height: 0.9; border: none; background: transparent !important;}
+        
+        .tipo-criatura { font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 14px; color: var(--op-red); text-transform: uppercase; letter-spacing: 1px; display: block; width: 100%; border: none;}
 
-        /* CARIMBO DE VD */
+        /* CARIMBO DE VD ATERRORIZANTE */
         .vd-badge { 
-            position: absolute; right: 0; top: -10px;
             border: 4px solid var(--op-red); color: var(--op-red); 
-            width: 80px; height: 80px; border-radius: 50%;
+            padding: 5px 15px; transform: rotate(5deg); opacity: 0.9;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transform: rotate(15deg); opacity: 0.85; box-shadow: inset 0 0 5px rgba(163, 21, 21, 0.3);
-            background: radial-gradient(circle, transparent 70%, rgba(163, 21, 21, 0.05) 100%);
+            background: rgba(163, 21, 21, 0.03); mix-blend-mode: multiply;
         }
-        .vd-label { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 2px; margin-bottom: -5px; }
-        .vd-input { width: 50px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.2rem; font-weight: bold; outline: none; font-family: 'Special Elite', monospace;}
+        .vd-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin-bottom: -5px; }
+        .vd-input { width: 60px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.5rem; font-weight: 900; outline: none; font-family: 'Inter', sans-serif;}
 
-        /* GRID PRINCIPAL */
-        .book-grid { display: grid; grid-template-columns: 1fr 300px; gap: 50px; }
+        /* ATRIBUTOS ALINHADOS NA HORIZONTAL (Carimbos Negros) */
+        .attributes-bar {
+            display: flex; justify-content: space-evenly; align-items: center;
+            padding: 20px 0; margin-bottom: 35px; position: relative; z-index: 2;
+        }
+        .attr-box {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 70px; height: 70px;
+            border: 3px solid var(--op-ink); border-radius: 50%;
+            background: transparent;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        .attr-label {
+            font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 900; color: var(--op-ink);
+            position: absolute; top: -18px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px;
+        }
+        .attr-box input {
+            background: transparent; border: none; color: var(--op-ink); text-align: center;
+            width: 100%; font-size: 30px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none;
+        }
 
-        /* LINHAS DE STATUS (Texto de Regra) */
-        .book-stat-row { padding: 8px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; font-size: 15px; line-height: 1.8;}
-        .stat-label { color: var(--op-red); font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; }
-        .sub-label { color: #5a4b41; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; text-transform: uppercase; }
+        /* GRID PRINCIPAL (Status e Imagem) */
+        .book-grid { display: grid; grid-template-columns: 1fr 340px; gap: 50px; position: relative; z-index: 2;}
 
-        /* DEFESA EM DESTAQUE */
-        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 8px; border-radius: 2px; font-family: 'Crimson Text', serif; font-weight: bold; font-size: 20px;}
-        .defesa-badge input { color: var(--op-ink); font-size: 24px; font-weight: bold; text-align: center; border: none !important;}
+        /* LINHAS DE STATUS (Formulário Datilografado) */
+        .book-stat-row { padding: 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; font-size: 15px; line-height: 1.6;}
+        .stat-label { color: var(--op-ink); font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; font-size: 13px; }
+        .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; }
 
-        /* BARRAS DE STATUS (Estilo Impresso) */
-        .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px;}
-        .resource-inputs { display: flex; align-items: baseline; font-family: 'Special Elite', monospace; font-size: 18px; font-weight: bold; color: var(--op-ink); background: rgba(0,0,0,0.03); padding: 2px 5px; border: 1px solid rgba(0,0,0,0.1);}
-        .resource-inputs input { width: 45px; text-align: center; font-size: 18px; color: var(--op-ink);}
+        /* DEFESA EM DESTAQUE (Tarja Preta) */
+        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--op-ink); padding: 2px 10px; border-radius: 2px;}
+        .defesa-badge input { color: var(--bg-paper); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
+
+        /* BARRAS DE STATUS (Estilo Fita/Régua) */
+        .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 2px; margin-bottom: 10px;}
+        .resource-inputs { display: flex; align-items: baseline; font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold; color: var(--op-ink);}
+        .resource-inputs input { width: 40px; text-align: center; font-size: 18px; color: var(--op-ink);}
         
-        .thin-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.2); position: relative; overflow: hidden; flex: 1;}
+        .thin-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.3); position: relative; overflow: hidden; flex: 1; border-radius: 0;}
         .thin-bar-fill { height: 100%; position: absolute; left: 0; top: 0; transition: 0.3s; }
         #bar-pv { background: var(--op-red); }
         #bar-pc { background: var(--san-purple); }
         #bar-pe { background: var(--pe-orange); }
 
-        /* TÍTULOS DE SESSÃO */
+        /* TÍTULOS DE SESSÃO (Estilo Tarja Dymo) */
         .section-header { 
-            color: var(--op-red); font-family: 'Crimson Text', serif; font-weight: bold; 
-            font-size: 1.6rem; padding: 5px 0; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
-            border-bottom: 2px solid var(--op-ink);
+            background: var(--op-ink); color: var(--bg-paper); font-family: 'Inter', sans-serif; font-weight: 900; 
+            font-size: 1.1rem; padding: 4px 12px; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
+            display: inline-block; position: relative; z-index: 2;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
         }
 
-        /* PENTAGRAMA DE ATRIBUTOS (Filtro Tinta) */
-        .sigilo-container { 
-            position: relative; width: 260px; height: 260px; margin: 0 auto; 
-            background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; 
-            background-size: contain; 
-            filter: grayscale(1) invert(0.8) sepia(1) hue-rotate(330deg) saturate(4) contrast(1.2); 
-            opacity: 0.8;
-        }
-        /* Os campos numéricos flutuando sem caixa */
-        .attr-box { position: absolute; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1;}
-        .attr-label { font-size: 10px; font-family: 'Inter', sans-serif; font-weight: 800; color: #000; margin-bottom: -5px; letter-spacing: 1px;}
-        .attr-box input { background: transparent; border: none; color: #000; text-align: center; width: 100%; font-size: 32px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none;}
-        .agi { top: 0px; left: 105px; } .for { top: 80px; left: 0px; } .sag { top: 80px; right: 0px; } .von { bottom: 15px; left: 40px; } .vig { bottom: 15px; right: 40px; }
-
-        /* FOTOGRAFIA (Estilo foto colada) */
+        /* FOTOGRAFIA (Estilo foto anexada com fita) */
         .portrait-container { width: 100%; position: relative; margin-bottom: 30px;}
-        .portrait { width: 100%; height: 350px; background: #e0e0e0; border: 8px solid #f4f4f4; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; box-shadow: 2px 4px 10px rgba(0,0,0,0.3); transform: rotate(1deg); }
-        #img-preview { width: 100%; height: 100%; object-fit: cover; filter: grayscale(80%) sepia(30%) contrast(120%); }
-        .upload-hint { position: absolute; color: #888; font-family: 'Special Elite', monospace; font-size: 13px; text-align: center; pointer-events: none;}
-        
-        /* Clipe de Papel Falso */
-        .portrait-container::after {
-            content: ""; position: absolute; top: -15px; left: 20px; width: 15px; height: 50px;
-            border: 3px solid #999; border-radius: 10px; z-index: 10; transform: rotate(10deg);
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.3), inset 1px 1px 2px rgba(255,255,255,0.5);
+        /* Fita Crepe */
+        .portrait-container::before {
+            content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+            width: 120px; height: 35px; background: rgba(230,225,210,0.7);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.05); z-index: 10;
         }
-
-        /* BLOCOS DINÂMICOS (Ações/Poderes - Sem Caixa) */
-        .dynamic-item { padding: 15px 0; border-bottom: 1px solid rgba(0,0,0,0.1); position: relative; }
-        .dynamic-item:last-child { border-bottom: none; }
-        .btn-del { position: absolute; top: 15px; right: 0; background: none; border: none; color: #a31515; cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 14px; opacity: 0.5;}
-        .btn-del:hover { opacity: 1; }
+        .portrait { 
+            width: 100%; height: 380px; background: #000; border: 5px solid #fff; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; 
+            overflow: hidden; position: relative; box-shadow: 3px 5px 15px rgba(0,0,0,0.4); 
+            transform: rotate(1.5deg); 
+        }
+        .portrait img { width: 100%; height: 100%; object-fit: cover; filter: contrast(140%) grayscale(100%) brightness(0.9); mix-blend-mode: multiply;}
+        .upload-hint { position: absolute; color: #fff; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.5;}
+        
+        /* BLOCOS DINÂMICOS COM DESTAQUE VISUAL (Sombreado Ficha) */
+        .dynamic-item-highlight { 
+            background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-left: 5px solid var(--op-ink); 
+            padding: 15px; margin-bottom: 15px; position: relative; z-index: 2;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); transition: 0.3s;
+        }
+        .btn-del { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--op-red); cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 16px; opacity: 0.4;}
+        .btn-del:hover { opacity: 1; transform: scale(1.2);}
 
         /* BOTÕES GERAIS */
-        .btn-add { background: transparent; border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 15px; cursor: pointer; font-family: 'Special Elite', monospace; font-size: 13px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
-        .btn-add:hover { background: rgba(0,0,0,0.05); }
+        .btn-add { background: transparent; border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 15px; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; margin-top: 10px; transition: 0.3s; position: relative; z-index: 2;}
+        .btn-add:hover { background: rgba(0,0,0,0.08); }
 
-        .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.3); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: 0.3s; resize: vertical; min-height: 80px; }
-        .cris-textarea:focus { background: rgba(0,0,0,0.02); }
+        .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: 0.3s; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
+        .cris-textarea:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
 
-        /* MODAIS E HUD (Mantendo design limpo escuro para painéis de sistema) */
+        /* MODAIS E HUD (Design Escuro Mantido pro Sistema) */
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-config:hover { opacity: 1; transform: rotate(90deg); color: #fff;}
-        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; color:#d3d3d3; border: 1px solid var(--op-red); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; font-family: 'Inter', sans-serif;}
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; color:#d3d3d3; border: 1px solid var(--op-red); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; font-family: 'Inter', sans-serif;}
         .modal-padrao h3 { color: var(--op-red) !important;}
-        .rit-input { background: #111; color: #fff; border: 1px solid #444; padding: 8px; font-family: 'Inter', sans-serif; width:100%; box-sizing:border-box;}
+        .rit-input { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; font-family: 'Inter', sans-serif; width:100%; box-sizing:border-box;}
         .cris-btn-modal { background: #222; color: #d3d3d3; border: 1px solid #555; padding: 10px; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;}
         .cris-btn-modal:hover { background: #333; color: #fff;}
         .voltar-btn { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; color: #888; padding: 10px 20px; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #444; border-radius: 2px; z-index: 1000; transition: 0.3s; letter-spacing: 1px; }
@@ -179,9 +216,9 @@
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
 
 <div id="modal-config" class="modal-padrao">
-    <h3 style="margin-top:0; font-family:'Crimson Text', serif; text-align:center; font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE SISTEMA</h3>
+    <h3 style="margin-top:0; font-family:'Inter', sans-serif; font-weight: 900; text-align:center; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE SISTEMA</h3>
     <div style="border-top: 1px solid #333; margin-top: 10px; padding-top: 20px;">
-        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Sistema de Segredos (Mobile)</div>
+        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Comandos Confidenciais (Mobile)</div>
         <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="margin-bottom: 10px;">
         <button class="cris-btn-modal" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
     </div>
@@ -192,6 +229,13 @@
 
 <div class="book-container">
     
+    <div class="watermark-confidential">CONFIDENCIAL</div>
+
+    <div class="doc-meta">
+        <div>REGISTRO DA ORDEM DE VERITAS<br>DEPARTAMENTO DE AMEAÇAS PARANORMAIS</div>
+        <div class="barcode">*ARQUIVO-CONFIDENCIAL*</div>
+    </div>
+
     <div class="book-header">
         <div style="width: 100%;">
             <input id="nome" class="book-input book-title save-auto" placeholder="NOME DA AMEAÇA">
@@ -203,81 +247,89 @@
         </div>
     </div>
 
+    <div class="attributes-bar">
+        <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi" class="book-input save-auto" placeholder="0"></div>
+        <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for" class="book-input save-auto" placeholder="0"></div>
+        <div class="attr-box"><span class="attr-label">INT</span><input type="number" id="int" class="book-input save-auto" placeholder="0"></div>
+        <div class="attr-box"><span class="attr-label">PRE</span><input type="number" id="pre" class="book-input save-auto" placeholder="0"></div>
+        <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig" class="book-input save-auto" placeholder="0"></div>
+    </div>
+
     <div class="book-grid">
         <div class="col-stats">
             
             <div class="book-stat-row">
-                <span class="stat-label">SENTIDOS</span> 
+                <span class="stat-label">SENTIDOS:</span> 
                 <span class="sub-label">Percepção</span> <input id="percepcao" class="book-input save-auto" placeholder="2d20+10" style="width: 100px;"> 
                 <span class="sub-label" style="margin-left: 10px;">Iniciativa</span> <input id="iniciativa" class="book-input save-auto" placeholder="2d20+5" style="width: 100px;">
             </div>
             
             <div class="book-stat-row">
-                <span class="stat-label">DEFESA</span> 
-                <span class="defesa-badge"><input id="defesa" class="book-input save-auto" placeholder="20" style="width: 35px;"></span>
-                <span class="sub-label" style="margin-left: 10px;">Fortitude</span> <input id="fortitude" class="book-input save-auto" placeholder="2d20+10" style="width: 80px;"> 
-                <span class="sub-label" style="margin-left: 5px;">Reflexos</span> <input id="reflexos" class="book-input save-auto" placeholder="2d20+5" style="width: 80px;"> 
-                <span class="sub-label" style="margin-left: 5px;">Vontade</span> <input id="vontade" class="book-input save-auto" placeholder="2d20+5" style="width: 80px;">
+                <span class="stat-label">DEFESA:</span> 
+                <span class="defesa-badge"><input id="defesa" class="book-input save-auto" placeholder="20"></span>
+                <span class="sub-label" style="margin-left: 10px;">Fort.</span> <input id="fortitude" class="book-input save-auto" placeholder="2d20+10" style="width: 65px;"> 
+                <span class="sub-label" style="margin-left: 5px;">Ref.</span> <input id="reflexos" class="book-input save-auto" placeholder="2d20+5" style="width: 65px;"> 
+                <span class="sub-label" style="margin-left: 5px;">Von.</span> <input id="vontade" class="book-input save-auto" placeholder="2d20+5" style="width: 65px;">
             </div>
 
-            <div class="book-stat-row" style="flex-direction: column; gap: 15px; margin: 15px 0;">
-                <div style="display: flex; width: 100%; align-items: center; gap:15px;">
-                    <span class="stat-label" style="width: 120px;">PONTOS DE VIDA</span>
-                    <div class="resource-block">
+            <div style="margin: 20px 0;">
+                <div class="book-stat-row" style="flex-direction: column; gap: 0;">
+                    <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
+                        <span class="stat-label">PONTOS DE VIDA</span>
                         <div class="resource-inputs">
                             <input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')">
                             <span style="color:rgba(0,0,0,0.5);">/</span>
                             <input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv')" style="color:rgba(0,0,0,0.5);">
                         </div>
-                        <div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div>
                     </div>
+                    <div class="resource-block"><div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div></div>
                 </div>
 
-                <div style="display: flex; width: 100%; align-items: center; gap:15px;">
-                    <span class="stat-label" style="width: 120px; color:var(--san-purple);">CONSCIÊNCIA</span>
-                    <div class="resource-block">
+                <div class="book-stat-row" style="flex-direction: column; gap: 0;">
+                    <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
+                        <span class="stat-label" style="color:var(--san-purple);">CONSCIÊNCIA</span>
                         <div class="resource-inputs">
                             <input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')">
                             <span style="color:rgba(0,0,0,0.5);">/</span>
                             <input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="color:rgba(0,0,0,0.5);">
                         </div>
-                        <div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div>
                     </div>
+                    <div class="resource-block"><div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div>
                 </div>
 
-                <div style="display: flex; width: 100%; align-items: center; gap:15px;">
-                    <span class="stat-label" style="width: 120px; color:var(--pe-orange);">ESFORÇO</span>
-                    <div class="resource-block">
+                <div class="book-stat-row" style="flex-direction: column; gap: 0;">
+                    <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
+                        <span class="stat-label" style="color:var(--pe-orange);">ESFORÇO</span>
                         <div class="resource-inputs">
                             <input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')">
                             <span style="color:rgba(0,0,0,0.5);">/</span>
                             <input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="color:rgba(0,0,0,0.5);">
                         </div>
-                        <div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div>
                     </div>
+                    <div class="resource-block"><div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div>
                 </div>
             </div>
 
             <div class="book-stat-row">
-                <span class="stat-label">VULNERABILIDADES</span> 
-                <input id="vulnerabilidades" class="book-input save-auto" placeholder="Descreva aqui..." style="flex: 1;">
+                <span class="stat-label">VULNERAB.:</span> 
+                <input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhum..." style="flex: 1;">
             </div>
             <div class="book-stat-row">
-                <span class="stat-label">RESISTÊNCIAS</span> 
-                <input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10, Sangue 10..." style="flex: 1;">
+                <span class="stat-label">RESISTÊNCIAS:</span> 
+                <input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10..." style="flex: 1;">
             </div>
             <div class="book-stat-row">
-                <span class="stat-label">IMUNIDADES</span> 
-                <input id="imunidades" class="book-input save-auto" placeholder="Condições, Elementos..." style="flex: 1;">
+                <span class="stat-label">IMUNIDADES:</span> 
+                <input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex: 1;">
             </div>
 
-            <div class="book-stat-row">
-                <span class="stat-label">PERÍCIAS NOTÁVEIS</span> 
+            <div class="book-stat-row" style="margin-top: 15px;">
+                <span class="stat-label">PERÍCIAS:</span> 
                 <input id="pericias" class="book-input save-auto" placeholder="Atletismo 4d20+15..." style="flex: 1;">
             </div>
             
             <div class="book-stat-row">
-                <span class="stat-label">DESLOCAMENTO</span> 
+                <span class="stat-label">DESLOCAMENTO:</span> 
                 <input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q" style="width: 150px;">
             </div>
         </div>
@@ -285,10 +337,10 @@
         <div class="col-art">
             <div class="portrait-container">
                 <div class="portrait" onclick="document.getElementById('fileInput').click()">
-                    <img id="img-preview" style="display:none; position: absolute; left: 0; top: 0;">
+                    <img id="img-preview" src="" style="display:none; position: absolute; left: 0; top: 0;">
                     <div id="img-placeholder" class="upload-hint">FOTO / ILUSTRAÇÃO</div>
                 </div>
-                <div style="opacity: 0.3; transition: 0.3s; margin-top: 5px;">
+                <div style="opacity: 0.1; transition: 0.3s; margin-top: 5px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.1">
                     <div style="display: flex; gap: 5px;">
                         <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ', this.value)" style="width: 100%;">
                         <input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pX', this.value)" style="width: 100%;">
@@ -296,32 +348,26 @@
                     </div>
                 </div>
             </div>
-
-            <div class="sigilo-container">
-                <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="agi" class="save-auto" placeholder="0"></div>
-                <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="for" class="save-auto" placeholder="0"></div>
-                <div class="attr-box sag"><span class="attr-label">INT</span><input type="number" id="int" class="save-auto" placeholder="0"></div>
-                <div class="attr-box von"><span class="attr-label">PRE</span><input type="number" id="pre" class="save-auto" placeholder="0"></div>
-                <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="vig" class="save-auto" placeholder="0"></div>
-            </div>
         </div>
     </div>
 
     <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
 
-    <div class="section-header">AÇÕES</div>
+    <div class="section-header">AÇÕES DA ENTIDADE</div>
     <div id="lista-acoes"></div>
-    <button class="btn-add" onclick="addAcao()">+ DATILOGRAFAR AÇÃO</button>
+    <button class="btn-add" onclick="addAcao()">[+] ANEXAR REGISTRO DE AÇÃO</button>
 
-    <div class="section-header">HABILIDADES E COMPORTAMENTOS</div>
+    <div class="section-header" style="margin-top: 40px;">HABILIDADES E COMPORTAMENTOS</div>
     <div id="lista-habilidades"></div>
-    <button class="btn-add" onclick="addHabilidade()">+ DATILOGRAFAR TRAÇO</button>
+    <button class="btn-add" onclick="addHabilidade()">[+] ANEXAR TRAÇO OBSERVADO</button>
 
-    <div class="section-header" style="background: var(--op-ink);">ENIGMA DO MEDO</div>
-    <textarea id="enigma" class="cris-textarea save-auto" placeholder="Insira o texto sobre a imunidade e solução do enigma..."></textarea>
+    <div class="section-header" style="margin-top: 40px;">ENIGMA DO MEDO</div>
+    <div class="dynamic-item-highlight">
+        <textarea id="enigma" class="cris-textarea save-auto" placeholder="Insira o texto sobre a imunidade e solução do enigma... [Acesso Restrito]" style="border: none;"></textarea>
+    </div>
 
-    <div class="section-header" style="background: #4a4036; margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
-    <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, etc..." style="min-height: 250px;"></textarea>
+    <div class="section-header" style="margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
+    <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, incidentes relacionados..." style="min-height: 250px; background: rgba(0,0,0,0.02); padding: 15px; border: 1px solid rgba(0,0,0,0.1);"></textarea>
 
 </div>
 
@@ -480,28 +526,28 @@
     
     function renderAcao(id, data, path) { 
         return `
-        <div class="dynamic-item">
-            <button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button>
-            <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:5px; margin-bottom:5px;">
+        <div class="dynamic-item-highlight">
+            <button class="btn-del" onclick="removerSub('${id}', '${path}')">[x]</button>
+            <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:5px; margin-bottom:10px; width: 95%;">
                 <span style="color:var(--op-ink); font-weight:bold; font-size:16px;">[</span>
-                <input class="book-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 60px; font-weight:bold; font-size: 14px; text-transform:capitalize; text-align:center;">
+                <input class="book-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 70px; font-weight:bold; font-size: 14px; text-transform:capitalize; text-align:center;">
                 <span style="color:var(--op-ink); font-weight:bold; font-size:16px; margin-right:5px;">]</span>
                 
-                <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-red); text-transform: uppercase; min-width: 150px;">
+                <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--op-red); text-transform: uppercase; min-width: 150px;">
                 
                 <span style="color:#555; margin: 0 5px;">|</span>
-                <span class="sub-label">TESTE</span>
-                <input class="book-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 80px; font-size: 15px; font-weight:bold;">
+                <span class="sub-label">TESTE:</span>
+                <input class="book-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 90px; font-size: 15px; font-weight:bold;">
                 
                 <span style="color:#555; margin: 0 5px;">|</span>
-                <span class="sub-label">DANO</span>
+                <span class="sub-label">DANO:</span>
                 <input class="book-input" placeholder="2d10+10" value="${data.dano || ''}" onchange="updateSub('${id}','${path}','dano',this.value)" style="font-weight:bold; width: 140px; font-size: 15px;">
                 
                 <span style="color:#555; margin: 0 5px;">|</span>
                 
                 <input class="book-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','${path}','alcance',this.value)" style="width: 80px; font-size: 14px;">
             </div>
-            <textarea class="cris-textarea" placeholder="Efeitos adicionais, crítico, condições especiais..." onchange="updateSub('${id}','${path}','efeitos',this.value)" style="min-height: 40px; font-style: italic; color: #444;">${data.efeitos || ''}</textarea>
+            <textarea class="cris-textarea" placeholder="Efeitos adicionais, crítico, condições especiais..." onchange="updateSub('${id}','${path}','efeitos',this.value)" style="min-height: 40px; font-style: italic; border:none; width: 95%;">${data.efeitos || ''}</textarea>
         </div>`; 
     }
 
@@ -509,10 +555,10 @@
     
     function renderHabilidade(id, data, path) { 
         return `
-        <div class="dynamic-item">
-            <button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button>
-            <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-ink); text-transform: uppercase; width: 80%; display:block; margin-bottom: 5px;">
-            <textarea class="cris-textarea" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px;">${data.descricao || ''}</textarea>
+        <div class="dynamic-item-highlight">
+            <button class="btn-del" onclick="removerSub('${id}', '${path}')">[x]</button>
+            <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 85%; display:block; margin-bottom: 5px;">
+            <textarea class="cris-textarea" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px; border:none; width: 95%;">${data.descricao || ''}</textarea>
         </div>`; 
     }
 
