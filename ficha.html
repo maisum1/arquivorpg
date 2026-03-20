@@ -3,165 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.R.Q.U.I.V.O. - Dossiê Pessoal</title>
+    <title>A.R.Q.U.I.V.O. - Ficha Pessoal</title>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700;900&family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700&display=swap');
         
         :root {
-            /* LIGHT THEME (Papel/Arquivo Impresso) */
-            --cris-purple: #9e0b0f; 
-            --hp-red: #9e0b0f; 
-            --san-purple: #2b3a4a; 
-            --pe-orange: #665235; 
-            --bg-dark: #dcd7cb; 
-            --bg-panel: rgba(0,0,0,0.03); 
-            --cor-morte: #2a2a2a;
-            --cor-sangue: #8b1c1c;
-            --cor-energia: #483d8b; 
-            --cor-conhecimento: #b8860b;
-            --cor-geral: #555;
-            --cor-fixo: #a68a64;
-
-            /* Vars Curinga para Transição */
-            --text-main: #1a1a1a;
-            --text-muted: #555;
-            --border-main: rgba(0,0,0,0.3);
-            --bg-input: rgba(0,0,0,0.02);
-            --paper-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-
-        body.dark-theme {
-            /* DARK THEME (Original do Site) */
             --cris-purple: #a68a64; 
             --hp-red: #8b1c1c; 
             --san-purple: #2f4f4f; 
             --pe-orange: #5c4033; 
             --bg-dark: #121212; 
             --bg-panel: #1a1a1a;
-            
-            --text-main: #d3d3d3;
-            --text-muted: #888;
-            --border-main: #333;
-            --bg-input: #121212;
-            --paper-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            --cor-morte: #2a2a2a;
+            --cor-sangue: #8b1c1c;
+            --cor-energia: #483d8b; 
+            --cor-conhecimento: #b8860b;
+            --cor-geral: #555;
+            --cor-fixo: #a68a64;
         }
 
         /* TEMA HEXATOMBE FORTALECIDO */
         body.tema-hexatombe {
-            --cris-purple: #ff3333 !important; 
-            --hp-red: #ff0000 !important; 
-            --bg-panel: #1a0505 !important; 
-            --bg-dark: #120303 !important;
-            --text-main: #ffcccc !important;
-            --text-muted: #ff6666 !important;
-            --border-main: #500 !important;
-            --bg-input: #200 !important;
-            background-color: #120303 !important;
-            background-image: radial-gradient(circle at center, rgba(150,0,0,0.1) 0%, #0a0000 100%) !important;
+            --cris-purple: #8b1c1c !important; 
+            --bg-panel: #1c0a0a !important; 
+            --cor-fixo: #8b1c1c !important;
+            background-color: #0d0000 !important;
+            transition: all 0.5s ease;
         }
 
-        body { 
-            background-color: var(--bg-dark); color: var(--text-main); 
-            font-family: 'Courier Prime', monospace; margin: 0; padding: 20px; transition: background-color 0.5s ease; 
-            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
-        }
-
-        .grid-container { 
-            max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 480px 1fr; gap: 60px; align-items: start;
-            background-color: var(--bg-dark); padding: 40px; 
-            border: 1px solid var(--border-main); border-radius: 2px; 
-            box-shadow: var(--paper-shadow); 
-            background-image: url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'), linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
-            transition: all 0.3s ease;
-        }
-
+        body { background-color: var(--bg-dark); color: #d3d3d3; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; transition: background-color 0.5s ease; }
+        
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-
-        /* FORÇANDO ESTÉTICA DE DOCUMENTO SEM QUEBRAR ESTRUTURA HTML */
-        input, textarea, select { font-family: 'Special Elite', monospace !important; color: var(--text-main) !important; }
-        
-        .header-name { font-family: 'Crimson Text', serif !important; color: var(--text-main) !important; border-bottom-color: var(--border-main) !important; font-size: 32px !important; }
-        
-        /* Converte inline spans engessados para as variaveis dinâmicas */
-        span[style*="color:#fff"], span[style*="color: #fff"], span[style*="color:#d3d3d3"], div[style*="color: #fff"] { color: var(--text-main) !important; }
-        span[style*="color:#888"], span[style*="color: #888"], span[style*="color:#666"], div[style*="color: #888"] { color: var(--text-muted) !important; }
-        
-        /* Padronizando labels e textos com a fonte de sistema Inter e a cor primária (vermelho no claro, dourado no escuro) */
-        .sub-input-group label, .stat-box label, .info-label, .bg-label, .rit-label, .pericia-header, .mini-cond-label { color: var(--cris-purple) !important; font-family: 'Inter', sans-serif !important; font-weight: 900 !important; }
-        
-        /* Converte todos os inputs e blocos para a cor de borda e fundo dinâmicos */
-        .input-group input, .input-group textarea, .input-group select, .info-field, .rit-input, .sub-input, .treino-select, .def-input-bonus, .cris-textarea, .condicao-text, .header-sub-row input, .header-sub-row select { 
-            background-color: var(--bg-input) !important; border-color: var(--border-main) !important; color: var(--text-main) !important; 
-        }
-
-        .stat-box, .bg-section, .ritual-card, .pericias-box, .combat-block, .anomalia-block, .tracos-block, .limb-box-new { 
-            background-color: var(--bg-panel) !important; border-color: var(--border-main) !important; 
-        }
-
-        /* FOTO ESTILO DOCUMENTO (CLIPE/FITA) */
-        .portrait-box {
-            border: 5px solid #fff !important; background: #000 !important; box-shadow: 2px 4px 10px rgba(0,0,0,0.4) !important;
-            position: relative; overflow: visible !important; transform: rotate(-2deg);
-        }
-        body.dark-theme .portrait-box { border-color: #222 !important; }
-        .portrait-box::before {
-            content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(4deg);
-            width: 60px; height: 20px; background: rgba(230,225,210,0.7); box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.05); z-index: 10;
-        }
-        body.dark-theme .portrait-box::before { filter: brightness(0.6); }
-        #display-portrait { border-radius: 0 !important; filter: contrast(120%) grayscale(100%); mix-blend-mode: normal !important;}
-
-        /* BARRAS DE STATUS */
-        .bar-bg { background-color: var(--bg-input) !important; border-color: var(--border-main) !important; border-radius: 0 !important;}
-        
-        /* BONECO OBLIVIO ADAPTADO PARA TINTA (MODO CLARO) E LINHAS BRANCAS (MODO ESCURO) */
-        .body-map-container { border-color: var(--border-main) !important; background: transparent !important; }
-        .membro-svg { fill: transparent !important; stroke: var(--text-main) !important; stroke-dasharray: 4; }
-        body.dark-theme .membro-svg { stroke-dasharray: 0; }
-        .membro-svg.lesionado { fill: rgba(163, 21, 21, 0.2) !important; stroke: var(--hp-red) !important; stroke-dasharray: 0;}
-        .membro-svg.decepado { fill: rgba(0,0,0,0.1) !important; stroke: var(--text-muted) !important; stroke-dasharray: 0;}
-        .limb-box-new { box-shadow: 2px 2px 0px rgba(0,0,0,0.1) !important; }
-        body.dark-theme .limb-box-new { box-shadow: 0 4px 6px rgba(0,0,0,0.5) !important; }
-        .limb-box-new .title { color: var(--text-main) !important; }
-        .val-btn { border-bottom: 1px dotted var(--text-main); color: var(--text-main) !important;}
-        .val-btn:hover { background: var(--bg-input) !important; }
-        .val-btn.lesionado { color: var(--hp-red) !important; border-bottom-color: var(--hp-red) !important; background: rgba(163, 21, 21, 0.1) !important;}
-        .val-btn.decepado { color: var(--text-muted) !important; border-bottom-color: var(--text-muted) !important; background: rgba(0,0,0,0.1) !important; text-decoration: line-through;}
-
-        /* PENTAGRAMA DE ATRIBUTOS */
-        .sigilo-container { filter: grayscale(100%) invert(0.8) sepia(1) hue-rotate(330deg) saturate(4) contrast(1.2); opacity: 0.8; }
-        body.dark-theme .sigilo-container { filter: grayscale(50%) opacity(0.8); }
-        .attr-box { background: var(--bg-dark) !important; border-radius: 50% !important; border: 2px solid var(--text-main) !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.1) !important;}
-        body.dark-theme .attr-box { border-radius: 2px !important; border-width: 1px !important; box-shadow: 2px 2px 5px rgba(0,0,0,0.5) !important;}
-        .attr-label { color: var(--text-main) !important; text-shadow: none !important;}
-        .attr-box input { color: var(--text-main) !important; font-family: 'Special Elite', monospace !important;}
-
-        /* ABAS */
-        .tab-btn { border-color: var(--border-main) !important; color: var(--text-muted) !important; font-family: 'Inter', sans-serif !important; font-weight: 900 !important;}
-        .tab-btn.active { background: var(--text-main) !important; color: var(--bg-dark) !important; border-style: solid !important;}
-        body.dark-theme .tab-btn.active { background: rgba(166, 138, 100, 0.05) !important; color: var(--cris-purple) !important; border-color: var(--cris-purple) !important;}
-
-        /* BOTÕES GERAIS */
-        .cris-btn { border: 1px dashed var(--text-main) !important; color: var(--text-main) !important; font-family: 'Courier Prime', monospace !important;}
-        .cris-btn:hover { background: var(--bg-input) !important; }
-        body.dark-theme .cris-btn { border-style: solid !important; font-family: 'Inter', sans-serif !important; }
-        
-        .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
-        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--text-main);}
-        .btn-theme { position: fixed; top: 15px; right: 50px; background: var(--bg-panel); border: 1px solid var(--border-main); color: var(--text-main); font-size: 20px; cursor: pointer; padding: 2px 8px; border-radius: 4px; z-index: 1000; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transition: 0.3s;}
-        .btn-theme:hover { transform: scale(1.1); }
-
-        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; color:#d3d3d3; border: 1px solid var(--cris-purple); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; font-family: 'Inter', sans-serif;}
-        .modal-padrao h3 { color: var(--cris-purple) !important;}
-        .rit-input { background: #1a1a1a !important; color: #fff !important; border: 1px solid #444 !important; padding: 8px !important; font-family: 'Inter', sans-serif !important; width:100%; box-sizing:border-box;}
-        .cris-btn-modal { background: #222 !important; color: #d3d3d3 !important; border: 1px solid #555 !important; padding: 10px !important; cursor: pointer; font-family: 'Inter', sans-serif !important; transition: 0.2s;}
-        .cris-btn-modal:hover { background: #333 !important; color: #fff !important;}
 
         /* OVERLAYS VISUAIS DOS ESTADOS */
         #status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; transition: all 0.5s ease; }
@@ -169,11 +47,159 @@
         .overlay-machucado { box-shadow: inset 0 0 150px rgba(139, 28, 28, 0.6); animation: pulse-machucado 1.5s infinite alternate; background: rgba(139, 28, 28, 0.05); }
         .overlay-atordoado { backdrop-filter: blur(2px); background: rgba(255, 255, 255, 0.02); }
         .overlay-assustado { box-shadow: inset 0 0 200px rgba(3, 67, 116, 0.5); filter: contrast(120%) saturate(60%); }
+
         @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 80px rgba(139, 28, 28, 0.4); } 100% { box-shadow: inset 0 0 250px rgba(139, 28, 28, 0.8); } }
 
-        .pericia-row { border-bottom-color: var(--border-main) !important; }
-        .tab-content { display: none; position: relative; z-index: 2;} .tab-content.active { display: block; animation: fadeIn 0.3s; }
-        @media (max-width: 900px) { .grid-container { grid-template-columns: 1fr; gap: 30px; } .header-sub-row { flex-wrap: wrap; } .sub-input-group { min-width: 45%; } .rit-grid-2 { grid-template-columns: 1fr; } .rit-layout-top { flex-direction: column; align-items: center; text-align: center; } .defesa-colunas { width: 100%; flex-wrap: wrap; justify-content: space-around; } .pericia-header, .pericia-row { grid-template-columns: 1fr 45px 40px 45px 35px; font-size: 11px; gap: 2px; } .treino-select { font-size: 9px; } #pericias-grid { grid-template-columns: 1fr !important; } #aba-background > div { grid-template-columns: 1fr !important; } #bgEncontros-container { grid-column: span 1 !important; } .info-label { width: 100%; margin-bottom: 5px;} .tab-btn { font-size: 9px !important; padding: 10px 2px !important; letter-spacing: 0px !important; } }
+        .grid-container { display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; }
+        .header-name { width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; color: #fff; font-family: 'Crimson Text', serif; font-size: 28px; font-weight: bold; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; }
+        .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .sub-input-group { flex: 1; display: flex; flex-direction: column; }
+        .sub-input-group label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
+        .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; padding: 5px 0; outline: none; }
+        .sub-input-group select option, .rit-input option, .stat-box select option { background-color: #1a1a1a; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px;}
+
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
+
+        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(50%) opacity(0.8); transition: filter 0.5s ease; }
+        .sigilo-container::before {
+            content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%;
+            background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: 0.15; z-index: -1; pointer-events: none; transition: all 1s ease;
+        }
+
+        @keyframes pulsar-sangue {
+            0% { filter: drop-shadow(0 0 10px #8b1c1c) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.7;}
+            50% { filter: drop-shadow(0 0 25px #8b1c1c) drop-shadow(0 0 50px #ff0000) brightness(1.5); transform: translate(-50%, -50%) scale(1.03); opacity: 1;}
+            100% { filter: drop-shadow(0 0 10px #8b1c1c) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.7;}
+        }
+        .sigilo-container.brilho-sangue::before { 
+            filter: drop-shadow(0 0 20px #8b1c1c) sepia(1) hue-rotate(-50deg) saturate(5); 
+            opacity: 0.9; animation: pulsar-sangue 1.5s infinite alternate !important; 
+        }
+
+        .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)); }
+        .sigilo-container.brilho-restricao::before { display: none !important; }
+        .sigilo-container.brilho-restricao .attr-box { background: rgba(255, 255, 255, 0.05); border-color: #ffffff; box-shadow: inset 0 0 10px rgba(255,255,255,0.2), 0 0 10px rgba(255,255,255,0.4); }
+        .sigilo-container.brilho-restricao .attr-label { color: #ffffff; text-shadow: 0 0 5px #fff; }
+        .sigilo-container.brilho-restricao input { color: #ffffff; text-shadow: 0 0 5px #fff; }
+
+        .attr-box { position: absolute; width: 55px; height: 55px; background: var(--bg-panel); border: 1px solid #555; border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); z-index: 1; transition: all 0.3s ease;}
+        .attr-label { font-size: 9px; font-weight: bold; color: var(--cris-purple); margin-top: -2px; letter-spacing: 1px;}
+        .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
+        .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
+
+        .mid-stats { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px; font-family: 'Crimson Text', serif; }
+        .stat-box { border: 1px solid #333; background: var(--bg-panel); padding: 8px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2px;}
+        .stat-box label { font-size: 9px; color: #888; font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; text-align: center;}
+        .stat-box select, .stat-box input { background: transparent; border: none; color: #fff; font-family: 'Crimson Text', serif; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
+
+        .status-container { margin-bottom: 15px; }
+        .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 4px; padding: 0;}
+        .status-header { font-size: 11px; font-weight: bold; color: var(--cris-purple); letter-spacing: 2px; font-family: 'Inter'; text-align: center; }
+        .btn-status-action { position: absolute; right: 0; background: transparent; color: #666; border: 1px solid #444; border-radius: 2px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Inter'; font-weight: bold; transition: 0.2s; }
+        .btn-status-action:hover { background: #333; color: #fff; }
+        .bar-bg { width: 100%; height: 30px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
+        .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
+        .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Crimson Text', serif; align-items: center; transition: opacity 0.3s; }
+        .bar-content input { background: transparent; border: none; color: #fff; width: 40px; text-align: center; font-size: 18px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
+        .bar-btn { cursor: pointer; color: #fff; font-size: 16px; opacity: 0.5; user-select: none; font-family: 'Inter'; padding: 0 5px;}
+        .bar-btn:hover { opacity: 1; }
+
+        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(18,18,18,0.9); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid var(--hp-red);}
+        .zero-state.active { display: flex; }
+        .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--hp-red); }
+        .btn-curar { background: #222; color: #d3d3d3; border: 1px solid #555; padding: 3px 8px; font-size: 10px; cursor: pointer; border-radius: 2px; font-family: 'Inter', sans-serif; transition: 0.2s; text-transform: uppercase; font-weight: bold;}
+        .btn-curar:hover { background: #d3d3d3; color: #000; border-color: #d3d3d3; }
+
+        .it-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(47, 79, 79, 0.95); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #668888;}
+        .it-state.active { display: flex; }
+        .it-round { width: 16px; height: 16px; border-radius: 2px; border: 1px solid #fff; display: inline-block; cursor: pointer; background: transparent; }
+        .it-round.active { background: #fff; }
+
+        .mini-cond-chk { display: none; }
+        .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: var(--bg-panel); border: 1px solid #333; border-radius: 2px; color: #888; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
+        .mini-cond-label:hover { border-color: #555; color: #ccc; }
+        #chk-sequela:checked + .mini-cond-label { background: #d3d3d3; color: #121212; border-color: #fff; }
+
+        /* BONECO DETALHADO E CAIXAS */
+        .body-map-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 25px auto; font-family: 'Inter', sans-serif; background: rgba(255,255,255,0.01); border: 1px dashed #333; border-radius: 4px; position: relative; width: 100%; max-width: 400px; height: 400px; }
+        .membro-svg { fill: #111; stroke: #555; stroke-width: 3; transition: all 0.3s ease; }
+        .limb-box-new { background: #151515; border: 1px solid #444; border-radius: 2px; padding: 3px 6px; width: 70px; text-align: center; position: absolute; z-index: 2; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: 0.3s; }
+        .limb-box-new .title { font-size: 9px; color: #888; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;}
+        .limb-box-new .values { display: flex; justify-content: space-between; font-family: 'Crimson Text', serif; font-size: 16px; font-weight: bold; color: #d3d3d3; }
+        
+        .val-btn { cursor: pointer; transition: 0.2s; user-select: none; padding: 2px 5px; border-radius: 2px; border: 1px solid transparent; width: 35%; box-sizing: border-box; }
+        .val-btn:hover { color: #fff; background: rgba(255,255,255,0.1); border-color: #666; }
+        
+        /* ESTILOS DE DANO NO MEMBRO */
+        .val-btn.lesionado { color: #ff4d4d; border-color: #ff4d4d; background: rgba(139, 28, 28, 0.2); }
+        .membro-svg.lesionado { fill: rgba(139, 28, 28, 0.4); stroke: #ff4d4d; }
+        
+        .val-btn.decepado { color: #555; border-color: #333; background: #0a0a0a; text-decoration: line-through; }
+        .membro-svg.decepado { fill: #0a0a0a; stroke: #333; }
+
+        .pericias-box { background: var(--bg-panel); padding: 15px; border-radius: 2px; border: 1px solid #2a2a2a; }
+        .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; letter-spacing: 1px;}
+        .pericia-header > span:first-child { text-align: left; }
+        .pericia-row { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; gap: 5px; padding: 5px 4px; border-bottom: 1px solid #222; font-size: 13px; align-items: center; transition: background 0.3s; text-align: center; }
+        .pericia-row > span:first-child { text-align: left; }
+        .pericia-nome { cursor: pointer; color: #d3d3d3; transition: 0.2s; position: relative; font-family: 'Inter', sans-serif;}
+        .pericia-nome:hover { color: var(--cris-purple); text-decoration: underline dashed 1px var(--cris-purple); text-underline-offset: 4px; }
+        .pericia-nome::after { content: ' ▼'; font-size: 8px; opacity: 0.3; }
+        .pericia-desc { display: none; background: #121212; border-left: 2px solid var(--cris-purple); padding: 10px; font-size: 11px; color: #aaa; margin-bottom: 4px; line-height: 1.5; font-family: 'Inter', sans-serif; font-style: italic;}
+        
+        .sub-pericias-box { display: none; background: #181818; padding: 10px; border-radius: 2px; border-left: 2px solid #555; margin-bottom: 5px;}
+        .sub-input { background: transparent; border: 1px solid #444; color: #fff; font-size: 11px; text-align: center; border-radius: 2px; }
+        
+        .treino-select { background: transparent; color: #ccc; border: 1px solid #333; font-size: 12px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; font-family: 'Inter', sans-serif;}
+        .p-verde { background: rgba(166, 138, 100, 0.1) !important; } .p-laranja { background: rgba(166, 138, 100, 0.25) !important; } .p-vermelho { background: rgba(139, 28, 28, 0.3) !important; } 
+
+        .def-input-bonus { width: 30px; background: transparent; border: 1px solid #444; color: #fff; font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Inter';}
+        .info-row { margin-top: 15px; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 8px;}
+        .info-label { display: inline-block; width: 150px; font-weight: bold; color: var(--cris-purple); font-size: 10px; flex-shrink: 0; letter-spacing: 1px; text-transform: uppercase;}
+        .info-field { flex: 1; background: transparent; border: none; border-bottom: 1px solid #333; color: #d3d3d3; font-size: 14px; padding: 4px 5px; outline: none; font-family: 'Inter', sans-serif;}
+        .info-field:focus { border-bottom-color: var(--cris-purple); }
+
+        .tabs-nav { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; margin-bottom: 25px; }
+        .tab-btn { background: transparent; border: 1px solid #333; color: #666; padding: 12px 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 1px; border-radius: 2px; text-align: center;}
+        .tab-btn.active { color: var(--cris-purple); border-color: var(--cris-purple); background: rgba(166, 138, 100, 0.05);}
+        .tab-content { display: none; } .tab-content.active { display: block; animation: fadeIn 0.3s; }
+
+        .ritual-card { background: var(--bg-panel); border: 1px solid #333; border-left: 4px solid var(--cor-geral); margin-bottom: 10px; border-radius: 2px; transition: border-color 0.3s; }
+        .card-header { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Crimson Text', serif; font-size: 18px;}
+        .card-body { padding: 15px; display: none; border-top: 1px solid #2a2a2a; background: #151515;}
+        .cris-textarea { width: 100%; background: #121212; border: 1px solid #333; color: #d3d3d3; font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Inter', sans-serif; line-height: 1.5; border-radius: 2px; outline: none; transition: border-color 0.3s;}
+        .cris-textarea:focus { border-color: var(--cris-purple); }
+        .cris-btn { background: transparent; border: 1px solid var(--cris-purple); color: var(--cris-purple); padding: 8px 16px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 2px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;}
+        .cris-btn:hover { background: var(--cris-purple); color: #121212; }
+
+        .rit-layout-top { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
+        .rit-symbol-box { width: 80px; height: 80px; border: 1px dashed #555; background: #121212; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; overflow: hidden; position: relative; }
+        .rit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .rit-field { display: flex; flex-direction: column; }
+        .rit-label { font-size: 9px; color: var(--cris-purple); text-transform: uppercase; font-weight: bold; font-family: 'Inter', sans-serif; margin-bottom: 3px; letter-spacing: 1px;}
+        .rit-input { background: transparent; border: none; border-bottom: 1px solid #444; color: #d3d3d3; font-family: 'Crimson Text', serif; font-size: 16px; outline: none; padding: 3px 0; transition: 0.2s; }
+        .rit-input:focus { border-bottom: 1px solid var(--cris-purple); }
+        .rit-checkbox-row { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; background: var(--bg-panel); padding: 10px; border-radius: 2px; border: 1px solid #333; letter-spacing: 1px;}
+        .condicao-select, .condicao-text { width: 100%; background: #121212; color: #d3d3d3; border: 1px solid #444; font-family: 'Inter', sans-serif; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; border-radius: 2px;}
+
+        .bg-section { display: flex; flex-direction: column; background: var(--bg-panel); border: 1px solid #333; padding: 15px; border-radius: 2px;}
+        .bg-label { font-family: 'Crimson Text', serif; color: var(--cris-purple); font-size: 14px; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 5px;}
+
+        .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--cris-purple);}
+
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; border: 1px solid var(--cris-purple); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; }
+        .btn-copy-link { background: #333; color: white; border: 1px solid #555; padding: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px; transition: 0.2s;}
+        .btn-copy-link:hover { background: #444; border-color: #888;}
+
+        @media (max-width: 900px) {
+            .grid-container { grid-template-columns: 1fr; gap: 30px; } .header-sub-row { flex-wrap: wrap; } .sub-input-group { min-width: 45%; } .rit-grid-2 { grid-template-columns: 1fr; } .rit-layout-top { flex-direction: column; align-items: center; text-align: center; } .defesa-colunas { width: 100%; flex-wrap: wrap; justify-content: space-around; } .pericia-header, .pericia-row { grid-template-columns: 1fr 45px 40px 45px 35px; font-size: 11px; gap: 2px; } .treino-select { font-size: 9px; } #pericias-grid { grid-template-columns: 1fr !important; } #aba-background > div { grid-template-columns: 1fr !important; } #bgEncontros-container { grid-column: span 1 !important; } .info-label { width: 100%; margin-bottom: 5px;} .tab-btn { font-size: 9px !important; padding: 10px 2px !important; letter-spacing: 0px !important; }
+        }
     </style>
 </head>
 <body>
@@ -182,28 +208,27 @@
 
 <input type="file" id="fileUploader" accept="image/*" style="display:none" onchange="processarArquivo(this)">
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
-<button id="theme-toggle" onclick="toggleTheme()" class="btn-theme" title="Alternar Tema">🌓</button>
 
 <div id="modal-config" class="modal-padrao">
-    <h3 style="margin-top:0; font-family:'Inter', sans-serif; font-weight: 900; text-align:center; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE SISTEMA</h3>
+    <h3 style="margin-top:0; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE TRANSMISSÃO</h3>
     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
-        <button onclick="abrirUpload('Normal')" class="cris-btn-modal" style="width: 100%;">📷 FOTOGRAFIA PADRÃO</button>
-        <button onclick="abrirUpload('Machucado')" class="cris-btn-modal" style="border-color: var(--hp-red); color: #ff6666 !important; width: 100%;">🩸 ESTADO CRÍTICO (< 50% VIT)</button>
-        <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn-modal" style="border-color: #483d8b; color: #887ebd !important; width: 100%;">🌀 ESTADO DE CHOQUE (0 LUC)</button>
-        <button onclick="abrirUpload('Morto')" class="cris-btn-modal" style="border-style: dashed; border-color: #444; color: #666 !important; width: 100%;">💀 ÓBITO CONFIRMADO (0 VIT)</button>
+        <button onclick="abrirUpload('Normal')" class="cris-btn" style="border-color: #555; color: #d3d3d3; width: 100%;">📷 FOTOGRAFIA PADRÃO</button>
+        <button onclick="abrirUpload('Machucado')" class="cris-btn" style="border-color: var(--hp-red); color: #ff6666; width: 100%;">🩸 ESTADO CRÍTICO (< 50% VIT)</button>
+        <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn" style="border-color: #483d8b; color: #887ebd; width: 100%;">🌀 ESTADO DE CHOQUE (0 LUC)</button>
+        <button onclick="abrirUpload('Morto')" class="cris-btn" style="border-style: dashed; border-color: #444; color: #666; width: 100%;">💀 ÓBITO CONFIRMADO (0 VIT)</button>
     </div>
     
     <div style="border-top: 1px solid #333; margin-top: 20px; padding-top: 20px;">
-        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Comandos Confidenciais (Mobile)</div>
-        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="margin-bottom: 10px;">
-        <button class="cris-btn-modal" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
+        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Sistema de Segredos (Mobile)</div>
+        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px solid #444; padding: 8px; box-sizing: border-box;">
+        <button class="cris-btn" onclick="verificarCheat()" style="width: 100%; border-color: #888; color: #888;">EXECUTAR COMANDO</button>
     </div>
 
-    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer;">FECHAR PAINEL</button>
+    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
 
 <div id="crop-modal" class="modal-padrao" style="width: 260px; text-align: center;">
-    <h3 style="margin:0 0 20px 0; font-family:'Inter', sans-serif; font-weight:900;">CALIBRAR ENQUADRAMENTO</h3>
+    <h3 style="margin:0 0 20px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">CALIBRAR ENQUADRAMENTO</h3>
     <div id="crop-preview" style="width: 150px; height: 180px; margin: 0 auto 20px; border: 1px solid #555; overflow: hidden; position: relative; background: #121212;">
         <img id="temp-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0; filter: grayscale(20%);">
     </div>
@@ -213,90 +238,90 @@
     <input type="range" id="crop-x" min="-200" max="300" value="50" style="width:100%; margin-bottom:10px;" oninput="atualizarPreview()">
     <input type="range" id="crop-y" min="-200" max="300" value="50" style="width:100%; margin-bottom:20px;" oninput="atualizarPreview()">
     <div style="display:flex; gap:10px; justify-content:center;">
-        <button class="cris-btn-modal" onclick="confirmarCrop()">GRAVAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="fecharModal()">CANCELAR</button>
+        <button class="cris-btn" onclick="confirmarCrop()">GRAVAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="fecharModal()">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-origem" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight:900;">BANCO DE ORIGENS</h3>
-    <select id="select-origem-template" class="rit-input" style="margin-bottom: 20px;">
-        <option value="">Selecione uma Origem...</option>
+    <h3 style="margin:0 0 15px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">BANCO DE ORIGENS</h3>
+    <select id="select-origem-template" class="rit-input" style="width: 100%; margin-bottom: 20px; border: 1px solid #444;">
+        <option value="">Selecione uma Profissão/Origem...</option>
         <option value="Cultista Arrependido">Cultista Arrependido (Ocultismo +3)</option>
     </select>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="cris-btn-modal" onclick="aplicarOrigemTemplate()">APLICAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="toggleElem('modal-origem')">CANCELAR</button>
+        <button class="cris-btn" onclick="aplicarOrigemTemplate()">APLICAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="toggleElem('modal-origem')">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-tpl-ataque" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight:900;">BANCO DE ARMAS</h3>
-    <select id="select-tpl-ataque" class="rit-input" style="margin-bottom: 10px;" onchange="previewTemplate('ataque')">
+    <h3 style="margin:0 0 15px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">BANCO DE ARMAS</h3>
+    <select id="select-tpl-ataque" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid #444;" onchange="previewTemplate('ataque')">
         <option value="">Selecione uma Arma...</option>
         <option value="Revolver">Revólver .38</option>
         <option value="Faca">Faca Tática</option>
     </select>
-    <div id="preview-ataque" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px; font-family: 'Inter', sans-serif;"></div>
+    <div id="preview-ataque" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="cris-btn-modal" onclick="aplicarTemplateModal('ataques')">APLICAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-ataque')">CANCELAR</button>
+        <button class="cris-btn" onclick="aplicarTemplateModal('ataques')">APLICAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-ataque')">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-tpl-traco" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight:900;">BANCO DE TRAÇOS</h3>
-    <select id="select-tpl-traco" class="rit-input" style="margin-bottom: 10px;" onchange="previewTemplate('traco')">
+    <h3 style="margin:0 0 15px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">BANCO DE TRAÇOS</h3>
+    <select id="select-tpl-traco" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid #444;" onchange="previewTemplate('traco')">
         <option value="">Selecione um Traço...</option>
         <option value="Paranoia">Paranoia</option>
         <option value="Resistente">Resistência Exemplar</option>
     </select>
-    <div id="preview-traco" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px; font-family: 'Inter', sans-serif;"></div>
+    <div id="preview-traco" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="cris-btn-modal" onclick="aplicarTemplateModal('habilidades')">APLICAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-traco')">CANCELAR</button>
+        <button class="cris-btn" onclick="aplicarTemplateModal('habilidades')">APLICAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-traco')">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-tpl-espec" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight:900; color: var(--hp-red) !important;">PODERES</h3>
-    <select id="select-tpl-espec" class="rit-input" style="margin-bottom: 10px;" onchange="previewTemplate('espec')">
-        <option value="">Selecione um Poder...</option>
+    <h3 style="margin:0 0 15px 0; font-family:'Crimson Text', serif; color: var(--hp-red);">ESPECIALIZAÇÕES</h3>
+    <select id="select-tpl-espec" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid #444;" onchange="previewTemplate('espec')">
+        <option value="">Selecione uma Especialização...</option>
         <option value="Golpe Pesado">Golpe Pesado (Sangue)</option>
         <option value="Sentidos Apurados">Sentidos Apurados (Conhecimento)</option>
     </select>
-    <div id="preview-espec" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px; font-family: 'Inter', sans-serif;"></div>
+    <div id="preview-espec" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="cris-btn-modal" style="border-color:var(--hp-red); color:var(--hp-red);" onclick="aplicarTemplateModal('poderes')">APLICAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-espec')">CANCELAR</button>
+        <button class="cris-btn" style="border-color:var(--hp-red); color:var(--hp-red);" onclick="aplicarTemplateModal('poderes')">APLICAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-espec')">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-tpl-anomalia" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight:900;">BANCO DE ANOMALIAS</h3>
-    <select id="select-tpl-anomalia" class="rit-input" style="margin-bottom: 10px;" onchange="previewTemplate('anomalia')">
+    <h3 style="margin:0 0 15px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">BANCO DE ANOMALIAS</h3>
+    <select id="select-tpl-anomalia" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid #444;" onchange="previewTemplate('anomalia')">
         <option value="">Selecione uma Anomalia...</option>
         <option value="Toque do Medo">Toque do Medo (Morte)</option>
         <option value="Decadência">Decadência (Morte)</option>
     </select>
-    <div id="preview-anomalia" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px; font-family: 'Inter', sans-serif;"></div>
+    <div id="preview-anomalia" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="cris-btn-modal" onclick="aplicarTemplateModal('rituais')">APLICAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-anomalia')">CANCELAR</button>
+        <button class="cris-btn" onclick="aplicarTemplateModal('rituais')">APLICAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-anomalia')">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-tpl-item" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight:900;">BANCO DE ITENS</h3>
-    <select id="select-tpl-item" class="rit-input" style="margin-bottom: 10px;" onchange="previewTemplate('item')">
+    <h3 style="margin:0 0 15px 0; font-family:'Crimson Text', serif; color: var(--cris-purple);">BANCO DE ITENS</h3>
+    <select id="select-tpl-item" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid #444;" onchange="previewTemplate('item')">
         <option value="">Selecione um Item...</option>
         <option value="Bandagem">Bandagem</option>
         <option value="Lanterna">Lanterna Tática</option>
     </select>
-    <div id="preview-item" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px; font-family: 'Inter', sans-serif;"></div>
+    <div id="preview-item" style="font-size: 11px; color: #aaa; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="cris-btn-modal" onclick="aplicarTemplateModal('inventario')">APLICAR</button>
-        <button class="cris-btn-modal" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-item')">CANCELAR</button>
+        <button class="cris-btn" onclick="aplicarTemplateModal('inventario')">APLICAR</button>
+        <button class="cris-btn" style="border-color:#555; color:#888" onclick="toggleElem('modal-tpl-item')">CANCELAR</button>
     </div>
 </div>
 
@@ -304,26 +329,26 @@
 <div class="grid-container">
     <section style="min-width: 0; overflow: hidden;">
         <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <button onclick="window.location.href='index.html'" class="cris-btn" style="border-color: var(--border-main); color: var(--text-muted); display: flex; align-items: center; gap: 8px;"><span>←</span> FECHAR DOSSIÊ</button>
+            <button onclick="window.location.href='index.html'" class="cris-btn" style="border-color: #444; color: #888; display: flex; align-items: center; gap: 8px;"><span>←</span> FECHAR ARQUIVO</button>
             <button id="btn-assumir-posse" class="cris-btn" style="display: none; border-color: var(--cris-purple); color: var(--cris-purple);" onclick="assumirPosse()">📥 ASSUMIR POSSE DA FICHA</button>
         </div>
         
         <div style="display:flex; gap: 25px; margin-bottom: 25px;">
-            <div onclick="abrirUpload('portrait')" class="portrait-box" style="width: 110px; height: 140px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <img id="display-portrait" src="" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0;">
-                <span id="label-portrait" style="font-size: 10px; color: var(--text-muted); text-align: center; font-weight: bold; letter-spacing: 1px; font-family: 'Inter', sans-serif;">ANEXAR<br>FOTO</span>
+            <div onclick="abrirUpload('portrait')" style="width: 110px; height: 140px; border: 1px solid #444; background: var(--bg-panel); cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; border-radius: 2px; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.5);">
+                <img id="display-portrait" src="" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; filter: grayscale(20%) contrast(110%);">
+                <span id="label-portrait" style="font-size: 10px; color: #666; text-align: center; font-weight: bold; letter-spacing: 1px;">ANEXAR<br>FOTOGRAFIA</span>
             </div>
             <div style="flex: 1;">
                 <div style="display:flex; gap:20px; align-items:flex-end; margin-bottom: 15px;">
-                    <input type="text" id="nome-personagem" class="header-name" placeholder="IDENTIFICAÇÃO DO SUJEITO" onchange="salvarFicha()" style="flex:1; margin-bottom:0; background: transparent !important;">
+                    <input type="text" id="nome-personagem" class="header-name" placeholder="IDENTIFICAÇÃO DO SUJEITO" onchange="salvarFicha()" style="flex:1; margin-bottom:0;">
                     <div style="display:flex; flex-direction:column; width:50px;">
-                        <label style="font-size:10px; color:var(--cris-purple); font-weight:bold; margin-bottom:5px; text-transform:uppercase; letter-spacing: 1px; font-family:'Inter', sans-serif;">IDADE</label>
-                        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent !important; border:none; border-bottom:1px solid var(--border-main); color:var(--text-main); font-family:'Special Elite', monospace; font-size:18px; padding:5px 0; outline:none; text-align: center;">
+                        <label style="font-size:10px; color:var(--cris-purple); font-weight:bold; margin-bottom:5px; text-transform:uppercase; letter-spacing: 1px;">IDADE</label>
+                        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent; border:none; border-bottom:1px solid #444; color:#fff; font-family:'Crimson Text', serif; font-size:18px; padding:5px 0; outline:none; text-align: center;">
                     </div>
                 </div>
                 <div class="header-sub-row" style="margin-bottom: 0;">
                     <div class="sub-input-group">
-                        <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-origem')" style="background:transparent; border:1px solid var(--border-main); color:var(--text-muted); cursor:pointer; font-size:10px; font-weight:bold; font-family:'Inter', sans-serif;">+ LISTA</button></label>
+                        <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-origem')" style="background:transparent; border:1px solid #444; color:#888; cursor:pointer; font-size:10px; font-weight:bold;">+ LISTA</button></label>
                         <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
                     </div>
                     <div class="sub-input-group" id="grupo-arquetipo" style="display: none;">
@@ -342,8 +367,8 @@
         <div class="sigilo-container" id="sigilo-box">
             <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="attr-agi" onchange="alterarAtributoOuNivel();"></div>
             <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="attr-for" onchange="alterarAtributoOuNivel();"></div>
-            <div class="attr-box sag"><span class="attr-label">INT</span><input type="number" id="attr-sag" onchange="alterarAtributoOuNivel();"></div>
-            <div class="attr-box von"><span class="attr-label">PRE</span><input type="number" id="attr-von" onchange="alterarAtributoOuNivel();"></div>
+            <div class="attr-box sag"><span class="attr-label">SAG</span><input type="number" id="attr-sag" onchange="alterarAtributoOuNivel();"></div>
+            <div class="attr-box von"><span class="attr-label">VON</span><input type="number" id="attr-von" onchange="alterarAtributoOuNivel();"></div>
             <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="attr-vig" onchange="alterarAtributoOuNivel();"></div>
         </div>
 
@@ -359,13 +384,13 @@
                         <label>EXPOSIÇÃO</label>
                         <select id="nex-personagem" onchange="mudouNex()" style="font-size: 16px;"></select>
                     </div>
-                    <div style="width: 1px; background: var(--border-main); height: 80%; align-self: center;"></div>
+                    <div style="width: 1px; background: #333; height: 80%; align-self: center;"></div>
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
                         <label>RESSONÂNCIA</label>
-                        <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 13px; font-family: 'Special Elite', monospace; padding-top: 3px;"></select>
+                        <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 13px; font-family: 'Inter', sans-serif; padding-top: 3px;"></select>
                     </div>
                 </div>
-                <div id="content-exposicao-fake" style="display: flex; width: 100%; justify-content: center; align-items: center; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; color: var(--text-muted); letter-spacing: 2px; transition: all 0.5s ease;">
+                <div id="content-exposicao-fake" style="display: flex; width: 100%; justify-content: center; align-items: center; font-family: 'Inter'; font-size: 11px; font-weight: bold; color: #555; letter-spacing: 2px; transition: all 0.5s ease;">
                     ACESSO NEGADO
                 </div>
             </div>
@@ -373,8 +398,8 @@
             <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
                 <label style="width: 100%;">TETO DE FÔLEGO</label>
                 <div style="display:flex; align-items:center; justify-content: center; gap:8px; width: auto; margin-top: 2px;">
-                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(true); salvarFicha();" style="font-size: 14px; width: 45px; text-align: center;">
-                    <div id="display-limite-pe" style="font-size:22px; color:var(--text-main); font-weight: bold; line-height: 1; font-family: 'Special Elite', monospace;">1</div>
+                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(true); salvarFicha();" style="font-size: 14px; border-color: #555; width: 45px; text-align: center;">
+                    <div id="display-limite-pe" style="font-size:22px; color:#fff; font-weight: bold; line-height: 1;">1</div>
                 </div>
             </div>
             <div class="stat-box"><label>MOBILIDADE</label><input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q" style="font-size: 16px;"></div>
@@ -383,10 +408,10 @@
         <div class="status-container">
             <div class="status-header-container"><div class="status-header" style="color: var(--hp-red);">VITALIDADE</div><button class="btn-status-action" onclick="instakill()" title="Declarar Óbito">ÓBITO</button></div>
             <div class="bar-bg">
-                <div id="bar-vida" class="bar-fill"></div>
+                <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
                     <span class="bar-btn" onclick="ajustar('vida', -1)">« <</span>
-                    <div><input type="number" id="vida-atual" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()" style="background:transparent!important; border:none!important;"> <span style="color:var(--text-muted); margin:0 2px;">/</span> <input type="number" id="vida-max" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()" style="color:var(--text-muted)!important; border:none!important; outline:none; background:transparent!important; width:40px; text-align:center; font-size:18px; font-weight:bold;"></div>
+                    <div><input type="number" id="vida-atual" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="vida-max" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()" style="color:#aaa; border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold;"></div>
                     <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-vida"><span style="color:#ff4d4d; letter-spacing: 2px;">ESTADO CRÍTICO</span><input type="checkbox" id="mor-1" onchange="salvarFicha()"><input type="checkbox" id="mor-2" onchange="salvarFicha()"><input type="checkbox" id="mor-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('vida')">ESTABILIZAR</button></div>
@@ -394,39 +419,39 @@
         </div>
 
         <div class="status-container">
-            <div class="status-header-container"><div class="status-header" style="color: var(--san-purple);">LUCIDEZ</div><button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Choque Psicológico">CHOQUE</button></div>
+            <div class="status-header-container"><div class="status-header" style="color: #668888;">LUCIDEZ</div><button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Choque Psicológico">CHOQUE</button></div>
             <div class="bar-bg">
-                <div id="bar-san" class="bar-fill"></div>
+                <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
                     <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
-                    <div><input type="number" id="san-atual" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()" style="background:transparent!important; border:none!important;"> <span style="color:var(--text-muted); margin:0 2px;">/</span> <input type="number" id="san-max" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()" style="color:var(--text-muted)!important; border:none!important; outline:none; background:transparent!important; width:40px; text-align:center; font-size:18px; font-weight:bold;"></div>
+                    <div><input type="number" id="san-atual" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="san-max" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()" style="color:#aaa; border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold;"></div>
                     <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-san" style="border-color: #2f4f4f;"><span style="color:#887ebd; letter-spacing: 2px;">COLAPSO MENTAL</span><input type="checkbox" id="enlou-1" onchange="salvarFicha()"><input type="checkbox" id="enlou-2" onchange="salvarFicha()"><input type="checkbox" id="enlou-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('san')">ACALMAR</button></div>
-                <div class="it-state" id="it-san"><span style="letter-spacing: 1px; font-family:'Inter', sans-serif;">CHOQUE: </span><div class="it-round" id="it-1" onclick="marcarIT(1)"></div><div class="it-round" id="it-2" onclick="marcarIT(2)"></div><div class="it-round" id="it-3" onclick="marcarIT(3)"></div><div class="it-round" id="it-4" onclick="marcarIT(4)"></div><button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">RECUPERAR</button></div>
+                <div class="it-state" id="it-san"><span style="letter-spacing: 1px;">CHOQUE: </span><div class="it-round" id="it-1" onclick="marcarIT(1)"></div><div class="it-round" id="it-2" onclick="marcarIT(2)"></div><div class="it-round" id="it-3" onclick="marcarIT(3)"></div><div class="it-round" id="it-4" onclick="marcarIT(4)"></div><button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">RECUPERAR</button></div>
             </div>
         </div>
 
         <div class="status-container">
-            <div class="status-header-container"><div class="status-header" style="color: var(--pe-orange); text-align: center; width: 100%;">FÔLEGO</div></div>
+            <div class="status-header-container"><div class="status-header" style="color: #8b6e4f; text-align: center; width: 100%;">FÔLEGO</div></div>
             <div class="bar-bg">
-                <div id="bar-pe" class="bar-fill"></div>
+                <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content" id="content-pe">
                     <span class="bar-btn" onclick="ajustar('pe', -1)">« <</span>
-                    <div><input type="number" id="pe-atual" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()" style="background:transparent!important; border:none!important;"> <span style="color:var(--text-muted); margin:0 2px;">/</span> <input type="number" id="pe-max" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()" style="color:var(--text-muted)!important; border:none!important; outline:none; background:transparent!important; width:40px; text-align:center; font-size:18px; font-weight:bold;"></div>
+                    <div><input type="number" id="pe-atual" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pe-max" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()" style="color:#aaa; border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Crimson Text', serif; font-size:18px; font-weight:bold;"></div>
                     <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
                 </div>
             </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 20px;">
-            <div class="stat-box" style="flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center;">
-                <label style="display: block; width: 100%; text-align: center; margin-bottom: 5px;">ESTADO CLÍNICO / MENTAL</label>
-                <select id="status-personagem" class="rit-input" style="width: 100%; text-align: center;" onchange="salvarFicha(); aplicarStatusVisual();">
+            <div style="flex: 1; background: var(--bg-panel); border: 1px solid #333; padding: 12px; border-radius: 2px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
+                <label style="display: block; width: 100%; text-align: center; color: #888; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">ESTADO CLÍNICO / MENTAL</label>
+                <select id="status-personagem" class="rit-input" style="width: 100%; text-align: center; font-size: 14px; font-family: 'Inter';" onchange="salvarFicha(); aplicarStatusVisual();">
                     <option value="Normal">Normal</option><option value="Atordoado">Atordoado</option><option value="Assustado">Assustado</option><option value="Sangrando">Sangrando</option><option value="Machucado">Machucado</option>
                 </select>
             </div>
-            <div class="stat-box" style="flex: 1; padding: 12px;">
+            <div style="flex: 1; background: var(--bg-panel); border: 1px solid #333; padding: 12px; border-radius: 2px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
                 <label for="chk-sequela" class="mini-cond-label">SEQUELA PERMANENTE</label>
                 <textarea id="desc-sequela" class="condicao-text" placeholder="Relatório médico da sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
@@ -438,50 +463,49 @@
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
             <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
-            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E PODERES</button>
+            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E ESPEC.</button>
             <button class="tab-btn" id="tab-anomalias" onclick="mudarAba('rituais')" style="display: none;">ANOMALIAS</button>
             <button class="tab-btn" onclick="mudarAba('inventario')">ARQUIVO E ITENS</button>
             <button class="tab-btn" onclick="mudarAba('background')">PERFIL PSICOLÓGICO</button>
         </nav>
 
-        <div id="aba-pericias" class="tab-content active">
+        <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="pericias-box"><h3 class="pericia-header" style="margin-top:0; margin-bottom: 15px; text-align:center; font-size:16px; border-bottom: 1px solid var(--border-main); padding-bottom: 5px;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
-                <div class="pericias-box"><h3 class="pericia-header" style="margin-top:0; margin-bottom: 15px; text-align:center; font-size:16px; border-bottom: 1px solid var(--border-main); padding-bottom: 5px;">FORMAÇÃO ACADÊMICA/TÉCNICA</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
+                <div class="pericias-box"><h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
+                <div class="pericias-box"><h3 style="margin-top:0; margin-bottom: 15px; font-family:'Crimson Text', serif; color:var(--cris-purple); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px;">FORMAÇÃO ACADÊMICA/TÉCNICA</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
             </div>
         </div>
         
         <div id="aba-combate" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div class="stat-box" style="text-align: center;">
-                    <label style="display:block; margin-bottom: 8px;">DEFESA (10 + AGI + NÍVEL)</label>
+                <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 5px; border: 1px solid #333; text-align: center;">
+                    <label style="display:block; font-size: 10px; color: var(--cris-purple); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">DEFESA (10 + AGI + NÍVEL)</label>
                     <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <input type="number" id="bonus-defesa" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px; text-align: center;">
-                        <span id="display-defesa" style="font-size: 32px; font-family: 'Special Elite', monospace; color: var(--text-main); font-weight: bold; border-bottom: 2px solid var(--cris-purple); padding: 0 10px;">10</span>
+                        <span id="display-defesa" style="font-size: 32px; font-family: 'Crimson Text', serif; color: #fff; font-weight: bold; border-bottom: 2px solid var(--cris-purple); padding: 0 10px;">10</span>
                     </div>
                 </div>
-                <div class="stat-box" style="border: 1px solid var(--hp-red); text-align: center;">
-                    <label style="display:block; color: var(--hp-red) !important; margin-bottom: 8px;">CARGA DE PRESSÃO TOTAL</label>
-                    <div style="font-family:'Special Elite', monospace; font-size: 32px; font-weight: bold; color: var(--text-main); margin-top: 5px;">
-                        <span id="pressao-atual-combate">0</span> <span style="color: var(--text-muted); font-size: 24px;">/</span> <span id="pressao-max-combate" style="color: var(--hp-red);">2</span>
+                <div style="background: rgba(139, 28, 28, 0.05); padding: 15px; border-radius: 5px; border: 1px solid #442222; text-align: center;">
+                    <label style="display:block; font-size: 10px; color: var(--hp-red); font-weight: bold; letter-spacing: 1px; margin-bottom: 8px;">CARGA DE PRESSÃO TOTAL</label>
+                    <div style="font-family:'Crimson Text', serif; font-size: 32px; font-weight: bold; color: #d3d3d3; margin-top: 5px;">
+                        <span id="pressao-atual-combate">0</span> <span style="color: #666; font-size: 24px;">/</span> <span id="pressao-max-combate" style="color: var(--hp-red);">2</span>
                     </div>
                 </div>
             </div>
 
             <div class="stat-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div class="stat-box" style="padding: 10px; text-align: center;">
-                    <span style="font-size: 10px; color:var(--text-muted); font-family:'Inter', sans-serif; display: block; margin-bottom: 5px; text-transform: uppercase; font-weight:900;">BLOQUEIO (Defesa + Fortitude)</span> 
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-bloqueio" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-bloqueio" style="font-size: 24px; font-family: 'Special Elite', monospace; font-weight: bold; margin-left: 10px; color:var(--text-main);">0</span></div>
+                <div style="background: #151515; padding: 10px; border: 1px solid #222; text-align: center; border-radius: 4px;">
+                    <span style="font-size: 10px; color:#888; display: block; margin-bottom: 5px; text-transform: uppercase;">BLOQUEIO (Defesa + Fortitude)</span> 
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-bloqueio" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-bloqueio" style="font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; margin-left: 10px;">0</span></div>
                 </div>
-                <div class="stat-box" style="padding: 10px; text-align: center;">
-                    <span style="font-size: 10px; color:var(--text-muted); font-family:'Inter', sans-serif; display: block; margin-bottom: 5px; text-transform: uppercase; font-weight:900;">ESQUIVA (Defesa + Reflexos)</span> 
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-esquiva" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-esquiva" style="font-size: 24px; font-family: 'Special Elite', monospace; font-weight: bold; margin-left: 10px; color:var(--text-main);">0</span></div>
+                <div style="background: #151515; padding: 10px; border: 1px solid #222; text-align: center; border-radius: 4px;">
+                    <span style="font-size: 10px; color:#888; display: block; margin-bottom: 5px; text-transform: uppercase;">ESQUIVA (Defesa + Reflexos)</span> 
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-esquiva" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-esquiva" style="font-size: 24px; font-family: 'Crimson Text', serif; font-weight: bold; margin-left: 10px;">0</span></div>
                 </div>
             </div>
 
             <div class="body-map-container">
-                <span class="section-header" style="position:absolute; top:-20px; left:20px;">MAPA DE TRAUMAS</span>
-                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 240px; height: 360px; z-index: 0;">
+                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 240px; height: 360px; opacity: 0.9; z-index: 0;">
                     <path id="svg-cabeca" class="membro-svg" d="M85,20 C85,5 115,5 115,20 C115,35 85,35 85,20 Z"/>
                     <path id="svg-torso" class="membro-svg" d="M75,40 L125,40 L115,130 L85,130 Z"/>
                     <path id="svg-braco-esq" class="membro-svg" d="M65,45 L40,110 L55,115 L70,50 Z"/>
@@ -498,36 +522,65 @@
                 </svg>
                 
                 <div class="limb-box-new" id="limb-cabeca" style="top: 10px; left: 50%; transform: translateX(-50%);">
-                     <div class="title">CABEÇA</div><div style="font-size: 9px; color: var(--text-muted); display: flex; justify-content: space-between; font-family:'Inter', sans-serif;"><span>Dec.</span><span>Les.</span></div>
-                     <div class="values"><span id="val-cabeca-1" class="val-btn val-quarter" onclick="setLimbState('cabeca', 'lesionado')">0</span><span id="val-cabeca-2" class="val-btn val-half" onclick="setLimbState('cabeca', 'decepado')">0</span></div>
+                     <div class="title">CABEÇA</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-cabeca-1" class="val-btn val-quarter" onclick="setLimbState('cabeca', 'lesionado')">0</span>
+                         <span id="val-cabeca-2" class="val-btn val-half" onclick="setLimbState('cabeca', 'decepado')">0</span>
+                     </div>
                 </div>
+                
                 <div class="limb-box-new" id="limb-braco-esq" style="top: 100px; left: 25px;">
-                     <div class="title">BRAÇO ESQ.</div><div style="font-size: 9px; color: var(--text-muted); display: flex; justify-content: space-between; font-family:'Inter', sans-serif;"><span>Dec.</span><span>Les.</span></div>
-                     <div class="values"><span id="val-braco-esq-1" class="val-btn val-quarter" onclick="setLimbState('braco-esq', 'lesionado')">0</span><span id="val-braco-esq-2" class="val-btn val-half" onclick="setLimbState('braco-esq', 'decepado')">0</span></div>
+                     <div class="title">BRAÇO ESQ.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-braco-esq-1" class="val-btn val-quarter" onclick="setLimbState('braco-esq', 'lesionado')">0</span>
+                         <span id="val-braco-esq-2" class="val-btn val-half" onclick="setLimbState('braco-esq', 'decepado')">0</span>
+                     </div>
                 </div>
+
                 <div class="limb-box-new" id="limb-torso" style="top: 170px; left: 50%; transform: translateX(-50%);">
-                     <div class="title">TORSO</div><div style="font-size: 9px; color: var(--text-muted); display: flex; justify-content: space-between; font-family:'Inter', sans-serif;"><span>Dec.</span><span>Les.</span></div>
-                     <div class="values"><span id="val-torso-1" class="val-btn val-quarter" onclick="setLimbState('torso', 'lesionado')">0</span><span id="val-torso-2" class="val-btn val-half" onclick="setLimbState('torso', 'decepado')">0</span></div>
+                     <div class="title">TORSO</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-torso-1" class="val-btn val-quarter" onclick="setLimbState('torso', 'lesionado')">0</span>
+                         <span id="val-torso-2" class="val-btn val-half" onclick="setLimbState('torso', 'decepado')">0</span>
+                     </div>
                 </div>
+
                 <div class="limb-box-new" id="limb-braco-dir" style="top: 100px; right: 25px;">
-                     <div class="title">BRAÇO DIR.</div><div style="font-size: 9px; color: var(--text-muted); display: flex; justify-content: space-between; font-family:'Inter', sans-serif;"><span>Dec.</span><span>Les.</span></div>
-                     <div class="values"><span id="val-braco-dir-1" class="val-btn val-quarter" onclick="setLimbState('braco-dir', 'lesionado')">0</span><span id="val-braco-dir-2" class="val-btn val-half" onclick="setLimbState('braco-dir', 'decepado')">0</span></div>
+                     <div class="title">BRAÇO DIR.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-braco-dir-1" class="val-btn val-quarter" onclick="setLimbState('braco-dir', 'lesionado')">0</span>
+                         <span id="val-braco-dir-2" class="val-btn val-half" onclick="setLimbState('braco-dir', 'decepado')">0</span>
+                     </div>
                 </div>
+
                 <div class="limb-box-new" id="limb-perna-esq" style="top: 280px; left: 55px;">
-                     <div class="title">PERNA ESQ.</div><div style="font-size: 9px; color: var(--text-muted); display: flex; justify-content: space-between; font-family:'Inter', sans-serif;"><span>Dec.</span><span>Les.</span></div>
-                     <div class="values"><span id="val-perna-esq-1" class="val-btn val-quarter" onclick="setLimbState('perna-esq', 'lesionado')">0</span><span id="val-perna-esq-2" class="val-btn val-half" onclick="setLimbState('perna-esq', 'decepado')">0</span></div>
+                     <div class="title">PERNA ESQ.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-perna-esq-1" class="val-btn val-quarter" onclick="setLimbState('perna-esq', 'lesionado')">0</span>
+                         <span id="val-perna-esq-2" class="val-btn val-half" onclick="setLimbState('perna-esq', 'decepado')">0</span>
+                     </div>
                 </div>
+
                 <div class="limb-box-new" id="limb-perna-dir" style="top: 280px; right: 55px;">
-                     <div class="title">PERNA DIR.</div><div style="font-size: 9px; color: var(--text-muted); display: flex; justify-content: space-between; font-family:'Inter', sans-serif;"><span>Dec.</span><span>Les.</span></div>
-                     <div class="values"><span id="val-perna-dir-1" class="val-btn val-quarter" onclick="setLimbState('perna-dir', 'lesionado')">0</span><span id="val-perna-dir-2" class="val-btn val-half" onclick="setLimbState('perna-dir', 'decepado')">0</span></div>
+                     <div class="title">PERNA DIR.</div>
+                     <div style="font-size: 9px; color: #666; display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter';"><span>1/4</span><span>1/2</span></div>
+                     <div class="values">
+                         <span id="val-perna-dir-1" class="val-btn val-quarter" onclick="setLimbState('perna-dir', 'lesionado')">0</span>
+                         <span id="val-perna-dir-2" class="val-btn val-half" onclick="setLimbState('perna-dir', 'decepado')">0</span>
+                     </div>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-main); padding-bottom: 10px; margin-top: 30px; flex-wrap: wrap; gap: 10px;">
-                <h3 style="font-family: 'Inter', sans-serif; color: var(--cris-purple); font-size: 16px; margin: 0; letter-spacing: 1px; font-weight:900;">SISTEMAS DE ARMAS E ATAQUES</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="font-family: 'Crimson Text', serif; color: var(--cris-purple); font-size: 20px; margin: 0; letter-spacing: 1px;">SISTEMAS DE ARMAS E ATAQUES</h3>
                 <div style="display:flex; gap:10px;">
-                    <button class="cris-btn" onclick="toggleElem('modal-tpl-ataque')">+ LISTA</button>
-                    <button class="cris-btn" onclick="novoAtaque()">+ DATILOGRAFAR ARMA</button>
+                    <button class="cris-btn" style="border-color:#444; color:#888;" onclick="toggleElem('modal-tpl-ataque')">+ LISTA</button>
+                    <button class="cris-btn" onclick="novoAtaque()">+ CRIAR NOVA ARMA</button>
                 </div>
             </div>
             <div id="lista-ataques"></div>
@@ -539,60 +592,61 @@
         </div>
 
         <div id="aba-tracos" class="tab-content">
-            <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--border-main); padding-bottom: 15px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; flex-wrap: wrap;">
                 <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
                     <div style="display:flex; gap:10px;">
-                        <button class="cris-btn" onclick="toggleElem('modal-tpl-traco')">+ LISTA</button>
+                        <button class="cris-btn" style="border-color:#444; color:#888;" onclick="toggleElem('modal-tpl-traco')">+ LISTA</button>
                         <div class="cris-btn" onclick="novaHabilidade()">+ CRIAR TRAÇO</div>
                     </div>
                 </div>
                 <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
                     <div style="display:flex; gap:10px;">
-                        <button class="cris-btn" style="border-color:var(--hp-red) !important; color:var(--hp-red) !important;" onclick="toggleElem('modal-tpl-espec')">+ LISTA</button>
-                        <div class="cris-btn" onclick="novoPoder()" style="border-color: var(--hp-red) !important; color: var(--hp-red) !important;">+ CRIAR ESPEC.</div>
+                        <button class="cris-btn" style="border-color:#8b1c1c; color:#888;" onclick="toggleElem('modal-tpl-espec')">+ LISTA</button>
+                        <div class="cris-btn" onclick="novoPoder()" style="border-color: #8b1c1c; color: #8b1c1c;">+ CRIAR ESPEC.</div>
                     </div>
                 </div>
             </div>
-            <div style="margin-bottom: 30px;"><h3 style="font-family: 'Inter', sans-serif; font-weight:900; color: var(--text-main); font-size: 16px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;">COMPORTAMENTOS E TRAÇOS</h3><div id="lista-habilidades"></div></div>
-            <div><h3 style="font-family: 'Inter', sans-serif; font-weight:900; color: var(--hp-red); font-size: 16px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;">VÍNCULOS E ESPECIALIZAÇÕES</h3><div id="lista-poderes"></div></div>
+            <div style="margin-bottom: 30px;"><h3 style="font-family: 'Crimson Text', serif; color: var(--text-main); font-size: 20px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;">COMPORTAMENTOS E TRAÇOS</h3><div id="lista-habilidades"></div></div>
+            <div><h3 style="font-family: 'Crimson Text', serif; color: var(--hp-red); font-size: 20px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;">VÍNCULOS E ESPECIALIZAÇÕES</h3><div id="lista-poderes"></div></div>
         </div>
 
         <div id="aba-rituais" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid var(--border-main); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                 <div style="display:flex; gap:10px;">
-                    <button class="cris-btn" onclick="toggleElem('modal-tpl-anomalia')">+ LISTA</button>
+                    <button class="cris-btn" style="border-color:#444; color:#888;" onclick="toggleElem('modal-tpl-anomalia')">+ LISTA</button>
                     <button class="cris-btn" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button>
                 </div>
-                <div class="stat-box" style="display:flex; align-items:center; font-size: 11px; font-weight: bold; color: var(--text-muted); padding: 8px 15px; border-radius: 4px;">
-                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; font-size:12px; text-align:center; outline:none; font-family:'Inter', sans-serif !important; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--cris-purple); font-family: 'Special Elite', monospace; font-size: 24px;">10</span>
+                <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: #888; background: var(--bg-panel); padding: 8px 15px; border-radius: 4px; border: 1px solid #333;">
+                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; background:#121212; border:1px solid #555; color:#ccc; font-size:12px; text-align:center; outline:none; font-family:'Inter'; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--cris-purple); font-family: 'Crimson Text', serif; font-size: 24px;">10</span>
                 </div>
             </div>
             <div id="lista-rituais"></div>
         </div>
 
         <div id="aba-inventario" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid var(--border-main); padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px;">
                 <div style="display:flex; gap:10px;">
-                    <button class="cris-btn" onclick="toggleElem('modal-tpl-item')">+ LISTA</button>
-                    <div class="cris-btn" onclick="novoItem()">+ ADICIONAR ITEM MANUAL</div>
+                    <button class="cris-btn" style="border-color:#444; color:#888;" onclick="toggleElem('modal-tpl-item')">+ LISTA</button>
+                    <div class="cris-btn" onclick="novoItem()" style="border-color: #555; color: #d3d3d3;">+ ADICIONAR ITEM MANUAL</div>
                 </div>
-                <div style="font-family:'Inter', sans-serif; font-size: 12px; font-weight: 900; color: var(--text-muted);">
-                    CARGA DE PRESSÃO <span id="pressao-atual-inv" style="color:var(--text-main); font-family: 'Special Elite', monospace; font-size: 20px; margin-left: 8px;">0</span> / <span id="pressao-max-inv" style="color:var(--hp-red); font-family: 'Special Elite', monospace; font-size: 20px;">2</span>
+                <div style="font-family:'Inter', sans-serif; font-size: 12px; font-weight: bold; color: #888;">
+                    CARGA DE PRESSÃO <span id="pressao-atual-inv" style="color:#fff; font-family: 'Crimson Text', serif; font-size: 20px; margin-left: 8px;">0</span> / <span id="pressao-max-inv" style="color:var(--hp-red); font-family: 'Crimson Text', serif; font-size: 20px;">2</span>
                 </div>
             </div>
             <div id="lista-inventario"></div>
         </div>
 
         <div id="aba-background" class="tab-content">
-            <span class="section-header" style="background: var(--op-ink); color: var(--bg-paper); font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.1rem; padding: 4px 12px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 2px; display: inline-block;">DOCUMENTAÇÃO E PERFIL PSICOLÓGICO</span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <div><span class="sub-label">DESCRIÇÃO PESSOAL</span><textarea id="bgDescricao" class="cris-textarea save-auto"></textarea></div>
-                <div><span class="sub-label">IDEOLOGIA E CRENÇAS</span><textarea id="bgIdeologia" class="cris-textarea save-auto"></textarea></div>
-                <div><span class="sub-label">PESSOAS SIGNIFICATIVAS</span><textarea id="bgPessoas" class="cris-textarea save-auto"></textarea></div>
-                <div><span class="sub-label">LOCAIS IMPORTANTES</span><textarea id="bgLocais" class="cris-textarea save-auto"></textarea></div>
-                <div><span class="sub-label">CARACTERÍSTICAS MARCANTES</span><textarea id="bgTracos" class="cris-textarea save-auto"></textarea></div>
-                <div><span class="sub-label">FOBIAS E MANIAS</span><textarea id="bgFobias" class="cris-textarea save-auto"></textarea></div>
-                <div id="bgEncontros-container" style="grid-column: span 2; display: none;"><span class="sub-label" style="color:var(--op-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</span><textarea id="bgEncontros" class="cris-textarea save-auto" style="min-height: 120px; border-left: 4px solid var(--op-red); background: rgba(163,21,21,0.03);" placeholder="Relate aqui detalhadamente suas experiências confidenciais..."></textarea></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="bg-section"><label class="bg-label">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, trejeitos e biótipo..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita e defende..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem são as pessoas mais importantes para você?"></textarea></div>
+                <div class="bg-section"><label class="bg-label">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Lugares que marcaram a sua vida..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Objetos e heranças de imenso valor emocional..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Manias, forma de falar, costumes visíveis..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas e cicatrizes de batalhas ou acidentes passados..."></textarea></div>
+                <div class="bg-section"><label class="bg-label">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Medos irracionais e gatilhos emocionais..."></textarea></div>
+                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2; display: none;"><label class="bg-label" style="color: var(--hp-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border-color: #442222; background: rgba(139, 28, 28, 0.05);" placeholder="Relate aqui detalhadamente suas experiências confidenciais com anomalias, artefatos ou situações inexplicáveis..."></textarea></div>
             </div>
         </div>
     </section>
@@ -627,38 +681,64 @@
         "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas escuras. Pode ser acoplada." }
     };
 
+    // PREVIEWS
     function previewTemplate(tipo) {
         let val = document.getElementById(`select-tpl-${tipo}`).value;
         let previewDiv = document.getElementById(`preview-${tipo}`);
         if (!val) { previewDiv.innerHTML = ""; return; }
-        if (tipo === 'ataque') { let d = templatesAtaques[val]; previewDiv.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance} | <strong>Munição:</strong> ${d.municao}`; } 
-        else if (tipo === 'traco') { let d = templatesTracos[val]; previewDiv.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`; } 
-        else if (tipo === 'espec') { let d = templatesEspecializacoes[val]; previewDiv.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}<br><strong>Afinidade:</strong> ${d.afinidade}`; } 
-        else if (tipo === 'anomalia') { let d = templatesAnomalias[val]; previewDiv.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Execução:</strong> ${d.tempoConjuracao} | <strong>Alvo:</strong> ${d.alvo}<br><strong>Custo:</strong> ${d.custoPe} PE / ${d.custoSanidade} SAN<br><strong>Efeito:</strong> ${d.descricao}`; } 
-        else if (tipo === 'item') { let d = templatesInventario[val]; previewDiv.innerHTML = `<strong>Categoria:</strong> ${d.categoria} | <strong>Pressão:</strong> ${d.pressao}<br><strong>Efeito:</strong> ${d.descricao}`; }
+        
+        if (tipo === 'ataque') {
+            let d = templatesAtaques[val];
+            previewDiv.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance} | <strong>Munição:</strong> ${d.municao}`;
+        } else if (tipo === 'traco') {
+            let d = templatesTracos[val];
+            previewDiv.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`;
+        } else if (tipo === 'espec') {
+            let d = templatesEspecializacoes[val];
+            previewDiv.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}<br><strong>Afinidade:</strong> ${d.afinidade}`;
+        } else if (tipo === 'anomalia') {
+            let d = templatesAnomalias[val];
+            previewDiv.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Execução:</strong> ${d.tempoConjuracao} | <strong>Alvo:</strong> ${d.alvo}<br><strong>Custo:</strong> ${d.custoPe} PE / ${d.custoSanidade} SAN<br><strong>Efeito:</strong> ${d.descricao}`;
+        } else if (tipo === 'item') {
+            let d = templatesInventario[val];
+            previewDiv.innerHTML = `<strong>Categoria:</strong> ${d.categoria} | <strong>Pressão:</strong> ${d.pressao}<br><strong>Efeito:</strong> ${d.descricao}`;
+        }
     }
 
     function aplicarTemplateModal(colecao) {
         let tipoMap = { 'ataques': 'ataque', 'habilidades': 'traco', 'poderes': 'espec', 'rituais': 'anomalia', 'inventario': 'item' };
-        let tipo = tipoMap[colecao]; let val = document.getElementById(`select-tpl-${tipo}`).value;
-        if (val) { aplicarTemplate(colecao, val); toggleElem(`modal-tpl-${tipo}`); document.getElementById(`select-tpl-${tipo}`).value = ""; document.getElementById(`preview-${tipo}`).innerHTML = ""; }
+        let tipo = tipoMap[colecao];
+        let val = document.getElementById(`select-tpl-${tipo}`).value;
+        if (val) {
+            aplicarTemplate(colecao, val);
+            toggleElem(`modal-tpl-${tipo}`);
+            document.getElementById(`select-tpl-${tipo}`).value = "";
+            document.getElementById(`preview-${tipo}`).innerHTML = "";
+        }
     }
 
-    function toggleTheme() {
-        document.body.classList.toggle('dark-theme');
-        localStorage.setItem('theme_cris', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
-    }
-    if(localStorage.getItem('theme_cris') === 'dark') document.body.classList.add('dark-theme');
 
-    const firebaseConfig = { apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI", authDomain: "fichasrpg-7fc69.firebaseapp.com", projectId: "fichasrpg-7fc69", storageBucket: "fichasrpg-7fc69.firebasestorage.app", messagingSenderId: "758802032764", appId: "1:758802032764:web:40467e15fdc24c570081f9" };
+    // ==========================================
+    // INICIALIZAÇÃO FIREBASE E VARIÁVEIS
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+        authDomain: "fichasrpg-7fc69.firebaseapp.com",
+        projectId: "fichasrpg-7fc69",
+        storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+        messagingSenderId: "758802032764",
+        appId: "1:758802032764:web:40467e15fdc24c570081f9",
+    };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(); const db = firebase.firestore();
     const urlParams = new URLSearchParams(window.location.search); let atual = urlParams.get('id');
     
     let menusAbertos = new Set(); let modoCrop = ""; let ritualIdAtual = ""; let isITActive = false;
     let membrosEstado = { cabeca: 'normal', 'braco-dir': 'normal', torso: 'normal', 'braco-esq': 'normal', 'perna-dir': 'normal', 'perna-esq': 'normal' };
+
     window.valPressaoAtaques = 0; window.valPressaoInventario = 0;
     
+    // VARIÁVEIS DE ESTADO E SEGREDOS
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; let isRestricao = false;
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false; let globalRestricao = false;
     let prevHexatombeFinal = false;
@@ -667,23 +747,28 @@
     
     function syncPressaoVisuais() {
         const total = window.valPressaoAtaques + window.valPressaoInventario;
-        if (document.getElementById('pressao-atual-combate')) document.getElementById('pressao-atual-combate').innerText = total; 
-        if (document.getElementById('pressao-atual-inv')) document.getElementById('pressao-atual-inv').innerText = total;
+        const elCombate = document.getElementById('pressao-atual-combate'); const elInv = document.getElementById('pressao-atual-inv');
+        if (elCombate) elCombate.innerText = total; if (elInv) elInv.innerText = total;
     }
 
     db.collection("configuracoes").doc("globais").onSnapshot(doc => {
         if(doc.exists) {
             const data = doc.data(); 
-            globalRevelado = data.revelado || false; globalHexatombe = data.hexatombe || false; 
-            globalExtremos = data.extremos || false; globalRestricao = data.restricao || false;
+            globalRevelado = data.revelado || false; 
+            globalHexatombe = data.hexatombe || false; 
+            globalExtremos = data.extremos || false;
+            globalRestricao = data.restricao || false;
             aplicarSegredosUI();
         }
     });
 
+    // --- COMANDOS TECLADO E MOBILE CONTINUOS ---
     let cheatCode = "";
     document.addEventListener('keydown', (e) => {
         const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
-        cheatCode += e.key.toLowerCase(); cheatCode = cheatCode.slice(-20); 
+        cheatCode += e.key.toLowerCase(); 
+        cheatCode = cheatCode.slice(-20); 
+        
         if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; }
         if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; }
         if (cheatCode.includes("apoteose"))  { ativarSegredo('extremos'); cheatCode = ""; } 
@@ -692,56 +777,131 @@
 
     function verificarCheat() {
         const code = document.getElementById('input-cheat').value.toLowerCase().trim();
-        if (code === "despertar") ativarSegredo('revelado'); else if (code === "hexatombe") ativarSegredo('hexatombe'); else if (code === "apoteose") ativarSegredo('extremos'); else if (code === "restricao") ativarSegredo('restricao'); else alert("Comando não reconhecido.");
-        document.getElementById('input-cheat').value = ""; toggleElem('modal-config');
+        if (code === "despertar") ativarSegredo('revelado');
+        else if (code === "hexatombe") ativarSegredo('hexatombe');
+        else if (code === "apoteose") ativarSegredo('extremos');
+        else if (code === "restricao") ativarSegredo('restricao');
+        else alert("Comando não reconhecido.");
+        document.getElementById('input-cheat').value = "";
+        toggleElem('modal-config');
     }
 
+    // SISTEMA ISOLADO PARA ATRIBUTOS SEM VAZAMENTO
     function ativarSegredo(campo) {
-        document.body.classList.add('shake'); salvarFicha(); 
+        document.body.classList.add('shake');
+        salvarFicha(); // Previne queda de PE e dados na transição
         setTimeout(async () => { 
             document.body.classList.remove('shake'); 
-            let doc = await db.collection("fichas").doc(atual).get(); let valAtual = doc.data()[campo] || false; let updates = {};
+            let doc = await db.collection("fichas").doc(atual).get();
+            let valAtual = doc.data()[campo] || false;
+            let updates = {};
             if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; }
             if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; }
             if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; }
             if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; }
-            await db.collection("fichas").doc(atual).update(updates); aplicarSegredosUI();
+            
+            await db.collection("fichas").doc(atual).update(updates);
+            aplicarSegredosUI();
         }, 800);
     }
 
     function aplicarSegredosUI() {
-        const reveladoFinal = isRevelado || globalRevelado; const hexatombeFinal = isHexatombe || globalHexatombe; const extremosFinal = isExtremos || globalExtremos; const restricaoFinal = isRestricao || globalRestricao;
+        const reveladoFinal = isRevelado || globalRevelado;
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const extremosFinal = isExtremos || globalExtremos;
+        const restricaoFinal = isRestricao || globalRestricao;
+
         if (hexatombeFinal) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
-        const nexStr = document.getElementById('nex-personagem').value; const bgEncontrosContainer = document.getElementById('bgEncontros-container');
+
+        const nexStr = document.getElementById('nex-personagem').value;
+        const bgEncontrosContainer = document.getElementById('bgEncontros-container');
+
         if (reveladoFinal) {
-            document.getElementById('content-exposicao-real').style.display = 'flex'; document.getElementById('content-exposicao-fake').style.display = 'none'; document.getElementById('tab-anomalias').style.display = 'block'; if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'flex';
+            document.getElementById('content-exposicao-real').style.display = 'flex'; 
+            document.getElementById('content-exposicao-fake').style.display = 'none'; 
+            document.getElementById('tab-anomalias').style.display = 'block';
+            if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'flex';
+            
             document.getElementById('sigilo-box').classList.remove('brilho-sangue', 'brilho-restricao');
-            if(nexStr === "100%" && extremosFinal) { document.getElementById('sigilo-box').classList.add('brilho-sangue'); } else if (nexStr === "0%" && restricaoFinal) { document.getElementById('sigilo-box').classList.add('brilho-restricao'); }
+            if(nexStr === "100%" && extremosFinal) {
+                document.getElementById('sigilo-box').classList.add('brilho-sangue'); 
+            } else if (nexStr === "0%" && restricaoFinal) {
+                document.getElementById('sigilo-box').classList.add('brilho-restricao');
+            }
         } else {
             document.getElementById('content-exposicao-real').style.display = 'none'; 
-            let txtMundano = (nexStr === "0%" && restricaoFinal) ? "RESTRIÇÃO CELESTIAL" : "ACESSO NEGADO"; let colorMundano = (nexStr === "0%" && restricaoFinal) ? "#fff" : "var(--text-muted)"; let shadowMundano = (nexStr === "0%" && restricaoFinal) ? "0 0 10px #fff" : "none";
-            const fakeBox = document.getElementById('content-exposicao-fake'); fakeBox.style.display = 'flex'; fakeBox.innerText = txtMundano; fakeBox.style.color = colorMundano; fakeBox.style.textShadow = shadowMundano;
-            document.getElementById('tab-anomalias').style.display = 'none'; if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'none';
+            
+            let txtMundano = (nexStr === "0%" && restricaoFinal) ? "RESTRIÇÃO CELESTIAL" : "ACESSO NEGADO";
+            let colorMundano = (nexStr === "0%" && restricaoFinal) ? "#fff" : "#555";
+            let shadowMundano = (nexStr === "0%" && restricaoFinal) ? "0 0 10px #fff" : "none";
+            
+            const fakeBox = document.getElementById('content-exposicao-fake');
+            fakeBox.style.display = 'flex';
+            fakeBox.innerText = txtMundano;
+            fakeBox.style.color = colorMundano;
+            fakeBox.style.textShadow = shadowMundano;
+
+            document.getElementById('tab-anomalias').style.display = 'none'; 
+            if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'none';
+            
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
-            if (nexStr === "0%" && restricaoFinal) { document.getElementById('sigilo-box').classList.add('brilho-restricao'); } else { document.getElementById('sigilo-box').classList.remove('brilho-restricao'); }
+            if (nexStr === "0%" && restricaoFinal) {
+                document.getElementById('sigilo-box').classList.add('brilho-restricao');
+            } else {
+                document.getElementById('sigilo-box').classList.remove('brilho-restricao');
+            }
         }
     }
 
     function aplicarStatusVisual() {
-        const st = document.getElementById('status-personagem').value; const overlay = document.getElementById('status-overlay'); overlay.className = ''; 
-        if(st === 'Sangrando') overlay.classList.add('overlay-sangrando'); if(st === 'Machucado') overlay.classList.add('overlay-machucado'); if(st === 'Atordoado') overlay.classList.add('overlay-atordoado'); if(st === 'Assustado') overlay.classList.add('overlay-assustado');
+        const st = document.getElementById('status-personagem').value; const overlay = document.getElementById('status-overlay');
+        overlay.className = ''; 
+        if(st === 'Sangrando') overlay.classList.add('overlay-sangrando');
+        if(st === 'Machucado') overlay.classList.add('overlay-machucado');
+        if(st === 'Atordoado') overlay.classList.add('overlay-atordoado');
+        if(st === 'Assustado') overlay.classList.add('overlay-assustado');
     }
 
-    function setLimbState(membro, tipo) { if (membrosEstado[membro] === tipo) { membrosEstado[membro] = 'normal'; } else { membrosEstado[membro] = tipo; } salvarFicha(); }
+    function setLimbState(membro, tipo) {
+        if (membrosEstado[membro] === tipo) { 
+            membrosEstado[membro] = 'normal'; 
+        } else { 
+            membrosEstado[membro] = tipo; 
+        }
+        salvarFicha();
+    }
 
     function atualizarStatusVisual(tipo) {
-        let atStr = document.getElementById(`${tipo}-atual`).value; let mxStr = document.getElementById(`${tipo}-max`).value; let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
-        const bar = document.getElementById(`bar-${tipo}`); if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; if(max > 0 && curr <= (max / 2)) { bar.style.filter = "brightness(0.35)"; } else { bar.style.filter = "brightness(1)"; } }
-        const zeroState = document.getElementById(`zero-${tipo}`); if (zeroState) { if (curr <= 0) { zeroState.classList.add('active'); } else { zeroState.classList.remove('active'); } }
+        let atStr = document.getElementById(`${tipo}-atual`).value; let mxStr = document.getElementById(`${tipo}-max`).value;
+        let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
+        const bar = document.getElementById(`bar-${tipo}`);
+        if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; if(max > 0 && curr <= (max / 2)) { bar.style.filter = "brightness(0.35)"; } else { bar.style.filter = "brightness(1)"; } }
+    
+        const zeroState = document.getElementById(`zero-${tipo}`);
+        if (zeroState) {
+            if (curr <= 0) {
+                zeroState.classList.add('active');
+            } else {
+                zeroState.classList.remove('active');
+            }
+        }
     }
 
     function assumirPosse() {
-        if(confirm("Transferir a posse desta ficha para sua conta?")) { const user = auth.currentUser; const nomeJogadorData = user.displayName ? user.displayName : user.email; db.collection("fichas").doc(atual).update({ dono: user.uid, nomeJogador: nomeJogadorData }).then(() => { alert("Você agora é o proprietário desta ficha!"); document.getElementById('btn-assumir-posse').style.display = 'none'; }); }
+        if(confirm("Transferir a posse desta ficha para sua conta?\nEla passará a aparecer no seu painel principal.")) {
+            const user = auth.currentUser;
+            const nomeJogadorData = user.displayName ? user.displayName : user.email;
+            db.collection("fichas").doc(atual).update({
+                dono: user.uid,
+                nomeJogador: nomeJogadorData
+            }).then(() => {
+                alert("Você agora é o proprietário desta ficha!");
+                document.getElementById('btn-assumir-posse').style.display = 'none';
+            }).catch(e => {
+                console.error(e);
+                alert("Erro ao transferir posse.");
+            });
+        }
     }
 
     function abrirUpload(tipo, id = "") { modoCrop = tipo; ritualIdAtual = id; document.getElementById('fileUploader').click(); }
@@ -762,17 +922,34 @@
     function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
     async function confirmarCrop() {
         const url = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value;
-        try { if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: url, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: url, sX: x, sY: y, sZ: z }); } else { const dados = {}; dados[`portrait${modoCrop}`] = url; dados[`p${modoCrop}X`] = x; dados[`p${modoCrop}Y`] = y; dados[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(dados); alert(`Evidência arquivada!`); } fecharModal(); } catch (e) { alert("Falha no arquivamento!"); }
+        try {
+            if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: url, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } 
+            else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: url, sX: x, sY: y, sZ: z }); } 
+            else { const dados = {}; dados[`portrait${modoCrop}`] = url; dados[`p${modoCrop}X`] = x; dados[`p${modoCrop}Y`] = y; dados[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(dados); alert(`Evidência arquivada!`); }
+            fecharModal();
+        } catch (e) { alert("Falha no arquivamento!"); }
     }
+    function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
 
-    const bancoPericias = { "Acrobacia": { attr: "AGI", tipo: "pessoal" }, "Atletismo": { attr: "FOR", tipo: "pessoal" }, "Atualidades": { attr: "SAG", tipo: "pessoal" }, "Ciências": { attr: "SAG", tipo: "profissao" }, "Crime": { attr: "AGI", tipo: "profissao" }, "Diplomacia": { attr: "VON", tipo: "pessoal" }, "Enganação": { attr: "VON", tipo: "pessoal" }, "Fortitude": { attr: "VIG", tipo: "pessoal" }, "Furtividade": { attr: "AGI", tipo: "pessoal" }, "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true }, "Intuição": { attr: "VON", tipo: "pessoal" }, "Investigação": { attr: "SAG", tipo: "pessoal" }, "Luta": { attr: "FOR", tipo: "pessoal" }, "Medicina": { attr: "SAG", tipo: "profissao" }, "Ocultismo": { attr: "SAG", tipo: "profissao" }, "Percepção": { attr: "SAG", tipo: "pessoal" }, "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"] }, "Reflexos": { attr: "AGI", tipo: "pessoal" }, "Religião": { attr: "VON", tipo: "profissao" }, "Sobrevivência": { attr: "SAG", tipo: "pessoal", subs: ["Urbana", "Selva", "Deserto", "Polar"] }, "Tática": { attr: "SAG", tipo: "profissao" }, "Tecnologia": { attr: "SAG", tipo: "profissao" }, "Vontade": { attr: "VON", tipo: "pessoal" } };
+    const bancoPericias = {
+        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Usada para equilibrar-se, cair com segurança e escapar de amarras." }, "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Define sua capacidade física para correr, nadar, pular e escalar." }, "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Seu conhecimento sobre o mundo, cultura pop, notícias e política." }, "Ciências": { attr: "SAG", tipo: "profissao", desc: "Conhecimento em matemática, física, química e biologia." }, "Crime": { attr: "AGI", tipo: "profissao", desc: "Habilidade de arrombar fechaduras, pungar, falsificar e desarmar dispositivos." }, "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Usada para persuadir os outros com argumentos lícitos e empatia." }, "Enganação": { attr: "VON", tipo: "pessoal", desc: "A arte de mentir, blefar e enganar pessoas." }, "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência física a venenos, doenças e fadiga. Também afeta seu Bloqueio." }, "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Capacidade de se esconder, mover-se em silêncio e passar despercebido." }, "Idiomas": { attr: "SAG", tipo: "profissao", desc: "A cada 4 pontos combinados nas subperícias, ganha +1 no geral.", subsInputs: true }, "Intuição": { attr: "VON", tipo: "pessoal", desc: "Sua capacidade de ler pessoas, perceber mentiras e 'sentir' intenções." }, "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Usada para procurar pistas, analisar cenas e encontrar coisas ocultas." }, "Luta": { attr: "FOR", tipo: "pessoal", desc: "Sua habilidade em combate corpo a corpo (armado ou desarmado)." }, "Medicina": { attr: "SAG", tipo: "profissao", desc: "Conhecimento para realizar primeiros socorros e tratar ferimentos." }, "Ocultismo": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre o paranormal, criaturas, rituais e símbolos." }, "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Seus sentidos (visão, audição, etc.) para notar coisas à sua volta." }, "Pontaria": { attr: "AGI", tipo: "pessoal", desc: "A cada 4 pontos combinados nas subperícias, ganha +1 no geral.", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"] }, "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Tempo de reação rápida, usado principalmente para se Esquivar." }, "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre teologia, seitas, religiões e crenças populares." }, "Sobrevivência": { attr: "SAG", tipo: "pessoal", desc: "A cada 4 pontos combinados nas subperícias, ganha +1 no geral.", subs: ["Urbana", "Selva", "Deserto", "Polar"] }, "Tática": { attr: "SAG", tipo: "profissao", desc: "Conhecimento militar, planejamento de combate e leitura do campo de batalha." }, "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Habilidade para usar, programar e hackear computadores e eletrônicos." }, "Vontade": { attr: "VON", tipo: "pessoal", desc: "Sua resistência mental contra o medo, rituais e efeitos paranormais." }
+    };
     const nomesPericias = Object.keys(bancoPericias);
 
     function atualizarOpcoesRessonancia(nexValue) {
         const resSel = document.getElementById('grau-ressonancia'); if (!resSel) return;
-        const valorAtual = resSel.value; let options = ''; const extremosFinal = isExtremos || globalExtremos;
-        if (nexValue === 0 && (isRestricao || globalRestricao)) { options += `<option value="Nulo">Nulo</option>`; } else { options += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nexValue >= 100 && extremosFinal) { options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', serif;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } }
-        resSel.innerHTML = options; if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; } else { resSel.value = (nexValue === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
+        const valorAtual = resSel.value; let options = ''; 
+        
+        const extremosFinal = isExtremos || globalExtremos;
+
+        if (nexValue === 0 && (isRestricao || globalRestricao)) { 
+            options += `<option value="Nulo">Nulo</option>`; 
+        } else {
+            options += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`;
+            if (nexValue >= 100 && extremosFinal) { options += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', serif;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; }
+        }
+        resSel.innerHTML = options; 
+        if (options.includes(`value="${valorAtual}"`)) { resSel.value = valorAtual; } else { resSel.value = (nexValue === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
     }
 
     function gerarOpcoesNivelNex() {
@@ -781,14 +958,27 @@
         nexHtml += '<option value="99%">99%</option><option value="100%">100%</option>'; nexSel.innerHTML = nexHtml; atualizarOpcoesRessonancia(5);
     }
 
-    async function init() { gerarOpcoesNivelNex(); if (!atual) { window.location.href = "index.html"; } else { gerarPericiasBase(); carregarFicha(); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); } }
+    async function init() {
+        gerarOpcoesNivelNex();
+        if (!atual) { window.location.href = "index.html"; } else { gerarPericiasBase(); carregarFicha(); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); }
+    }
 
     function gerarPericiasBase() {
         let htmlPessoais = ""; let htmlProfissao = "";
         nomesPericias.forEach(p => {
             const info = bancoPericias[p]; let subsHtml = "";
-            if(info.subs) { subsHtml = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px;">`; info.subs.forEach((s, idx) => { subsHtml += `<div style="display:flex; align-items:center; gap:5px;"><span style="font-size:10px; color:var(--text-muted);">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()"></div>`; }); subsHtml += `</div></div>`; } else if (info.subsInputs) { subsHtml = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-0" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 1" onchange="salvarFicha()"><input type="number" id="sub-${p}-0" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-1" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 2" onchange="salvarFicha()"><input type="number" id="sub-${p}-1" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-2" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 3" onchange="salvarFicha()"><input type="number" id="sub-${p}-2" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><span style="font-size:10px; color:var(--text-muted); width:120px; text-align:left;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()"></div></div></div>`; }
-            const bloco = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')" style="color:var(--text-main);">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${info.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${info.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${info.attr==='SAG'?'selected':''}>INT</option><option value="VON" ${info.attr==='VON'?'selected':''}>PRE</option><option value="VIG" ${info.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; font-size:16px; font-weight: bold; color:var(--text-main);">0</span></div>${subsHtml}<div id="desc-${p}" class="pericia-desc">${info.desc}</div>`;
+            if(info.subs) {
+                subsHtml = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px;">`;
+                info.subs.forEach((s, idx) => { subsHtml += `<div style="display:flex; align-items:center; gap:5px;"><span style="font-size:10px; color:#888;">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()"></div>`; }); subsHtml += `</div></div>`;
+            } else if (info.subsInputs) {
+                subsHtml = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; flex-direction:column; gap:5px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-0" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 1" onchange="salvarFicha()"><input type="number" id="sub-${p}-0" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-1" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 2" onchange="salvarFicha()"><input type="number" id="sub-${p}-1" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-2" class="sub-input" style="width:120px; text-align:left;" placeholder="Idioma 3" onchange="salvarFicha()"><input type="number" id="sub-${p}-2" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><span style="font-size:10px; color:#888; width:120px; text-align:left;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()"></div>
+                </div></div>`;
+            }
+            const bloco = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')" title="Clique para detalhes">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()" style="background:transparent; border:none; border-bottom:1px solid #333; cursor:pointer;"><option value="AGI" ${info.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${info.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${info.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${info.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${info.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" style="background:transparent; border:none; border-bottom:1px solid #333;" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Crimson Text', serif; color:#fff; font-size:16px; font-weight: bold;">0</span></div>${subsHtml}<div id="desc-${p}" class="pericia-desc">${info.desc}</div>`;
             if (info.tipo === "profissao") { htmlProfissao += bloco; } else { htmlPessoais += bloco; }
         });
         document.getElementById('lista-pericias-pessoais').innerHTML = htmlPessoais; document.getElementById('lista-pericias-profissao').innerHTML = htmlProfissao;
@@ -797,40 +987,67 @@
     function toggleDescricao(nome) { const desc = document.getElementById(`desc-${nome}`); desc.style.display = desc.style.display === 'block' ? 'none' : 'block'; const subs = document.getElementById(`subs-${nome}`); if(subs) subs.style.display = subs.style.display === 'block' ? 'none' : 'block'; }
 
     function mudouNex() {
-        const nexStr = document.getElementById('nex-personagem').value || "5%"; let nex = parseInt(nexStr) || 0; const extremosFinal = isExtremos || globalExtremos;
+        const nexStr = document.getElementById('nex-personagem').value || "5%"; let nex = parseInt(nexStr) || 0;
+        const extremosFinal = isExtremos || globalExtremos;
         if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
-        atualizarOpcoesRessonancia(nex); let grauCalculado = "1º Grau";
+        atualizarOpcoesRessonancia(nex);
+        let grauCalculado = "1º Grau";
         if (nex === 0) grauCalculado = "Nulo"; else if (nex >= 5 && nex <= 20) grauCalculado = "1º Grau"; else if (nex >= 25 && nex <= 40) grauCalculado = "2º Grau"; else if (nex >= 45 && nex <= 60) grauCalculado = "3º Grau"; else if (nex >= 65 && nex <= 80) grauCalculado = "4º Grau"; else if (nex >= 85 && nex <= 99) grauCalculado = "5º Grau"; else if (nex >= 100) grauCalculado = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡";
-        document.getElementById('grau-ressonancia').value = grauCalculado; aplicarSegredosUI(); recalcularBases(true); salvarFicha(); 
+        document.getElementById('grau-ressonancia').value = grauCalculado;
+        aplicarSegredosUI(); 
+        recalcularBases(true); // Forçar Full Heal para acompanhar o novo máximo
+        salvarFicha(); 
     }
 
     function recalcularDefesas() {
-        const agi = parseInt(document.getElementById('attr-agi').value) || 0; const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0; const bDefesa = parseInt(document.getElementById('bonus-defesa').value) || 0; const bBloqueio = parseInt(document.getElementById('bonus-bloqueio').value) || 0; const bEsquiva = parseInt(document.getElementById('bonus-esquiva').value) || 0;
-        const defBase = 10 + agi + nivel + bDefesa; document.getElementById('display-defesa').innerText = defBase;
-        const fortTreino = parseInt(document.getElementById('treino-Fortitude')?.value) || 0; const refTreino = parseInt(document.getElementById('treino-Reflexos')?.value) || 0;
-        document.getElementById('display-bloqueio').innerText = defBase + fortTreino + bBloqueio; document.getElementById('display-esquiva').innerText = defBase + refTreino + bEsquiva;
+        const agi = parseInt(document.getElementById('attr-agi').value) || 0;
+        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0; 
+        const bDefesa = parseInt(document.getElementById('bonus-defesa').value) || 0;
+        const bBloqueio = parseInt(document.getElementById('bonus-bloqueio').value) || 0;
+        const bEsquiva = parseInt(document.getElementById('bonus-esquiva').value) || 0;
+
+        const agiReal = agi;
+
+        const defBase = 10 + agiReal + nivel + bDefesa; 
+        document.getElementById('display-defesa').innerText = defBase;
+
+        const fortTreino = parseInt(document.getElementById('treino-Fortitude')?.value) || 0;
+        const refTreino = parseInt(document.getElementById('treino-Reflexos')?.value) || 0;
+
+        document.getElementById('display-bloqueio').innerText = defBase + fortTreino + bBloqueio;
+        document.getElementById('display-esquiva').innerText = defBase + refTreino + bEsquiva;
     }
 
-    function alterarAtributoOuNivel() { recalcularBases(true); salvarFicha(); }
+    function alterarAtributoOuNivel() {
+        recalcularBases(true); // Full Heal nos atributos e Nível
+        salvarFicha();
+    }
 
     function recalcularBases(forcarHeal = false) {
         let vig = parseInt(document.getElementById('attr-vig').value) || 0; let von = parseInt(document.getElementById('attr-von').value) || 0; let sag = parseInt(document.getElementById('attr-sag').value) || 0;
-        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0; const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0; const classe = document.getElementById('classe-personagem').value;
+        const nivel = parseInt(document.getElementById('nivel-personagem').value) || 0;
+        const nexStr = document.getElementById('nex-personagem').value || "0%"; let nex = parseInt(nexStr) || 0;
+        const classe = document.getElementById('classe-personagem').value;
+
         const extremosFinal = isExtremos || globalExtremos; if (!extremosFinal) { if (nex === 0) nex = 5; if (nex === 100) nex = 99; }
         
-        const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 50 + (10 * von + 10 * sag); let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
+        const novaVida = 12 + (2 * vig) + (3 * nivel); const novaSan = 50 + (10 * von + 10 * sag);
+        let novoPe = 2 + (2 * vig) + von + Math.floor(nex / 10); let novoLimitePe = 1 + vig + von + nivel;
         if (classe === "Esotérico") { novoPe += (2 * sag); novoLimitePe += (2 * sag); } else if (classe === "Canalizador" && nivel > 2) { novoPe += (nivel - 2) * 3; }
         
         const inptVidaMax = document.getElementById('vida-max'); if (inptVidaMax && document.activeElement !== inptVidaMax) inptVidaMax.value = novaVida;
         const inptSanMax = document.getElementById('san-max'); if (inptSanMax && document.activeElement !== inptSanMax) inptSanMax.value = novaSan;
-        const inptPeMax = document.getElementById('pe-max'); let oldPeMax = parseInt(inptPeMax.value) || 0; if (inptPeMax && document.activeElement !== inptPeMax) inptPeMax.value = novoPe;
+        const inptPeMax = document.getElementById('pe-max'); if (inptPeMax && document.activeElement !== inptPeMax) inptPeMax.value = novoPe;
 
-        const inptPeAtual = document.getElementById('pe-atual');
-        if (novoPe > oldPeMax && oldPeMax > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (novoPe - oldPeMax); } } else if (oldPeMax === 0 && novoPe > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = novoPe; } }
-        if (forcarHeal) { document.getElementById('vida-atual').value = novaVida; document.getElementById('san-atual').value = novaSan; document.getElementById('pe-atual').value = novoPe; }
+        if (forcarHeal) {
+            document.getElementById('vida-atual').value = novaVida;
+            document.getElementById('san-atual').value = novaSan;
+            document.getElementById('pe-atual').value = novoPe;
+        }
 
         const lhp = Math.floor(novaVida / 4); const ldouble = Math.floor(novaVida / 2);
-        document.querySelectorAll('.val-quarter').forEach(el => el.innerText = lhp); document.querySelectorAll('.val-half').forEach(el => el.innerText = `(${ldouble})`);
+        document.querySelectorAll('.val-quarter').forEach(el => el.innerText = lhp); 
+        document.querySelectorAll('.val-half').forEach(el => el.innerText = `(${ldouble})`);
 
         const bLimitePe = parseInt(document.getElementById('bonus-limite-pe').value) || 0; document.getElementById('display-limite-pe').innerText = novoLimitePe + bLimitePe;
         const bDtRitual = parseInt(document.getElementById('bonus-dt').value) || 0; document.getElementById('dt-val').innerText = 10 + sag + bDtRitual; 
@@ -839,46 +1056,86 @@
         if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = numGrau * 2; if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = numGrau * 2;
         
         const divArq = document.getElementById('grupo-arquetipo'); if (nivel >= 2) { divArq.style.display = 'flex'; } else { divArq.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
-        recalcularDefesas(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
+
+        recalcularDefesas(); 
+        atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
     }
 
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             const d_raw = doc.data(); if(!d_raw) return;
-            const donoDoc = d_raw.dono; if (auth.currentUser && donoDoc !== auth.currentUser.uid) { document.getElementById('btn-assumir-posse').style.display = 'block'; } else { document.getElementById('btn-assumir-posse').style.display = 'none'; }
-            
+
+            // Lógica para o botão de transferir Posse
+            const donoDoc = d_raw.dono;
+            if (auth.currentUser && donoDoc !== auth.currentUser.uid) {
+                document.getElementById('btn-assumir-posse').style.display = 'block';
+            } else {
+                document.getElementById('btn-assumir-posse').style.display = 'none';
+            }
+
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false; isRestricao = d_raw.restricao || false;
             const hexatombeFinal = isHexatombe || globalHexatombe;
 
             let d = d_raw;
-            if (hexatombeFinal && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; }
+            if (hexatombeFinal && d_raw.hexatombe_data) {
+                d = { ...d_raw, ...d_raw.hexatombe_data };
+                // Garante que atributos originais se mantêm fixos e imutáveis pela transição
+                d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
+            }
 
+            // ISOLAMENTO TOTAL DO DELTA HEXATOMBE (TRANSIÇÃO ESTÁVEL)
             if (prevHexatombeFinal !== hexatombeFinal) {
-                let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0; let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
-                let hexData = d_raw.hexatombe_data || {};
-                if (hexatombeFinal && hexData.vig === undefined) { hexData.vig = vigN; hexData.for = d_raw.for; hexData.agi = d_raw.agi; hexData.sag = sagN; hexData.von = vonN; hexData.pericias = d_raw.pericias || {}; }
-                let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : vigN; let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN; let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
+                let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
+                let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
 
-                let maxN_vida = 12 + (2 * vigN) + (3 * nivel); let maxH_vida = 12 + (2 * vigH) + (3 * nivel) + 30; 
+                let hexData = d_raw.hexatombe_data || {};
+                
+                // Cópia inicial limpa da base se não tiver nada
+                if (hexatombeFinal && hexData.vig === undefined) {
+                    hexData.vig = vigN; hexData.for = d_raw.for; hexData.agi = d_raw.agi; 
+                    hexData.sag = sagN; hexData.von = vonN;
+                    hexData.pericias = d_raw.pericias || {};
+                }
+
+                let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : vigN;
+                let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN;
+                let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
+
+                let maxN_vida = 12 + (2 * vigN) + (3 * nivel); 
+                let maxH_vida = 12 + (2 * vigH) + (3 * nivel) + 30; // +30 FLAT HP BONUS DO HEXATOMBE
                 let maxN_san = 50 + (10 * vonN + 10 * sagN); let maxH_san = 50 + (10 * vonH + 10 * sagH);
-                let maxN_pe = 2 + (2 * vigN) + vonN + Math.floor(nex / 10); if (classe === "Esotérico") maxN_pe += (2 * sagN); else if (classe === "Canalizador" && nivel > 2) maxN_pe += (nivel - 2) * 3;
-                let maxH_pe = 2 + (2 * vigH) + vonH + Math.floor(nex / 10); if (classe === "Esotérico") maxH_pe += (2 * sagH); else if (classe === "Canalizador" && nivel > 2) maxH_pe += (nivel - 2) * 3;
+                
+                let maxN_pe = 2 + (2 * vigN) + vonN + Math.floor(nex / 10);
+                if (classe === "Esotérico") maxN_pe += (2 * sagN); else if (classe === "Canalizador" && nivel > 2) maxN_pe += (nivel - 2) * 3;
+                let maxH_pe = 2 + (2 * vigH) + vonH + Math.floor(nex / 10);
+                if (classe === "Esotérico") maxH_pe += (2 * sagH); else if (classe === "Canalizador" && nivel > 2) maxH_pe += (nivel - 2) * 3;
 
                 let deltaVida = maxH_vida - maxN_vida; let deltaSan = maxH_san - maxN_san; let deltaPe = maxH_pe - maxN_pe;
+                
                 let updates = {};
                 if (hexatombeFinal) {
                     let vAt = parseInt(d_raw.vidaAtual) || 0; let sAt = parseInt(d_raw.sanAtual) || 0; let pAt = parseInt(d_raw.peAtual) || 0;
-                    hexData.vidaAtual = vAt + deltaVida; hexData.sanAtual = sAt + deltaSan; hexData.peAtual = pAt + deltaPe; updates.hexatombe_data = hexData;
+                    hexData.vidaAtual = vAt + deltaVida; hexData.sanAtual = sAt + deltaSan; hexData.peAtual = pAt + deltaPe;
+                    updates.hexatombe_data = hexData;
                 } else {
                     let vAtHex = parseInt(hexData.vidaAtual) || 0; let sAtHex = parseInt(hexData.sanAtual) || 0; let pAtHex = parseInt(hexData.peAtual) || 0;
+                    
+                    // Subtrai o buff, ancorando em 1 se não estava morto no Hexatombe
                     let nV = vAtHex - deltaVida; if(nV <= 0 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; updates.vidaAtual = nV;
                     let nS = sAtHex - deltaSan; if(nS <= 0 && sAtHex >= 1) nS = 1; else if (nS < 0) nS = 0; updates.sanAtual = nS;
                     let nP = pAtHex - deltaPe; if(nP < 0) nP = 0; updates.peAtual = nP;
                 }
-                prevHexatombeFinal = hexatombeFinal; db.collection("fichas").doc(atual).update(updates); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); return; 
+                
+                prevHexatombeFinal = hexatombeFinal;
+                db.collection("fichas").doc(atual).update(updates);
+                carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
+                return; // Aguarda o DB retornar o update do delta para não bugar a tela
             }
 
-            let vAt = hexatombeFinal ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sAt = hexatombeFinal ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pAt = hexatombeFinal ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
+            let vAt = hexatombeFinal ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual;
+            let sAt = hexatombeFinal ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual;
+            let pAt = hexatombeFinal ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
+
             if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vAt ?? 12;
             if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sAt ?? 12;
             if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 2;
@@ -924,11 +1181,29 @@
 
             if(d.membrosEstado) membrosEstado = d.membrosEstado;
             Object.keys(membrosEstado).forEach(k => { 
-                const bx = document.getElementById('limb-'+k); const svgP = document.getElementById('svg-'+k); const xMark = document.getElementById('x-'+k); const v1 = document.getElementById('val-'+k+'-1'); const v2 = document.getElementById('val-'+k+'-2');
+                const bx = document.getElementById('limb-'+k); 
+                const svgP = document.getElementById('svg-'+k);
+                const xMark = document.getElementById('x-'+k);
+                const v1 = document.getElementById('val-'+k+'-1');
+                const v2 = document.getElementById('val-'+k+'-2');
+                
                 if (bx) {
-                    if (svgP) { svgP.classList.remove('lesionado', 'decepado'); if (membrosEstado[k] !== 'normal') svgP.classList.add(membrosEstado[k]); }
-                    if (xMark) { xMark.style.display = (membrosEstado[k] === 'decepado') ? 'block' : 'none'; }
-                    if (v1 && v2) { v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half'; if (membrosEstado[k] === 'lesionado') { v1.classList.add('lesionado'); } if (membrosEstado[k] === 'decepado') { v1.classList.add('decepado'); v2.classList.add('decepado'); } }
+                    if (svgP) {
+                        svgP.classList.remove('lesionado', 'decepado');
+                        if (membrosEstado[k] !== 'normal') svgP.classList.add(membrosEstado[k]);
+                    }
+                    if (xMark) {
+                        xMark.style.display = (membrosEstado[k] === 'decepado') ? 'block' : 'none';
+                    }
+                    if (v1 && v2) {
+                        v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half';
+                        if (membrosEstado[k] === 'lesionado') {
+                            v1.classList.add('lesionado');
+                        } else if (membrosEstado[k] === 'decepado') {
+                            v1.classList.add('decepado'); 
+                            v2.classList.add('decepado'); 
+                        }
+                    }
                 }
             });
 
@@ -940,7 +1215,10 @@
             
             document.getElementById('bgDescricao').value = d.bgDescricao || ""; document.getElementById('bgIdeologia').value = d.bgIdeologia || ""; document.getElementById('bgPessoas').value = d.bgPessoas || ""; document.getElementById('bgLocais').value = d.bgLocais || ""; document.getElementById('bgPosses').value = d.bgPosses || ""; document.getElementById('bgTracos').value = d.bgTracos || ""; document.getElementById('bgCicatrizes').value = d.bgCicatrizes || ""; document.getElementById('bgFobias').value = d.bgFobias || ""; document.getElementById('bgEncontros').value = d.bgEncontros || "";
 
-            recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); 
+            recalcularBases();
+            atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
+            aplicarStatusVisual();
+            aplicarSegredosUI(); 
         });
     }
 
@@ -977,21 +1255,36 @@
         };
 
         let rootUpdates = { hexatombe: isHexatombe, restricao: isRestricao };
-        let inV = parseInt(document.getElementById('vida-atual').value) || 0; let inS = parseInt(document.getElementById('san-atual').value) || 0; let inP = parseInt(document.getElementById('pe-atual').value) || 0;
+
+        let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
+        let inS = parseInt(document.getElementById('san-atual').value) || 0; 
+        let inP = parseInt(document.getElementById('pe-atual').value) || 0;
 
         if (hexatombeFinal) { 
-            rootUpdates.hexatombe_data = payload; rootUpdates.hexatombe_data.vidaAtual = inV; rootUpdates.hexatombe_data.sanAtual = inS; rootUpdates.hexatombe_data.peAtual = inP; 
+            rootUpdates.hexatombe_data = payload; 
+            rootUpdates.hexatombe_data.vidaAtual = inV; 
+            rootUpdates.hexatombe_data.sanAtual = inS; 
+            rootUpdates.hexatombe_data.peAtual = inP; 
+            
             rootUpdates.agi = payload.agi; rootUpdates.for = payload.for; rootUpdates.sag = payload.sag; rootUpdates.von = payload.von; rootUpdates.vig = payload.vig;
-        } else { rootUpdates = { ...payload, ...rootUpdates }; rootUpdates.vidaAtual = inV; rootUpdates.sanAtual = inS; rootUpdates.peAtual = inP; }
+        } else { 
+            rootUpdates = { ...payload, ...rootUpdates }; 
+            rootUpdates.vidaAtual = inV; 
+            rootUpdates.sanAtual = inS; 
+            rootUpdates.peAtual = inP; 
+        }
 
-        db.collection("fichas").doc(atual).update(rootUpdates); recalcularBases();
+        db.collection("fichas").doc(atual).update(rootUpdates);
+        recalcularBases();
     }
 
     function atualizarCorPericia(nome, valor) { const el = document.getElementById(`row-${nome}`); if(!el) return; el.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); if(valor == "1") el.classList.add('p-verde'); else if(valor == "3") el.classList.add('p-laranja'); else if(valor == "5") el.classList.add('p-vermelho'); }
+
     function ajustar(tipo, v) { const input = document.getElementById(`${tipo}-atual`); const max = document.getElementById(`${tipo}-max`); if(input && max) { let novoValor = (parseInt(input.value) || 0) + v; document.getElementById(`${tipo}-atual`).value = novoValor; atualizarStatusVisual(tipo); salvarFicha(); } }
     
     function estabilizarStatus(tipo) { 
-        document.getElementById(`${tipo}-atual`).value = 1; atualizarStatusVisual(tipo); 
+        document.getElementById(`${tipo}-atual`).value = 1; 
+        atualizarStatusVisual(tipo); 
         if(tipo === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; }
         if(tipo === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; }
         salvarFicha(); 
@@ -1009,76 +1302,96 @@
     function toggleMiniCond(tipo) { if (tipo === 'sequela') { document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; } }
 
     function carregarRituais() {
-        if(unsubRit) unsubRit(); const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
+        if(unsubRit) unsubRit();
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const path = hexatombeFinal ? "hexa_rituais" : "rituais";
         unsubRit = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById('lista-rituais'); container.innerHTML = ""; const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--text-main)" };
+            const container = document.getElementById('lista-rituais'); container.innerHTML = ""; const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "#ffffff" };
             snap.forEach(doc => {
-                const r = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('rit-' + id); const isAprendido = r.aprendido ? 'checked' : ''; const isPrimeira = r.primeiraConjuracao ? 'checked' : ''; const cor = coresElem[r.elemento] || "var(--text-main)";
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:bold">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: screen;">` : `<span style="text-align:center; font-family:'Inter', sans-serif; font-size:9px; color:var(--text-muted); font-weight:bold;">REGISTRO</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Desgaste Físico (Reserva)</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c !important;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`;
+                const r = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('rit-' + id); const isAprendido = r.aprendido ? 'checked' : ''; const isPrimeira = r.primeiraConjuracao ? 'checked' : ''; const cor = coresElem[r.elemento] || "#ffffff";
+                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:bold">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: screen;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:#555;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`;
             });
         });
     }
 
     function carregarPoderes() {
-        if(unsubPod) unsubPod(); const path = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes";
+        if(unsubPod) unsubPod();
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const path = hexatombeFinal ? "hexa_poderes" : "poderes";
         unsubPod = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById('lista-poderes'); container.innerHTML = ""; const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--text-main)", "Nenhum": "var(--text-main)" };
+            const container = document.getElementById('lista-poderes'); container.innerHTML = ""; const coresElem = { "Morte": "#404040", "Sangue": "#8b1c1c", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "#ffffff", "Nenhum": "#ffffff" };
             snap.forEach(doc => {
-                const p = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('pod-' + id); const cor = coresElem[p.elemento] || "var(--text-main)";
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('pod-${id}')"><span style="color:${cor}; font-weight:bold">${p.nome || 'Especialização Desconhecida'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(p.elemento || 'Geral').toUpperCase()}</span></div><div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Vínculo Oculto</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)"><option value="Nenhum" ${p.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${p.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${p.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${p.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option value="Geral" ${p.elemento=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Descrição do Arquivo</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea></div><div style="margin-top:15px; padding:15px; border:1px solid rgba(0,0,0,0.1); background:var(--bg-input); border-radius: 2px;"><span class="rit-label" style="color:var(--cris-purple); font-weight:bold;">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos do vínculo...">${p.afinidade || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c !important;" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button></div></div></div>`;
+                const p = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('pod-' + id); const cor = coresElem[p.elemento] || "#ffffff";
+                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('pod-${id}')"><span style="color:${cor}; font-weight:bold">${p.nome || 'Especialização Desconhecida'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(p.elemento || 'Geral').toUpperCase()}</span></div><div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Vínculo Oculto</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)"><option value="Nenhum" ${p.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${p.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${p.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${p.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option value="Geral" ${p.elemento=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Descrição do Arquivo</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea></div><div style="margin-top:15px; padding:15px; border:1px solid rgba(166, 138, 100, 0.3); background:rgba(0,0,0,0.5); border-radius: 2px;"><span class="rit-label" style="color:var(--cris-purple); font-weight:bold;">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos do vínculo...">${p.afinidade || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button></div></div></div>`;
             });
         });
     }
 
     function carregarHabilidades() {
-        if(unsubHab) unsubHab(); const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades";
+        if(unsubHab) unsubHab();
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const path = hexatombeFinal ? "hexa_habilidades" : "habilidades";
         unsubHab = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
             const container = document.getElementById('lista-habilidades'); container.innerHTML = "";
             snap.forEach(doc => {
                 const h = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('hab-' + id);
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: var(--text-muted);"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:var(--text-main); font-weight: bold;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${isOpen ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px solid var(--border-main); font-family: 'Crimson Text', serif; font-size: 16px;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c !important;" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`;
+                container.innerHTML += `<div class="ritual-card" style="border-left-color: #555;"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:#d3d3d3; font-weight: bold;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${isOpen ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px solid #444; font-family: 'Crimson Text', serif; font-size: 16px;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`;
             });
         });
     }
 
     function carregarAtaques() {
-        if(unsubAtq) unsubAtq(); const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques";
+        if(unsubAtq) unsubAtq();
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const path = hexatombeFinal ? "hexa_ataques" : "ataques";
         unsubAtq = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
             const list = document.getElementById('lista-ataques'); list.innerHTML = ""; let pressaoAtaques = 0;
             snap.forEach(doc => {
                 const a = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('atq-' + id); pressaoAtaques += (parseInt(a.pressao) || 0);
-                list.innerHTML += `<div class="ritual-card" style="border-left-color: var(--text-main);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--text-main); font-weight:bold">${a.nome || 'Ataque Sem Nome'}</span><span style="font-size:10px; font-family:'Inter', sans-serif; color:var(--text-muted); font-weight:900;">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c !important;" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`;
+                list.innerHTML += `<div class="ritual-card" style="border-left-color: #ffffff;"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:#ffffff; font-weight:bold">${a.nome || 'Ataque Sem Nome'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:#fff;">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`;
             });
             window.valPressaoAtaques = pressaoAtaques; syncPressaoVisuais();
         });
     }
 
     function carregarInventario() {
-        if(unsubInv) unsubInv(); const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario";
+        if(unsubInv) unsubInv();
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const path = hexatombeFinal ? "hexa_inventario" : "inventario";
         unsubInv = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
             const container = document.getElementById('lista-inventario'); container.innerHTML = ""; let pressaoInv = 0;
             snap.forEach(doc => {
                 const item = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('inv-' + id);
                 const p = parseInt(item.pressao) || 0; const q = parseInt(item.quantidade) || 1; pressaoInv += (p * q);
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: var(--text-muted);"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:var(--text-main); font-weight:bold">${item.nome || 'Item Não Identificado'}</span><span style="font-size:10px; font-family:'Inter', sans-serif; color:var(--text-muted); font-weight:900;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span></div><div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c !important;" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`;
+                container.innerHTML += `<div class="ritual-card" style="border-left-color: #555;"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:#d3d3d3; font-weight:bold">${item.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span></div><div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:#8b1c1c; color:#8b1c1c;" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`;
             });
             window.valPressaoInventario = pressaoInv; syncPressaoVisuais();
         });
     }
 
-    async function novoRitual() { const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
-    async function novoPoder() { const path = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Poder", elemento: "Geral", descricao: "", afinidade: "" }); }
+    async function novoRitual() { const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Anomalia", elemento: "Morte", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
+    async function novoPoder() { const path = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Especialização", elemento: "Geral", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Traço", descricao: "" }); }
-    async function novoItem() { const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Item", categoria: "Geral", pressao: 1, quantidade: 1, descricao: "" }); }
-    async function novoAtaque() { const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Arma Desconhecida", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 1 }); }
+    async function novoItem() { const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); }
+    async function novoAtaque() { const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Arma Desconhecida", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }); }
 
+    // FUNÇÃO QUE INJETA O TEMPLATE SELECIONADO NO BANCO DE DADOS
     async function aplicarTemplate(colecao, chave) {
-        const path = (isHexatombe || globalHexatombe) ? "hexa_" + colecao : colecao; let data = {};
-        if (colecao === 'ataques') data = templatesAtaques[chave]; if (colecao === 'habilidades') data = templatesTracos[chave]; if (colecao === 'poderes') data = templatesEspecializacoes[chave]; if (colecao === 'rituais') data = templatesAnomalias[chave]; if (colecao === 'inventario') data = templatesInventario[chave];
-        if (data) { await db.collection("fichas").doc(atual).collection(path).add(data); }
+        const path = (isHexatombe || globalHexatombe) ? "hexa_" + colecao : colecao;
+        let data = {};
+        if (colecao === 'ataques') data = templatesAtaques[chave];
+        if (colecao === 'habilidades') data = templatesTracos[chave];
+        if (colecao === 'poderes') data = templatesEspecializacoes[chave];
+        if (colecao === 'rituais') data = templatesAnomalias[chave];
+        if (colecao === 'inventario') data = templatesInventario[chave];
+        
+        if (data) {
+            await db.collection("fichas").doc(atual).collection(path).add(data);
+        }
     }
 
     async function aplicarOrigemTemplate() { const val = document.getElementById('select-origem-template').value; if(val === "Cultista Arrependido") { document.getElementById('origem-personagem').value = "Cultista Arrependido"; document.getElementById('treino-Ocultismo').value = 3; salvarFicha(); } toggleElem('modal-origem'); }
+    
     async function updateSub(id, col, campo, valor) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; let o = {}; o[campo] = valor; if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id); if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id); if (col === 'ataques') menusAbertos.add('atq-' + id); await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); }
     async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este arquivo confidencial?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
     
