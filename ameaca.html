@@ -10,31 +10,38 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;700;800&family=Special+Elite&family=Caveat:wght@400;700&display=swap');
 
         :root {
-            --op-red: #c80000;
-            --op-dark-red: #8b0000;
-            --san-purple: #4a5c73;
-            --pe-orange: #a68a64;
-            --bg-dark: #0f0f0f;
-            --bg-paper: #161616;
-            --text-main: #e0e0e0;
-            --cris-purple: #c80000;
+            /* Paleta Tinta e Papel */
+            --op-red: #a31515;
+            --op-ink: #2b2522;
+            --bg-desk: #111111;
+            --bg-paper: #e9e1d3;
+            --paper-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            
+            /* Status do Papel */
+            --san-purple: #3a4b5c;
+            --pe-orange: #8a6c42;
         }
 
-        body.tema-hexatombe {
-            --op-red: #ff1a1a !important; 
-            --bg-paper: #050000 !important; 
-            background-color: #000 !important;
-            transition: all 0.5s ease;
+        /* TEMA HEXATOMBE FORTALECIDO (Papel Queimado / Ensanguentado) */
+        body.tema-hexatombe .book-container {
+            background-color: #1a0808 !important;
+            background-image: radial-gradient(circle, #2a0a0a 0%, #110202 100%) !important;
+            color: #ffb3b3 !important;
+            border-color: #500 !important;
+            box-shadow: 0 0 50px rgba(200,0,0,0.4) !important;
         }
+        body.tema-hexatombe .book-input, body.tema-hexatombe .cris-textarea { color: #fff !important; text-shadow: 0 0 5px rgba(255,0,0,0.5); border-bottom-color: #552222 !important; }
+        body.tema-hexatombe .stat-label, body.tema-hexatombe .section-header { color: #ff3333 !important; }
+        body.tema-hexatombe .sigilo-container { filter: grayscale(0) invert(0) drop-shadow(0 0 10px #f00) !important; }
 
         body {
-            background-color: var(--bg-dark); color: var(--text-main);
-            font-family: 'Inter', sans-serif; margin: 0; padding: 30px 10px; transition: background-color 0.5s ease;
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
-            min-height: 100vh;
+            background-color: var(--bg-desk);
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
+            font-family: 'Inter', sans-serif; margin: 0; padding: 40px 10px;
+            color: var(--op-ink); min-height: 100vh;
         }
 
         /* Remove setinhas numéricas */
@@ -44,444 +51,485 @@
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* DOSSIÊ (PÁGINA DO LIVRO) */
+        /* DOSSIÊ (PÁGINA DO LIVRO/ARQUIVO) */
         .book-container { 
-            max-width: 1000px; margin: 0 auto; background: var(--bg-paper); 
-            box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.5); 
-            border: 1px solid #222; position: relative; padding: 40px; border-radius: 3px;
+            max-width: 1000px; margin: 0 auto; 
+            background-color: var(--bg-paper); 
+            background-image: 
+                url('data:image/svg+xml,%3Csvg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="200" height="200" filter="url(%23noise)" opacity="0.04"/%3E%3C/svg%3E'),
+                linear-gradient(to right, rgba(0,0,0,0.02) 0%, transparent 2%, transparent 98%, rgba(0,0,0,0.02) 100%);
+            box-shadow: var(--paper-shadow); 
+            border: 1px solid #c2b59b; position: relative; padding: 50px 60px; border-radius: 4px;
+            transition: all 0.5s ease;
         }
 
-        /* ESTILOS DE INPUT (Texto camuflado na página) */
-        .book-input { background: transparent; border: none; border-bottom: 1px dotted rgba(255,255,255,0.2); color: #fff; font-family: inherit; font-size: inherit; outline: none; padding: 2px; transition: 0.3s; }
-        .book-input:focus { border-bottom: 1px solid var(--op-red); background: rgba(200,0,0,0.05); }
+        /* ESTILOS DE INPUT DATILOGRAFADO */
+        .book-input { 
+            background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.3); 
+            color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; 
+            outline: none; padding: 2px 4px; transition: 0.3s; 
+        }
+        .book-input:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
 
         /* CABEÇALHO */
-        .book-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid var(--op-red); padding-bottom: 10px; margin-bottom: 15px; }
-        .book-title { font-family: 'Crimson Text', serif; font-size: 3.5rem; font-weight: bold; color: #fff; text-transform: uppercase; width: 100%; letter-spacing: 2px; margin: 0; line-height: 1; border: none;}
+        .book-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--op-ink); padding-bottom: 15px; margin-bottom: 25px; position: relative;}
+        .book-title { font-family: 'Crimson Text', serif; font-size: 3.5rem; font-weight: bold; color: var(--op-ink); text-transform: uppercase; width: 85%; letter-spacing: 1px; margin: 0; line-height: 0.9; border: none; }
         
-        .vd-badge { 
-            background-color: var(--op-red); color: #fff; padding: 15px 15px 10px 15px;
-            font-family: 'Crimson Text', serif; font-size: 2rem; font-weight: bold; text-align: center;
-            clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%); min-width: 70px;
-            display: flex; flex-direction: column; align-items: center; line-height: 1;
-            margin-top: -40px; box-shadow: 0 5px 10px rgba(0,0,0,0.5);
-        }
-        .vd-label { font-family: 'Inter', sans-serif; font-size: 11px; letter-spacing: 2px; margin-bottom: 5px; }
-        .vd-input { width: 50px; background: transparent; border: none; color: #fff; text-align: center; font-size: 2.2rem; font-weight: bold; outline: none; font-family: 'Crimson Text', serif;}
+        .tipo-criatura { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13px; color: #5a4b41; text-transform: uppercase; letter-spacing: 3px; display: block; width: 100%; border: none;}
 
-        .tipo-criatura { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; display: block; width: 100%;}
+        /* CARIMBO DE VD */
+        .vd-badge { 
+            position: absolute; right: 0; top: -10px;
+            border: 4px solid var(--op-red); color: var(--op-red); 
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transform: rotate(15deg); opacity: 0.85; box-shadow: inset 0 0 5px rgba(163, 21, 21, 0.3);
+            background: radial-gradient(circle, transparent 70%, rgba(163, 21, 21, 0.05) 100%);
+        }
+        .vd-label { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: 2px; margin-bottom: -5px; }
+        .vd-input { width: 50px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.2rem; font-weight: bold; outline: none; font-family: 'Special Elite', monospace;}
 
         /* GRID PRINCIPAL */
-        .book-grid { display: grid; grid-template-columns: 1fr 320px; gap: 40px; }
+        .book-grid { display: grid; grid-template-columns: 1fr 300px; gap: 50px; }
 
         /* LINHAS DE STATUS (Texto de Regra) */
-        .book-stat-row { border-bottom: 1px solid #2a2a2a; padding: 10px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-size: 14px; line-height: 1.6;}
-        .book-stat-row:last-child { border-bottom: none; }
-        .stat-label { color: var(--op-red); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; }
+        .book-stat-row { padding: 8px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; font-size: 15px; line-height: 1.8;}
+        .stat-label { color: var(--op-red); font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; }
+        .sub-label { color: #5a4b41; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; text-transform: uppercase; }
 
-        /* BARRAS DE STATUS FINAS E ELEGANTES */
-        .resource-block { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 150px; }
-        .resource-label { font-weight: 800; color: #fff; font-size: 13px; letter-spacing: 1px; }
-        .resource-inputs { display: flex; align-items: baseline; font-family: 'Crimson Text', serif; font-size: 18px; font-weight: bold; }
-        .resource-inputs input { width: 40px; text-align: center; font-size: 20px; }
+        /* DEFESA EM DESTAQUE */
+        .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 8px; border-radius: 2px; font-family: 'Crimson Text', serif; font-weight: bold; font-size: 20px;}
+        .defesa-badge input { color: var(--op-ink); font-size: 24px; font-weight: bold; text-align: center; border: none !important;}
+
+        /* BARRAS DE STATUS (Estilo Impresso) */
+        .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px;}
+        .resource-inputs { display: flex; align-items: baseline; font-family: 'Special Elite', monospace; font-size: 18px; font-weight: bold; color: var(--op-ink); background: rgba(0,0,0,0.03); padding: 2px 5px; border: 1px solid rgba(0,0,0,0.1);}
+        .resource-inputs input { width: 45px; text-align: center; font-size: 18px; color: var(--op-ink);}
         
-        .thin-bar-bg { width: 100%; height: 4px; background: #222; border-radius: 2px; position: relative; overflow: hidden; flex: 2; margin-top: 5px;}
-        .thin-bar-fill { height: 100%; position: absolute; left: 0; top: 0; border-radius: 2px; transition: 0.3s; }
+        .thin-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.2); position: relative; overflow: hidden; flex: 1;}
+        .thin-bar-fill { height: 100%; position: absolute; left: 0; top: 0; transition: 0.3s; }
         #bar-pv { background: var(--op-red); }
         #bar-pc { background: var(--san-purple); }
         #bar-pe { background: var(--pe-orange); }
 
-        /* TÍTULOS DE SESSÃO (Fundo Vermelho) */
+        /* TÍTULOS DE SESSÃO */
         .section-header { 
-            background: var(--op-dark-red); color: #fff; font-family: 'Crimson Text', serif; font-weight: bold; 
-            font-size: 1.4rem; padding: 5px 15px; margin: 30px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
-            clip-path: polygon(0 0, 100% 0, 98% 100%, 0% 100%);
+            color: var(--op-red); font-family: 'Crimson Text', serif; font-weight: bold; 
+            font-size: 1.6rem; padding: 5px 0; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
+            border-bottom: 2px solid var(--op-ink);
         }
 
-        /* PENTAGRAMA DE ATRIBUTOS */
-        .sigilo-container { position: relative; width: 220px; height: 220px; margin: 20px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(50%) opacity(0.8); }
-        .sigilo-container::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.15; z-index: -1; pointer-events: none; }
-        .attr-box { position: absolute; width: 45px; height: 45px; background: var(--bg-paper); border: 2px solid #444; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(0,0,0,0.8); z-index: 1; transition: 0.3s;}
-        .attr-label { font-size: 8px; font-weight: 800; color: var(--op-red); position: absolute; top: -12px; letter-spacing: 1px; text-shadow: 0 1px 3px #000;}
-        .attr-box input { background: transparent; border: none; color: #fff; text-align: center; width: 100%; font-size: 20px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
-        .agi { top: -5px; left: 87px; } .for { top: 60px; left: -5px; } .sag { top: 60px; right: -5px; } .von { bottom: 10px; left: 35px; } .vig { bottom: 10px; right: 35px; }
+        /* PENTAGRAMA DE ATRIBUTOS (Filtro Tinta) */
+        .sigilo-container { 
+            position: relative; width: 260px; height: 260px; margin: 0 auto; 
+            background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; 
+            background-size: contain; 
+            filter: grayscale(1) invert(0.8) sepia(1) hue-rotate(330deg) saturate(4) contrast(1.2); 
+            opacity: 0.8;
+        }
+        /* Os campos numéricos flutuando sem caixa */
+        .attr-box { position: absolute; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1;}
+        .attr-label { font-size: 10px; font-family: 'Inter', sans-serif; font-weight: 800; color: #000; margin-bottom: -5px; letter-spacing: 1px;}
+        .attr-box input { background: transparent; border: none; color: #000; text-align: center; width: 100%; font-size: 32px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none;}
+        .agi { top: 0px; left: 105px; } .for { top: 80px; left: 0px; } .sag { top: 80px; right: 0px; } .von { bottom: 15px; left: 40px; } .vig { bottom: 15px; right: 40px; }
 
-        /* PORTRAIT */
-        .portrait-container { width: 100%; position: relative; }
-        .portrait { width: 100%; height: 350px; background: #080808; border: 1px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; border-radius: 2px; box-shadow: 5px 5px 15px rgba(0,0,0,0.6); }
-        #img-preview { width: 100%; height: 100%; object-fit: cover; filter: grayscale(10%) contrast(110%); }
-        .upload-hint { position: absolute; color: #666; font-family: 'Inter', sans-serif; font-size: 11px; text-align: center; pointer-events: none; letter-spacing: 1px; font-weight: bold; }
+        /* FOTOGRAFIA (Estilo foto colada) */
+        .portrait-container { width: 100%; position: relative; margin-bottom: 30px;}
+        .portrait { width: 100%; height: 350px; background: #e0e0e0; border: 8px solid #f4f4f4; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; box-shadow: 2px 4px 10px rgba(0,0,0,0.3); transform: rotate(1deg); }
+        #img-preview { width: 100%; height: 100%; object-fit: cover; filter: grayscale(80%) sepia(30%) contrast(120%); }
+        .upload-hint { position: absolute; color: #888; font-family: 'Special Elite', monospace; font-size: 13px; text-align: center; pointer-events: none;}
+        
+        /* Clipe de Papel Falso */
+        .portrait-container::after {
+            content: ""; position: absolute; top: -15px; left: 20px; width: 15px; height: 50px;
+            border: 3px solid #999; border-radius: 10px; z-index: 10; transform: rotate(10deg);
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3), inset 1px 1px 2px rgba(255,255,255,0.5);
+        }
 
-        /* BLOCOS DINÂMICOS (Ações/Poderes) */
-        .dynamic-item { padding: 10px 0; border-bottom: 1px dashed #333; position: relative; }
+        /* BLOCOS DINÂMICOS (Ações/Poderes - Sem Caixa) */
+        .dynamic-item { padding: 15px 0; border-bottom: 1px solid rgba(0,0,0,0.1); position: relative; }
         .dynamic-item:last-child { border-bottom: none; }
-        .btn-del { position: absolute; top: 12px; right: 0; background: none; border: none; color: #555; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 10px; }
-        .btn-del:hover { color: var(--op-red); }
+        .btn-del { position: absolute; top: 15px; right: 0; background: none; border: none; color: #a31515; cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 14px; opacity: 0.5;}
+        .btn-del:hover { opacity: 1; }
 
         /* BOTÕES GERAIS */
-        .btn-add { background: transparent; border: 1px solid #444; color: #888; padding: 6px 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; margin-top: 10px; transition: 0.3s; border-radius: 2px; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-add:hover { background: #222; color: #fff; border-color: #666; }
+        .btn-add { background: transparent; border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 15px; cursor: pointer; font-family: 'Special Elite', monospace; font-size: 13px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .btn-add:hover { background: rgba(0,0,0,0.05); }
 
+        .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.3); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: 0.3s; resize: vertical; min-height: 80px; }
+        .cris-textarea:focus { background: rgba(0,0,0,0.02); }
+
+        /* MODAIS E HUD (Mantendo design limpo escuro para painéis de sistema) */
+        .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: #fff;}
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #181818; color:#d3d3d3; border: 1px solid var(--op-red); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; font-family: 'Inter', sans-serif;}
+        .modal-padrao h3 { color: var(--op-red) !important;}
+        .rit-input { background: #111; color: #fff; border: 1px solid #444; padding: 8px; font-family: 'Inter', sans-serif; width:100%; box-sizing:border-box;}
+        .cris-btn-modal { background: #222; color: #d3d3d3; border: 1px solid #555; padding: 10px; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;}
+        .cris-btn-modal:hover { background: #333; color: #fff;}
         .voltar-btn { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; color: #888; padding: 10px 20px; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #444; border-radius: 2px; z-index: 1000; transition: 0.3s; letter-spacing: 1px; }
-        .voltar-btn:hover { background: #333; color: #fff; border-color: #666; }
+        .voltar-btn:hover { background: #333; color: #fff; }
 
-        @media (max-width: 900px) { .book-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .book-grid { grid-template-columns: 1fr; } .book-container { padding: 30px 20px; } .vd-badge { position: relative; top:0; margin-bottom: 20px;} .book-header { flex-direction: column; align-items: flex-start;}}
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="voltar-btn">FECHAR ARQUIVO</a>
+<input type="file" id="fileUploader" accept="image/*" style="display:none" onchange="processarArquivo(this)">
+<button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
 
-    <div class="book-container">
-        
-        <div class="book-header">
-            <div style="flex: 1; padding-right: 20px;">
-                <input id="nome" class="book-input book-title save-auto" placeholder="NOME DA ENTIDADE">
-                <input id="tipo-criatura" class="book-input tipo-criatura save-auto" placeholder="CRIATURA - SANGUE">
-            </div>
-            <div class="vd-badge">
-                <span class="vd-label">VD</span>
-                <input id="vd" class="vd-input save-auto" placeholder="0">
-            </div>
+<div id="modal-config" class="modal-padrao">
+    <h3 style="margin-top:0; font-family:'Crimson Text', serif; text-align:center; font-size: 22px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE SISTEMA</h3>
+    <div style="border-top: 1px solid #333; margin-top: 10px; padding-top: 20px;">
+        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Sistema de Segredos (Mobile)</div>
+        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="margin-bottom: 10px;">
+        <button class="cris-btn-modal" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
+    </div>
+    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer;">FECHAR PAINEL</button>
+</div>
+
+<a href="index.html" class="voltar-btn">FECHAR ARQUIVO</a>
+
+<div class="book-container">
+    
+    <div class="book-header">
+        <div style="width: 100%;">
+            <input id="nome" class="book-input book-title save-auto" placeholder="NOME DA AMEAÇA">
+            <input id="tipo-criatura" class="book-input tipo-criatura save-auto" placeholder="CRIATURA - ELEMENTO">
         </div>
-
-        <div class="book-grid">
-            <div class="col-stats">
-                
-                <div class="book-stat-row">
-                    <span class="stat-label">SENTIDOS</span> 
-                    <span style="color:#aaa;">Percepção</span> <input id="percepcao" class="book-input save-auto" placeholder="2d20+10" style="width: 80px;"> 
-                    <span style="color:#aaa; margin-left: 10px;">Iniciativa</span> <input id="iniciativa" class="book-input save-auto" placeholder="2d20+5" style="width: 80px;">
-                </div>
-                
-                <div class="book-stat-row">
-                    <span class="stat-label">DEFESA</span> 
-                    <input id="defesa" class="book-input save-auto" placeholder="20" style="width: 35px; font-weight: bold; font-family: 'Crimson Text', serif; font-size: 18px; color: #fff;"> 
-                    <span style="color:#aaa; margin-left: 5px;">Fortitude</span> <input id="fortitude" class="book-input save-auto" placeholder="2d20+10" style="width: 70px;"> 
-                    <span style="color:#aaa; margin-left: 5px;">Reflexos</span> <input id="reflexos" class="book-input save-auto" placeholder="2d20+5" style="width: 70px;"> 
-                    <span style="color:#aaa; margin-left: 5px;">Vontade</span> <input id="vontade" class="book-input save-auto" placeholder="2d20+5" style="width: 70px;">
-                </div>
-
-                <div class="book-stat-row" style="flex-direction: column; gap: 10px; padding: 15px 0;">
-                    
-                    <div style="display: flex; width: 100%; align-items: center;">
-                        <span class="stat-label" style="width: 140px;">PONTOS DE VIDA</span>
-                        <div class="resource-block">
-                            <div class="resource-inputs">
-                                <input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')">
-                                <span style="color:#555; margin: 0 5px;">/</span>
-                                <input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv')" style="color:#aaa;">
-                            </div>
-                            <div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; width: 100%; align-items: center;">
-                        <span class="stat-label" style="width: 140px; color:#aaa;">CONSCIÊNCIA</span>
-                        <div class="resource-block">
-                            <div class="resource-inputs">
-                                <input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')">
-                                <span style="color:#555; margin: 0 5px;">/</span>
-                                <input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="color:#aaa;">
-                            </div>
-                            <div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; width: 100%; align-items: center;">
-                        <span class="stat-label" style="width: 140px; color:#aaa;">PONTOS DE ESFORÇO</span>
-                        <div class="resource-block">
-                            <div class="resource-inputs">
-                                <input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')">
-                                <span style="color:#555; margin: 0 5px;">/</span>
-                                <input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="color:#aaa;">
-                            </div>
-                            <div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="book-stat-row">
-                    <span class="stat-label">VULNERABILIDADES</span> 
-                    <input id="vulnerabilidades" class="book-input save-auto" placeholder="Ex: Energia..." style="flex: 1;">
-                </div>
-                <div class="book-stat-row">
-                    <span class="stat-label">RESISTÊNCIAS</span> 
-                    <input id="resistencias" class="book-input save-auto" placeholder="Ex: Físico 10, Sangue 10..." style="flex: 1;">
-                </div>
-                <div class="book-stat-row">
-                    <span class="stat-label">IMUNIDADES</span> 
-                    <input id="imunidades" class="book-input save-auto" placeholder="Condições de paralisia..." style="flex: 1;">
-                </div>
-
-                <div class="book-stat-row">
-                    <span class="stat-label">PERÍCIAS NOTÁVEIS</span> 
-                    <input id="pericias" class="book-input save-auto" placeholder="Atletismo 4d20+15, Luta 4d20+15..." style="flex: 1;">
-                </div>
-                
-                <div class="book-stat-row">
-                    <span class="stat-label">DESLOCAMENTO</span> 
-                    <input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q" style="flex: 1;">
-                </div>
-
-            </div>
-
-            <div class="col-art">
-                <div class="portrait-container">
-                    <div class="portrait" onclick="document.getElementById('fileInput').click()">
-                        <img id="img-preview" style="display:none; position: absolute; left: 0; top: 0;">
-                        <div id="img-placeholder" class="upload-hint">FOTOGRAFIA / ILUSTRAÇÃO</div>
-                    </div>
-                    <div style="background: #111; border: 1px solid #333; padding: 10px; margin-top: 10px; border-radius: 2px;">
-                        <span style="font-size: 9px; color: #888; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px; display: block;">CONTROLE ÓPTICO</span>
-                        <div style="display: flex; gap: 5px;">
-                            <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ', this.value)" style="width: 100%;">
-                            <input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pX', this.value)" style="width: 100%;">
-                            <input type="range" id="pY" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pY', this.value)" style="width: 100%;">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sigilo-container">
-                    <span class="attr-label" style="top: 0; left: 50%; transform: translateX(-50%); position: absolute; color: #888; text-shadow: none;">ATRIBUTOS</span>
-                    <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="agi" class="save-auto" placeholder="0"></div>
-                    <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="for" class="save-auto" placeholder="0"></div>
-                    <div class="attr-box sag"><span class="attr-label">INT</span><input type="number" id="int" class="save-auto" placeholder="0"></div>
-                    <div class="attr-box von"><span class="attr-label">PRE</span><input type="number" id="pre" class="save-auto" placeholder="0"></div>
-                    <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="vig" class="save-auto" placeholder="0"></div>
-                </div>
-            </div>
+        <div class="vd-badge">
+            <span class="vd-label">VD</span>
+            <input id="vd" class="vd-input save-auto" placeholder="0">
         </div>
-
-        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
-
-        <div class="section-header">AÇÕES</div>
-        <div id="lista-acoes"></div>
-        <button class="btn-add" onclick="addAcao()">+ ADICIONAR AÇÃO</button>
-
-        <div class="section-header">HABILIDADES E COMPORTAMENTOS</div>
-        <div id="lista-habilidades"></div>
-        <button class="btn-add" onclick="addHabilidade()">+ ADICIONAR HABILIDADE</button>
-
-        <div class="section-header" style="background: #333;">ENIGMA DO MEDO</div>
-        <textarea id="enigma" class="book-input save-auto" placeholder="Descreva os requisitos ou descobertas necessárias para quebrar a imunidade desta entidade..." style="width: 100%; min-height: 80px; resize: vertical; font-style: italic; background: rgba(255,255,255,0.02); padding: 15px; box-sizing: border-box;"></textarea>
-
-        <div class="section-header" style="background: #222; margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
-        <textarea id="descricao" class="book-input save-auto" placeholder="Insira aqui o relatório de pesquisa detalhado da criatura..." style="width: 100%; min-height: 200px; resize: vertical; padding: 15px; box-sizing: border-box; line-height: 1.6;"></textarea>
-
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
-            authDomain: "fichasrpg-7fc69.firebaseapp.com",
-            projectId: "fichasrpg-7fc69",
-            storageBucket: "fichasrpg-7fc69.firebasestorage.app",
-            messagingSenderId: "758802032764",
-            appId: "1:758802032764:web:40467e15fdc24c570081f9"
-        };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const db = firebase.firestore(); const urlParams = new URLSearchParams(window.location.search); const atual = urlParams.get('id');
+    <div class="book-grid">
+        <div class="col-stats">
+            
+            <div class="book-stat-row">
+                <span class="stat-label">SENTIDOS</span> 
+                <span class="sub-label">Percepção</span> <input id="percepcao" class="book-input save-auto" placeholder="2d20+10" style="width: 100px;"> 
+                <span class="sub-label" style="margin-left: 10px;">Iniciativa</span> <input id="iniciativa" class="book-input save-auto" placeholder="2d20+5" style="width: 100px;">
+            </div>
+            
+            <div class="book-stat-row">
+                <span class="stat-label">DEFESA</span> 
+                <span class="defesa-badge"><input id="defesa" class="book-input save-auto" placeholder="20" style="width: 35px;"></span>
+                <span class="sub-label" style="margin-left: 10px;">Fortitude</span> <input id="fortitude" class="book-input save-auto" placeholder="2d20+10" style="width: 80px;"> 
+                <span class="sub-label" style="margin-left: 5px;">Reflexos</span> <input id="reflexos" class="book-input save-auto" placeholder="2d20+5" style="width: 80px;"> 
+                <span class="sub-label" style="margin-left: 5px;">Vontade</span> <input id="vontade" class="book-input save-auto" placeholder="2d20+5" style="width: 80px;">
+            </div>
 
-        if(!atual) { window.location.href = "index.html"; }
-
-        // --- SISTEMAS SECRETOS MESTRE ---
-        let isHexatombe = false;
-        let globalHexatombe = false; 
-        let prevHexatombeFinal = false; 
-
-        db.collection("configuracoes").doc("globais").onSnapshot(doc => {
-            if(doc.exists) {
-                const data = doc.data(); 
-                globalHexatombe = data.hexatombe || false; 
-                aplicarSegredosAmeaca();
-            }
-        });
-
-        let cheatCode = "";
-        document.addEventListener('keydown', (e) => {
-            const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
-            cheatCode += e.key.toLowerCase(); if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
-            if (cheatCode.includes("hexatombe")) { 
-                document.body.classList.add('shake');
-                setTimeout(async () => { document.body.classList.remove('shake'); 
-                    let doc = await db.collection("ameacas").doc(atual).get(); 
-                    let valAtual = doc.data().hexatombe || false; 
-                    await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
-                }, 800);
-                cheatCode = ""; 
-            }
-        });
-
-        function aplicarSegredosAmeaca() {
-            const hexatombeFinal = isHexatombe || globalHexatombe;
-            if (hexatombeFinal) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
-        }
-
-        // --- AUTO-SAVE ---
-        let timeout;
-        function updateField(campo, valor) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => { let obj = {}; obj[campo] = valor; db.collection("ameacas").doc(atual).update(obj); }, 800);
-        }
-
-        db.collection("ameacas").doc(atual).onSnapshot(doc => {
-            if(doc.exists) {
-                const d_raw = doc.data();
-                isHexatombe = d_raw.hexatombe || false;
-                const hexatombeFinal = isHexatombe || globalHexatombe;
-
-                if (prevHexatombeFinal !== hexatombeFinal) {
-                    let o = {};
-                    if (hexatombeFinal) {
-                        o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50;
-                        o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0;
-                        o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
-                        d_raw.agi = d_raw.agi; d_raw.for = d_raw.for; d_raw.int = d_raw.int; d_raw.pre = d_raw.pre; d_raw.vig = d_raw.vig;
-                        o.hexatombe_data = { ...d_raw }; delete o.hexatombe_data.hexatombe_data; 
-                    } else {
-                        let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - 50; if(nPv < 1) nPv = 1;
-                        o.pvAtual = nPv;
-                        o.pcAtual = parseInt(d_raw.pcAtual_hexa) || 0;
-                        o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
-                    }
-                    prevHexatombeFinal = hexatombeFinal;
-                    db.collection("ameacas").doc(atual).update(o);
-                    return; 
-                }
-
-                let d = d_raw;
-                if (hexatombeFinal && d_raw.hexatombe_data) { 
-                    d = { ...d_raw, ...d_raw.hexatombe_data }; 
-                    d.agi = d_raw.agi; d.for = d_raw.for; d.int = d_raw.int; d.pre = d_raw.pre; d.vig = d_raw.vig;
-                }
-
-                let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
-                let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
-                let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
-
-                if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
-                if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
-                if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 100;
-
-                if (document.activeElement !== document.getElementById('pv-max')) document.getElementById('pv-max').value = d.pvMax ?? 100;
-                if (document.activeElement !== document.getElementById('pc-max')) document.getElementById('pc-max').value = d.pcMax ?? 100;
-                if (document.activeElement !== document.getElementById('pe-max')) document.getElementById('pe-max').value = d.peMax ?? 100;
-
-                document.querySelectorAll('.save-auto').forEach(el => {
-                    if(el.id && d[el.id] !== undefined && el.value !== d[el.id] && document.activeElement !== el) {
-                        el.value = d[el.id];
-                    }
-                });
-                
-                if (d.portrait) { const img = document.getElementById('img-preview'); img.src = d.portrait; img.style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; if(d.pZ) document.getElementById('pZ').value = d.pZ; if(d.pX) document.getElementById('pX').value = d.pX; if(d.pY) document.getElementById('pY').value = d.pY; ajustarFoto(); }
-
-                atualizarVisualBarra('pv'); atualizarVisualBarra('pc'); atualizarVisualBarra('pe');
-                aplicarSegredosAmeaca();
-            }
-        });
-
-        document.querySelectorAll('.save-auto').forEach(el => { el.addEventListener('input', (e) => updateField(e.target.id, e.target.value)); });
-
-        function atualizarVisualBarra(tipo) {
-            let atStr = document.getElementById(`${tipo}-atual`).value; let mxStr = document.getElementById(`${tipo}-max`).value;
-            let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
-            const bar = document.getElementById(`bar-${tipo}`);
-            if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; }
-        }
-
-        function salvarAmeaca() {
-            const hexatombeFinal = isHexatombe || globalHexatombe;
-            let payload = {
-                nome: document.getElementById('nome').value, vd: parseInt(document.getElementById('vd').value) || 0,
-                "tipo-criatura": document.getElementById('tipo-criatura').value,
-                agi: parseInt(document.getElementById('agi').value) || 0, for: parseInt(document.getElementById('for').value) || 0, int: parseInt(document.getElementById('int').value) || 0, pre: parseInt(document.getElementById('pre').value) || 0, vig: parseInt(document.getElementById('vig').value) || 0,
-                pvMax: parseInt(document.getElementById('pv-max').value) || 1, pcMax: parseInt(document.getElementById('pc-max').value) || 1, peMax: parseInt(document.getElementById('pe-max').value) || 1,
-                descricao: document.getElementById('descricao').value,
-                percepcao: document.getElementById('percepcao').value, iniciativa: document.getElementById('iniciativa').value, defesa: document.getElementById('defesa').value, fortitude: document.getElementById('fortitude').value, reflexos: document.getElementById('reflexos').value, vontade: document.getElementById('vontade').value, vulnerabilidades: document.getElementById('vulnerabilidades').value, resistencias: document.getElementById('resistencias').value, imunidades: document.getElementById('imunidades').value, pericias: document.getElementById('pericias').value, deslocamento: document.getElementById('deslocamento').value, enigma: document.getElementById('enigma').value
-            };
-
-            let rootUpdates = { hexatombe: isHexatombe };
-            let inV = parseInt(document.getElementById('pv-atual').value) || 0; let inS = parseInt(document.getElementById('pc-atual').value) || 0; let inP = parseInt(document.getElementById('pe-atual').value) || 0;
-
-            if (hexatombeFinal) { 
-                rootUpdates.hexatombe_data = payload; 
-                rootUpdates.pvAtual_hexa = inV; rootUpdates.pcAtual_hexa = inS; rootUpdates.peAtual_hexa = inP; 
-                rootUpdates.agi = payload.agi; rootUpdates.for = payload.for; rootUpdates.int = payload.int; rootUpdates.pre = payload.pre; rootUpdates.vig = payload.vig;
-            } else { 
-                rootUpdates = { ...payload, ...rootUpdates }; 
-                rootUpdates.pvAtual = inV; rootUpdates.pcAtual = inS; rootUpdates.peAtual = inP; 
-            }
-            db.collection("ameacas").doc(atual).update(rootUpdates);
-        }
-
-        function loadSub(col, containerId, renderFunc) {
-            const hexatombeFinal = isHexatombe || globalHexatombe; const path = hexatombeFinal ? "hexa_" + col : col;
-            db.collection("ameacas").doc(atual).collection(path).onSnapshot(snap => {
-                const container = document.getElementById(containerId); container.innerHTML = "";
-                snap.forEach(doc => { container.innerHTML += renderFunc(doc.id, doc.data(), path); });
-            });
-        }
-
-        async function updateSub(id, path, campo, valor) { let obj = {}; obj[campo] = valor; await db.collection("ameacas").doc(atual).collection(path).doc(id).update(obj); }
-        async function removerSub(id, path) { if(confirm("Excluir este registro?")) await db.collection("ameacas").doc(atual).collection(path).doc(id).delete(); }
-
-        async function addAcao() { const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "Nova Ação", alcance: "Corpo a Corpo", teste: "4d20", dano: "1d10" }); }
-        
-        /* NOVO RENDER DA AÇÃO (ESTILO LIVRO) */
-        function renderAcao(id, data, path) { 
-            return `
-            <div class="dynamic-item">
-                <button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button>
-                <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:5px; margin-bottom:5px;">
-                    <span style="color:#aaa; font-weight:bold; font-size:14px;">[</span>
-                    <input class="book-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 50px; font-weight:bold; font-size: 14px; text-transform:capitalize; color:#aaa; text-align:center;">
-                    <span style="color:#aaa; font-weight:bold; font-size:14px; margin-right:5px;">]</span>
-                    
-                    <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.3rem; font-weight: bold; color: var(--op-red); text-transform: uppercase; min-width: 150px;">
-                    
-                    <span style="color:#555; margin: 0 5px;">|</span>
-                    
-                    <input class="book-input" placeholder="Teste Ex: 4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 80px; font-size: 13px;">
-                    
-                    <span style="color:#555; margin: 0 5px;">|</span>
-                    
-                    <input class="book-input" placeholder="Dano Ex: 2d10+10" value="${data.dano || ''}" onchange="updateSub('${id}','${path}','dano',this.value)" style="font-weight:bold; width: 120px; font-size: 13px; color: #fff;">
-                    
-                    <span style="color:#555; margin: 0 5px;">|</span>
-                    
-                    <input class="book-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','${path}','alcance',this.value)" style="width: 80px; font-size: 13px; color: #aaa;">
+            <div class="book-stat-row" style="flex-direction: column; gap: 15px; margin: 15px 0;">
+                <div style="display: flex; width: 100%; align-items: center; gap:15px;">
+                    <span class="stat-label" style="width: 120px;">PONTOS DE VIDA</span>
+                    <div class="resource-block">
+                        <div class="resource-inputs">
+                            <input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')">
+                            <span style="color:rgba(0,0,0,0.5);">/</span>
+                            <input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv')" style="color:rgba(0,0,0,0.5);">
+                        </div>
+                        <div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div>
+                    </div>
                 </div>
-                <input class="book-input" placeholder="Efeitos adicionais, crítico, condições..." value="${data.efeitos || ''}" onchange="updateSub('${id}','${path}','efeitos',this.value)" style="width: 95%; font-size: 13px; color: #aaa; font-style: italic;">
-            </div>`; 
+
+                <div style="display: flex; width: 100%; align-items: center; gap:15px;">
+                    <span class="stat-label" style="width: 120px; color:var(--san-purple);">CONSCIÊNCIA</span>
+                    <div class="resource-block">
+                        <div class="resource-inputs">
+                            <input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')">
+                            <span style="color:rgba(0,0,0,0.5);">/</span>
+                            <input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="color:rgba(0,0,0,0.5);">
+                        </div>
+                        <div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; width: 100%; align-items: center; gap:15px;">
+                    <span class="stat-label" style="width: 120px; color:var(--pe-orange);">ESFORÇO</span>
+                    <div class="resource-block">
+                        <div class="resource-inputs">
+                            <input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')">
+                            <span style="color:rgba(0,0,0,0.5);">/</span>
+                            <input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="color:rgba(0,0,0,0.5);">
+                        </div>
+                        <div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-stat-row">
+                <span class="stat-label">VULNERABILIDADES</span> 
+                <input id="vulnerabilidades" class="book-input save-auto" placeholder="Descreva aqui..." style="flex: 1;">
+            </div>
+            <div class="book-stat-row">
+                <span class="stat-label">RESISTÊNCIAS</span> 
+                <input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10, Sangue 10..." style="flex: 1;">
+            </div>
+            <div class="book-stat-row">
+                <span class="stat-label">IMUNIDADES</span> 
+                <input id="imunidades" class="book-input save-auto" placeholder="Condições, Elementos..." style="flex: 1;">
+            </div>
+
+            <div class="book-stat-row">
+                <span class="stat-label">PERÍCIAS NOTÁVEIS</span> 
+                <input id="pericias" class="book-input save-auto" placeholder="Atletismo 4d20+15..." style="flex: 1;">
+            </div>
+            
+            <div class="book-stat-row">
+                <span class="stat-label">DESLOCAMENTO</span> 
+                <input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q" style="width: 150px;">
+            </div>
+        </div>
+
+        <div class="col-art">
+            <div class="portrait-container">
+                <div class="portrait" onclick="document.getElementById('fileInput').click()">
+                    <img id="img-preview" style="display:none; position: absolute; left: 0; top: 0;">
+                    <div id="img-placeholder" class="upload-hint">FOTO / ILUSTRAÇÃO</div>
+                </div>
+                <div style="opacity: 0.3; transition: 0.3s; margin-top: 5px;">
+                    <div style="display: flex; gap: 5px;">
+                        <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ', this.value)" style="width: 100%;">
+                        <input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pX', this.value)" style="width: 100%;">
+                        <input type="range" id="pY" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pY', this.value)" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="sigilo-container">
+                <div class="attr-box agi"><span class="attr-label">AGI</span><input type="number" id="agi" class="save-auto" placeholder="0"></div>
+                <div class="attr-box for"><span class="attr-label">FOR</span><input type="number" id="for" class="save-auto" placeholder="0"></div>
+                <div class="attr-box sag"><span class="attr-label">INT</span><input type="number" id="int" class="save-auto" placeholder="0"></div>
+                <div class="attr-box von"><span class="attr-label">PRE</span><input type="number" id="pre" class="save-auto" placeholder="0"></div>
+                <div class="attr-box vig"><span class="attr-label">VIG</span><input type="number" id="vig" class="save-auto" placeholder="0"></div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
+
+    <div class="section-header">AÇÕES</div>
+    <div id="lista-acoes"></div>
+    <button class="btn-add" onclick="addAcao()">+ DATILOGRAFAR AÇÃO</button>
+
+    <div class="section-header">HABILIDADES E COMPORTAMENTOS</div>
+    <div id="lista-habilidades"></div>
+    <button class="btn-add" onclick="addHabilidade()">+ DATILOGRAFAR TRAÇO</button>
+
+    <div class="section-header" style="background: var(--op-ink);">ENIGMA DO MEDO</div>
+    <textarea id="enigma" class="cris-textarea save-auto" placeholder="Insira o texto sobre a imunidade e solução do enigma..."></textarea>
+
+    <div class="section-header" style="background: #4a4036; margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
+    <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, etc..." style="min-height: 250px;"></textarea>
+
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+        authDomain: "fichasrpg-7fc69.firebaseapp.com",
+        projectId: "fichasrpg-7fc69",
+        storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+        messagingSenderId: "758802032764",
+        appId: "1:758802032764:web:40467e15fdc24c570081f9"
+    };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.firestore(); const urlParams = new URLSearchParams(window.location.search); const atual = urlParams.get('id');
+
+    if(!atual) { window.location.href = "index.html"; }
+
+    // --- SISTEMAS SECRETOS MESTRE ---
+    let isHexatombe = false;
+    let globalHexatombe = false; 
+    let prevHexatombeFinal = false; 
+
+    function toggleElem(id) { 
+        const b = document.getElementById(id); 
+        if(b.style.display === 'block') b.style.display = 'none'; 
+        else b.style.display = 'block'; 
+    }
+
+    db.collection("configuracoes").doc("globais").onSnapshot(doc => {
+        if(doc.exists) {
+            const data = doc.data(); 
+            globalHexatombe = data.hexatombe || false; 
+            aplicarSegredosAmeaca();
         }
+    });
 
-        async function addHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; await db.collection("ameacas").doc(atual).collection(path).add({ nome: "Novo Comportamento", descricao: "" }); }
-        
-        /* NOVO RENDER DA HABILIDADE (ESTILO LIVRO) */
-        function renderHabilidade(id, data, path) { 
-            return `
-            <div class="dynamic-item">
-                <button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button>
-                <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.3rem; font-weight: bold; color: var(--op-red); text-transform: uppercase; width: 80%; display:block; margin-bottom: 5px;">
-                <textarea class="book-input" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="width: 100%; min-height: 40px; resize: vertical; font-size: 13px; color: #d3d3d3; padding: 5px 0;">${data.descricao || ''}</textarea>
-            </div>`; 
+    let cheatCode = "";
+    document.addEventListener('keydown', (e) => {
+        const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
+        cheatCode += e.key.toLowerCase(); if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
+        if (cheatCode.includes("hexatombe")) { 
+            document.body.classList.add('shake');
+            setTimeout(async () => { document.body.classList.remove('shake'); 
+                let doc = await db.collection("ameacas").doc(atual).get(); 
+                let valAtual = doc.data().hexatombe || false; 
+                await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
+            }, 800);
+            cheatCode = ""; 
         }
+    });
 
-        loadSub('acoes', 'lista-acoes', renderAcao); loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
+    function verificarCheat() {
+        const code = document.getElementById('input-cheat').value.toLowerCase().trim();
+        if (code === "hexatombe") {
+            document.body.classList.add('shake');
+            setTimeout(async () => { document.body.classList.remove('shake'); 
+                let doc = await db.collection("ameacas").doc(atual).get(); 
+                let valAtual = doc.data().hexatombe || false; 
+                await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
+            }, 800);
+        }
+        else alert("Comando não reconhecido.");
+        document.getElementById('input-cheat').value = "";
+        toggleElem('modal-config');
+    }
 
-        function converterImagem(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader(); reader.onload = function(e) {
-                    const imgElement = new Image(); imgElement.src = e.target.result;
-                    imgElement.onload = function() {
-                        const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const maxW = 800; const scale = maxW / imgElement.width; canvas.width = maxW; canvas.height = imgElement.height * scale; ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
-                        const base64comprimido = canvas.toDataURL('image/webp', 0.6); document.getElementById('img-preview').src = base64comprimido; document.getElementById('img-preview').style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; updateField('portrait', base64comprimido);
-                    };
-                }; reader.readAsDataURL(input.files[0]);
+    function aplicarSegredosAmeaca() {
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        if (hexatombeFinal) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
+    }
+
+    // --- AUTO-SAVE ---
+    let timeout;
+    function updateField(campo, valor) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => { let obj = {}; obj[campo] = valor; db.collection("ameacas").doc(atual).update(obj); }, 800);
+    }
+
+    db.collection("ameacas").doc(atual).onSnapshot(doc => {
+        if(doc.exists) {
+            const d_raw = doc.data();
+            isHexatombe = d_raw.hexatombe || false;
+            const hexatombeFinal = isHexatombe || globalHexatombe;
+
+            if (prevHexatombeFinal !== hexatombeFinal) {
+                let o = {};
+                if (hexatombeFinal) {
+                    o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50;
+                    o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0;
+                    o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
+                    d_raw.agi = d_raw.agi; d_raw.for = d_raw.for; d_raw.int = d_raw.int; d_raw.pre = d_raw.pre; d_raw.vig = d_raw.vig;
+                    o.hexatombe_data = { ...d_raw }; delete o.hexatombe_data.hexatombe_data; 
+                } else {
+                    let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - 50; if(nPv < 1) nPv = 1;
+                    o.pvAtual = nPv;
+                    o.pcAtual = parseInt(d_raw.pcAtual_hexa) || 0;
+                    o.peAtual = parseInt(d_raw.peAtual_hexa) || 0;
+                }
+                prevHexatombeFinal = hexatombeFinal;
+                db.collection("ameacas").doc(atual).update(o);
+                return; 
             }
+
+            let d = d_raw;
+            if (hexatombeFinal && d_raw.hexatombe_data) { 
+                d = { ...d_raw, ...d_raw.hexatombe_data }; 
+                d.agi = d_raw.agi; d.for = d_raw.for; d.int = d_raw.int; d.pre = d_raw.pre; d.vig = d_raw.vig;
+            }
+
+            let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
+            let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
+            let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
+
+            if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
+            if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 100;
+
+            if (document.activeElement !== document.getElementById('pv-max')) document.getElementById('pv-max').value = d.pvMax ?? 100;
+            if (document.activeElement !== document.getElementById('pc-max')) document.getElementById('pc-max').value = d.pcMax ?? 100;
+            if (document.activeElement !== document.getElementById('pe-max')) document.getElementById('pe-max').value = d.peMax ?? 100;
+
+            document.querySelectorAll('.save-auto').forEach(el => {
+                if(el.id && d[el.id] !== undefined && el.value !== d[el.id] && document.activeElement !== el) {
+                    el.value = d[el.id];
+                }
+            });
+            
+            if (d.portrait) { const img = document.getElementById('img-preview'); img.src = d.portrait; img.style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; if(d.pZ) document.getElementById('pZ').value = d.pZ; if(d.pX) document.getElementById('pX').value = d.pX; if(d.pY) document.getElementById('pY').value = d.pY; ajustarFoto(); }
+
+            atualizarVisualBarra('pv'); atualizarVisualBarra('pc'); atualizarVisualBarra('pe');
+            aplicarSegredosAmeaca();
         }
-        function ajustarFoto() { const z = document.getElementById('pZ').value; const x = document.getElementById('pX').value; const y = document.getElementById('pY').value; const img = document.getElementById('img-preview'); img.style.objectPosition = `${x}% ${y}%`; img.style.transform = `scale(${z})`; }
-    </script>
+    });
+
+    document.querySelectorAll('.save-auto').forEach(el => { el.addEventListener('input', (e) => updateField(e.target.id, e.target.value)); });
+
+    function atualizarVisualBarra(tipo) {
+        let atStr = document.getElementById(`${tipo}-atual`).value; let mxStr = document.getElementById(`${tipo}-max`).value;
+        let curr = atStr === '' ? 0 : parseFloat(atStr); let max = mxStr === '' ? 1 : parseFloat(mxStr);
+        const bar = document.getElementById(`bar-${tipo}`);
+        if(bar) { bar.style.width = Math.max(0, Math.min((curr / max) * 100, 100)) + "%"; }
+    }
+
+    function loadSub(col, containerId, renderFunc) {
+        const hexatombeFinal = isHexatombe || globalHexatombe; const path = hexatombeFinal ? "hexa_" + col : col;
+        db.collection("ameacas").doc(atual).collection(path).onSnapshot(snap => {
+            const container = document.getElementById(containerId); container.innerHTML = "";
+            snap.forEach(doc => { container.innerHTML += renderFunc(doc.id, doc.data(), path); });
+        });
+    }
+
+    async function updateSub(id, path, campo, valor) { let obj = {}; obj[campo] = valor; await db.collection("ameacas").doc(atual).collection(path).doc(id).update(obj); }
+    async function removerSub(id, path) { if(confirm("Excluir este registro?")) await db.collection("ameacas").doc(atual).collection(path).doc(id).delete(); }
+
+    async function addAcao() { const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "Nova Ação", alcance: "Curto", teste: "4d20", dano: "1d10" }); }
+    
+    function renderAcao(id, data, path) { 
+        return `
+        <div class="dynamic-item">
+            <button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button>
+            <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:5px; margin-bottom:5px;">
+                <span style="color:var(--op-ink); font-weight:bold; font-size:16px;">[</span>
+                <input class="book-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 60px; font-weight:bold; font-size: 14px; text-transform:capitalize; text-align:center;">
+                <span style="color:var(--op-ink); font-weight:bold; font-size:16px; margin-right:5px;">]</span>
+                
+                <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-red); text-transform: uppercase; min-width: 150px;">
+                
+                <span style="color:#555; margin: 0 5px;">|</span>
+                <span class="sub-label">TESTE</span>
+                <input class="book-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 80px; font-size: 15px; font-weight:bold;">
+                
+                <span style="color:#555; margin: 0 5px;">|</span>
+                <span class="sub-label">DANO</span>
+                <input class="book-input" placeholder="2d10+10" value="${data.dano || ''}" onchange="updateSub('${id}','${path}','dano',this.value)" style="font-weight:bold; width: 140px; font-size: 15px;">
+                
+                <span style="color:#555; margin: 0 5px;">|</span>
+                
+                <input class="book-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','${path}','alcance',this.value)" style="width: 80px; font-size: 14px;">
+            </div>
+            <textarea class="cris-textarea" placeholder="Efeitos adicionais, crítico, condições especiais..." onchange="updateSub('${id}','${path}','efeitos',this.value)" style="min-height: 40px; font-style: italic; color: #444;">${data.efeitos || ''}</textarea>
+        </div>`; 
+    }
+
+    async function addHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; await db.collection("ameacas").doc(atual).collection(path).add({ nome: "Novo Comportamento", descricao: "" }); }
+    
+    function renderHabilidade(id, data, path) { 
+        return `
+        <div class="dynamic-item">
+            <button class="btn-del" onclick="removerSub('${id}', '${path}')">X</button>
+            <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-ink); text-transform: uppercase; width: 80%; display:block; margin-bottom: 5px;">
+            <textarea class="cris-textarea" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px;">${data.descricao || ''}</textarea>
+        </div>`; 
+    }
+
+    loadSub('acoes', 'lista-acoes', renderAcao); loadSub('habilidades_ameaca', 'lista-habilidades', renderHabilidade);
+
+    function converterImagem(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader(); reader.onload = function(e) {
+                const imgElement = new Image(); imgElement.src = e.target.result;
+                imgElement.onload = function() {
+                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const maxW = 800; const scale = maxW / imgElement.width; canvas.width = maxW; canvas.height = imgElement.height * scale; ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+                    const base64comprimido = canvas.toDataURL('image/webp', 0.6); document.getElementById('img-preview').src = base64comprimido; document.getElementById('img-preview').style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; updateField('portrait', base64comprimido);
+                };
+            }; reader.readAsDataURL(input.files[0]);
+        }
+    }
+    function ajustarFoto() { const z = document.getElementById('pZ').value; const x = document.getElementById('pX').value; const y = document.getElementById('pY').value; const img = document.getElementById('img-preview'); img.style.objectPosition = `${x}% ${y}%`; img.style.transform = `scale(${z})`; }
+</script>
 </body>
 </html>
