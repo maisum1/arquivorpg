@@ -67,19 +67,22 @@
         .attr-label { font-family: 'Inter', sans-serif; font-weight: bold; color: var(--cris-purple); font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; }
         .attr-input { width: 45px; height: 45px; border-radius: 2px; border: 1px solid #555; background: var(--bg-panel); color: white; text-align: center; font-size: 22px; font-weight: bold; font-family: 'Crimson Text', serif; outline: none; }
 
-        .separator { border-bottom: 1px solid #333; margin: 20px 0; }
+        .separator { border-bottom: 1px solid #333; margin: 15px 0; }
         .stat-row { margin-bottom: 12px; line-height: 1.6; }
-        .stat-label { font-family: 'Inter', sans-serif; color: var(--hp-red); font-weight: bold; margin-right: 5px; font-size: 13px; letter-spacing: 1px; }
+        .stat-label { font-family: 'Inter', sans-serif; color: var(--hp-red); font-weight: bold; margin-right: 5px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
         .section-title { color: var(--hp-red); padding: 5px 0; font-family: 'Crimson Text', serif; font-size: 1.4em; font-weight: bold; display: inline-block; margin-bottom: 15px; border-bottom: 2px solid var(--hp-red); text-transform: uppercase; letter-spacing: 1px; }
 
-        /* BARRAS MAIS COMPACTAS E SEM SETINHAS */
-        .status-container { margin-bottom: 15px; }
-        .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 4px; padding: 0;}
-        .status-header { font-size: 11px; font-weight: bold; letter-spacing: 2px; font-family: 'Inter'; text-align: center; }
-        .bar-bg { width: 100%; height: 25px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
+        /* BARRAS COMPACTADAS SEM SETAS */
+        .status-container { margin-bottom: 10px; }
+        .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 2px; padding: 0;}
+        .status-header { font-size: 10px; font-weight: bold; letter-spacing: 2px; font-family: 'Inter'; text-align: center; text-transform: uppercase;}
+        .bar-bg { width: 100%; height: 20px; background: #111; position: relative; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
         .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
         .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: center; padding: 0; font-weight: bold; font-family: 'Crimson Text', serif; align-items: center; transition: opacity 0.3s; }
-        .bar-content input { background: transparent; border: none; color: #fff; width: 50px; text-align: center; font-size: 16px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
+        .bar-content input { background: transparent; border: none; color: #fff; width: 45px; text-align: center; font-size: 16px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
+
+        /* GRADE COMPACTA PARA RESISTÊNCIAS E INFOS */
+        .compact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
 
         .dynamic-item { background: #151515; border-left: 3px solid #555; padding: 15px; margin-bottom: 10px; position: relative; border-radius: 2px; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: none; border: none; color: #555; cursor: pointer; font-weight: bold; transition: 0.2s; }
@@ -90,7 +93,7 @@
         .voltar-btn { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; color: #888; padding: 10px 20px; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #444; border-radius: 2px; z-index: 1000; transition: 0.3s; letter-spacing: 1px; }
         .voltar-btn:hover { background: #333; color: #fff; border-color: #666; }
 
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .compact-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -160,7 +163,11 @@
                 <div class="bar-bg">
                     <div id="bar-pv" class="bar-fill" style="background:var(--hp-red)"></div>
                     <div class="bar-content">
-                        <input type="number" id="pv-atual" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()"> <span style="opacity: 0.5; margin:0 5px;">/</span> <input type="number" id="pv-max" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        <div>
+                            <input type="number" id="pv-atual" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()"> 
+                            <span style="opacity: 0.5; margin:0 2px;">/</span> 
+                            <input type="number" id="pv-max" oninput="atualizarVisualBarra('pv')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -170,7 +177,11 @@
                 <div class="bar-bg">
                     <div id="bar-pc" class="bar-fill" style="background:var(--san-purple)"></div>
                     <div class="bar-content">
-                        <input type="number" id="pc-atual" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()"> <span style="opacity: 0.5; margin:0 5px;">/</span> <input type="number" id="pc-max" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        <div>
+                            <input type="number" id="pc-atual" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()"> 
+                            <span style="opacity: 0.5; margin:0 2px;">/</span> 
+                            <input type="number" id="pc-max" oninput="atualizarVisualBarra('pc')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,27 +191,35 @@
                 <div class="bar-bg">
                     <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                     <div class="bar-content">
-                        <input type="number" id="pe-atual" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()"> <span style="opacity: 0.5; margin:0 5px;">/</span> <input type="number" id="pe-max" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        <div>
+                            <input type="number" id="pe-atual" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()"> 
+                            <span style="opacity: 0.5; margin:0 2px;">/</span> 
+                            <input type="number" id="pe-max" oninput="atualizarVisualBarra('pe')" onchange="salvarAmeaca()" style="color:#aaa;">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="separator"></div>
 
-            <div class="stat-row">
-                <span class="stat-label">VULNERABILIDADES</span> <input id="vulnerabilidades" class="inline-input save-auto" placeholder="Energia..." style="width: 70%;">
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">RESISTÊNCIAS</span> <input id="resistencias" class="inline-input save-auto" placeholder="Dano físico 10, Sangue 10..." style="width: 75%;">
-            </div>
-            <div class="stat-row">
-                <span class="stat-label">IMUNIDADES</span> <input id="imunidades" class="inline-input save-auto" placeholder="Condições de paralisia..." style="width: 78%;">
+            <div class="compact-grid">
+                <div class="stat-row" style="margin: 0;">
+                    <span class="stat-label">VULNERAB.</span> <input id="vulnerabilidades" class="inline-input save-auto" placeholder="Energia..." style="width: 55%;">
+                </div>
+                <div class="stat-row" style="margin: 0;">
+                    <span class="stat-label">RESISTÊNCIAS</span> <input id="resistencias" class="inline-input save-auto" placeholder="Físico 10..." style="width: 55%;">
+                </div>
+                <div class="stat-row" style="margin: 0; grid-column: span 2;">
+                    <span class="stat-label">IMUNIDADES</span> <input id="imunidades" class="inline-input save-auto" placeholder="Condições de paralisia..." style="width: 80%;">
+                </div>
+                <div class="stat-row" style="margin: 0; grid-column: span 2;">
+                    <span class="stat-label">PERÍCIAS NOTÁVEIS</span> <input id="pericias" class="inline-input save-auto" placeholder="Atletismo +15, Luta +15..." style="width: 75%;">
+                </div>
+                <div class="stat-row" style="margin: 0; grid-column: span 2;">
+                    <span class="stat-label">MOBILIDADE TÁTICA</span> <input id="deslocamento" class="inline-input save-auto" placeholder="9m | 6q" style="width: 40%;">
+                </div>
             </div>
 
-            <div class="separator"></div>
-            <div class="stat-row"><span class="stat-label">PERÍCIAS NOTÁVEIS</span> <input id="pericias" class="inline-input save-auto" placeholder="Atletismo 4d20+15, Luta 4d20+15..." style="width: 75%;"></div>
-            <div class="separator"></div>
-            <div class="stat-row"><span class="stat-label">MOBILIDADE TÁTICA</span> <input id="deslocamento" class="inline-input save-auto" placeholder="9m | 6q" style="width: 70%;"></div>
             <div class="separator"></div>
 
             <div>
@@ -247,6 +266,7 @@
         // --- SISTEMAS SECRETOS MESTRE ---
         let isHexatombe = false;
         let globalHexatombe = false; 
+        let prevHexatombeFinal = false; 
 
         db.collection("configuracoes").doc("globais").onSnapshot(doc => {
             if(doc.exists) {
@@ -264,8 +284,7 @@
             cheatCode += e.key.toLowerCase(); if (cheatCode.length > 20) cheatCode = cheatCode.substring(1);
             if (cheatCode.includes("hexatombe")) { 
                 document.body.classList.add('shake');
-                setTimeout(async () => { 
-                    document.body.classList.remove('shake'); 
+                setTimeout(async () => { document.body.classList.remove('shake'); 
                     let doc = await db.collection("ameacas").doc(atual).get(); 
                     let valAtual = doc.data().hexatombe || false; 
                     await db.collection("ameacas").doc(atual).update({ hexatombe: !valAtual }); 
@@ -275,7 +294,7 @@
         });
 
         function aplicarDeltaHexatombeAmeaca(vaiLigar) {
-            // Ameaças apenas recebem um buff estático no HP
+            // Ameaças apenas recebem um buff estático no HP se precisarem.
             let docRef = db.collection("ameacas").doc(atual);
             docRef.get().then(doc => {
                 const d = doc.data();
@@ -318,13 +337,30 @@
                     d = { ...d_raw, ...d_raw.hexatombe_data }; 
                 }
 
-                let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
-                let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
-                let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
-
-                if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
-                if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
-                if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 100;
+                if (prevHexatombeFinal !== hexatombeFinal) {
+                    let pvInput = document.getElementById('pv-atual'); let pcInput = document.getElementById('pc-atual'); let peInput = document.getElementById('pe-atual');
+                    if (hexatombeFinal) {
+                        pvInput.value = parseInt(d_raw.pvAtual) || 0; pcInput.value = parseInt(d_raw.pcAtual) || 0; peInput.value = parseInt(d_raw.peAtual) || 0;
+                    } else {
+                        let maxPV = parseInt(d_raw.pvMax) || 1; let maxHN = parseInt(d_raw.hexatombe_data?.pvMax) || maxPV;
+                        let nPv = (parseInt(d_raw.pvAtual_hexa) || 0) - (maxHN - maxPV); if(nPv < 1 && (parseInt(d_raw.pvAtual_hexa) || 0) >= 1) nPv = 1; else if (nPv < 0) nPv = 0; pvInput.value = nPv;
+                        
+                        let maxPC = parseInt(d_raw.pcMax) || 1; let maxSN = parseInt(d_raw.hexatombe_data?.pcMax) || maxPC;
+                        let nPc = (parseInt(d_raw.pcAtual_hexa) || 0) - (maxSN - maxPC); if(nPc < 1 && (parseInt(d_raw.pcAtual_hexa) || 0) >= 1) nPc = 1; else if (nPc < 0) nPc = 0; pcInput.value = nPc;
+                        
+                        let maxPE = parseInt(d_raw.peMax) || 1; let maxPN = parseInt(d_raw.hexatombe_data?.peMax) || maxPE;
+                        let nPe = (parseInt(d_raw.peAtual_hexa) || 0) - (maxPN - maxPE); if(nPe < 1 && (parseInt(d_raw.peAtual_hexa) || 0) >= 1) nPe = 1; else if (nPe < 0) nPe = 0; peInput.value = nPe;
+                    }
+                    prevHexatombeFinal = hexatombeFinal;
+                    setTimeout(() => salvarAmeaca(), 100); 
+                } else {
+                    let vAt = hexatombeFinal ? (d_raw.pvAtual_hexa ?? d_raw.pvAtual) : d_raw.pvAtual;
+                    let sAt = hexatombeFinal ? (d_raw.pcAtual_hexa ?? d_raw.pcAtual) : d_raw.pcAtual;
+                    let pAt = hexatombeFinal ? (d_raw.peAtual_hexa ?? d_raw.peAtual) : d_raw.peAtual;
+                    if (document.activeElement !== document.getElementById('pv-atual')) document.getElementById('pv-atual').value = vAt ?? 100;
+                    if (document.activeElement !== document.getElementById('pc-atual')) document.getElementById('pc-atual').value = sAt ?? 100;
+                    if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pAt ?? 100;
+                }
 
                 if (document.activeElement !== document.getElementById('pv-max')) document.getElementById('pv-max').value = d.pvMax ?? 100;
                 if (document.activeElement !== document.getElementById('pc-max')) document.getElementById('pc-max').value = d.pcMax ?? 100;
@@ -362,7 +398,7 @@
                 percepcao: document.getElementById('percepcao').value, iniciativa: document.getElementById('iniciativa').value, defesa: document.getElementById('defesa').value, fortitude: document.getElementById('fortitude').value, reflexos: document.getElementById('reflexos').value, vontade: document.getElementById('vontade').value, vulnerabilidades: document.getElementById('vulnerabilidades').value, resistencias: document.getElementById('resistencias').value, imunidades: document.getElementById('imunidades').value, pericias: document.getElementById('pericias').value, deslocamento: document.getElementById('deslocamento').value, enigma: document.getElementById('enigma').value
             };
 
-            let rootUpdates = {};
+            let rootUpdates = { hexatombe: isHexatombe };
             let inV = parseInt(document.getElementById('pv-atual').value) || 0; let inS = parseInt(document.getElementById('pc-atual').value) || 0; let inP = parseInt(document.getElementById('pe-atual').value) || 0;
 
             if (hexatombeFinal) { 
