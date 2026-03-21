@@ -39,9 +39,8 @@
             --cor-fixo: var(--op-ink);
         }
 
-        /* --- TEMA ESCURO (Estilo Antigo) --- */
+        /* --- TEMA ESCURO (Estilo Suavizado e Limpo) --- */
         body.tema-escuro {
-            --bg-desk: #000000;
             --bg-paper: #161616;
             --op-ink: #d4d4d4;
             --op-red: #cc2929;
@@ -53,6 +52,15 @@
             --san-purple: #6a829e;
             --pe-orange: #a88a61;
             --cor-geral: #888;
+            
+            /* Fundo escuro liso sem o noise ruim */
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
+        }
+        
+        body.tema-escuro .grid-container {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.02) 0%, transparent 3%, transparent 97%, rgba(255,255,255,0.02) 100%),
+                linear-gradient(to bottom, rgba(255,255,255,0.01) 0%, transparent 2%, transparent 98%, rgba(255,255,255,0.01) 100%) !important;
         }
 
         /* TEMA HEXATOMBE FORTALECIDO */
@@ -84,41 +92,30 @@
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* OVERLAYS VISUAIS DOS ESTADOS (Com respingos de sangue SVG/Gradients) */
+        /* OVERLAYS VISUAIS DOS ESTADOS */
         #status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; transition: all 0.5s ease; }
         
         .overlay-sangrando { 
             box-shadow: inset 0 0 150px rgba(139, 28, 28, 0.4); 
             border: 2px solid rgba(139, 28, 28, 0.2); 
-            background-image: 
-                radial-gradient(circle at 10% 15%, rgba(139,0,0,0.6) 0%, rgba(139,0,0,0.4) 1%, transparent 3%),
-                radial-gradient(circle at 12% 17%, rgba(139,0,0,0.5) 0%, transparent 2%),
-                radial-gradient(circle at 85% 85%, rgba(139,0,0,0.6) 0%, rgba(139,0,0,0.3) 2%, transparent 5%),
-                radial-gradient(circle at 88% 82%, rgba(139,0,0,0.4) 0%, transparent 2%),
-                radial-gradient(circle at 50% 5%, rgba(139,0,0,0.4) 0%, transparent 3%);
         }
         
         .overlay-machucado { 
             box-shadow: inset 0 0 150px rgba(139, 28, 28, 0.6); 
             animation: pulse-machucado 1.5s infinite alternate; 
             background-color: rgba(139, 28, 28, 0.05);
-            background-image: 
-                radial-gradient(circle at 10% 15%, rgba(139,0,0,0.8) 0%, rgba(139,0,0,0.6) 2%, transparent 5%),
-                radial-gradient(circle at 12% 17%, rgba(139,0,0,0.7) 0%, transparent 3%),
-                radial-gradient(circle at 85% 85%, rgba(139,0,0,0.8) 0%, rgba(139,0,0,0.5) 3%, transparent 7%),
-                radial-gradient(circle at 88% 82%, rgba(139,0,0,0.7) 0%, transparent 4%),
-                radial-gradient(circle at 50% 5%, rgba(139,0,0,0.6) 0%, transparent 4%),
-                radial-gradient(circle at 75% 20%, rgba(139,0,0,0.7) 0%, rgba(139,0,0,0.4) 2%, transparent 6%),
-                radial-gradient(circle at 73% 24%, rgba(139,0,0,0.6) 0%, transparent 2%),
-                radial-gradient(circle at 25% 80%, rgba(139,0,0,0.7) 0%, rgba(139,0,0,0.4) 2%, transparent 5%),
-                radial-gradient(circle at 30% 90%, rgba(139,0,0,0.5) 0%, transparent 3%);
         }
         
         .overlay-atordoado { backdrop-filter: blur(2px); background: rgba(255, 255, 255, 0.02); }
-        .overlay-assustado { box-shadow: inset 0 0 200px rgba(3, 67, 116, 0.5); filter: contrast(120%) saturate(60%); }
+        .overlay-assustado { 
+            animation: pulse-assustado 1.2s infinite alternate ease-in-out; 
+            filter: contrast(110%) saturate(80%); 
+        }
 
         @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 80px rgba(139, 28, 28, 0.4); } 100% { box-shadow: inset 0 0 250px rgba(139, 28, 28, 0.8); } }
+        @keyframes pulse-assustado { 0% { box-shadow: inset 0 0 100px rgba(3, 67, 116, 0.3); } 100% { box-shadow: inset 0 0 250px rgba(3, 67, 116, 0.7); } }
 
+        /* CONTAINER E MANCHAS DE SANGUE NO PAPEL */
         .grid-container { 
             background-color: var(--bg-paper); 
             background-image: 
@@ -128,8 +125,55 @@
             border: 1px solid #b3a996;
             padding: 50px 60px; border-radius: 2px;
             display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; 
+            position: relative; /* Necessário para o sangue ::after */
         }
         body.tema-escuro .grid-container { border-color: #333; }
+
+        .grid-container::after {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none; z-index: 50; transition: opacity 0.5s ease; opacity: 0;
+            border-radius: 2px;
+        }
+
+        .grid-container.papel-sangrando::after {
+            opacity: 0.6;
+            background-image:
+                radial-gradient(circle 8px at 5% 5%, rgba(139,28,28,0.8) 0%, transparent 100%),
+                radial-gradient(circle 12px at 95% 15%, rgba(139,28,28,0.8) 0%, transparent 100%),
+                radial-gradient(circle 5px at 12% 45%, rgba(139,28,28,0.8) 0%, transparent 100%);
+        }
+
+        .grid-container.papel-machucado::after {
+            opacity: 0.9;
+            background-image:
+                radial-gradient(circle 15px at 5% 5%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 6px at 7% 7%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 20px at 95% 15%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 8px at 92% 18%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 10px at 12% 45%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 25px at 85% 60%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 12px at 82% 64%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 18px at 30% 90%, rgba(139,28,28,0.85) 0%, transparent 100%);
+        }
+
+        /* --- ESTILOS DE TARJA / DYMO (Abas e Títulos) --- */
+        .section-header, .tab-btn.active {
+            background: var(--op-ink) !important;
+            color: var(--bg-paper) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+            padding: 6px 15px !important;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.4) !important;
+            display: inline-block;
+            border: none !important;
+            /* Aberração Cromática Sutil */
+            text-shadow: -1.5px 0px 0px rgba(0, 200, 255, 0.6), 1.5px 0px 0px rgba(255, 50, 0, 0.6) !important;
+        }
+        body.tema-escuro .section-header, body.tema-escuro .tab-btn.active {
+            box-shadow: 3px 3px 0px #000 !important;
+        }
 
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px double var(--op-ink); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -145,7 +189,7 @@
 
         /* ESTILOS DE FOTO COM FITA */
         .portrait-box {
-            width: 110px; height: 140px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: visible; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2;
+            width: 110px; height: 140px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2;
         }
         .portrait-box::before {
             content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
@@ -154,18 +198,20 @@
         }
         body.tema-escuro .portrait-box::before { background: rgba(50,50,50,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
         
-        .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; filter: grayscale(100%) contrast(120%) sepia(20%); mix-blend-mode: multiply;}
-        body.tema-escuro .portrait-box img, body.tema-hexatombe .portrait-box img { mix-blend-mode: normal; filter: grayscale(100%) contrast(120%);}
+        .portrait-img-container {
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; z-index: 1;
+        }
+        .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
 
         /* SISTEMA DE SIGILO E CONTRASTE FORTE (0% e 100%) */
-        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(100%) opacity(0.25); mix-blend-mode: multiply; transition: filter 0.5s ease; }
-        body.tema-escuro .sigilo-container { filter: grayscale(100%) opacity(0.4) invert(1); mix-blend-mode: screen; }
+        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(100%) opacity(0.6); mix-blend-mode: multiply; transition: filter 0.5s ease; }
+        body.tema-escuro .sigilo-container { filter: grayscale(100%) opacity(0.7) invert(1); mix-blend-mode: screen; }
         
         .sigilo-container::before {
             content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%;
             background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.15; z-index: -1; pointer-events: none; transition: all 1s ease;
+            opacity: 0.35; z-index: -1; pointer-events: none; transition: all 1s ease;
         }
 
         @keyframes pulsar-sangue {
@@ -206,7 +252,6 @@
         .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
         .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Special Elite', monospace; align-items: center; transition: opacity 0.3s; color: var(--op-ink);}
         
-        /* COR DO VALOR MÁXIMO FORTE */
         .bar-content input { background: transparent; border: none; color: var(--op-ink); width: 40px; text-align: center; font-size: 18px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none;}
         
         .bar-btn { cursor: pointer; color: var(--op-ink); font-size: 16px; opacity: 0.5; user-select: none; font-family: 'Inter'; padding: 0 5px;}
@@ -272,7 +317,7 @@
 
         .tabs-nav { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; margin-bottom: 25px; }
         .tab-btn { background: transparent; border: 1px dashed var(--card-border); color: var(--cor-geral); padding: 12px 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: 900; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 1px; border-radius: 2px; text-align: center;}
-        .tab-btn.active { color: var(--op-ink); border-color: var(--op-ink); background: var(--card-hover); border-style: solid;}
+        
         .tab-content { display: none; } .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
         .ritual-card { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--cor-geral); margin-bottom: 10px; border-radius: 2px; transition: border-color 0.3s; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); }
@@ -324,8 +369,8 @@
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
 
 <div id="modal-config" class="modal-padrao">
-    <h3 style="margin-top:0; font-family:'Inter', sans-serif; text-align:center; font-size: 18px; font-weight: 900; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px;">AJUSTES DE TRANSMISSÃO</h3>
-    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+    <h3 class="section-header" style="margin-top:0; text-align:center; font-size: 18px; width: 100%; display: block; box-sizing: border-box;">AJUSTES DE TRANSMISSÃO</h3>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; margin-top: 15px;">
         <button onclick="abrirUpload('Normal')" class="cris-btn" style="width: 100%;">[📷] FOTOGRAFIA PADRÃO</button>
         <button onclick="abrirUpload('Machucado')" class="cris-btn" style="border-color: var(--hp-red); color: var(--hp-red); width: 100%;">[🩸] ESTADO CRÍTICO (< 50% VIT)</button>
         <button onclick="abrirUpload('Enlouquecendo')" class="cris-btn" style="border-color: var(--san-purple); color: var(--san-purple); width: 100%;">[🌀] ESTADO DE CHOQUE (0 LUC)</button>
@@ -342,7 +387,7 @@
 </div>
 
 <div id="crop-modal" class="modal-padrao" style="width: 260px; text-align: center;">
-    <h3 style="margin:0 0 20px 0; font-family:'Inter', sans-serif; font-weight: 900;">CALIBRAR ENQUADRAMENTO</h3>
+    <h3 class="section-header" style="margin:0 0 20px 0; display: block;">CALIBRAR ENQUADRAMENTO</h3>
     <div id="crop-preview" style="width: 150px; height: 180px; margin: 0 auto 20px; border: 3px solid #fff; overflow: hidden; position: relative; background: #e0e0e0; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transform: rotate(-2deg);">
         <img id="temp-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0;">
     </div>
@@ -358,8 +403,8 @@
 </div>
 
 <div id="modal-origem" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight: 900;">BANCO DE ORIGENS</h3>
-    <select id="select-origem-template" class="rit-input" style="width: 100%; margin-bottom: 20px; border: 1px dotted var(--card-border);">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ORIGENS</h3>
+    <select id="select-origem-template" class="rit-input" style="width: 100%; margin-bottom: 20px; border: 1px dotted var(--card-border); margin-top: 10px;">
         <option value="">Selecione uma Profissão/Origem...</option>
         <option value="Cultista Arrependido">Cultista Arrependido (Ocultismo +3)</option>
     </select>
@@ -370,8 +415,8 @@
 </div>
 
 <div id="modal-tpl-ataque" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight: 900;">BANCO DE ARMAS</h3>
-    <select id="select-tpl-ataque" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border);" onchange="previewTemplate('ataque')">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
+    <select id="select-tpl-ataque" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('ataque')">
         <option value="">Selecione uma Arma...</option>
         <option value="Revolver">Revólver .38</option>
         <option value="Faca">Faca Tática</option>
@@ -384,8 +429,8 @@
 </div>
 
 <div id="modal-tpl-traco" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight: 900;">BANCO DE TRAÇOS</h3>
-    <select id="select-tpl-traco" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border);" onchange="previewTemplate('traco')">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE TRAÇOS</h3>
+    <select id="select-tpl-traco" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('traco')">
         <option value="">Selecione um Traço...</option>
         <option value="Paranoia">Paranoia</option>
         <option value="Resistente">Resistência Exemplar</option>
@@ -398,8 +443,8 @@
 </div>
 
 <div id="modal-tpl-espec" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight: 900; color: var(--hp-red) !important;">ESPECIALIZAÇÕES</h3>
-    <select id="select-tpl-espec" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border);" onchange="previewTemplate('espec')">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block; color: var(--hp-red) !important;">ESPECIALIZAÇÕES</h3>
+    <select id="select-tpl-espec" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('espec')">
         <option value="">Selecione uma Especialização...</option>
         <option value="Golpe Pesado">Golpe Pesado (Sangue)</option>
         <option value="Sentidos Apurados">Sentidos Apurados (Conhecimento)</option>
@@ -412,8 +457,8 @@
 </div>
 
 <div id="modal-tpl-anomalia" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight: 900;">BANCO DE ANOMALIAS</h3>
-    <select id="select-tpl-anomalia" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border);" onchange="previewTemplate('anomalia')">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ANOMALIAS</h3>
+    <select id="select-tpl-anomalia" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('anomalia')">
         <option value="">Selecione uma Anomalia...</option>
         <option value="Toque do Medo">Toque do Medo (Morte)</option>
         <option value="Decadência">Decadência (Morte)</option>
@@ -426,8 +471,8 @@
 </div>
 
 <div id="modal-tpl-item" class="modal-padrao">
-    <h3 style="margin:0 0 15px 0; font-family:'Inter', sans-serif; font-weight: 900;">BANCO DE ITENS</h3>
-    <select id="select-tpl-item" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border);" onchange="previewTemplate('item')">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ITENS</h3>
+    <select id="select-tpl-item" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('item')">
         <option value="">Selecione um Item...</option>
         <option value="Bandagem">Bandagem</option>
         <option value="Lanterna">Lanterna Tática</option>
@@ -441,7 +486,7 @@
 
 
 <div class="grid-container">
-    <section style="min-width: 0; overflow: hidden;">
+    <section style="min-width: 0; overflow: hidden; position: relative; z-index: 2;">
         <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
             <button onclick="window.location.href='index.html'" class="cris-btn" style="border-style: dotted; color: var(--cor-geral); display: flex; align-items: center; gap: 8px;"><span>←</span> FECHAR ARQUIVO</button>
             <button id="btn-assumir-posse" class="cris-btn" style="display: none; border-color: var(--op-ink); color: var(--op-ink);" onclick="assumirPosse()">📥 ASSUMIR POSSE DA FICHA</button>
@@ -449,8 +494,10 @@
         
         <div style="display:flex; gap: 25px; margin-bottom: 25px;">
             <div onclick="abrirUpload('portrait')" class="portrait-box">
-                <img id="display-portrait" src="" style="display: none;">
-                <span id="label-portrait" style="font-size: 10px; color: var(--op-ink); text-align: center; font-family: 'Courier Prime', monospace; font-weight: bold; letter-spacing: 1px; position: relative; z-index: 2;">ANEXAR<br>FOTO</span>
+                <div class="portrait-img-container">
+                    <img id="display-portrait" src="">
+                </div>
+                <span id="label-portrait">ANEXAR<br>FOTOGRAFIA</span>
             </div>
             <div style="flex: 1;">
                 <div style="display:flex; gap:20px; align-items:flex-end; margin-bottom: 15px;">
@@ -573,7 +620,7 @@
         </div>
     </section>
     
-    <section>
+    <section style="position: relative; z-index: 2;">
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
             <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
@@ -585,8 +632,8 @@
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="pericias-box"><h3 style="margin-top:0; margin-bottom: 15px; font-family:'Inter', sans-serif; font-weight: 900; color:var(--op-ink); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px dotted var(--card-border); padding-bottom: 5px;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
-                <div class="pericias-box"><h3 style="margin-top:0; margin-bottom: 15px; font-family:'Inter', sans-serif; font-weight: 900; color:var(--op-ink); text-align:center; font-size:16px; letter-spacing: 1px; border-bottom: 1px dotted var(--card-border); padding-bottom: 5px;">FORMAÇÃO ACADÊMICA</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
+                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
+                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">FORMAÇÃO ACADÊMICA</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
             </div>
         </div>
         
@@ -690,8 +737,8 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; margin-top: 30px; flex-wrap: wrap; gap: 10px;">
-                <h3 style="font-family: 'Inter', sans-serif; color: var(--op-ink); font-size: 20px; font-weight: 900; margin: 0; letter-spacing: 1px;">SISTEMAS DE ARMAS E ATAQUES</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; margin-top: 30px; flex-wrap: wrap; gap: 10px;">
+                <h3 class="section-header" style="margin:0;">SISTEMAS DE ARMAS E ATAQUES</h3>
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" style="border-style: dotted; color: var(--cor-geral);" onclick="toggleElem('modal-tpl-ataque')">+ LISTA</button>
                     <button class="cris-btn" onclick="novoAtaque()">+ CRIAR NOVA ARMA</button>
@@ -706,7 +753,7 @@
         </div>
 
         <div id="aba-tracos" class="tab-content">
-            <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 15px; margin-bottom: 35px; border-bottom: 1px dotted var(--card-border); padding-bottom: 25px; flex-wrap: wrap;">
                 <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
                     <div style="display:flex; gap:10px;">
                         <button class="cris-btn" style="border-style: dotted; color: var(--cor-geral);" onclick="toggleElem('modal-tpl-traco')">+ LISTA</button>
@@ -720,12 +767,18 @@
                     </div>
                 </div>
             </div>
-            <div style="margin-bottom: 30px;"><h3 style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--op-ink); font-size: 20px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase;">Comportamentos e Traços</h3><div id="lista-habilidades"></div></div>
-            <div><h3 style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--hp-red); font-size: 20px; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase;">Vínculos e Especializações</h3><div id="lista-poderes"></div></div>
+            <div style="margin-bottom: 40px;">
+                <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">COMPORTAMENTOS E TRAÇOS</h3>
+                <div id="lista-habilidades"></div>
+            </div>
+            <div>
+                <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block; color: var(--hp-red) !important;">VÍNCULOS E ESPECIALIZAÇÕES</h3>
+                <div id="lista-poderes"></div>
+            </div>
         </div>
 
         <div id="aba-rituais" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" style="border-style: dotted; color: var(--cor-geral);" onclick="toggleElem('modal-tpl-anomalia')">+ LISTA</button>
                     <button class="cris-btn" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button>
@@ -738,7 +791,7 @@
         </div>
 
         <div id="aba-inventario" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px;">
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" style="border-style: dotted; color: var(--cor-geral);" onclick="toggleElem('modal-tpl-item')">+ LISTA</button>
                     <div class="cris-btn" onclick="novoItem()" style="border-color: var(--op-ink); color: var(--op-ink);">+ ADICIONAR ITEM MANUAL</div>
@@ -752,15 +805,15 @@
 
         <div id="aba-background" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="bg-section"><label class="bg-label">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, trejeitos e biótipo..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita e defende..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem são as pessoas mais importantes para você?"></textarea></div>
-                <div class="bg-section"><label class="bg-label">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Lugares que marcaram a sua vida..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Objetos e heranças de imenso valor emocional..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Manias, forma de falar, costumes visíveis..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas e cicatrizes de batalhas ou acidentes passados..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Medos irracionais e gatilhos emocionais..."></textarea></div>
-                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2; display: none; border-color: var(--hp-red);"><label class="bg-label" style="color: var(--hp-red); border-bottom-color: var(--hp-red);">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border-color: var(--hp-red); background: rgba(139, 28, 28, 0.05);" placeholder="Relate aqui detalhadamente suas experiências confidenciais com anomalias, artefatos ou situações inexplicáveis..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, trejeitos e biótipo..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita e defende..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem são as pessoas mais importantes para você?"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Lugares que marcaram a sua vida..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Objetos e heranças de imenso valor emocional..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Manias, forma de falar, costumes visíveis..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas e cicatrizes de batalhas ou acidentes passados..."></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Medos irracionais e gatilhos emocionais..."></textarea></div>
+                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2; display: none; border-color: var(--hp-red);"><label class="section-header" style="color: var(--bg-paper) !important; background: var(--hp-red) !important; font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">ENCONTROS COM O DESCONHECIDO (ARTEFATOS E ENTIDADES)</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border-color: var(--hp-red); background: rgba(139, 28, 28, 0.05);" placeholder="Relate aqui detalhadamente suas experiências confidenciais com anomalias, artefatos ou situações inexplicáveis..."></textarea></div>
             </div>
         </div>
     </section>
@@ -980,10 +1033,21 @@
     }
 
     function aplicarStatusVisual() {
-        const st = document.getElementById('status-personagem').value; const overlay = document.getElementById('status-overlay');
+        const st = document.getElementById('status-personagem').value; 
+        const overlay = document.getElementById('status-overlay');
+        const sheet = document.querySelector('.grid-container');
+        
         overlay.className = ''; 
-        if(st === 'Sangrando') overlay.classList.add('overlay-sangrando');
-        if(st === 'Machucado') overlay.classList.add('overlay-machucado');
+        sheet.classList.remove('papel-sangrando', 'papel-machucado');
+
+        if(st === 'Sangrando') {
+            overlay.classList.add('overlay-sangrando');
+            sheet.classList.add('papel-sangrando');
+        }
+        if(st === 'Machucado') {
+            overlay.classList.add('overlay-machucado');
+            sheet.classList.add('papel-machucado');
+        }
         if(st === 'Atordoado') overlay.classList.add('overlay-atordoado');
         if(st === 'Assustado') overlay.classList.add('overlay-assustado');
     }
