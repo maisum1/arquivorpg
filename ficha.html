@@ -108,12 +108,15 @@
         
         .overlay-atordoado { backdrop-filter: blur(2px); background: rgba(255, 255, 255, 0.02); }
         .overlay-assustado { 
-            animation: pulse-assustado 1.2s infinite alternate ease-in-out; 
-            filter: contrast(110%) saturate(80%); 
+            animation: pulse-assustado 0.6s infinite alternate ease-in-out; 
+            filter: contrast(120%) saturate(60%); 
         }
 
         @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 80px rgba(139, 28, 28, 0.4); } 100% { box-shadow: inset 0 0 250px rgba(139, 28, 28, 0.8); } }
-        @keyframes pulse-assustado { 0% { box-shadow: inset 0 0 100px rgba(3, 67, 116, 0.3); } 100% { box-shadow: inset 0 0 250px rgba(3, 67, 116, 0.7); } }
+        @keyframes pulse-assustado { 
+            0% { box-shadow: inset 0 0 80px rgba(3, 67, 116, 0.4); } 
+            100% { box-shadow: inset 0 0 250px rgba(3, 67, 116, 0.8), inset 0 0 50px rgba(0,0,0,0.5); } 
+        }
 
         /* CONTAINER E MANCHAS DE SANGUE NO PAPEL */
         .grid-container { 
@@ -135,16 +138,9 @@
             border-radius: 2px;
         }
 
+        /* Sangrando usa o padrão de respingos de antes */
         .grid-container.papel-sangrando::after {
-            opacity: 0.6;
-            background-image:
-                radial-gradient(circle 8px at 5% 5%, rgba(139,28,28,0.8) 0%, transparent 100%),
-                radial-gradient(circle 12px at 95% 15%, rgba(139,28,28,0.8) 0%, transparent 100%),
-                radial-gradient(circle 5px at 12% 45%, rgba(139,28,28,0.8) 0%, transparent 100%);
-        }
-
-        .grid-container.papel-machucado::after {
-            opacity: 0.9;
+            opacity: 0.85;
             background-image:
                 radial-gradient(circle 15px at 5% 5%, rgba(139,28,28,0.85) 0%, transparent 100%),
                 radial-gradient(circle 6px at 7% 7%, rgba(139,28,28,0.85) 0%, transparent 100%),
@@ -154,6 +150,26 @@
                 radial-gradient(circle 25px at 85% 60%, rgba(139,28,28,0.85) 0%, transparent 100%),
                 radial-gradient(circle 12px at 82% 64%, rgba(139,28,28,0.85) 0%, transparent 100%),
                 radial-gradient(circle 18px at 30% 90%, rgba(139,28,28,0.85) 0%, transparent 100%);
+        }
+
+        /* Machucado usa sangue bruto borrado e escorrendo */
+        .grid-container.papel-machucado::after {
+            opacity: 0.95;
+            background-image:
+                /* Escorrimentos Longos */
+                radial-gradient(ellipse 4px 80px at 6% 12%, rgba(139,28,28,0.9) 0%, transparent 100%),
+                radial-gradient(ellipse 3px 120px at 93% 25%, rgba(139,28,28,0.9) 0%, transparent 100%),
+                radial-gradient(ellipse 6px 150px at 86% 70%, rgba(139,28,28,0.8) 0%, transparent 100%),
+                radial-gradient(ellipse 5px 90px at 14% 50%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                /* Borrões grandes e Poças */
+                radial-gradient(ellipse 60px 25px at 50% 98%, rgba(139,28,28,0.7) 0%, transparent 100%),
+                radial-gradient(circle 45px at 10% 8%, rgba(139,28,28,0.9) 0%, transparent 100%),
+                radial-gradient(circle 20px at 14% 10%, rgba(100,10,10,0.9) 0%, transparent 100%),
+                radial-gradient(circle 50px at 95% 15%, rgba(139,28,28,0.9) 0%, transparent 100%),
+                radial-gradient(circle 15px at 90% 20%, rgba(100,10,10,0.9) 0%, transparent 100%),
+                radial-gradient(circle 35px at 12% 45%, rgba(139,28,28,0.85) 0%, transparent 100%),
+                radial-gradient(circle 55px at 85% 60%, rgba(139,28,28,0.9) 0%, transparent 100%),
+                radial-gradient(circle 35px at 30% 95%, rgba(139,28,28,0.85) 0%, transparent 100%);
         }
 
         /* --- ESTILOS DE TARJA / DYMO (Abas e Títulos) --- */
@@ -175,11 +191,20 @@
             box-shadow: 3px 3px 0px #000 !important;
         }
 
+        /* Retira o efeito DYMO das headers dos Modais para não conflitar a cor e legibilidade */
+        .modal-padrao .section-header {
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.8) !important;
+            color: #fff !important;
+            background: var(--op-ink) !important;
+        }
+
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px double var(--op-ink); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .sub-input-group { flex: 1; display: flex; flex-direction: column; }
         .sub-input-group label { font-size: 10px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
-        .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; padding: 5px 0; outline: none; }
+        
+        /* Corrigindo corte do arquétipo/select */
+        .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; padding: 5px 0; outline: none; text-overflow: ellipsis; }
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: var(--bg-paper); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 14px;}
 
         @keyframes shake {
@@ -203,15 +228,25 @@
         }
         .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
 
-        /* SISTEMA DE SIGILO E CONTRASTE FORTE (0% e 100%) */
-        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(100%) opacity(0.6); mix-blend-mode: multiply; transition: filter 0.5s ease; }
-        body.tema-escuro .sigilo-container { filter: grayscale(100%) opacity(0.7) invert(1); mix-blend-mode: screen; }
+        /* SISTEMA DE SIGILO COM ESTILO ENTALHADO E CONTRASTE FORTE (0% e 100%) */
+        .sigilo-container { 
+            position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; 
+            background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; 
+            background-size: contain; 
+            filter: grayscale(100%) opacity(0.85) drop-shadow(1px 1px 2px rgba(255,255,255,0.4)) drop-shadow(-1px -1px 3px rgba(0,0,0,0.8)); 
+            mix-blend-mode: multiply; transition: filter 0.5s ease; 
+        }
+        body.tema-escuro .sigilo-container { 
+            filter: grayscale(100%) opacity(0.9) invert(1) drop-shadow(1px 1px 3px rgba(0,0,0,1)) drop-shadow(-1px -1px 2px rgba(255,255,255,0.2)); 
+            mix-blend-mode: screen; 
+        }
         
         .sigilo-container::before {
             content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%;
             background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.35; z-index: -1; pointer-events: none; transition: all 1s ease;
+            opacity: 0.5; z-index: -1; pointer-events: none; transition: all 1s ease;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
         }
 
         @keyframes pulsar-sangue {
@@ -305,9 +340,10 @@
         .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 2px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
         .sub-input { background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; border-radius: 2px; font-family: 'Special Elite', monospace;}
         
+        /* Cores de Proficiência mais visíveis */
         .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; font-family: 'Special Elite', monospace;}
-        .p-verde { background: rgba(0, 0, 0, 0.05) !important; } .p-laranja { background: rgba(0, 0, 0, 0.1) !important; } .p-vermelho { background: rgba(139, 28, 28, 0.1) !important; } 
-        body.tema-escuro .p-verde { background: rgba(255, 255, 255, 0.05) !important; } body.tema-escuro .p-laranja { background: rgba(255, 255, 255, 0.1) !important; }
+        .p-verde { background: rgba(0, 0, 0, 0.15) !important; } .p-laranja { background: rgba(0, 0, 0, 0.30) !important; } .p-vermelho { background: rgba(139, 28, 28, 0.35) !important; } 
+        body.tema-escuro .p-verde { background: rgba(255, 255, 255, 0.15) !important; } body.tema-escuro .p-laranja { background: rgba(255, 255, 255, 0.30) !important; } body.tema-escuro .p-vermelho { background: rgba(255, 50, 50, 0.35) !important; }
 
         .def-input-bonus { width: 30px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Special Elite', monospace;}
         .info-row { margin-top: 15px; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 8px;}
@@ -1273,7 +1309,7 @@
                 d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
             }
 
-            // ISOLAMENTO TOTAL DO DELTA HEXATOMBE (TRANSIÇÃO ESTÁVEL)
+            // ISOLAMENTO TOTAL DO DELTA HEXATOMBE (TRANSIÇÃO ESTÁVEL CORRIGIDA)
             if (prevHexatombeFinal !== hexatombeFinal) {
                 let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
                 let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
@@ -1291,8 +1327,9 @@
                 let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN;
                 let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
 
+                // Corrigido: Não aplicar o bônus de 30 fixo para vida
                 let maxN_vida = 12 + (2 * vigN) + (3 * nivel); 
-                let maxH_vida = 12 + (2 * vigH) + (3 * nivel) + 30; // +30 FLAT HP BONUS DO HEXATOMBE
+                let maxH_vida = 12 + (2 * vigH) + (3 * nivel); 
                 let maxN_san = 50 + (10 * vonN + 10 * sagN); let maxH_san = 50 + (10 * vonH + 10 * sagH);
                 
                 let maxN_pe = 2 + (2 * vigN) + vonN + Math.floor(nex / 10);
@@ -1310,9 +1347,15 @@
                 } else {
                     let vAtHex = parseInt(hexData.vidaAtual) || 0; let sAtHex = parseInt(hexData.sanAtual) || 0; let pAtHex = parseInt(hexData.peAtual) || 0;
                     
-                    // Subtrai o buff, ancorando em 1 se não estava morto no Hexatombe
-                    let nV = vAtHex - deltaVida; if(nV <= 0 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; updates.vidaAtual = nV;
-                    let nS = sAtHex - deltaSan; if(nS <= 0 && sAtHex >= 1) nS = 1; else if (nS < 0) nS = 0; updates.sanAtual = nS;
+                    // Subtrai o buff, ancorando em 1 se não estava morto, APENAS se houve delta real
+                    let nV = vAtHex - deltaVida; 
+                    if (deltaVida > 0) { if(nV <= 0 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; }
+                    updates.vidaAtual = nV;
+
+                    let nS = sAtHex - deltaSan; 
+                    if (deltaSan > 0) { if(nS <= 0 && sAtHex >= 1) nS = 1; else if (nS < 0) nS = 0; } else { if (nS < 0) nS = 0; }
+                    updates.sanAtual = nS;
+                    
                     let nP = pAtHex - deltaPe; if(nP < 0) nP = 0; updates.peAtual = nP;
                 }
                 
