@@ -890,7 +890,7 @@
                         <div class="cris-btn" onclick="novaHabilidade()">+ CRIAR TRAÇO</div>
                     </div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
+                <div style="display:none; flex-direction:column; gap:5px; flex:1;" id="box-espec-btn">
                     <div style="display:flex; gap:10px;">
                         <button class="cris-btn" style="border-color:var(--hp-red); color:var(--hp-red);" onclick="toggleElem('modal-tpl-espec')">+ LISTA</button>
                         <div class="cris-btn" onclick="novoPoder()" style="border-color: var(--hp-red); color: var(--hp-red);">+ CRIAR ESPEC.</div>
@@ -901,7 +901,7 @@
                 <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">COMPORTAMENTOS E TRAÇOS</h3>
                 <div id="lista-habilidades"></div>
             </div>
-            <div>
+            <div id="box-espec-list" style="display:none;">
                 <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block; color: var(--hp-red) !important;">VÍNCULOS E ESPECIALIZAÇÕES</h3>
                 <div id="lista-poderes"></div>
             </div>
@@ -963,7 +963,7 @@
     });
 
     // ==========================================
-    // BANCO DE DADOS DE TEMPLATES (Fácil de editar e expandir)
+    // BANCO DE DADOS DE TEMPLATES
     // ==========================================
     const templatesAtaques = {
         "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0 },
@@ -990,7 +990,6 @@
         "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas escuras. Pode ser acoplada." }
     };
 
-    // PREVIEWS
     function previewTemplate(tipo) {
         let val = document.getElementById(`select-tpl-${tipo}`).value;
         let previewDiv = document.getElementById(`preview-${tipo}`);
@@ -1071,7 +1070,6 @@
         }
     });
 
-    // --- COMANDOS TECLADO E MOBILE CONTINUOS ---
     let cheatCode = "";
     document.addEventListener('keydown', (e) => {
         const active = document.activeElement; if (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT') return;
@@ -1095,10 +1093,9 @@
         toggleElem('modal-config');
     }
 
-    // SISTEMA ISOLADO PARA ATRIBUTOS SEM VAZAMENTO
     function ativarSegredo(campo) {
         document.body.classList.add('shake');
-        salvarFicha(); // Previne queda de PE e dados na transição
+        salvarFicha(); 
         setTimeout(async () => { 
             document.body.classList.remove('shake'); 
             let doc = await db.collection("fichas").doc(atual).get();
@@ -1123,13 +1120,21 @@
         if (hexatombeFinal) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
 
         const nexStr = document.getElementById('nex-personagem').value;
-        const bgEncontrosContainer = document.getElementById('bgEncontros-container');
-
+        
         if (reveladoFinal) {
             document.getElementById('content-exposicao-real').style.display = 'flex'; 
             document.getElementById('content-exposicao-fake').style.display = 'none'; 
             document.getElementById('tab-anomalias').style.display = 'block';
+            
+            const bgEncontrosContainer = document.getElementById('bgEncontros-container');
             if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'flex';
+            
+            // Oculta/Exibe Vinculos e Especializações baseado no Despertar
+            const boxEspecBtn = document.getElementById('box-espec-btn');
+            if (boxEspecBtn) boxEspecBtn.style.display = 'flex';
+            
+            const boxEspecList = document.getElementById('box-espec-list');
+            if (boxEspecList) boxEspecList.style.display = 'block';
             
             document.getElementById('sigilo-box').classList.remove('brilho-sangue', 'brilho-restricao');
             if(nexStr === "100%" && extremosFinal) {
@@ -1151,7 +1156,16 @@
             fakeBox.style.textShadow = shadowMundano;
 
             document.getElementById('tab-anomalias').style.display = 'none'; 
+            
+            const bgEncontrosContainer = document.getElementById('bgEncontros-container');
             if (bgEncontrosContainer) bgEncontrosContainer.style.display = 'none';
+            
+            // Oculta/Exibe Vinculos e Especializações baseado no Despertar
+            const boxEspecBtn = document.getElementById('box-espec-btn');
+            if (boxEspecBtn) boxEspecBtn.style.display = 'none';
+            
+            const boxEspecList = document.getElementById('box-espec-list');
+            if (boxEspecList) boxEspecList.style.display = 'none';
             
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
             if (nexStr === "0%" && restricaoFinal) {
@@ -1388,7 +1402,6 @@
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             const d_raw = doc.data(); if(!d_raw) return;
 
-            // Lógica para o botão de transferir Posse
             const donoDoc = d_raw.dono;
             if (auth.currentUser && donoDoc !== auth.currentUser.uid) {
                 document.getElementById('btn-assumir-posse').style.display = 'block';
@@ -1402,29 +1415,24 @@
             let d = d_raw;
             if (hexatombeFinal && d_raw.hexatombe_data) {
                 d = { ...d_raw, ...d_raw.hexatombe_data };
-                // Garante que atributos originais se mantêm fixos e imutáveis pela transição
                 d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
             }
 
-            // ISOLAMENTO TOTAL DO DELTA HEXATOMBE (TRANSIÇÃO ESTÁVEL CORRIGIDA)
             if (prevHexatombeFinal !== hexatombeFinal) {
                 let vigN = parseInt(d_raw.vig) || 0; let vonN = parseInt(d_raw.von) || 0; let sagN = parseInt(d_raw.sag) || 0; let nivel = parseInt(d_raw.nivel) || 0;
                 let nex = parseInt(d_raw.nex) || 0; let classe = d_raw.classe || "";
 
                 let hexData = d_raw.hexatombe_data || {};
                 
-                // Cópia inicial limpa da base se não tiver nada
                 if (hexatombeFinal && hexData.vig === undefined) {
                     hexData.vig = vigN; hexData.for = d_raw.for; hexData.agi = d_raw.agi; 
                     hexData.sag = sagN; hexData.von = vonN;
-                    hexData.pericias = d_raw.pericias || {};
                 }
 
                 let vigH = hexData.vig !== undefined ? parseInt(hexData.vig) : vigN;
                 let vonH = hexData.von !== undefined ? parseInt(hexData.von) : vonN;
                 let sagH = hexData.sag !== undefined ? parseInt(hexData.sag) : sagN;
 
-                // Corrigido: Não aplicar o bônus de 30 fixo para vida
                 let maxN_vida = 12 + (2 * vigN) + (3 * nivel); 
                 let maxH_vida = 12 + (2 * vigH) + (3 * nivel); 
                 let maxN_san = 50 + (10 * vonN + 10 * sagN); let maxH_san = 50 + (10 * vonH + 10 * sagH);
@@ -1444,7 +1452,6 @@
                 } else {
                     let vAtHex = parseInt(hexData.vidaAtual) || 0; let sAtHex = parseInt(hexData.sanAtual) || 0; let pAtHex = parseInt(hexData.peAtual) || 0;
                     
-                    // Subtrai o buff, ancorando em 1 se não estava morto, APENAS se houve delta real
                     let nV = vAtHex - deltaVida; 
                     if (deltaVida > 0) { if(nV <= 0 && vAtHex >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; }
                     updates.vidaAtual = nV;
@@ -1459,7 +1466,7 @@
                 prevHexatombeFinal = hexatombeFinal;
                 db.collection("fichas").doc(atual).update(updates);
                 carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques();
-                return; // Aguarda o DB retornar o update do delta para não bugar a tela
+                return; 
             }
 
             let vAt = hexatombeFinal ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual;
@@ -1481,26 +1488,44 @@
 
             const bLimitePe = parseInt(d.bonusLimitePe) || 0; document.getElementById('bonus-limite-pe').value = bLimitePe !== 0 ? bLimitePe : "";
 
-            if(d.pericias) {
-                nomesPericias.forEach(p => {
-                    const bField = document.getElementById(`bonus-${p}`); const tField = document.getElementById(`treino-${p}`); const aField = document.getElementById(`attr-${p}`); const totalSpan = document.getElementById(`total-${p}`);
-                    const dadosPericia = d.pericias[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0], subsNames: ["","","",""] };
-                    if(bField) bField.value = dadosPericia.bonus ?? 0; if(tField) { tField.value = dadosPericia.treino ?? 0; atualizarCorPericia(p, tField.value); } if(aField && dadosPericia.atributo) { aField.value = dadosPericia.atributo; }
-                    let bonusSub = 0;
-                    if (bancoPericias[p].subs || bancoPericias[p].subsInputs) {
-                        for(let i=0; i<4; i++) {
-                            const subEl = document.getElementById(`sub-${p}-${i}`);
-                            if(subEl) { subEl.value = dadosPericia.subs ? (dadosPericia.subs[i] || 0) : 0; bonusSub += parseInt(subEl.value) || 0; }
-                            if(bancoPericias[p].subsInputs && i < 3) { const subNomeEl = document.getElementById(`sub-nome-${p}-${i}`); if(subNomeEl) subNomeEl.value = dadosPericia.subsNames ? (dadosPericia.subsNames[i] || "") : ""; }
+            // BLOCO DE PERÍCIAS (Completamente isolado entre os modos)
+            let currentPericias = {};
+            if (hexatombeFinal) {
+                // Tenta pegar a versão isolada, se não existir pega a do hexatombe_data, se não pega a normal (apenas na 1ª vez)
+                currentPericias = d_raw.pericias_hexa || (d_raw.hexatombe_data && d_raw.hexatombe_data.pericias) || d_raw.pericias || {};
+            } else {
+                currentPericias = d_raw.pericias || {};
+            }
+
+            nomesPericias.forEach(p => {
+                const bField = document.getElementById(`bonus-${p}`); 
+                const tField = document.getElementById(`treino-${p}`); 
+                const aField = document.getElementById(`attr-${p}`); 
+                const totalSpan = document.getElementById(`total-${p}`);
+                const dadosPericia = currentPericias[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0], subsNames: ["","","",""] };
+                
+                if(bField) bField.value = dadosPericia.bonus ?? 0; 
+                if(tField) { tField.value = dadosPericia.treino ?? 0; atualizarCorPericia(p, tField.value); } 
+                if(aField && dadosPericia.atributo) { aField.value = dadosPericia.atributo; }
+                
+                let bonusSub = 0;
+                if (bancoPericias[p].subs || bancoPericias[p].subsInputs) {
+                    for(let i=0; i<4; i++) {
+                        const subEl = document.getElementById(`sub-${p}-${i}`);
+                        if(subEl) { subEl.value = dadosPericia.subs ? (dadosPericia.subs[i] || 0) : 0; bonusSub += parseInt(subEl.value) || 0; }
+                        if(bancoPericias[p].subsInputs && i < 3) { 
+                            const subNomeEl = document.getElementById(`sub-nome-${p}-${i}`); 
+                            if(subNomeEl) subNomeEl.value = dadosPericia.subsNames ? (dadosPericia.subsNames[i] || "") : ""; 
                         }
                     }
-                    if(totalSpan) {
-                        const attrUsado = dadosPericia.atributo || bancoPericias[p].attr; const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
-                        let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
-                        totalSpan.innerText = (dadosPericia.bonus ?? 0) + (dadosPericia.treino ?? 0) + attrValue + Math.floor(bonusSub / 4);
-                    }
-                });
-            }
+                }
+                if(totalSpan) {
+                    const attrUsado = dadosPericia.atributo || bancoPericias[p].attr; 
+                    const attrInput = document.getElementById(`attr-${attrUsado.toLowerCase()}`);
+                    let attrValue = attrInput ? (parseInt(attrInput.value) || 0) : 0;
+                    totalSpan.innerText = (dadosPericia.bonus ?? 0) + parseInt(dadosPericia.treino ?? 0) + attrValue + Math.floor(bonusSub / 4);
+                }
+            });
 
             document.getElementById('info-prot').value = d.protecao || ""; document.getElementById('info-vuln').value = d.vulnerabilidades || ""; document.getElementById('info-res').value = d.resistencias || ""; document.getElementById('info-prof').value = d.proficiencias || "";
             document.getElementById('bonus-defesa').value = d.bonusDefesa !== undefined && d.bonusDefesa !== 0 ? d.bonusDefesa : ""; document.getElementById('bonus-esquiva').value = d.bonusEsquiva !== undefined && d.bonusEsquiva !== 0 ? d.bonusEsquiva : ""; document.getElementById('bonus-bloqueio').value = d.bonusBloqueio !== undefined && d.bonusBloqueio !== 0 ? d.bonusBloqueio : ""; document.getElementById('bonus-dt').value = d.bonusDt !== undefined && d.bonusDt !== 0 ? d.bonusDt : "";
@@ -1540,195 +1565,4 @@
             isITActive = d.insanoTemporario || false; const itState = document.getElementById('it-san'); const contentSan = document.getElementById('content-san');
             if (isITActive) {
                 itState.classList.add('active'); contentSan.style.opacity = '0';
-                for(let i=1; i<=4; i++) { const el = document.getElementById(`it-${i}`); if(el) { if(i <= (d.itRounds || 0)) el.classList.add('active'); else el.classList.remove('active'); } }
-            } else { itState.classList.remove('active'); if(parseInt(d.sanAtual) > 0) contentSan.style.opacity = '1'; }
-            
-            document.getElementById('bgDescricao').value = d.bgDescricao || ""; document.getElementById('bgIdeologia').value = d.bgIdeologia || ""; document.getElementById('bgPessoas').value = d.bgPessoas || ""; document.getElementById('bgLocais').value = d.bgLocais || ""; document.getElementById('bgPosses').value = d.bgPosses || ""; document.getElementById('bgTracos').value = d.bgTracos || ""; document.getElementById('bgCicatrizes').value = d.bgCicatrizes || ""; document.getElementById('bgFobias').value = d.bgFobias || ""; document.getElementById('bgEncontros').value = d.bgEncontros || "";
-
-            recalcularBases();
-            atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
-            aplicarStatusVisual();
-            aplicarSegredosUI(); 
-        });
-    }
-
-    function salvarFicha() {
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const currentUser = auth.currentUser; const nomeJogadorData = currentUser ? (currentUser.displayName || currentUser.email) : "Desconhecido";
-
-        const periciasObj = {};
-        nomesPericias.forEach(p => {
-            const bVal = document.getElementById(`bonus-${p}`) ? parseInt(document.getElementById(`bonus-${p}`).value) || 0 : 0; const tVal = document.getElementById(`treino-${p}`) ? parseInt(document.getElementById(`treino-${p}`).value) || 0 : 0; const aVal = document.getElementById(`attr-${p}`) ? document.getElementById(`attr-${p}`).value : bancoPericias[p].attr;
-            let arrSubs = [0,0,0,0]; let arrSubsNames = ["","","",""];
-            if (bancoPericias[p].subs || bancoPericias[p].subsInputs) {
-                for(let i=0; i<4; i++) {
-                    arrSubs[i] = parseInt(document.getElementById(`sub-${p}-${i}`)?.value) || 0;
-                    if(bancoPericias[p].subsInputs && i < 3) arrSubsNames[i] = document.getElementById(`sub-nome-${p}-${i}`)?.value || "";
-                }
-            }
-            periciasObj[p] = { bonus: bVal, treino: tVal, atributo: aVal, subs: arrSubs, subsNames: arrSubsNames };
-        });
-
-        let itRounds = 0; for(let i=1; i<=4; i++) { if(document.getElementById(`it-${i}`).classList.contains('active')) itRounds = i; }
-
-        let payload = {
-            nomeJogador: nomeJogadorData, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
-            agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
-            vidaMax: parseInt(document.getElementById('vida-max').value) || 12, sanMax: parseInt(document.getElementById('san-max').value) || 12, peMax: parseInt(document.getElementById('pe-max').value) || 2,
-            nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
-            pericias: periciasObj, protecao: document.getElementById('info-prot').value, vulnerabilidades: document.getElementById('info-vuln').value, resistencias: document.getElementById('info-res').value, proficiencias: document.getElementById('info-prof').value,
-            bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
-            statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
-            enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
-            insanoTemporario: isITActive, itRounds: itRounds, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao,
-            bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
-        };
-
-        let rootUpdates = { hexatombe: isHexatombe, restricao: isRestricao };
-
-        let inV = parseInt(document.getElementById('vida-atual').value) || 0; 
-        let inS = parseInt(document.getElementById('san-atual').value) || 0; 
-        let inP = parseInt(document.getElementById('pe-atual').value) || 0;
-
-        if (hexatombeFinal) { 
-            rootUpdates.hexatombe_data = payload; 
-            rootUpdates.hexatombe_data.vidaAtual = inV; 
-            rootUpdates.hexatombe_data.sanAtual = inS; 
-            rootUpdates.hexatombe_data.peAtual = inP; 
-            
-            rootUpdates.agi = payload.agi; rootUpdates.for = payload.for; rootUpdates.sag = payload.sag; rootUpdates.von = payload.von; rootUpdates.vig = payload.vig;
-        } else { 
-            rootUpdates = { ...payload, ...rootUpdates }; 
-            rootUpdates.vidaAtual = inV; 
-            rootUpdates.sanAtual = inS; 
-            rootUpdates.peAtual = inP; 
-        }
-
-        db.collection("fichas").doc(atual).update(rootUpdates);
-        recalcularBases();
-    }
-
-    function atualizarCorPericia(nome, valor) { const el = document.getElementById(`row-${nome}`); if(!el) return; el.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); if(valor == "1") el.classList.add('p-verde'); else if(valor == "3") el.classList.add('p-laranja'); else if(valor == "5") el.classList.add('p-vermelho'); }
-
-    function ajustar(tipo, v) { const input = document.getElementById(`${tipo}-atual`); const max = document.getElementById(`${tipo}-max`); if(input && max) { let novoValor = (parseInt(input.value) || 0) + v; document.getElementById(`${tipo}-atual`).value = novoValor; atualizarStatusVisual(tipo); salvarFicha(); } }
-    
-    function estabilizarStatus(tipo) { 
-        document.getElementById(`${tipo}-atual`).value = 1; 
-        atualizarStatusVisual(tipo); 
-        if(tipo === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; }
-        if(tipo === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; }
-        salvarFicha(); 
-    }
-
-    function instakill() { const mx = parseInt(document.getElementById(`vida-max`).value) || 1; document.getElementById(`vida-atual`).value = 0; atualizarStatusVisual('vida'); salvarFicha(); }
-
-    function toggleInsanoTemporario() {
-        isITActive = !isITActive; const itState = document.getElementById('it-san'); const contentSan = document.getElementById('content-san'); const zeroSan = document.getElementById('zero-san');
-        if (isITActive) { itState.classList.add('active'); contentSan.style.opacity = '0'; zeroSan.classList.remove('active'); } 
-        else { itState.classList.remove('active'); for(let i=1; i<=4; i++) { document.getElementById(`it-${i}`).classList.remove('active'); } const sanAtual = parseInt(document.getElementById('san-atual').value) || 0; if (sanAtual <= 0) { zeroSan.classList.add('active'); } else { contentSan.style.opacity = '1'; } }
-        salvarFicha();
-    }
-    function marcarIT(round) { for(let i=1; i<=4; i++) { const el = document.getElementById(`it-${i}`); if (i <= round) el.classList.add('active'); else el.classList.remove('active'); } salvarFicha(); }
-    function toggleMiniCond(tipo) { if (tipo === 'sequela') { document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; } }
-
-    function carregarRituais() {
-        if(unsubRit) unsubRit();
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const path = hexatombeFinal ? "hexa_rituais" : "rituais";
-        unsubRit = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById('lista-rituais'); container.innerHTML = ""; const coresElem = { "Morte": "var(--op-ink)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" };
-            snap.forEach(doc => {
-                const r = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('rit-' + id); const isAprendido = r.aprendido ? 'checked' : ''; const isPrimeira = r.primeiraConjuracao ? 'checked' : ''; const cor = coresElem[r.elemento] || "var(--op-ink)";
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:900">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${isAprendido} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${isPrimeira} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`;
-            });
-        });
-    }
-
-    function carregarPoderes() {
-        if(unsubPod) unsubPod();
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const path = hexatombeFinal ? "hexa_poderes" : "poderes";
-        unsubPod = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById('lista-poderes'); container.innerHTML = ""; const coresElem = { "Morte": "var(--op-ink)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--op-ink)", "Nenhum": "var(--op-ink)" };
-            snap.forEach(doc => {
-                const p = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('pod-' + id); const cor = coresElem[p.elemento] || "var(--op-ink)";
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('pod-${id}')"><span style="color:${cor}; font-weight:900">${p.nome || 'Especialização Desconhecida'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(p.elemento || 'Geral').toUpperCase()}</span></div><div class="card-body" id="pod-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${p.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Vínculo Oculto</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)"><option value="Nenhum" ${p.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${p.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${p.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${p.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${p.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option value="Geral" ${p.elemento=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Descrição do Arquivo</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${p.descricao || ""}</textarea></div><div style="margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;"><span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos do vínculo...">${p.afinidade || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button></div></div></div>`;
-            });
-        });
-    }
-
-    function carregarHabilidades() {
-        if(unsubHab) unsubHab();
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const path = hexatombeFinal ? "hexa_habilidades" : "habilidades";
-        unsubHab = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById('lista-habilidades'); container.innerHTML = "";
-            snap.forEach(doc => {
-                const h = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('hab-' + id);
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${isOpen ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Inter', sans-serif; font-size: 16px; font-weight: bold;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`;
-            });
-        });
-    }
-
-    function carregarAtaques() {
-        if(unsubAtq) unsubAtq();
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const path = hexatombeFinal ? "hexa_ataques" : "ataques";
-        unsubAtq = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const list = document.getElementById('lista-ataques'); list.innerHTML = ""; let pressaoAtaques = 0;
-            snap.forEach(doc => {
-                const a = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('atq-' + id); pressaoAtaques += (parseInt(a.pressao) || 0);
-                list.innerHTML += `<div class="ritual-card" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque Sem Nome'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`;
-            });
-            window.valPressaoAtaques = pressaoAtaques; syncPressaoVisuais();
-        });
-    }
-
-    function carregarInventario() {
-        if(unsubInv) unsubInv();
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const path = hexatombeFinal ? "hexa_inventario" : "inventario";
-        unsubInv = db.collection("fichas").doc(atual).collection(path).onSnapshot(snap => {
-            const container = document.getElementById('lista-inventario'); container.innerHTML = ""; let pressaoInv = 0;
-            snap.forEach(doc => {
-                const item = doc.data(); const id = doc.id; const isOpen = menusAbertos.has('inv-' + id);
-                const p = parseInt(item.pressao) || 0; const q = parseInt(item.quantidade) || 1; pressaoInv += (p * q);
-                container.innerHTML += `<div class="ritual-card" style="border-left-color: var(--cor-geral);"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:var(--op-ink); font-weight:900">${item.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${item.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${p*q}</span></div><div class="card-body" id="inv-${id}" style="display:${isOpen ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${item.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${item.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${item.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${item.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${item.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${item.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${item.pressao !== undefined ? item.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${item.quantidade !== undefined ? item.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${item.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`;
-            });
-            window.valPressaoInventario = pressaoInv; syncPressaoVisuais();
-        });
-    }
-
-    async function novoRitual() { const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Anomalia", elemento: "Morte", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
-    async function novoPoder() { const path = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Nova Especialização", elemento: "Geral", descricao: "", afinidade: "" }); }
-    async function novaHabilidade() { const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Traço", descricao: "" }); }
-    async function novoItem() { const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); }
-    async function novoAtaque() { const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(path).add({ nome: "Arma Desconhecida", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }); }
-
-    // FUNÇÃO QUE INJETA O TEMPLATE SELECIONADO NO BANCO DE DADOS
-    async function aplicarTemplate(colecao, chave) {
-        const path = (isHexatombe || globalHexatombe) ? "hexa_" + colecao : colecao;
-        let data = {};
-        if (colecao === 'ataques') data = templatesAtaques[chave];
-        if (colecao === 'habilidades') data = templatesTracos[chave];
-        if (colecao === 'poderes') data = templatesEspecializacoes[chave];
-        if (colecao === 'rituais') data = templatesAnomalias[chave];
-        if (colecao === 'inventario') data = templatesInventario[chave];
-        
-        if (data) {
-            await db.collection("fichas").doc(atual).collection(path).add(data);
-        }
-    }
-
-    async function aplicarOrigemTemplate() { const val = document.getElementById('select-origem-template').value; if(val === "Cultista Arrependido") { document.getElementById('origem-personagem').value = "Cultista Arrependido"; document.getElementById('treino-Ocultismo').value = 3; salvarFicha(); } toggleElem('modal-origem'); }
-    
-    async function updateSub(id, col, campo, valor) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; let o = {}; o[campo] = valor; if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id); if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id); if (col === 'ataques') menusAbertos.add('atq-' + id); await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); }
-    async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este arquivo confidencial?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
-    
-    function toggleElem(id) { const b = document.getElementById(id); if(!b) return; if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } else { b.style.display = 'block'; menusAbertos.add(id); } }
-    function mudarAba(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); const aba = document.getElementById('aba-' + id); if(aba) aba.classList.add('active'); if(event && event.currentTarget) event.currentTarget.classList.add('active'); }
-
-    auth.onAuthStateChanged(user => { if (user) { init(); } else { alert("Credenciais expiradas. Redirecionando."); window.location.href = "index.html"; } });
-</script>
-</body>
-</html>
+                for(let i=1; i<=4; i++) { const el = document.getElementById(`it-${i}`); if(el) { if(i <= (d.itRounds || 0)) el.classList.add('active'); else el.
