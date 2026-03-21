@@ -96,20 +96,21 @@
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* OVERLAYS VISUAIS DOS ESTADOS - Ajustados com Mais Intensidade */
+        /* OVERLAYS VISUAIS DOS ESTADOS - Suavizados */
         #status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; transition: all 0.5s ease; }
         
         .overlay-sangrando { 
-            box-shadow: inset 0 0 180px rgba(139, 28, 28, 0.45); 
-            border: 3px solid rgba(139, 28, 28, 0.3); 
+            box-shadow: inset 0 0 100px rgba(139, 28, 28, 0.3); 
+            border: 2px solid rgba(139, 28, 28, 0.15); 
         }
         
         .overlay-machucado { 
+            box-shadow: inset 0 0 100px rgba(139, 28, 28, 0.5); 
             animation: pulse-machucado 2s infinite alternate; 
-            background-color: rgba(139, 28, 28, 0.05);
+            background-color: rgba(139, 28, 28, 0.03);
         }
         
-        .overlay-atordoado { backdrop-filter: blur(1.2px); background: rgba(255, 255, 255, 0.015); }
+        .overlay-atordoado { backdrop-filter: blur(1.5px); background: rgba(255, 255, 255, 0.015); }
         
         /* Assustado agora é fixo com uma forte presença de cor ao redor */
         .overlay-assustado { 
@@ -117,16 +118,25 @@
             filter: contrast(110%) saturate(70%); 
         }
 
-        @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 80px rgba(139, 28, 28, 0.4); } 100% { box-shadow: inset 0 0 200px rgba(139, 28, 28, 0.7); } }
+        @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 60px rgba(139, 28, 28, 0.3); } 100% { box-shadow: inset 0 0 180px rgba(139, 28, 28, 0.6); } }
         
         /* Blur FIXO e LEVE imitando visão ofuscada/tinta levemente borrada (aumentado para visibilidade) */
-        .blur-shake { filter: blur(0.35px); }
+        .blur-shake { filter: blur(1.2px); }
 
-        /* CONTAINER E MANCHAS DE SANGUE NO PAPEL */
+        /* CONTAINER DA FICHA (COM SUJEIRAS E PAPEL ENVELHECIDO NO TEMA CLARO) */
         .grid-container { 
             background-color: var(--bg-paper); 
             background-image: 
-                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'),
+                /* Sujeiras, manchas e oxidação do tempo no papel */
+                radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.06) 0%, transparent 30%),
+                radial-gradient(circle at 90% 85%, rgba(120, 100, 80, 0.07) 0%, transparent 25%),
+                radial-gradient(circle at 15% 80%, rgba(150, 130, 100, 0.05) 0%, transparent 35%),
+                radial-gradient(circle at 50% 45%, rgba(110, 90, 70, 0.04) 0%, transparent 40%),
+                /* Escurecimento nas bordas para profundidade e desgaste (Vignette) */
+                radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.12) 130%),
+                /* Textura SVG base */
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
             box-shadow: var(--paper-shadow); 
             border: 1px solid #b3a996;
@@ -257,7 +267,7 @@
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) brightness(1.2) !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
 
-        /* Contraste Atributos - Contorno fino da cor do papel apagando a linha de trás */
+        /* Contraste Atributos Melhorado - Fundo Limpo com Text Shadow Forte que apaga as linhas */
         .attr-box { 
             position: absolute; width: 55px; height: 55px; 
             background: transparent;
@@ -568,7 +578,7 @@
                     </div>
                     <div class="sub-input-group" id="grupo-arquetipo" style="display: none; flex: 1;">
                         <label>ARQUÉTIPO</label>
-                        <select id="classe-personagem" onchange="alterarAtributoOuNivel();">
+                        <select id="classe-personagem" onchange="alterarAtributoOuNivel();" style="font-size: 15px;">
                             <option value="">Indefinido...</option>
                             <option value="Canalizador">Canalizador</option>
                             <option value="Esotérico">Esotérico</option>
