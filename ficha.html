@@ -114,22 +114,19 @@
 
         @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 60px rgba(139, 28, 28, 0.3); } 100% { box-shadow: inset 0 0 180px rgba(139, 28, 28, 0.6); } }
         @keyframes pulse-assustado { 0% { box-shadow: inset 0 0 80px rgba(3, 67, 116, 0.2); } 100% { box-shadow: inset 0 0 180px rgba(3, 67, 116, 0.5); } }
+        
+        /* Tremedeira muito mais suave para não dar dor de cabeça */
         @keyframes shake-light {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-            20% { transform: translate(-2px, 0px) rotate(0.5deg); }
-            30% { transform: translate(2px, 1px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(0.5deg); }
-            50% { transform: translate(-1px, 1px) rotate(-0.5deg); }
-            60% { transform: translate(-2px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-0.5deg); }
-            80% { transform: translate(-1px, -1px) rotate(0.5deg); }
-            90% { transform: translate(1px, 1px) rotate(0deg); }
-            100% { transform: translate(1px, -1px) rotate(-0.5deg); }
+            0% { transform: translate(0.5px, 0.5px) rotate(0deg); }
+            20% { transform: translate(-0.5px, 0px) rotate(-0.1deg); }
+            40% { transform: translate(0.5px, -0.5px) rotate(0.1deg); }
+            60% { transform: translate(-0.5px, 0.5px) rotate(0deg); }
+            80% { transform: translate(0px, -0.5px) rotate(0.1deg); }
+            100% { transform: translate(0.5px, 0.5px) rotate(-0.1deg); }
         }
-        .shake-light { animation: shake-light 0.15s; animation-iteration-count: infinite; }
+        .shake-light { animation: shake-light 0.5s infinite ease-in-out; }
 
-        /* CONTAINER E MANCHAS DE SANGUE NO PAPEL - Ajustado para manchas densas apenas no machucado */
+        /* CONTAINER E MANCHAS DE SANGUE NO PAPEL */
         .grid-container { 
             background-color: var(--bg-paper); 
             background-image: 
@@ -139,7 +136,7 @@
             border: 1px solid #b3a996;
             padding: 50px 60px; border-radius: 2px;
             display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; 
-            position: relative; /* Necessário para o sangue ::after */
+            position: relative; 
         }
         body.tema-escuro .grid-container { border-color: #333; }
 
@@ -149,23 +146,21 @@
             border-radius: 2px;
         }
 
-        /* Sangrando usa apenas bordas vermelhas agora */
         .grid-container.papel-sangrando {
              box-shadow: var(--paper-shadow), 0 0 20px rgba(139,28,28,0.5);
              border-color: rgba(139,28,28,0.6);
         }
 
-        /* Machucado usa manchas densas inspiradas nas imagens */
         .grid-container.papel-machucado::after {
             opacity: 0.95;
             background-image:
-                /* Borrões grandes e Poças inspiradas em `image_d324d0.png` */
+                /* Borrões grandes e Poças */
                 radial-gradient(circle 60px at 10% 8%, rgba(139,28,28,0.9) 0%, transparent 100%),
                 radial-gradient(circle 35px at 14% 10%, rgba(100,10,10,0.9) 0%, transparent 100%),
                 radial-gradient(circle 50px at 95% 15%, rgba(139,28,28,0.9) 0%, transparent 100%),
                 radial-gradient(circle 25px at 90% 20%, rgba(100,10,10,0.9) 0%, transparent 100%),
                 radial-gradient(ellipse 70px 30px at 50% 98%, rgba(139,28,28,0.75) 0%, transparent 100%),
-                /* Respingos e borrões menores inspirados em `image_d32527.png` */
+                /* Respingos e borrões menores */
                 radial-gradient(circle 20px at 7% 7%, rgba(139,28,28,0.85) 0%, transparent 100%),
                 radial-gradient(circle 12px at 9% 6%, rgba(139,28,28,0.85) 0%, transparent 100%),
                 radial-gradient(circle 40px at 12% 45%, rgba(139,28,28,0.85) 0%, transparent 100%),
@@ -188,24 +183,25 @@
             box-shadow: 3px 3px 0px rgba(0,0,0,0.4) !important;
             display: inline-block;
             border: none !important;
-            /* Aberração Cromática Sutil */
             text-shadow: -1.5px 0px 0px rgba(0, 200, 255, 0.6), 1.5px 0px 0px rgba(255, 50, 0, 0.6) !important;
         }
         body.tema-escuro .section-header, body.tema-escuro .tab-btn.active {
             box-shadow: 3px 3px 0px #000 !important;
         }
 
+        .modal-padrao .section-header {
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.8) !important;
+            color: #fff !important;
+            background: var(--op-ink) !important;
+        }
+
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px double var(--op-ink); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
         .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .sub-input-group { flex: 1; display: flex; flex-direction: column; }
         .sub-input-group label { font-size: 10px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
-        .sub-input-group input, .sub-input-group select { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; padding: 5px 0; outline: none; }
+        
+        .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; padding: 5px 0; outline: none; text-overflow: ellipsis; }
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: var(--bg-paper); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 14px;}
-
-        @keyframes shake {
-            0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
         /* ESTILOS DE FOTO COM FITA */
         .portrait-box {
@@ -223,42 +219,59 @@
         }
         .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
 
-        /* SISTEMA DE SIGILO E CONTRASTE FORTE (0% e 100%) - Suavizado */
-        .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: grayscale(100%) opacity(0.6); mix-blend-mode: multiply; transition: filter 0.5s ease; }
-        body.tema-escuro .sigilo-container { filter: grayscale(100%) opacity(0.7) invert(1); mix-blend-mode: screen; }
+        /* SISTEMA DE SIGILO COM ESTILO ENTALHADO E CONTRASTE FORTE (Modificado a pedido do usuário) */
+        .sigilo-container { 
+            position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; 
+            background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; 
+            background-size: contain; 
+            /* Tema Claro: Quase Preto pra contrastar bem com a folha branca */
+            filter: grayscale(100%) brightness(0.3) drop-shadow(1px 1px 2px rgba(255,255,255,0.4)) drop-shadow(-1px -1px 3px rgba(0,0,0,0.8)); 
+            mix-blend-mode: multiply; transition: filter 0.5s ease; 
+        }
+        body.tema-escuro .sigilo-container { 
+            /* Tema Escuro: Quase Branco brilhante pra contrastar com a mesa preta */
+            filter: grayscale(100%) invert(1) brightness(1.8) drop-shadow(1px 1px 3px rgba(0,0,0,1)) drop-shadow(-1px -1px 2px rgba(255,255,255,0.2)); 
+            mix-blend-mode: screen; 
+        }
         
         .sigilo-container::before {
             content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%;
             background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.35; z-index: -1; pointer-events: none; transition: all 1s ease;
+            opacity: 0.65; z-index: -1; pointer-events: none; transition: all 1s ease;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
         }
 
         @keyframes pulsar-sangue {
-            0% { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 15px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.9;}
-            100% { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.8) drop-shadow(0 0 25px #ff0000) drop-shadow(0 0 35px #ff0000); transform: translate(-50%, -50%) scale(1.03); opacity: 1;}
+            0% { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.9;}
+            100% { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.8) drop-shadow(0 0 30px #ff0000) drop-shadow(0 0 50px #ff0000); transform: translate(-50%, -50%) scale(1.05); opacity: 1;}
         }
         
         .sigilo-container.brilho-sangue { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 0, 0, 0.8)) !important; mix-blend-mode: normal !important; }
-        .sigilo-container.brilho-sangue::before { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 15px #ff0000) drop-shadow(0 0 30px #ff0000) !important; opacity: 1 !important; animation: pulsar-sangue 1.5s infinite alternate !important; }
+        .sigilo-container.brilho-sangue::before { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 20px #ff0000) drop-shadow(0 0 40px #ff0000) !important; opacity: 1 !important; animation: pulsar-sangue 1.5s infinite alternate !important; }
 
         .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) brightness(1.5) !important; mix-blend-mode: normal !important; }
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) brightness(1.2) !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
-        .sigilo-container.brilho-restricao .attr-box { background: rgba(255, 255, 255, 0.1); border-color: #ffffff; box-shadow: inset 0 0 10px rgba(255,255,255,0.5), 0 0 10px rgba(255,255,255,0.8); }
-        .sigilo-container.brilho-restricao .attr-label { color: #ffffff; text-shadow: 0 0 5px #fff; background: transparent !important; }
-        .sigilo-container.brilho-restricao input { color: #ffffff; text-shadow: 0 0 5px #fff; }
-        
-        body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao .attr-box { background: rgba(0, 0, 0, 0.1); border-color: #000000; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px rgba(0,0,0,0.8); }
-        body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao .attr-label { color: #000; text-shadow: 0 0 5px #000; }
-        body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao input { color: #000; text-shadow: 0 0 5px #000; }
 
-        /* Contraste Atributos */
-        .attr-box { position: absolute; width: 55px; height: 55px; background: transparent; border: 2px solid var(--op-ink); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); z-index: 1; transition: all 0.3s ease; }
+        /* Contraste Atributos Melhorado - Fundo sólido pra linha não riscar o número */
+        .attr-box { 
+            position: absolute; width: 55px; height: 55px; 
+            background: var(--bg-paper); /* Fundo sólido! */
+            border: 3px solid var(--op-ink); /* Borda mais grossa */
+            border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            box-shadow: 0 0 8px rgba(0,0,0,0.3), inset 0 0 5px rgba(0,0,0,0.1); 
+            z-index: 1; transition: all 0.3s ease; 
+        }
+        body.tema-escuro .attr-box {
+            box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(0,0,0,0.5);
+        }
         .attr-label { font-size: 10px; font-weight: 900; color: var(--op-ink); margin-top: -15px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px; font-family: 'Inter', sans-serif;}
-        .attr-box input { background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; font-size: 24px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none; }
-        body:not(.tema-escuro) .attr-box input { text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff; }
-        body.tema-escuro .attr-box input { text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+        .attr-box input { 
+            background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; 
+            font-size: 26px; font-family: 'Special Elite', monospace; font-weight: 900; outline: none; 
+            text-shadow: none !important; /* Retirado o blur antigo pra ficar mais nítido */
+        }
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
         .mid-stats { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px; font-family: 'Special Elite', monospace; }
@@ -298,7 +311,7 @@
         .mini-cond-label:hover { border-color: var(--op-ink); color: var(--op-ink); }
         #chk-sequela:checked + .mini-cond-label { background: var(--op-ink); color: var(--bg-paper); border-color: var(--op-ink); }
 
-        /* BONECO DETALHADO E CAIXAS - Ajustado legibilidade 1/2 Vida */
+        /* BONECO DETALHADO E CAIXAS */
         .body-map-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 25px auto; font-family: 'Inter', sans-serif; background: transparent; border: 1px dashed var(--card-border); border-radius: 4px; position: relative; width: 100%; max-width: 400px; height: 400px; }
         .membro-svg { fill: var(--card-bg); stroke: var(--op-ink); stroke-width: 3; transition: all 0.3s ease; }
         .limb-box-new { background: var(--bg-paper); border: 1px solid var(--card-border); border-radius: 2px; padding: 3px 6px; width: 75px; text-align: center; position: absolute; z-index: 2; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); transition: 0.3s; white-space: nowrap; overflow: hidden; }
@@ -328,13 +341,16 @@
         .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 2px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
         .sub-input { background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; border-radius: 2px; font-family: 'Special Elite', monospace;}
         
-        /* Cores Pericia Modo Claro - Ajuste Transparencia */
+        /* Cores Pericia - SÓLIDAS E VISÍVEIS EM AMBOS OS MODOS */
         .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; font-family: 'Special Elite', monospace;}
-        body:not(.tema-escuro) .p-verde { background: rgba(0, 139, 0, 0.15) !important; } 
-        body:not(.tema-escuro) .p-laranja { background: rgba(139, 80, 0, 0.3) !important; } 
-        body:not(.tema-escuro) .p-vermelho { background: rgba(139, 28, 28, 0.35) !important; }
-        /* Modo escuro manteve as cores solidas */
-        body.tema-escuro .p-verde { background: rgba(0, 0, 0, 0.05) !important; } body.tema-escuro .p-laranja { background: rgba(0, 0, 0, 0.1) !important; } body.tema-escuro .p-vermelho { background: rgba(139, 28, 28, 0.1) !important; }
+        
+        body:not(.tema-escuro) .p-verde { background: rgba(50, 180, 50, 0.4) !important; } 
+        body:not(.tema-escuro) .p-laranja { background: rgba(220, 120, 0, 0.4) !important; } 
+        body:not(.tema-escuro) .p-vermelho { background: rgba(180, 40, 40, 0.45) !important; }
+        
+        body.tema-escuro .p-verde { background: rgba(50, 180, 50, 0.35) !important; } 
+        body.tema-escuro .p-laranja { background: rgba(220, 120, 0, 0.35) !important; } 
+        body.tema-escuro .p-vermelho { background: rgba(200, 50, 50, 0.4) !important; }
 
         .def-input-bonus { width: 30px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Special Elite', monospace;}
         .info-row { margin-top: 15px; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 8px;}
