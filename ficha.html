@@ -96,32 +96,31 @@
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* OVERLAYS VISUAIS DOS ESTADOS - Suavizados */
+        /* OVERLAYS VISUAIS DOS ESTADOS - Ajustados com Mais Intensidade */
         #status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; transition: all 0.5s ease; }
         
         .overlay-sangrando { 
-            box-shadow: inset 0 0 100px rgba(139, 28, 28, 0.3); 
-            border: 2px solid rgba(139, 28, 28, 0.15); 
+            box-shadow: inset 0 0 180px rgba(139, 28, 28, 0.45); 
+            border: 3px solid rgba(139, 28, 28, 0.3); 
         }
         
         .overlay-machucado { 
-            box-shadow: inset 0 0 100px rgba(139, 28, 28, 0.5); 
             animation: pulse-machucado 2s infinite alternate; 
-            background-color: rgba(139, 28, 28, 0.03);
+            background-color: rgba(139, 28, 28, 0.05);
         }
         
         .overlay-atordoado { backdrop-filter: blur(1.5px); background: rgba(255, 255, 255, 0.015); }
         
-        /* Sem animação, apenas overlay escurecido */
+        /* Assustado agora é fixo com uma forte presença de cor ao redor */
         .overlay-assustado { 
-            box-shadow: inset 0 0 120px rgba(3, 67, 116, 0.3); 
+            box-shadow: inset 0 0 180px rgba(3, 67, 116, 0.4); 
             filter: contrast(110%) saturate(70%); 
         }
 
-        @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 60px rgba(139, 28, 28, 0.3); } 100% { box-shadow: inset 0 0 180px rgba(139, 28, 28, 0.6); } }
+        @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 80px rgba(139, 28, 28, 0.4); } 100% { box-shadow: inset 0 0 200px rgba(139, 28, 28, 0.7); } }
         
-        /* Blur FIXO e LEVE imitando visão ofuscada/tinta levemente borrada */
-        .papel-assustado { filter: blur(0.6px); }
+        /* Blur FIXO e LEVE imitando visão ofuscada/tinta levemente borrada (aumentado para visibilidade) */
+        .blur-shake { filter: blur(1.2px); }
 
         /* CONTAINER E MANCHAS DE SANGUE NO PAPEL */
         .grid-container { 
@@ -134,7 +133,7 @@
             padding: 50px 60px; border-radius: 2px;
             display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; 
             position: relative; 
-            transition: filter 0.3s ease; /* Transição pro Blur do Assustado */
+            transition: filter 0.3s ease; 
         }
         body.tema-escuro .grid-container { border-color: #333; }
 
@@ -145,8 +144,8 @@
         }
 
         .grid-container.papel-sangrando {
-             box-shadow: var(--paper-shadow), 0 0 20px rgba(139,28,28,0.5);
-             border-color: rgba(139,28,28,0.6);
+             box-shadow: var(--paper-shadow), 0 0 25px rgba(139,28,28,0.6);
+             border-color: rgba(139,28,28,0.7);
         }
 
         .grid-container.papel-machucado::after {
@@ -194,12 +193,18 @@
         }
 
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px double var(--op-ink); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
-        .header-sub-row { display: flex; gap: 15px; margin-bottom: 20px; }
-        .sub-input-group { flex: 1; display: flex; flex-direction: column; }
-        .sub-input-group label { font-size: 10px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
         
-        .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; padding: 5px 0; outline: none; text-overflow: ellipsis; }
+        /* OTIMIZAÇÃO DE ESPAÇO: Origem e Arquétipo */
+        .header-sub-row { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
+        .sub-input-group { display: flex; flex-direction: column; min-width: 0; }
+        .sub-input-group label { font-size: 10px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
+        .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 15px; padding: 5px 0; outline: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: var(--bg-paper); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 14px;}
+
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
         /* ESTILOS DE FOTO COM FITA */
         .portrait-box {
@@ -252,7 +257,7 @@
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) brightness(1.2) !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
 
-        /* Contraste Atributos Melhorado - Fundo Limpo com Text Shadow Forte que apaga as linhas */
+        /* Contraste Atributos - Contorno fino da cor do papel apagando a linha de trás */
         .attr-box { 
             position: absolute; width: 55px; height: 55px; 
             background: transparent;
@@ -265,8 +270,8 @@
         .attr-box input { 
             background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; 
             font-size: 26px; font-family: 'Special Elite', monospace; font-weight: 900; outline: none; 
-            /* Contorno forte da cor do papel para apagar as linhas do pentagrama atrás do número */
-            text-shadow: 2px 2px 0 var(--bg-paper), -2px -2px 0 var(--bg-paper), 2px -2px 0 var(--bg-paper), -2px 2px 0 var(--bg-paper), 0 2px 0 var(--bg-paper), 2px 0 0 var(--bg-paper), 0 -2px 0 var(--bg-paper), -2px 0 0 var(--bg-paper), 3px 3px 0 var(--bg-paper), -3px -3px 0 var(--bg-paper), 3px -3px 0 var(--bg-paper), -3px 3px 0 var(--bg-paper) !important;
+            /* Contorno Fino (max 1.5px) p/ apagar linhas sem ficar um borrão grotesco */
+            text-shadow: 1.5px 1.5px 0 var(--bg-paper), -1.5px -1.5px 0 var(--bg-paper), 1.5px -1.5px 0 var(--bg-paper), -1.5px 1.5px 0 var(--bg-paper), 0 2px 0 var(--bg-paper), 2px 0 0 var(--bg-paper), 0 -2px 0 var(--bg-paper), -2px 0 0 var(--bg-paper) !important;
         }
         .sigilo-container.brilho-restricao input { color: #ffffff; text-shadow: 0 0 5px #fff !important; }
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao input { color: #000; text-shadow: 0 0 5px #000 !important; }
@@ -340,10 +345,9 @@
         .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 2px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
         .sub-input { background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; border-radius: 2px; font-family: 'Special Elite', monospace;}
         
-        /* Cores Pericia - EFEITO MARCA-TEXTO SÓLIDO E ASSIMÉTRICO */
+        /* Cores Pericia - EFEITO MARCA-TEXTO FORTE E ASSIMÉTRICO */
         .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; outline: none; padding: 2px; font-family: 'Special Elite', monospace;}
         
-        /* O border-radius e linear-gradient criam o formato imperfeito da caneta */
         body:not(.tema-escuro) .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.4) 2%, rgba(50, 180, 50, 0.5) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; } 
         body:not(.tema-escuro) .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.4) 2%, rgba(220, 120, 0, 0.5) 98%, transparent 99%) !important; border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; } 
         body:not(.tema-escuro) .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(180, 40, 40, 0.45) 2%, rgba(180, 40, 40, 0.5) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; }
@@ -558,11 +562,11 @@
                     </div>
                 </div>
                 <div class="header-sub-row" style="margin-bottom: 0;">
-                    <div class="sub-input-group">
+                    <div class="sub-input-group" style="flex: 1.4;">
                         <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-origem')" style="background:transparent; border:1px dashed var(--card-border); color:var(--cor-geral); cursor:pointer; font-size:10px; font-weight:bold;">+ LISTA</button></label>
                         <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
                     </div>
-                    <div class="sub-input-group" id="grupo-arquetipo" style="display: none;">
+                    <div class="sub-input-group" id="grupo-arquetipo" style="display: none; flex: 1;">
                         <label>ARQUÉTIPO</label>
                         <select id="classe-personagem" onchange="alterarAtributoOuNivel();">
                             <option value="">Indefinido...</option>
