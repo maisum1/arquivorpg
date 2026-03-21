@@ -115,16 +115,15 @@
         @keyframes pulse-machucado { 0% { box-shadow: inset 0 0 60px rgba(139, 28, 28, 0.3); } 100% { box-shadow: inset 0 0 180px rgba(139, 28, 28, 0.6); } }
         @keyframes pulse-assustado { 0% { box-shadow: inset 0 0 80px rgba(3, 67, 116, 0.2); } 100% { box-shadow: inset 0 0 180px rgba(3, 67, 116, 0.5); } }
         
-        /* Tremedeira muito mais suave para não dar dor de cabeça */
+        /* Tremedeira sutil como respiração ofegante */
         @keyframes shake-light {
-            0% { transform: translate(0.5px, 0.5px) rotate(0deg); }
-            20% { transform: translate(-0.5px, 0px) rotate(-0.1deg); }
-            40% { transform: translate(0.5px, -0.5px) rotate(0.1deg); }
-            60% { transform: translate(-0.5px, 0.5px) rotate(0deg); }
-            80% { transform: translate(0px, -0.5px) rotate(0.1deg); }
-            100% { transform: translate(0.5px, 0.5px) rotate(-0.1deg); }
+            0% { transform: translate(0.2px, 0.2px) rotate(0deg); }
+            25% { transform: translate(-0.2px, 0px) rotate(-0.05deg); }
+            50% { transform: translate(0.2px, -0.2px) rotate(0.05deg); }
+            75% { transform: translate(-0.2px, 0.2px) rotate(0deg); }
+            100% { transform: translate(0.2px, 0.2px) rotate(-0.05deg); }
         }
-        .shake-light { animation: shake-light 0.5s infinite ease-in-out; }
+        .shake-light { animation: shake-light 1.2s infinite ease-in-out; }
 
         /* CONTAINER E MANCHAS DE SANGUE NO PAPEL */
         .grid-container { 
@@ -154,7 +153,7 @@
         .grid-container.papel-machucado::after {
             opacity: 0.95;
             background-image:
-                /* Borrões grandes e Poças */
+                /* Borrões grandes e Poças inspiradas em imagens reais */
                 radial-gradient(circle 60px at 10% 8%, rgba(139,28,28,0.9) 0%, transparent 100%),
                 radial-gradient(circle 35px at 14% 10%, rgba(100,10,10,0.9) 0%, transparent 100%),
                 radial-gradient(circle 50px at 95% 15%, rgba(139,28,28,0.9) 0%, transparent 100%),
@@ -203,6 +202,11 @@
         .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; padding: 5px 0; outline: none; text-overflow: ellipsis; }
         .sub-input-group select option, .rit-input option, .stat-box select option { background-color: var(--bg-paper); color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 14px;}
 
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
+
         /* ESTILOS DE FOTO COM FITA */
         .portrait-box {
             width: 110px; height: 140px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2;
@@ -219,18 +223,16 @@
         }
         .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
 
-        /* SISTEMA DE SIGILO COM ESTILO ENTALHADO E CONTRASTE FORTE (Modificado a pedido do usuário) */
+        /* SISTEMA DE SIGILO COM ESTILO LIMPO E SÓLIDO (Sem Brilhos no Normal) */
         .sigilo-container { 
             position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; 
             background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; 
             background-size: contain; 
-            /* Tema Claro: Quase Preto pra contrastar bem com a folha branca */
-            filter: grayscale(100%) brightness(0.3) drop-shadow(1px 1px 2px rgba(255,255,255,0.4)) drop-shadow(-1px -1px 3px rgba(0,0,0,0.8)); 
+            filter: grayscale(100%) opacity(0.35); 
             mix-blend-mode: multiply; transition: filter 0.5s ease; 
         }
         body.tema-escuro .sigilo-container { 
-            /* Tema Escuro: Quase Branco brilhante pra contrastar com a mesa preta */
-            filter: grayscale(100%) invert(1) brightness(1.8) drop-shadow(1px 1px 3px rgba(0,0,0,1)) drop-shadow(-1px -1px 2px rgba(255,255,255,0.2)); 
+            filter: grayscale(100%) opacity(0.5) invert(1); 
             mix-blend-mode: screen; 
         }
         
@@ -238,8 +240,7 @@
             content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%;
             background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.65; z-index: -1; pointer-events: none; transition: all 1s ease;
-            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+            opacity: 0.25; z-index: -1; pointer-events: none; transition: all 1s ease;
         }
 
         @keyframes pulsar-sangue {
@@ -254,24 +255,27 @@
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) brightness(1.2) !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
 
-        /* Contraste Atributos Melhorado - Fundo sólido pra linha não riscar o número */
+        /* Contraste Atributos Melhorado - Fundo Limpo com Text Shadow */
         .attr-box { 
             position: absolute; width: 55px; height: 55px; 
-            background: var(--bg-paper); /* Fundo sólido! */
-            border: 3px solid var(--op-ink); /* Borda mais grossa */
+            background: transparent;
+            border: 2px solid var(--op-ink); 
             border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            box-shadow: 0 0 8px rgba(0,0,0,0.3), inset 0 0 5px rgba(0,0,0,0.1); 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
             z-index: 1; transition: all 0.3s ease; 
         }
-        body.tema-escuro .attr-box {
-            box-shadow: 0 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(0,0,0,0.5);
-        }
+        body.tema-escuro .attr-box { box-shadow: inset 0 0 5px rgba(255,255,255,0.05); }
         .attr-label { font-size: 10px; font-weight: 900; color: var(--op-ink); margin-top: -15px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px; font-family: 'Inter', sans-serif;}
+        
         .attr-box input { 
             background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; 
             font-size: 26px; font-family: 'Special Elite', monospace; font-weight: 900; outline: none; 
-            text-shadow: none !important; /* Retirado o blur antigo pra ficar mais nítido */
+            /* Sombra cria um contorno sólido da cor do papel, impedindo as linhas de sujarem a leitura */
+            text-shadow: 2px 2px 0 var(--bg-paper), -2px -2px 0 var(--bg-paper), 2px -2px 0 var(--bg-paper), -2px 2px 0 var(--bg-paper), 0 2px 0 var(--bg-paper), 2px 0 0 var(--bg-paper), 0 -2px 0 var(--bg-paper), -2px 0 0 var(--bg-paper) !important;
         }
+        .sigilo-container.brilho-restricao input { color: #ffffff; text-shadow: 0 0 5px #fff !important; }
+        body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao input { color: #000; text-shadow: 0 0 5px #000 !important; }
+
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
         .mid-stats { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px; font-family: 'Special Elite', monospace; }
@@ -341,16 +345,16 @@
         .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 2px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
         .sub-input { background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; border-radius: 2px; font-family: 'Special Elite', monospace;}
         
-        /* Cores Pericia - SÓLIDAS E VISÍVEIS EM AMBOS OS MODOS */
+        /* Cores Pericia - EFEITO MARCA-TEXTO SOLIDO E VISIVEL */
         .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; border-radius: 2px; outline: none; padding: 2px; font-family: 'Special Elite', monospace;}
         
-        body:not(.tema-escuro) .p-verde { background: rgba(50, 180, 50, 0.4) !important; } 
-        body:not(.tema-escuro) .p-laranja { background: rgba(220, 120, 0, 0.4) !important; } 
-        body:not(.tema-escuro) .p-vermelho { background: rgba(180, 40, 40, 0.45) !important; }
+        body:not(.tema-escuro) .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.3) 2%, rgba(50, 180, 50, 0.35) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; } 
+        body:not(.tema-escuro) .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.3) 2%, rgba(220, 120, 0, 0.35) 98%, transparent 99%) !important; border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; } 
+        body:not(.tema-escuro) .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(180, 40, 40, 0.35) 2%, rgba(180, 40, 40, 0.4) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; }
         
-        body.tema-escuro .p-verde { background: rgba(50, 180, 50, 0.35) !important; } 
-        body.tema-escuro .p-laranja { background: rgba(220, 120, 0, 0.35) !important; } 
-        body.tema-escuro .p-vermelho { background: rgba(200, 50, 50, 0.4) !important; }
+        body.tema-escuro .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.35) 2%, rgba(50, 180, 50, 0.4) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; } 
+        body.tema-escuro .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.35) 2%, rgba(220, 120, 0, 0.4) 98%, transparent 99%) !important; border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; } 
+        body.tema-escuro .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(200, 50, 50, 0.4) 2%, rgba(200, 50, 50, 0.45) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; }
 
         .def-input-bonus { width: 30px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Special Elite', monospace;}
         .info-row { margin-top: 15px; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 8px;}
@@ -369,8 +373,13 @@
         .cris-textarea { width: 100%; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.5; border-radius: 2px; outline: none; transition: border-color 0.3s;}
         .cris-textarea:focus { border-color: var(--op-red); background: rgba(0,0,0,0.03); }
         body.tema-escuro .cris-textarea:focus { background: rgba(255,255,255,0.03); border-color: var(--op-red); }
-        .cris-btn { background: transparent; border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 16px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 2px; font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;}
-        .cris-btn:hover { background: var(--card-hover); color: var(--op-ink); }
+        
+        /* Botões de Ação com Fundo Levemente Translúcido para Destaque */
+        .cris-btn { 
+            background: var(--card-hover); 
+            border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 16px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 2px; font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+        }
+        .cris-btn:hover { background: rgba(128,128,128,0.2); }
 
         .rit-layout-top { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
         .rit-symbol-box { width: 80px; height: 80px; border: 1px dashed var(--card-border); background: transparent; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; overflow: hidden; position: relative; }
