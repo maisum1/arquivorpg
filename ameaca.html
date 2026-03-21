@@ -105,31 +105,24 @@
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* DOSSIÊ (PÁGINA DO ARQUIVO) COM SUJEIRAS E VIGNETTE NO MODO CLARO */
+        /* DOSSIÊ (PÁGINA DO ARQUIVO) COM FICHA PAUTADA E MANCHAS DE TEMPO (Sem ruído) */
         .book-container { 
             max-width: 1050px; margin: 0 auto; 
             background-color: var(--bg-paper); 
             background-image: 
-                /* Marcas de dobras e amassados leves */
-                linear-gradient(35deg, transparent 49%, rgba(0,0,0,0.03) 50%, transparent 51%),
-                linear-gradient(-60deg, transparent 48%, rgba(0,0,0,0.02) 50%, transparent 52%),
-                /* Sujeiras, manchas e oxidação do tempo mais evidentes */
-                radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.15) 0%, transparent 35%),
-                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 85%, rgba(120, 100, 80, 0.15) 0%, transparent 30%),
-                radial-gradient(circle at 15% 80%, rgba(150, 130, 100, 0.1) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(110, 90, 70, 0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 60%, rgba(80, 70, 50, 0.08) 0%, transparent 20%),
-                /* Escurecimento forte nas bordas para profundidade e desgaste (Vignette) */
-                radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.25) 130%),
-                /* Textura SVG base - Ruído aumentado para parecer papel fibroso */
-                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23n)" opacity="0.15"/%3E%3C/svg%3E'),
-                /* Sombreamento lateral */
-                linear-gradient(to right, rgba(0,0,0,0.08) 0%, transparent 4%, transparent 96%, rgba(0,0,0,0.08) 100%);
+                /* 1. Manchas de tempo/umidade espalhadas suavemente */
+                radial-gradient(circle at 10% 20%, rgba(130, 100, 70, 0.12) 0%, transparent 20%),
+                radial-gradient(circle at 90% 10%, rgba(100, 70, 50, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 85% 85%, rgba(110, 80, 50, 0.15) 0%, transparent 30%),
+                /* 2. Escurecimento nas bordas (Vignette) para envelhecimento */
+                radial-gradient(circle at center, transparent 60%, rgba(90, 70, 50, 0.2) 130%),
+                /* 3. Linhas horizontais sutis simulando a pauta de um arquivo impresso */
+                repeating-linear-gradient(transparent, transparent 29px, rgba(0, 0, 0, 0.05) 29px, rgba(0, 0, 0, 0.05) 30px);
+            
             box-shadow: var(--paper-shadow); 
             border: 1px solid #b3a996; position: relative; padding: 50px 60px; border-radius: 2px;
             /* Evita tentar transicionar a background-image */
-            transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
             overflow: hidden;
         }
 
@@ -269,11 +262,10 @@
         .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
         .cris-textarea:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
 
-        /* MODAIS E HUD (Design Escuro Mantido pro Sistema) */
+        /* MODAIS E HUD */
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-config:hover { opacity: 1; transform: rotate(90deg); color: #fff;}
 
-        /* NOVO: Botão de Tema Fixado */
         .btn-theme { position: fixed; top: 10px; right: 50px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-theme:hover { opacity: 1; transform: scale(1.1); color: #fff;}
 
@@ -452,7 +444,6 @@
 </div>
 
 <script>
-    // --- GERENCIAMENTO DE TEMA ---
     function alternarTema() {
         document.body.classList.toggle('tema-escuro');
         const isEscuro = document.body.classList.contains('tema-escuro');
