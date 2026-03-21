@@ -54,7 +54,7 @@
         body.tema-escuro .btn-add:hover { background: rgba(255,255,255,0.05); }
         
         body.tema-escuro .portrait-container::before { background: rgba(50,50,50,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        body.tema-escuro .portrait { background: #050505; border-color: #1a1a1a; }
+        body.tema-escuro .portrait { background: #050505 !important; border-color: #1a1a1a !important; }
         
         body.tema-escuro .thin-bar-bg { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
         body.tema-escuro .book-input { color: var(--op-ink); border-bottom-color: rgba(255,255,255,0.2); }
@@ -95,7 +95,7 @@
             font-family: 'Courier Prime', monospace; margin: 0; padding: 40px 10px;
             color: var(--op-ink); min-height: 100vh;
             /* Transição ajustada para não bugar a background-image */
-            transition: background-color 0.5s ease, color 0.5s ease;
+            transition: color 0.3s ease;
         }
 
         /* Remove setinhas numéricas */
@@ -110,17 +110,22 @@
             max-width: 1050px; margin: 0 auto; 
             background-color: var(--bg-paper); 
             background-image: 
-                /* Sujeiras, manchas e oxidação do tempo no papel */
-                radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
-                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.06) 0%, transparent 30%),
-                radial-gradient(circle at 90% 85%, rgba(120, 100, 80, 0.07) 0%, transparent 25%),
-                radial-gradient(circle at 15% 80%, rgba(150, 130, 100, 0.05) 0%, transparent 35%),
-                radial-gradient(circle at 50% 45%, rgba(110, 90, 70, 0.04) 0%, transparent 40%),
-                /* Escurecimento nas bordas para profundidade e desgaste (Vignette) */
-                radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.12) 130%),
-                /* Textura SVG base */
-                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'),
-                linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
+                /* Marcas de dobras e amassados leves */
+                linear-gradient(35deg, transparent 49%, rgba(0,0,0,0.03) 50%, transparent 51%),
+                linear-gradient(-60deg, transparent 48%, rgba(0,0,0,0.02) 50%, transparent 52%),
+                /* Sujeiras, manchas e oxidação do tempo mais evidentes */
+                radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.15) 0%, transparent 35%),
+                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(120, 100, 80, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 15% 80%, rgba(150, 130, 100, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(110, 90, 70, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 60%, rgba(80, 70, 50, 0.08) 0%, transparent 20%),
+                /* Escurecimento forte nas bordas para profundidade e desgaste (Vignette) */
+                radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.25) 130%),
+                /* Textura SVG base - Ruído aumentado para parecer papel fibroso */
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23n)" opacity="0.15"/%3E%3C/svg%3E'),
+                /* Sombreamento lateral */
+                linear-gradient(to right, rgba(0,0,0,0.08) 0%, transparent 4%, transparent 96%, rgba(0,0,0,0.08) 100%);
             box-shadow: var(--paper-shadow); 
             border: 1px solid #b3a996; position: relative; padding: 50px 60px; border-radius: 2px;
             /* Evita tentar transicionar a background-image */
@@ -196,7 +201,7 @@
         /* LINHAS DE STATUS (Formulário Datilografado) */
         .book-stat-row { padding: 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; font-size: 15px; line-height: 1.6;}
         .stat-label { color: var(--op-ink); font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; font-size: 13px; }
-        .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: color 0.5s ease; }
+        .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: color 0.5s ease;}
 
         /* DEFESA EM DESTAQUE */
         .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 10px; border-radius: 2px; background: transparent;}
@@ -472,7 +477,6 @@
 
     if(!atual) { window.location.href = "index.html"; }
 
-    // --- SISTEMAS SECRETOS MESTRE ---
     let isHexatombe = false;
     let globalHexatombe = false; 
     let prevHexatombeFinal = false; 
@@ -548,7 +552,6 @@
         });
     }
 
-    // --- AUTO-SAVE ---
     let timeouts = {}; 
     let pendingUpdates = {}; 
 
@@ -610,7 +613,6 @@
                     o.pvAtual_hexa = (parseInt(d_raw.pvAtual) || 0) + 50;
                     o.pcAtual_hexa = parseInt(d_raw.pcAtual) || 0;
                     o.peAtual_hexa = parseInt(d_raw.peAtual) || 0;
-                    
                     o.hexatombe_data = { ...d_raw }; 
                     if(o.hexatombe_data.hexatombe_data) delete o.hexatombe_data.hexatombe_data; 
                     
