@@ -25,6 +25,11 @@
             /* Status Cores Pálidas */
             --san-purple: #2b3a4a;
             --pe-orange: #665235;
+
+            /* Variáveis de Caixa (Faltavam aqui!) */
+            --card-bg: rgba(0,0,0,0.03);
+            --card-border: rgba(0,0,0,0.15);
+            --card-hover: rgba(0,0,0,0.08);
         }
 
         /* --- TEMA ESCURO (Estilo Suavizado e Limpo) --- */
@@ -36,6 +41,11 @@
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
             --san-purple: #6a829e;
             --pe-orange: #a88a61;
+            
+            --card-bg: rgba(255,255,255,0.02);
+            --card-border: rgba(255,255,255,0.1);
+            --card-hover: rgba(255,255,255,0.06);
+
             /* Fundo escuro liso sem o noise ruim */
             background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
         }
@@ -89,10 +99,10 @@
 
         body {
             background-color: var(--bg-desk);
-            /* Ruído completamente removido do fundo da tela (mesa) */
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
             font-family: 'Courier Prime', monospace; margin: 0; padding: 40px 10px;
             color: var(--op-ink); min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: color 0.3s ease;
         }
 
         /* Remove setinhas numéricas */
@@ -102,24 +112,20 @@
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* DOSSIÊ (PÁGINA DO ARQUIVO) COM MANCHAS E VIGNETTE (SEM RUÍDO, SEM LINHAS) */
+        /* DOSSIÊ (PÁGINA DO ARQUIVO) COM O FUNDO ORIGINAL + VIGNETTE NAS BORDAS */
         .book-container { 
             max-width: 1050px; margin: 0 auto; 
             background-color: var(--bg-paper); 
             background-image: 
                 /* Escurecimento nas bordas (Vignette) para envelhecimento */
-                radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.15) 140%),
-                /* Manchinhas escuras sutis nos cantos */
-                radial-gradient(circle at 8% 12%, rgba(0, 0, 0, 0.04) 0%, transparent 20%),
-                radial-gradient(circle at 92% 88%, rgba(0, 0, 0, 0.05) 0%, transparent 25%),
-                radial-gradient(circle at 85% 15%, rgba(0, 0, 0, 0.03) 0%, transparent 20%),
-                radial-gradient(circle at 15% 85%, rgba(0, 0, 0, 0.04) 0%, transparent 25%),
-                /* Sombreamento lateral */
+                radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.2) 140%),
+                /* Textura Original de Ruído do Arquivo */
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
             box-shadow: var(--paper-shadow); 
             border: 1px solid #b3a996; position: relative; padding: 50px 60px; border-radius: 2px;
-            /* Sem transição no background-image para garantir fluidez perfeita */
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+            /* Evita tentar transicionar a background-image para não travar o FPS */
+            transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
             overflow: hidden;
         }
 
@@ -160,7 +166,7 @@
         .vd-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin-bottom: -5px; }
         .vd-input { width: 60px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.5rem; font-weight: 900; outline: none; font-family: 'Inter', sans-serif;}
 
-        /* ATRIBUTOS ALINHADOS NA HORIZONTAL (Carimbos Negros) */
+        /* ATRIBUTOS ALINHADOS NA HORIZONTAL */
         .attributes-bar {
             display: flex; justify-content: space-evenly; align-items: center;
             padding: 20px 0; margin-bottom: 35px; position: relative; z-index: 2;
@@ -172,54 +178,53 @@
             background: transparent;
             position: relative;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-            transition: border-color 0.3s ease;
+            transition: border-color 0.5s ease;
         }
         .attr-label {
             font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 900; color: var(--op-ink);
             position: absolute; top: -18px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
         .attr-box input {
             background: transparent; border: none; color: var(--op-ink); text-align: center;
             width: 100%; font-size: 30px; font-family: 'Special Elite', monospace; font-weight: bold; outline: none;
-            transition: color 0.3s ease;
+            transition: color 0.5s ease;
         }
 
         /* GRID PRINCIPAL (Status e Imagem) */
         .book-grid { display: grid; grid-template-columns: 1fr 340px; gap: 50px; position: relative; z-index: 2;}
 
-        /* LINHAS DE STATUS (Formulário Datilografado) */
+        /* LINHAS DE STATUS */
         .book-stat-row { padding: 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; font-size: 15px; line-height: 1.6;}
         .stat-label { color: var(--op-ink); font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; font-size: 13px; }
-        .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: color 0.3s ease;}
+        .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: color 0.5s ease;}
 
         /* DEFESA EM DESTAQUE */
         .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 10px; border-radius: 2px; background: transparent;}
         .defesa-badge input { color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
 
-        /* BARRAS DE STATUS (Estilo Fita/Régua) */
+        /* BARRAS DE STATUS */
         .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 2px; margin-bottom: 10px;}
         .resource-inputs { display: flex; align-items: baseline; font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold; color: var(--op-ink);}
         .resource-inputs input { width: 40px; text-align: center; font-size: 18px; color: var(--op-ink);}
         
-        .thin-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.3); position: relative; overflow: hidden; flex: 1; border-radius: 0; transition: background-color 0.3s ease, border-color 0.3s ease;}
+        .thin-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.3); position: relative; overflow: hidden; flex: 1; border-radius: 0; transition: background-color 0.5s ease, border-color 0.5s ease;}
         .thin-bar-fill { height: 100%; position: absolute; left: 0; top: 0; transition: 0.3s; }
         #bar-pv { background: var(--op-red); }
         #bar-pc { background: var(--san-purple); }
         #bar-pe { background: var(--pe-orange); }
 
-        /* TÍTULOS DE SESSÃO (Estilo Tarja Dymo) */
+        /* TÍTULOS DE SESSÃO */
         .section-header { 
             background: var(--op-ink); color: var(--bg-paper); font-family: 'Inter', sans-serif; font-weight: 900; 
             font-size: 1.1rem; padding: 4px 12px; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
             display: inline-block; position: relative; z-index: 2;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* FOTOGRAFIA (Estilo foto anexada com fita) */
+        /* FOTOGRAFIA */
         .portrait-container { width: 100%; position: relative; margin-bottom: 30px;}
-        /* Fita Crepe */
         .portrait-container::before {
             content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
             width: 120px; height: 35px; background: rgba(230,225,210,0.7);
@@ -236,11 +241,11 @@
         .portrait img { width: 100%; height: 100%; object-fit: cover; }
         .upload-hint { position: absolute; color: #333; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.8;}
         
-        /* BLOCOS DINÂMICOS COM DESTAQUE VISUAL (Sombreado Ficha) */
+        /* BLOCOS DINÂMICOS */
         .dynamic-item-highlight { 
-            background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-left: 5px solid var(--op-ink); 
+            background: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--op-ink); 
             padding: 15px; margin-bottom: 15px; position: relative; z-index: 2;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); transition: background-color 0.5s ease, border-color 0.5s ease;
         }
         .btn-del { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--op-red); cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 16px; opacity: 0.4;}
         .btn-del:hover { opacity: 1; transform: scale(1.2);}
@@ -256,7 +261,7 @@
         }
         .btn-add:hover { background: rgba(0,0,0,0.08); }
 
-        .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
+        .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
         .cris-textarea:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
 
         /* MODAIS E HUD */
@@ -274,7 +279,22 @@
         .voltar-btn { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; color: #888; padding: 10px 20px; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #444; border-radius: 2px; z-index: 1000; transition: 0.3s; letter-spacing: 1px; }
         .voltar-btn:hover { background: #333; color: #fff; }
 
-        @media (max-width: 900px) { .book-grid { grid-template-columns: 1fr; } .book-container { padding: 30px 20px; } .vd-badge { position: relative; top:0; margin-bottom: 20px;} .book-header { flex-direction: column; align-items: flex-start;}}
+        /* ========================================================
+           NOVA RESPONSIVIDADE MOBILE (Sem colunas pretas, preenchendo tela)
+           ======================================================== */
+        @media (max-width: 900px) { 
+            body { padding: 0 !important; margin: 0; }
+            .book-container { 
+                padding: 20px 15px !important; 
+                border: none !important; 
+                border-radius: 0 !important; 
+                width: 100%; 
+                box-sizing: border-box;
+            }
+            .book-grid { grid-template-columns: 1fr; gap: 30px;} 
+            .vd-badge { position: relative; top:0; margin-bottom: 20px;} 
+            .book-header { flex-direction: column; align-items: flex-start;}
+        }
     </style>
 </head>
 <body>
@@ -436,7 +456,7 @@
     </div>
 
     <div class="section-header" style="margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
-    <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, incidentes relacionados..." style="min-height: 250px; background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border);"></textarea>
+    <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, incidentes relacionados..." style="min-height: 250px; background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border); border-radius: 2px;"></textarea>
 
 </div>
 
