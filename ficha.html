@@ -903,16 +903,14 @@
             const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
 
-            let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias) : d_raw.pericias;
-            if(pLoad) {
-                nomesPericias.forEach(p => {
-                    const bF = document.getElementById(`bonus-${p}`); const tF = document.getElementById(`treino-${p}`); const aF = document.getElementById(`attr-${p}`); const tS = document.getElementById(`total-${p}`);
-                    const dP = pLoad[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0], subsNames: ["","","",""] };
-                    if(bF) bF.value = dP.bonus ?? 0; if(tF) { tF.value = dP.treino ?? 0; atualizarCorPericia(p, tF.value); } if(aF && dP.atributo) aF.value = dP.atributo;
-                    let bS = 0; if (bancoPericias[p].subs || bancoPericias[p].subsInputs) { for(let i=0; i<4; i++) { const sE = document.getElementById(`sub-${p}-${i}`); if(sE) { sE.value = dP.subs ? (dP.subs[i] || 0) : 0; bS += parseInt(sE.value) || 0; } if(bancoPericias[p].subsInputs && i < 3) { const sN = document.getElementById(`sub-nome-${p}-${i}`); if(sN) sN.value = dP.subsNames ? (dP.subsNames[i] || "") : ""; } } }
-                    if(tS) { const aU = dP.atributo || bancoPericias[p].attr; const aI = document.getElementById(`attr-${aU.toLowerCase()}`); let aV = aI ? (parseInt(aI.value) || 0) : 0; tS.innerText = (dP.bonus ?? 0) + (dP.treino ?? 0) + aV + Math.floor(bS / 4); }
-                });
-            }
+            let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
+            nomesPericias.forEach(p => {
+                const bF = document.getElementById(`bonus-${p}`); const tF = document.getElementById(`treino-${p}`); const aF = document.getElementById(`attr-${p}`); const tS = document.getElementById(`total-${p}`);
+                const dP = pLoad[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0], subsNames: ["","","",""] };
+                if(bF) bF.value = dP.bonus ?? 0; if(tF) { tF.value = dP.treino ?? 0; atualizarCorPericia(p, tF.value); } if(aF && dP.atributo) aF.value = dP.atributo;
+                let bS = 0; if (bancoPericias[p].subs || bancoPericias[p].subsInputs) { for(let i=0; i<4; i++) { const sE = document.getElementById(`sub-${p}-${i}`); if(sE) { sE.value = dP.subs ? (dP.subs[i] || 0) : 0; bS += parseInt(sE.value) || 0; } if(bancoPericias[p].subsInputs && i < 3) { const sN = document.getElementById(`sub-nome-${p}-${i}`); if(sN) sN.value = dP.subsNames ? (dP.subsNames[i] || "") : ""; } } }
+                if(tS) { const aU = dP.atributo || bancoPericias[p].attr; const aI = document.getElementById(`attr-${aU.toLowerCase()}`); let aV = aI ? (parseInt(aI.value) || 0) : 0; tS.innerText = (dP.bonus ?? 0) + (dP.treino ?? 0) + aV + Math.floor(bS / 4); }
+            });
 
             document.getElementById('info-prot').value = d.protecao || ""; document.getElementById('info-vuln').value = d.vulnerabilidades || ""; document.getElementById('info-res').value = d.resistencias || ""; document.getElementById('info-prof').value = d.proficiencias || "";
             document.getElementById('bonus-defesa').value = d.bonusDefesa ? d.bonusDefesa : ""; document.getElementById('bonus-esquiva').value = d.bonusEsquiva ? d.bonusEsquiva : ""; document.getElementById('bonus-bloqueio').value = d.bonusBloqueio ? d.bonusBloqueio : ""; document.getElementById('bonus-dt').value = d.bonusDt ? d.bonusDt : "";
