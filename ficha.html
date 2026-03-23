@@ -10,60 +10,51 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
         
         :root {
-            --op-red: #8b1c1c; 
-            --op-dark-red: #4a0f0f; 
-            --op-ink: #1a1a1a;
-            --bg-desk: #121211; 
-            --bg-paper: #dcd7cb; 
-            --paper-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            --card-bg: rgba(0,0,0,0.02); 
-            --card-border: rgba(0,0,0,0.2); 
-            --card-hover: rgba(0,0,0,0.05);
-            --cris-purple: var(--op-ink); 
-            --hp-red: var(--op-red); 
-            --san-purple: #3a4b5c; 
-            --pe-orange: #7a6345; 
-            --cor-geral: #555; 
-            --sigilo-ring: #333; 
-            --cor-morte: #2b2a2a;
+            --op-red: #9e0b0f; --op-dark-red: #5a0000; --op-ink: #1a1a1a;
+            --bg-desk: #121211; --bg-paper: #dcd7cb; --paper-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            --card-bg: rgba(0,0,0,0.03); --card-border: rgba(0,0,0,0.15); --card-hover: rgba(0,0,0,0.08);
+            --cris-purple: var(--op-ink); --hp-red: var(--op-red); --san-purple: #2b3a4a; --pe-orange: #665235; 
+            --cor-geral: #666; --sigilo-ring: #4a3a2a; --cor-morte: #2b2a2a
         }
 
         body.tema-escuro {
-            --bg-paper: #131313; 
-            --op-ink: #e0e0e0; 
-            --op-red: #a82020;
+            --bg-paper: #0b0b0b; /* Fundo mais denso e Noir */
+            --op-ink: #c8c0b0; /* Texto cor de osso/pergaminho, não branco puro */
+            --op-red: #8a1c1c; /* Vermelho sangue seco */
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
-            --card-bg: rgba(255,255,255,0.02); 
-            --card-border: rgba(255,255,255,0.12); 
-            --card-hover: rgba(255,255,255,0.06);
-            --san-purple: #5c748e; 
-            --pe-orange: #a88a61; 
-            --cor-geral: #888; 
-            --sigilo-ring: #888; 
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
+            --card-bg: rgba(255,255,255,0.015); 
+            --card-border: #1f1f1f; 
+            --card-hover: rgba(255,255,255,0.04);
+            --san-purple: #3b5b5c; /* Azul/Teal estilo Call of Cthulhu */
+            --pe-orange: #7a6345; /* Dourado/Marrom apagado */
+            --cor-geral: #a38d5d; /* Dourado envelhecido para rótulos */
+            --sigilo-ring: #222; 
+            background-image: radial-gradient(circle at center, #111 0%, #000 100%) !important;
         }
         
         body.tema-escuro .grid-container {
-            background-image: linear-gradient(to right, rgba(255,255,255,0.02) 0%, transparent 3%, transparent 97%, rgba(255,255,255,0.02) 100%), linear-gradient(to bottom, rgba(255,255,255,0.01) 0%, transparent 2%, transparent 98%, rgba(255,255,255,0.01) 100%) !important;
+            background-image: none !important; /* Remove pontilhados cartunescos no dark mode */
+            border-color: #222;
         }
 
         body.tema-hexatombe {
             --cris-purple: var(--op-red) !important; --bg-panel: rgba(50,0,0,0.4) !important; --cor-fixo: var(--op-red) !important;
-            --bg-paper: #0f0202 !important; --bg-desk: #050000 !important; --op-ink: #d3d3d3 !important;
-            --card-bg: rgba(50,0,0,0.3) !important; --card-border: #600 !important;
+            --bg-paper: #120303 !important; --bg-desk: #0a0000 !important; --op-ink: #d3d3d3 !important;
+            --card-bg: rgba(50,0,0,0.4) !important; --card-border: #500 !important;
         }
 
         body.tema-hexatombe .grid-container {
-            border-color: #400 !important; box-shadow: 0 0 50px rgba(255,0,0,0.2), inset 0 0 100px rgba(0,0,0,0.9) !important;
-            background-image: radial-gradient(circle at center, rgba(100,0,0,0.05) 0%, #0a0000 100%) !important;
+            border-color: #300 !important; box-shadow: 0 0 50px rgba(255,0,0,0.3), inset 0 0 100px rgba(0,0,0,0.9) !important;
+            background-image: radial-gradient(circle at center, rgba(150,0,0,0.1) 0%, #0a0000 100%), url('data:image/svg+xml,%3Csvg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="150" height="150" filter="url(%23noise)" opacity="0.15"/%3E%3C/svg%3E') !important;
         }
 
         body { 
             background-color: var(--bg-desk);
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.05"/%3E%3C/svg%3E');
             color: var(--op-ink); font-family: 'Courier Prime', monospace; margin: 0; padding: 40px 10px; transition: background-color 0.5s ease; 
         }
         
@@ -82,68 +73,62 @@
         .grid-container { 
             background-color: var(--bg-paper); 
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.05) 0%, transparent 25%),
-                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.04) 0%, transparent 30%),
-                radial-gradient(circle at 90% 85%, rgba(120, 100, 80, 0.05) 0%, transparent 25%),
-                radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.15) 130%),
+                radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.06) 0%, transparent 30%),
+                radial-gradient(circle at 90% 85%, rgba(120, 100, 80, 0.07) 0%, transparent 25%),
+                radial-gradient(circle at 15% 80%, rgba(150, 130, 100, 0.05) 0%, transparent 35%),
+                radial-gradient(circle at 50% 45%, rgba(110, 90, 70, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at center, transparent 40%, rgba(101, 67, 33, 0.18) 120%),
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
-            box-shadow: var(--paper-shadow); border: 1px solid var(--card-border); padding: 50px 60px; border-radius: 0px; 
+            box-shadow: var(--paper-shadow); border: 1px solid #b3a996; padding: 50px 60px; border-radius: 2px;
             display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; position: relative; transition: filter 0.3s ease; 
         }
         body.tema-escuro .grid-container { border-color: #333; }
-        .grid-container::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50; transition: opacity 0.5s ease; opacity: 0; border-radius: 0px; }
+        .grid-container::after { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 50; transition: opacity 0.5s ease; opacity: 0; border-radius: 2px; }
         .grid-container.papel-sangrando { box-shadow: var(--paper-shadow), 0 0 25px rgba(139,28,28,0.6); border-color: rgba(139,28,28,0.7); }
         .grid-container.papel-machucado::after {
             opacity: 0.95;
             background-image: radial-gradient(circle 60px at 10% 8%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 35px at 14% 10%, rgba(100,10,10,0.9) 0%, transparent 100%), radial-gradient(circle 50px at 95% 15%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 25px at 90% 20%, rgba(100,10,10,0.9) 0%, transparent 100%), radial-gradient(ellipse 70px 30px at 50% 98%, rgba(139,28,28,0.75) 0%, transparent 100%), radial-gradient(circle 20px at 7% 7%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 12px at 9% 6%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 40px at 12% 45%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 18px at 10% 43%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 55px at 85% 60%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 22px at 82% 64%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 35px at 30% 95%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 15px at 28% 97%, rgba(139,28,28,0.85) 0%, transparent 100%);
         }
 
-        /* --- ESTILOS DE TARJAS RESTAURADOS (Mas limpos, sem glitch e com a fonte Noir) --- */
         .section-header, .tab-btn.active {
-            background: var(--op-ink) !important;
-            color: var(--bg-paper) !important;
-            font-family: 'Playfair Display', serif !important;
-            font-weight: 700 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 2px !important;
-            padding: 6px 15px !important;
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.4) !important;
-            display: inline-block;
-            border: none !important;
-            text-shadow: none !important; /* Retirado o glitch */
-            margin-bottom: 15px;
+            background: var(--op-ink) !important; color: var(--bg-paper) !important; font-family: 'Cinzel', serif !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 2px !important; padding: 6px 15px !important; display: inline-block; border: none !important; 
         }
-        body.tema-escuro .section-header, body.tema-escuro .tab-btn.active { box-shadow: 3px 3px 0px #000 !important; }
-        .modal-padrao .section-header { box-shadow: none !important; width: 100%; box-sizing: border-box; }
+        
+        /* Ajuste Noir para o modo escuro nas headers */
+        body.tema-escuro .section-header { 
+            background: transparent !important; color: var(--cor-geral) !important; box-shadow: none !important; border-bottom: 1px solid var(--card-border) !important; padding-left: 0 !important;
+        }
+        body.tema-escuro .tab-btn.active {
+            background: var(--card-bg) !important; color: var(--cor-geral) !important; box-shadow: none !important; border: 1px solid var(--card-border) !important; border-bottom: none !important;
+        }
+        
+        body:not(.tema-escuro) .section-header, body:not(.tema-escuro) .tab-btn.active { box-shadow: 3px 3px 0px rgba(0,0,0,0.3) !important; }
 
-        .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--op-ink); color: var(--op-ink); font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
+        .modal-padrao .section-header { text-shadow: 2px 2px 0px rgba(0,0,0,0.8) !important; color: var(--bg-paper) !important; background: var(--op-ink) !important; padding-left: 15px !important; }
+        body.tema-escuro .modal-padrao .section-header { text-shadow: none !important; }
+
+        .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px double var(--op-ink); color: var(--op-ink); font-family: 'Cinzel', serif; font-size: 28px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
         
         .header-sub-row { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; }
         .sub-input-group { display: flex; flex-direction: column; min-width: 0; }
-        .sub-input-group label { font-size: 10px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
-        .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px solid var(--card-border); color: var(--op-ink); font-family: 'Courier Prime', monospace; font-size: 15px; padding: 5px 0; outline: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        .sub-input-group select option, .rit-input option, .stat-box select option { background-color: var(--bg-paper); color: var(--op-ink); font-family: 'Courier Prime', monospace; font-size: 14px;}
+        .sub-input-group label { font-size: 10px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
+        .sub-input-group input, .sub-input-group select { width: 100%; box-sizing: border-box; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 17px; padding: 5px 0; outline: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        .sub-input-group select option, .rit-input option, .stat-box select option { background-color: var(--bg-paper); color: var(--op-ink); font-family: 'Cinzel', serif; font-size: 14px;}
 
-        @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* FOTOGRAFIA DE DOSSIÊ COM FITA RESTAURADA */
-        .portrait-box { 
-            width: 110px; height: 140px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2; border-radius: 0px; 
-        }
-        .portrait-box::before {
-            content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
-            width: 80px; height: 25px; background: rgba(230,225,210,0.8);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.05); z-index: 10; pointer-events: none;
-        }
-        body.tema-escuro .portrait-box::before { background: rgba(50,50,50,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        .portrait-img-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; z-index: 1; padding: 0; box-sizing: border-box; }
-        .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: relative; z-index: 1; mix-blend-mode: normal !important; filter: grayscale(20%) contrast(110%) !important;}
-        
-        /* PENTAGRAMA E ATRIBUTOS */
+        .portrait-box { width: 110px; height: 140px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2; }
+        .portrait-box::before { content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 80px; height: 25px; background: rgba(230,225,210,0.8); box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.05); z-index: 10; pointer-events: none; }
+        body.tema-escuro .portrait-box::before { background: rgba(30,30,30,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .portrait-img-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; z-index: 1; }
+        .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
+
         .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: sepia(0.6) hue-rotate(-20deg) brightness(0.4) opacity(0.85); mix-blend-mode: multiply; transition: filter 0.5s ease; }
-        body.tema-escuro .sigilo-container { filter: grayscale(100%) invert(1) brightness(0.8) opacity(0.8); mix-blend-mode: screen; }
-        .sigilo-container::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.2; z-index: -1; pointer-events: none; transition: all 1s ease; filter: grayscale(100%);}
+        body.tema-escuro .sigilo-container { filter: grayscale(100%) invert(1) brightness(0.3) opacity(0.5); mix-blend-mode: screen; }
+        .sigilo-container::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background-image: url('https://pngimg.com/uploads/pentagram/pentagram_PNG22.png'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.4; z-index: -1; pointer-events: none; transition: all 1s ease; }
 
         @keyframes pulsar-sangue { 0% { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 20px #ff0000); transform: translate(-50%, -50%) scale(1); opacity: 0.9;} 100% { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.8) drop-shadow(0 0 30px #ff0000) drop-shadow(0 0 50px #ff0000); transform: translate(-50%, -50%) scale(1.05); opacity: 1;} }
         .sigilo-container.brilho-sangue { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 0, 0, 0.8)) !important; mix-blend-mode: normal !important; }
@@ -152,127 +137,123 @@
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) brightness(1.2) !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
 
-        .attr-box { position: absolute; width: 55px; height: 55px; background: transparent; border: 1px solid var(--sigilo-ring); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; transition: all 0.3s ease; }
-        .attr-label { font-size: 10px; font-weight: 700; color: var(--sigilo-ring); margin-top: -15px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px; font-family: 'Inter', sans-serif;}
-        .attr-box input { background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; font-size: 28px; font-family: 'Playfair Display', serif; font-weight: 700; outline: none; text-shadow: 1px 1px 0 var(--bg-paper), -1px -1px 0 var(--bg-paper), 1px -1px 0 var(--bg-paper), -1px 1px 0 var(--bg-paper) !important; }
+        .attr-box { position: absolute; width: 55px; height: 55px; background: transparent; border: 3px solid var(--sigilo-ring); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; transition: all 0.3s ease; }
+        .attr-label { font-size: 10px; font-weight: 900; color: var(--sigilo-ring); margin-top: -15px; letter-spacing: 1px; background: var(--bg-paper); padding: 0 4px; font-family: 'Cinzel', serif;}
+        .attr-box input { background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; font-size: 26px; font-family: 'Crimson Text', serif; font-weight: 900; outline: none; text-shadow: 1.5px 1.5px 0 var(--bg-paper), -1.5px -1.5px 0 var(--bg-paper), 1.5px -1.5px 0 var(--bg-paper), -1.5px 1.5px 0 var(--bg-paper), 0 2px 0 var(--bg-paper), 2px 0 0 var(--bg-paper), 0 -2px 0 var(--bg-paper), -2px 0 0 var(--bg-paper) !important; }
+        
+        body.tema-escuro .attr-box input { text-shadow: none !important; } /* Tira sombra excessiva no dark mode */
+        
         .sigilo-container.brilho-restricao input { color: #ffffff; text-shadow: 0 0 5px #fff !important; }
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao input { color: #000; text-shadow: 0 0 5px #000 !important; }
 
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
 
-        .mid-stats { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px; }
-        .stat-box { border: 1px solid var(--card-border); background: var(--card-bg); padding: 8px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0px;}
-        .stat-box label { font-size: 9px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; text-align: center;}
-        .stat-box select, .stat-box input { background: transparent; border: none; color: var(--op-ink); font-family: 'Playfair Display', serif; font-size: 20px; text-align: center; width: 100%; outline: none; cursor: pointer; font-weight: 700;}
+        .mid-stats { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 25px; font-family: 'Crimson Text', serif; }
+        .stat-box { border: 1px solid var(--card-border); background: var(--card-bg); padding: 8px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2px;}
+        .stat-box label { font-size: 9px; color: var(--cor-geral); font-weight: bold; font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; text-align: center;}
+        .stat-box select, .stat-box input { background: transparent; border: none; color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 18px; text-align: center; width: 100%; outline: none; cursor: pointer; }
 
-        /* BARRAS DE STATUS NOIR */
         .status-container { margin-bottom: 15px; }
         .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 4px; padding: 0;}
-        .status-header { font-size: 11px; font-weight: bold; color: var(--hp-red); letter-spacing: 2px; font-family: 'Inter'; text-align: center; }
-        .btn-status-action { position: absolute; right: 0; background: transparent; color: var(--cor-geral); border: 1px solid var(--card-border); border-radius: 0px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Inter'; font-weight: bold; transition: 0.2s; }
+        .status-header { font-size: 11px; font-weight: bold; color: var(--hp-red); letter-spacing: 2px; font-family: 'Cinzel', serif; text-align: center; }
+        .btn-status-action { position: absolute; right: 0; background: transparent; color: var(--cor-geral); border: 1px solid var(--card-border); border-radius: 2px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Cinzel', serif; font-weight: bold; transition: 0.2s; }
         .btn-status-action:hover { background: var(--card-hover); color: var(--op-ink); border-color: var(--op-ink); }
-        .bar-bg { width: 100%; height: 30px; background: var(--card-bg); position: relative; border: 1px solid var(--card-border); overflow: hidden; display: flex; align-items: center; border-radius: 0px;}
-        .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.7; }
-        
-        .bar-content { position: relative; z-index: 2; width: 100%; height: 30px; display: flex; justify-content: space-between; padding: 0 10px; font-family: 'Playfair Display', serif; align-items: center; transition: opacity 0.3s; color: var(--op-ink); box-sizing: border-box;}
-        /* Ajuste do alinhamento vertical dos números */
-        .bar-content input { 
-            background: transparent; border: none; color: var(--op-ink); width: 40px; text-align: center; 
-            font-size: 20px; font-family: 'Playfair Display', serif; font-weight: bold; outline: none;
-            padding: 0; margin: 0; line-height: 30px; height: 30px; 
-        }
-        .bar-btn { cursor: pointer; color: var(--op-ink); font-size: 16px; opacity: 0.5; user-select: none; font-family: 'Inter'; padding: 0 5px;}
+        .bar-bg { width: 100%; height: 30px; background: var(--card-bg); position: relative; border: 1px solid var(--card-border); overflow: hidden; display: flex; align-items: center; border-radius: 2px;}
+        .bar-fill { height: 100%; transition: width 0.4s, filter 0.3s; position: absolute; top: 0; left: 0; opacity: 0.8; }
+        .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; font-family: 'Crimson Text', serif; align-items: center; transition: opacity 0.3s; color: var(--op-ink);}
+        .bar-content input { background: transparent; border: none; color: var(--op-ink); width: 40px; text-align: center; font-size: 18px; font-family: 'Crimson Text', serif; font-weight: bold; outline: none;}
+        .bar-btn { cursor: pointer; color: var(--op-ink); font-size: 16px; opacity: 0.5; user-select: none; font-family: 'Cinzel', serif; padding: 0 5px;}
         .bar-btn:hover { opacity: 1; }
 
-        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(220, 215, 203, 0.95); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid var(--hp-red);}
-        body.tema-escuro .zero-state { background: rgba(22, 22, 22, 0.95); }
+        .zero-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(220, 215, 203, 0.95); align-items: center; justify-content: center; gap: 8px; font-family: 'Cinzel', serif; font-size: 11px; font-weight: bold; border: 2px dashed var(--hp-red);}
+        body.tema-escuro .zero-state { background: rgba(11, 11, 11, 0.95); }
         .zero-state.active { display: flex; }
         .zero-state input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--hp-red); }
-        .btn-curar { background: transparent; color: var(--op-ink); border: 1px solid var(--op-ink); padding: 3px 8px; font-size: 10px; cursor: pointer; border-radius: 0px; font-family: 'Inter', sans-serif; transition: 0.2s; text-transform: uppercase; font-weight: bold;}
+        .btn-curar { background: transparent; color: var(--op-ink); border: 1px dashed var(--op-ink); padding: 3px 8px; font-size: 10px; cursor: pointer; border-radius: 2px; font-family: 'Cinzel', serif; transition: 0.2s; text-transform: uppercase; font-weight: bold;}
         .btn-curar:hover { background: var(--card-hover); color: var(--op-ink); }
 
-        .it-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(220, 215, 203, 0.95); align-items: center; justify-content: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid var(--san-purple); color: var(--op-ink);}
-        body.tema-escuro .it-state { background: rgba(22, 22, 22, 0.95); }
+        .it-state { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(220, 215, 203, 0.95); align-items: center; justify-content: center; gap: 8px; font-family: 'Cinzel', serif; font-size: 11px; font-weight: bold; border: 2px dashed var(--san-purple); color: var(--op-ink);}
+        body.tema-escuro .it-state { background: rgba(11, 11, 11, 0.95); }
         .it-state.active { display: flex; }
-        .it-round { width: 16px; height: 16px; border-radius: 0px; border: 1px solid var(--op-ink); display: inline-block; cursor: pointer; background: transparent; }
+        .it-round { width: 16px; height: 16px; border-radius: 2px; border: 1px solid var(--op-ink); display: inline-block; cursor: pointer; background: transparent; }
         .it-round.active { background: var(--op-ink); }
 
         .mini-cond-chk { display: none; }
-        .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 0px; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
+        .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 2px; color: var(--cor-geral); font-family: 'Cinzel', serif; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
         .mini-cond-label:hover { border-color: var(--op-ink); color: var(--op-ink); }
         #chk-sequela:checked + .mini-cond-label { background: var(--op-ink); color: var(--bg-paper); border-color: var(--op-ink); }
 
-        .body-map-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 25px auto; font-family: 'Inter', sans-serif; background: transparent; border: 1px solid var(--card-border); border-radius: 0px; position: relative; width: 100%; max-width: 400px; height: 400px; }
+        .body-map-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 25px auto; font-family: 'Cinzel', serif; background: transparent; border: 1px dashed var(--card-border); border-radius: 4px; position: relative; width: 100%; max-width: 400px; height: 400px; }
         .membro-svg { fill: var(--card-bg); stroke: var(--op-ink); stroke-width: 3; transition: all 0.3s ease; }
         
-        .limb-box-new { background: var(--bg-paper); border: 1px solid var(--card-border); border-radius: 0px; padding: 3px 4px; width: 90px; text-align: center; position: absolute; z-index: 2; box-shadow: none; transition: 0.3s; white-space: nowrap; overflow: hidden; }
+        .limb-box-new { background: var(--bg-paper); border: 1px solid var(--card-border); border-radius: 2px; padding: 3px 4px; width: 90px; text-align: center; position: absolute; z-index: 2; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); transition: 0.3s; white-space: nowrap; overflow: hidden; }
+        body.tema-escuro .limb-box-new { box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
         .limb-box-new .title { font-size: 9px; color: var(--cor-geral); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .limb-box-new .values { display: flex; justify-content: space-between; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: bold; color: var(--op-ink); }
+        .limb-box-new .values { display: flex; justify-content: space-between; font-family: 'Crimson Text', serif; font-size: 16px; font-weight: bold; color: var(--op-ink); }
         
-        .val-btn { cursor: pointer; transition: 0.2s; user-select: none; padding: 2px 0px; border-radius: 0px; border: 1px solid transparent; width: 45%; box-sizing: border-box; color: var(--op-ink); text-align: center; display: inline-block;}
+        .val-btn { cursor: pointer; transition: 0.2s; user-select: none; padding: 2px 0px; border-radius: 2px; border: 1px solid transparent; width: 45%; box-sizing: border-box; color: var(--op-ink); text-align: center; display: inline-block;}
         .val-btn:hover { color: var(--op-ink); background: var(--card-hover); border-color: var(--card-border); }
         .val-btn.lesionado { color: var(--op-red); border-color: var(--op-red); background: rgba(139, 28, 28, 0.2); }
         .membro-svg.lesionado { fill: rgba(139, 28, 28, 0.4); stroke: var(--op-red); }
         .val-btn.decepado { color: var(--cor-geral); border-color: var(--card-border); background: var(--card-bg); text-decoration: line-through; }
         .membro-svg.decepado { fill: var(--card-bg); stroke: var(--card-border); }
 
-        .pericias-box { background: var(--card-bg); padding: 15px; border-radius: 0px; border: 1px solid var(--card-border); }
+        .pericias-box { background: var(--card-bg); padding: 15px; border-radius: 2px; border: 1px solid var(--card-border); }
         .pericia-header { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; font-size: 10px; color: var(--cor-geral); margin-bottom: 10px; text-transform: uppercase; font-weight: bold; align-items: center; text-align: center; letter-spacing: 1px;}
         .pericia-header > span:first-child { text-align: left; }
-        .pericia-row { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; gap: 5px; padding: 5px 4px; border-bottom: 1px solid var(--card-border); font-size: 13px; align-items: center; transition: background 0.3s; text-align: center; }
+        .pericia-row { display: grid; grid-template-columns: 1.5fr 60px 50px 50px 45px; gap: 5px; padding: 5px 4px; border-bottom: 1px dotted var(--card-border); font-size: 13px; align-items: center; transition: background 0.3s; text-align: center; }
         .pericia-row > span:first-child { text-align: left; }
-        .pericia-nome { cursor: pointer; color: var(--op-ink); transition: 0.2s; position: relative; font-family: 'Courier Prime', monospace; font-weight: normal;}
-        .pericia-nome:hover { color: var(--op-red); font-weight: bold; }
+        .pericia-nome { cursor: pointer; color: var(--op-ink); transition: 0.2s; position: relative; font-family: 'Courier Prime', monospace; font-weight: bold;}
+        .pericia-nome:hover { color: var(--op-red); text-decoration: underline dashed 1px var(--op-red); text-underline-offset: 4px; }
         .pericia-nome::after { content: ' ▼'; font-size: 8px; opacity: 0.3; }
-        .pericia-desc { display: none; background: var(--card-bg); border-left: 2px solid var(--op-red); padding: 10px; font-size: 11px; color: var(--op-ink); margin-bottom: 4px; line-height: 1.5; font-family: 'Courier Prime', monospace; }
+        .pericia-desc { display: none; background: var(--card-bg); border-left: 2px solid var(--op-red); padding: 10px; font-size: 14px; color: var(--op-ink); margin-bottom: 4px; line-height: 1.5; font-family: 'Crimson Text', serif; }
         
-        .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 0px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
-        .sub-input { background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; border-radius: 0px; font-family: 'Courier Prime', monospace;}
+        .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 2px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
+        .sub-input { background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 13px; text-align: center; border-radius: 2px; font-family: 'Crimson Text', serif;}
         
-        .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px solid var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; outline: none; padding: 2px; font-family: 'Courier Prime', monospace;}
+        .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 13px; text-align: center; width: 100%; outline: none; padding: 2px; font-family: 'Crimson Text', serif;}
         
-        body:not(.tema-escuro) .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.2) 2%, rgba(50, 180, 50, 0.3) 98%, transparent 99%) !important; } 
-        body:not(.tema-escuro) .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.2) 2%, rgba(220, 120, 0, 0.3) 98%, transparent 99%) !important; } 
-        body:not(.tema-escuro) .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(180, 40, 40, 0.2) 2%, rgba(180, 40, 40, 0.3) 98%, transparent 99%) !important; }
-        body.tema-escuro .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.25) 2%, rgba(50, 180, 50, 0.3) 98%, transparent 99%) !important; } 
-        body.tema-escuro .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.25) 2%, rgba(220, 120, 0, 0.3) 98%, transparent 99%) !important; } 
-        body.tema-escuro .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(200, 50, 50, 0.25) 2%, rgba(200, 50, 50, 0.3) 98%, transparent 99%) !important; }
+        body:not(.tema-escuro) .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.4) 2%, rgba(50, 180, 50, 0.5) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; } 
+        body:not(.tema-escuro) .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.4) 2%, rgba(220, 120, 0, 0.5) 98%, transparent 99%) !important; border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; } 
+        body:not(.tema-escuro) .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(180, 40, 40, 0.45) 2%, rgba(180, 40, 40, 0.5) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; }
+        body.tema-escuro .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.45) 2%, rgba(50, 180, 50, 0.5) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; } 
+        body.tema-escuro .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.45) 2%, rgba(220, 120, 0, 0.5) 98%, transparent 99%) !important; border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; } 
+        body.tema-escuro .p-vermelho { background: linear-gradient(100deg, transparent 1%, rgba(200, 50, 50, 0.5) 2%, rgba(200, 50, 50, 0.55) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; }
 
-        .def-input-bonus { width: 30px; background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; outline: none; border-radius: 0px; font-family: 'Courier Prime', monospace;}
+        .def-input-bonus { width: 30px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 13px; text-align: center; outline: none; border-radius: 2px; font-family: 'Crimson Text', serif;}
         .info-row { margin-top: 15px; display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 8px;}
-        .info-label { display: inline-block; width: 150px; font-weight: 900; color: var(--op-ink); font-size: 10px; flex-shrink: 0; letter-spacing: 1px; text-transform: uppercase; font-family: 'Inter', sans-serif;}
-        .info-field { flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--card-border); color: var(--op-ink); font-size: 14px; padding: 4px 5px; outline: none; font-family: 'Courier Prime', monospace;}
+        .info-label { display: inline-block; width: 150px; font-weight: 900; color: var(--op-ink); font-size: 10px; flex-shrink: 0; letter-spacing: 1px; text-transform: uppercase; font-family: 'Cinzel', serif;}
+        .info-field { flex: 1; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-size: 16px; padding: 4px 5px; outline: none; font-family: 'Crimson Text', serif;}
         .info-field:focus { border-bottom-color: var(--op-red); }
 
         .tabs-nav { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; margin-bottom: 25px; }
-        .tab-btn { background: transparent; border: 1px solid var(--card-border); color: var(--cor-geral); padding: 10px 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; transition: 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 1px; border-radius: 0px; text-align: center;}
-        .tab-btn.active { background: var(--card-hover) !important; color: var(--op-ink) !important; border-bottom: 2px solid var(--op-red) !important;}
+        .tab-btn { background: transparent; border: 1px dashed var(--card-border); color: var(--cor-geral); padding: 12px 5px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: 900; transition: 0.2s; font-family: 'Cinzel', serif; letter-spacing: 1px; border-radius: 2px; text-align: center;}
         
         .tab-content { display: none; } .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
-        .ritual-card { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--cor-geral); margin-bottom: 10px; border-radius: 0px; transition: border-color 0.3s; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); }
-        .card-header { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: var(--op-ink);}
+        .ritual-card { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--cor-geral); margin-bottom: 10px; border-radius: 2px; transition: border-color 0.3s; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); }
+        .card-header { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Cinzel', serif; font-size: 18px; font-weight: 900; text-transform: uppercase; color: var(--op-ink);}
         .card-body { padding: 15px; display: none; border-top: 1px solid var(--card-border); background: var(--card-bg);}
-        .cris-textarea { width: 100%; background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); font-size: 13px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Courier Prime', monospace; line-height: 1.5; border-radius: 0px; outline: none; transition: border-color 0.3s;}
+        .cris-textarea { width: 100%; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 15px; padding: 10px; min-height: 80px; box-sizing: border-box; font-family: 'Crimson Text', serif; line-height: 1.5; border-radius: 2px; outline: none; transition: border-color 0.3s;}
         .cris-textarea:focus { border-color: var(--op-red); background: rgba(0,0,0,0.03); }
         body.tema-escuro .cris-textarea:focus { background: rgba(255,255,255,0.03); border-color: var(--op-red); }
         
-        .cris-btn { background: rgba(0,0,0,0.04); border: 1px solid var(--card-border); color: var(--op-ink); padding: 8px 16px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 0px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .cris-btn { background: rgba(0,0,0,0.04); border: 1px dashed var(--op-ink); color: var(--op-ink); padding: 8px 16px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 2px; font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
         body.tema-escuro .cris-btn { background: rgba(255,255,255,0.04); }
-        .cris-btn:hover { background: rgba(128,128,128,0.2); border-color: var(--op-ink);}
+        .cris-btn:hover { background: rgba(128,128,128,0.2); }
 
         .rit-layout-top { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
-        .rit-symbol-box { width: 80px; height: 80px; border: 1px solid var(--card-border); background: transparent; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 0px; overflow: hidden; position: relative; }
+        .rit-symbol-box { width: 80px; height: 80px; border: 1px dashed var(--card-border); background: transparent; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 2px; overflow: hidden; position: relative; }
         .rit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
         .rit-field { display: flex; flex-direction: column; }
-        .rit-label { font-size: 9px; color: var(--op-ink); text-transform: uppercase; font-weight: 900; font-family: 'Inter', sans-serif; margin-bottom: 3px; letter-spacing: 1px;}
-        .rit-input { background: transparent; border: none; border-bottom: 1px solid var(--card-border); color: var(--op-ink); font-family: 'Courier Prime', monospace; font-size: 16px; outline: none; padding: 3px 0; transition: 0.2s; }
+        .rit-label { font-size: 9px; color: var(--op-ink); text-transform: uppercase; font-weight: 900; font-family: 'Cinzel', serif; margin-bottom: 3px; letter-spacing: 1px;}
+        .rit-input { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 16px; outline: none; padding: 3px 0; transition: 0.2s; }
         .rit-input:focus { border-bottom: 1px solid var(--op-red); }
-        .rit-checkbox-row { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; font-size: 10px; color: var(--op-ink); text-transform: uppercase; font-weight: bold; background: var(--card-bg); padding: 10px; border-radius: 0px; border: 1px solid var(--card-border); letter-spacing: 1px;}
-        .condicao-select, .condicao-text { width: 100%; background: transparent; color: var(--op-ink); border: 1px solid var(--card-border); font-family: 'Courier Prime', monospace; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 12px; outline: none; border-radius: 0px;}
+        .rit-checkbox-row { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; font-size: 10px; color: var(--op-ink); text-transform: uppercase; font-weight: bold; background: var(--card-bg); padding: 10px; border-radius: 2px; border: 1px solid var(--card-border); letter-spacing: 1px;}
+        .condicao-select, .condicao-text { width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); font-family: 'Crimson Text', serif; padding: 8px; margin-top: 5px; box-sizing: border-box; font-size: 14px; outline: none; border-radius: 2px;}
 
-        .bg-section { display: flex; flex-direction: column; background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 0px;}
-        .bg-label { font-family: 'Inter', sans-serif; color: var(--op-ink); font-size: 14px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid var(--card-border); padding-bottom: 5px;}
+        .bg-section { display: flex; flex-direction: column; background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 2px;}
+        .bg-label { font-family: 'Cinzel', serif; color: var(--op-ink); font-size: 14px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px dotted var(--card-border); padding-bottom: 5px;}
 
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--op-ink);}
@@ -280,10 +261,10 @@
         .btn-theme { position: fixed; top: 10px; right: 50px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-theme:hover { opacity: 1; transform: scale(1.1); color: var(--op-ink);}
 
-        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-paper); border: 1px solid var(--card-border); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 0px; max-height: 90vh; overflow-y: auto; color: var(--op-ink);}
-        
-        .btn-copy-link { background: var(--card-bg); color: var(--op-ink); border: 1px solid var(--card-border); padding: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px; transition: 0.2s;}
-        .btn-copy-link:hover { background: var(--card-hover); border-color: var(--op-ink); }
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-paper); border: 1px solid var(--op-ink); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; color: var(--op-ink);}
+        .modal-padrao h3 { color: var(--op-ink) !important;}
+        .btn-copy-link { background: var(--card-bg); color: var(--op-ink); border: 1px dashed var(--op-ink); padding: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-family: 'Cinzel', serif; font-weight: bold; letter-spacing: 1px; transition: 0.2s;}
+        .btn-copy-link:hover { background: var(--card-hover); }
 
         @media (max-width: 900px) {
             body { padding: 0 !important; margin: 0; }
@@ -319,7 +300,7 @@
             .rit-layout-top { flex-direction: column; align-items: center; text-align: center; } 
             .defesa-colunas { width: 100%; flex-wrap: wrap; justify-content: space-around; } 
             .pericia-header, .pericia-row { grid-template-columns: 1fr 45px 40px 45px 35px; font-size: 11px; gap: 2px; } 
-            .treino-select { font-size: 9px; } 
+            .treino-select { font-size: 11px; } 
             #pericias-grid { grid-template-columns: 1fr !important; gap: 15px; } 
             #aba-background > div { grid-template-columns: 1fr !important; } 
             #bgEncontros-container { grid-column: span 1 !important; } 
@@ -339,7 +320,7 @@
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
 
 <div id="modal-config" class="modal-padrao">
-    <h3 class="section-header" style="margin-top:0; text-align:center; font-size: 18px; display: block; box-sizing: border-box;">AJUSTES DE TRANSMISSÃO</h3>
+    <h3 class="section-header" style="margin-top:0; text-align:center; font-size: 18px; width: 100%; display: block; box-sizing: border-box;">AJUSTES DE TRANSMISSÃO</h3>
     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; margin-top: 15px;">
         <button onclick="abrirUpload('Normal')" class="cris-btn" style="width: 100%;">[📷] FOTOGRAFIA PADRÃO</button>
         <button onclick="abrirUpload('Machucado')" class="cris-btn" style="border-color: var(--hp-red); color: var(--hp-red); width: 100%;">[🩸] ESTADO CRÍTICO (< 50% VIT)</button>
@@ -350,7 +331,7 @@
     
     <div style="border-top: 1px dotted var(--card-border); margin-top: 20px; padding-top: 20px;">
         <div style="text-align:left; font-size:9px; color:var(--cor-geral); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Sistema de Segredos (Mobile)</div>
-        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px solid var(--card-border); padding: 8px; box-sizing: border-box;">
+        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box;">
         <button class="cris-btn" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
     </div>
 
@@ -359,8 +340,8 @@
 
 <div id="crop-modal" class="modal-padrao" style="width: 260px; text-align: center;">
     <h3 class="section-header" style="margin:0 0 20px 0; display: block;">CALIBRAR ENQUADRAMENTO</h3>
-    <div id="crop-preview" style="width: 150px; height: 180px; margin: 0 auto 20px; border: 1px solid var(--card-border); overflow: hidden; position: relative; background: var(--card-bg); box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
-        <img id="temp-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0; filter: grayscale(20%) contrast(110%);">
+    <div id="crop-preview" style="width: 150px; height: 180px; margin: 0 auto 20px; border: 3px solid #fff; overflow: hidden; position: relative; background: #e0e0e0; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transform: rotate(-2deg);">
+        <img id="temp-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0;">
     </div>
     <div style="text-align:left; font-size:9px; color:var(--cor-geral); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px;">ZOOM EIXO ÓPTICO</div>
     <input type="range" id="crop-zoom" min="0.5" max="5" step="0.1" value="1" style="width:100%; margin-bottom:15px;" oninput="atualizarPreview()">
@@ -375,7 +356,7 @@
 
 <div id="modal-origem" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ORIGENS</h3>
-    <select id="select-origem-template" class="rit-input" style="width: 100%; margin-bottom: 20px; border: 1px solid var(--card-border); margin-top: 10px;">
+    <select id="select-origem-template" class="rit-input" style="width: 100%; margin-bottom: 20px; border: 1px dotted var(--card-border); margin-top: 10px;">
         <option value="">Selecione uma Profissão/Origem...</option>
         <option value="Cultista Arrependido">Cultista Arrependido (Ocultismo +3)</option>
         <option value="Policial">Agente Policial (+ Luta / Investigação)</option>
@@ -395,7 +376,7 @@
 
 <div id="modal-tpl-ataque" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
-    <select id="select-tpl-ataque" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid var(--card-border); margin-top: 10px;" onchange="previewTemplate('ataque')">
+    <select id="select-tpl-ataque" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('ataque')">
         <option value="">Selecione uma Arma...</option>
         <option value="Revolver">Revólver .38</option>
         <option value="Faca">Faca Tática</option>
@@ -415,7 +396,7 @@
         <option value="BengalaEspada">Bengala-Espada Oculta</option>
         <option value="Dinamite">Banana de Dinamite</option>
     </select>
-    <div id="preview-ataque" style="font-size: 11px; color: var(--cor-geral); font-family: 'Courier Prime', monospace; margin-bottom: 20px; min-height: 40px;"></div>
+    <div id="preview-ataque" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
         <button class="cris-btn" onclick="aplicarTemplateModal('ataques')">APLICAR</button>
         <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-ataque')">CANCELAR</button>
@@ -424,7 +405,7 @@
 
 <div id="modal-tpl-traco" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE TRAÇOS</h3>
-    <select id="select-tpl-traco" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid var(--card-border); margin-top: 10px;" onchange="previewTemplate('traco')">
+    <select id="select-tpl-traco" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('traco')">
         <option value="">Selecione um Traço...</option>
         <option value="Paranoia">Paranoia</option>
         <option value="Resistente">Resistência Exemplar</option>
@@ -441,7 +422,7 @@
         <option value="CuriosidadeMorbida">Curiosidade Mórbida</option>
         <option value="RatoBiblioteca">Rato de Biblioteca</option>
     </select>
-    <div id="preview-traco" style="font-size: 11px; color: var(--cor-geral); font-family: 'Courier Prime', monospace; margin-bottom: 20px; min-height: 40px;"></div>
+    <div id="preview-traco" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
         <button class="cris-btn" onclick="aplicarTemplateModal('habilidades')">APLICAR</button>
         <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-traco')">CANCELAR</button>
@@ -449,8 +430,8 @@
 </div>
 
 <div id="modal-tpl-espec" class="modal-padrao">
-    <h3 class="section-header" style="margin:0 0 15px 0; display: block;">ESPECIALIZAÇÕES</h3>
-    <select id="select-tpl-espec" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid var(--card-border); margin-top: 10px;" onchange="previewTemplate('espec')">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block; color: var(--hp-red) !important;">ESPECIALIZAÇÕES</h3>
+    <select id="select-tpl-espec" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('espec')">
         <option value="">Selecione uma Especialização...</option>
         <option value="Golpe Pesado">Golpe Pesado (Sangue)</option>
         <option value="Sentidos Apurados">Sentidos Apurados (Conhecimento)</option>
@@ -468,16 +449,16 @@
         <option value="Afortunado">Afortunado (Energia)</option>
         <option value="GolpeDeSorte">Golpe de Sorte (Energia)</option>
     </select>
-    <div id="preview-espec" style="font-size: 11px; color: var(--cor-geral); font-family: 'Courier Prime', monospace; margin-bottom: 20px; min-height: 40px;"></div>
+    <div id="preview-espec" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
-        <button class="cris-btn" onclick="aplicarTemplateModal('poderes')">APLICAR</button>
+        <button class="cris-btn" style="border-color:var(--hp-red); color:var(--hp-red);" onclick="aplicarTemplateModal('poderes')">APLICAR</button>
         <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-espec')">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-tpl-anomalia" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ANOMALIAS</h3>
-    <select id="select-tpl-anomalia" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid var(--card-border); margin-top: 10px;" onchange="previewTemplate('anomalia')">
+    <select id="select-tpl-anomalia" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('anomalia')">
         <option value="">Selecione uma Anomalia...</option>
         <option value="Toque do Medo">Toque do Medo (Morte)</option>
         <option value="Decadência">Decadência (Morte)</option>
@@ -493,7 +474,7 @@
         <option value="Eletrocussao">Eletrocussão (Energia)</option>
         <option value="Disturbar">Perturbação Entrópica (Energia)</option>
     </select>
-    <div id="preview-anomalia" style="font-size: 11px; color: var(--cor-geral); font-family: 'Courier Prime', monospace; margin-bottom: 20px; min-height: 40px;"></div>
+    <div id="preview-anomalia" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
         <button class="cris-btn" onclick="aplicarTemplateModal('rituais')">APLICAR</button>
         <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-anomalia')">CANCELAR</button>
@@ -502,7 +483,7 @@
 
 <div id="modal-tpl-item" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ITENS</h3>
-    <select id="select-tpl-item" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px solid var(--card-border); margin-top: 10px;" onchange="previewTemplate('item')">
+    <select id="select-tpl-item" class="rit-input" style="width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); margin-top: 10px;" onchange="previewTemplate('item')">
         <option value="">Selecione um Item...</option>
         <option value="Bandagem">Bandagem</option>
         <option value="Lanterna">Lanterna Tática</option>
@@ -520,7 +501,7 @@
         <option value="ComponenteMorte">Cinzas Humanas</option>
         <option value="GravadorK7">Gravador de Fitas K7</option>
     </select>
-    <div id="preview-item" style="font-size: 11px; color: var(--cor-geral); font-family: 'Courier Prime', monospace; margin-bottom: 20px; min-height: 40px;"></div>
+    <div id="preview-item" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
         <button class="cris-btn" onclick="aplicarTemplateModal('inventario')">APLICAR</button>
         <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-item')">CANCELAR</button>
@@ -540,19 +521,19 @@
                 <div class="portrait-img-container">
                     <img id="display-portrait" src="">
                 </div>
-                <span id="label-portrait" style="font-family:'Courier Prime', monospace; font-size:10px; color:#888; text-align:center;">FOTO DE<br>ARQUIVO</span>
+                <span id="label-portrait">ANEXAR<br>FOTOGRAFIA</span>
             </div>
             <div style="flex: 1; min-width: 0;">
                 <div style="display:flex; gap:15px; align-items:flex-end; margin-bottom: 15px;">
                     <input type="text" id="nome-personagem" class="header-name" placeholder="IDENTIFICAÇÃO DO SUJEITO" onchange="salvarFicha()" style="flex:1; margin-bottom:0; min-width: 0;">
                     <div style="display:flex; flex-direction:column; width:45px; flex-shrink: 0;">
                         <label style="font-size:10px; color:var(--op-ink); font-weight:900; margin-bottom:5px; text-transform:uppercase; letter-spacing: 1px; font-family: 'Inter', sans-serif; text-align: center;">IDADE</label>
-                        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent; border:none; border-bottom:1px solid var(--card-border); color:var(--op-ink); font-family:'Playfair Display', serif; font-weight:700; font-size:20px; padding:5px 0; outline:none; text-align: center;">
+                        <input type="number" id="idade-personagem" onchange="salvarFicha()" placeholder="0" style="background:transparent; border:none; border-bottom:1px dotted var(--card-border); color:var(--op-ink); font-family:'Special Elite', monospace; font-size:18px; padding:5px 0; outline:none; text-align: center;">
                     </div>
                 </div>
                 <div class="header-sub-row">
                     <div class="sub-input-group" style="flex: 1.5;">
-                        <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-origem')" style="background:transparent; border:1px solid var(--card-border); color:var(--cor-geral); cursor:pointer; font-size:9px; font-weight:bold; padding: 2px 6px;">+ LISTA</button></label>
+                        <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-origem')" style="background:transparent; border:1px dashed var(--card-border); color:var(--cor-geral); cursor:pointer; font-size:10px; font-weight:bold;">+ LISTA</button></label>
                         <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
                     </div>
                     <div class="sub-input-group" id="grupo-arquetipo" style="display: none; flex: 1;">
@@ -586,15 +567,15 @@
                 <div id="content-exposicao-real" style="display: none; width: 100%; flex-direction: row; justify-content: space-evenly;">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
                         <label>EXPOSIÇÃO</label>
-                        <select id="nex-personagem" onchange="mudouNex()" style="font-size: 18px;"></select>
+                        <select id="nex-personagem" onchange="mudouNex()" style="font-size: 16px;"></select>
                     </div>
                     <div style="width: 1px; background: var(--card-border); height: 80%; align-self: center;"></div>
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
                         <label>RESSONÂNCIA</label>
-                        <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 13px; font-family: 'Playfair Display', serif; padding-top: 3px; font-weight: bold;"></select>
+                        <select id="grau-ressonancia" onchange="salvarFicha()" style="font-size: 13px; font-family: 'Inter', sans-serif; padding-top: 3px; font-weight: bold;"></select>
                     </div>
                 </div>
-                <div id="content-exposicao-fake" style="display: flex; width: 100%; justify-content: center; align-items: center; font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--cor-geral); letter-spacing: 2px; transition: all 0.5s ease;">
+                <div id="content-exposicao-fake" style="display: flex; width: 100%; justify-content: center; align-items: center; font-family: 'Inter'; font-size: 11px; font-weight: 900; color: var(--cor-geral); letter-spacing: 2px; transition: all 0.5s ease;">
                     ACESSO NEGADO
                 </div>
             </div>
@@ -602,11 +583,11 @@
             <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
                 <label style="width: 100%;">TETO DE FÔLEGO</label>
                 <div style="display:flex; align-items:center; justify-content: center; gap:8px; width: auto; margin-top: 2px;">
-                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(true); salvarFicha();" style="font-size: 14px; width: 45px; text-align: center; border:none; border-bottom: 1px solid var(--card-border);">
-                    <div id="display-limite-pe" style="font-size:24px; color:var(--op-ink); font-weight: bold; line-height: 1; font-family:'Playfair Display', serif;">1</div>
+                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(true); salvarFicha();" style="font-size: 14px; width: 45px; text-align: center;">
+                    <div id="display-limite-pe" style="font-size:22px; color:var(--op-ink); font-weight: bold; line-height: 1;">1</div>
                 </div>
             </div>
-            <div class="stat-box"><label>MOBILIDADE</label><input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q" style="font-size: 18px;"></div>
+            <div class="stat-box"><label>MOBILIDADE</label><input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q" style="font-size: 16px;"></div>
         </div>
 
         <div class="status-container">
@@ -614,13 +595,9 @@
             <div class="bar-bg">
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
-                    <span class="bar-btn" onclick="ajustar('vida', -1)">«</span>
-                    <div style="display: flex; align-items: center; height: 100%;">
-                        <input type="number" id="vida-atual" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()"> 
-                        <span style="opacity: 0.5; font-size:18px; margin: 0 4px; display: flex; align-items: center;">/</span> 
-                        <input type="number" id="vida-max" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()" style="color:var(--op-ink);">
-                    </div>
-                    <span class="bar-btn" onclick="ajustar('vida', 1)">»</span>
+                    <span class="bar-btn" onclick="ajustar('vida', -1)">« <</span>
+                    <div><input type="number" id="vida-atual" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="vida-max" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()" style="color:var(--op-ink); border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Special Elite', monospace; font-size:18px; font-weight:bold;"></div>
+                    <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-vida"><span style="color:var(--hp-red); letter-spacing: 2px;">ESTADO CRÍTICO</span><input type="checkbox" id="mor-1" onchange="salvarFicha()"><input type="checkbox" id="mor-2" onchange="salvarFicha()"><input type="checkbox" id="mor-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('vida')">ESTABILIZAR</button></div>
             </div>
@@ -631,13 +608,9 @@
             <div class="bar-bg">
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
-                    <span class="bar-btn" onclick="ajustar('san', -1)">«</span>
-                    <div style="display: flex; align-items: center; height: 100%;">
-                        <input type="number" id="san-atual" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()"> 
-                        <span style="opacity: 0.5; font-size:18px; margin: 0 4px; display: flex; align-items: center;">/</span> 
-                        <input type="number" id="san-max" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()" style="color:var(--op-ink);">
-                    </div>
-                    <span class="bar-btn" onclick="ajustar('san', 1)">»</span>
+                    <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
+                    <div><input type="number" id="san-atual" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="san-max" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()" style="color:var(--op-ink); border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Special Elite', monospace; font-size:18px; font-weight:bold;"></div>
+                    <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
                 <div class="zero-state" id="zero-san" style="border-color: var(--san-purple);"><span style="color:var(--san-purple); letter-spacing: 2px;">COLAPSO MENTAL</span><input type="checkbox" id="enlou-1" onchange="salvarFicha()"><input type="checkbox" id="enlou-2" onchange="salvarFicha()"><input type="checkbox" id="enlou-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('san')">ACALMAR</button></div>
                 <div class="it-state" id="it-san"><span style="letter-spacing: 1px;">CHOQUE: </span><div class="it-round" id="it-1" onclick="marcarIT(1)"></div><div class="it-round" id="it-2" onclick="marcarIT(2)"></div><div class="it-round" id="it-3" onclick="marcarIT(3)"></div><div class="it-round" id="it-4" onclick="marcarIT(4)"></div><button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">RECUPERAR</button></div>
@@ -649,28 +622,24 @@
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content" id="content-pe">
-                    <span class="bar-btn" onclick="ajustar('pe', -1)">«</span>
-                    <div style="display: flex; align-items: center; height: 100%;">
-                        <input type="number" id="pe-atual" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()"> 
-                        <span style="opacity: 0.5; font-size:18px; margin: 0 4px; display: flex; align-items: center;">/</span> 
-                        <input type="number" id="pe-max" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()" style="color:var(--op-ink);">
-                    </div>
-                    <span class="bar-btn" onclick="ajustar('pe', 1)">»</span>
+                    <span class="bar-btn" onclick="ajustar('pe', -1)">« <</span>
+                    <div><input type="number" id="pe-atual" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()"> <span style="opacity: 0.5;">/</span> <input type="number" id="pe-max" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()" style="color:var(--op-ink); border:none; outline:none; background:transparent; width:40px; text-align:center; font-family:'Special Elite', monospace; font-size:18px; font-weight:bold;"></div>
+                    <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
                 </div>
             </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 20px;">
-            <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 0px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
+            <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 2px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
                 <label style="display: block; width: 100%; text-align: center; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">ESTADO CLÍNICO / MENTAL</label>
-                <select id="status-personagem" class="rit-input" style="width: 100%; text-align: center; font-size: 14px; font-weight: bold; border-bottom:none;" onchange="salvarFicha(); aplicarStatusVisual();">
+                <select id="status-personagem" class="rit-input" style="width: 100%; text-align: center; font-size: 14px; font-family: 'Special Elite', monospace; font-weight: bold;" onchange="salvarFicha(); aplicarStatusVisual();">
                     <option value="Normal">Normal</option><option value="Atordoado">Atordoado</option><option value="Assustado">Assustado</option><option value="Sangrando">Sangrando</option><option value="Machucado">Machucado</option>
                 </select>
             </div>
-            <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 0px; box-sizing: border-box;">
+            <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 2px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
                 <label for="chk-sequela" class="mini-cond-label">SEQUELA PERMANENTE</label>
-                <textarea id="desc-sequela" class="condicao-text" placeholder="Relatório médico da sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px; border:none; border-bottom:1px solid var(--card-border);"></textarea>
+                <textarea id="desc-sequela" class="condicao-text" placeholder="Relatório médico da sequela..." onchange="salvarFicha()" rows="1" style="display:none; margin-top:8px; min-height: 28px;"></textarea>
             </div>
         </div>
     </section>
@@ -687,41 +656,41 @@
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="pericias-box"><div style="text-align: center;"><h3 class="section-header" style="margin-top:0;">APTIDÕES NATURAIS</h3></div><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
-                <div class="pericias-box"><div style="text-align: center;"><h3 class="section-header" style="margin-top:0;">FORMAÇÃO ACADÊMICA</h3></div><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
+                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
+                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">FORMAÇÃO ACADÊMICA</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
             </div>
         </div>
         
         <div id="aba-combate" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div style="background: var(--card-bg); padding: 15px; border-radius: 0px; border: 1px solid var(--card-border); text-align: center;">
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 2px; border: 1px solid var(--card-border); text-align: center;">
                     <label style="display:block; font-size: 10px; color: var(--op-ink); font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; font-family: 'Inter', sans-serif;">DEFESA (10 + AGI + NÍVEL)</label>
                     <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <input type="number" id="bonus-defesa" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px; text-align: center;">
-                        <span id="display-defesa" style="font-size: 36px; font-family: 'Playfair Display', serif; color: var(--op-ink); font-weight: bold; border-bottom: 1px solid var(--op-ink); padding: 0 10px;">10</span>
+                        <span id="display-defesa" style="font-size: 32px; font-family: 'Special Elite', monospace; color: var(--op-ink); font-weight: bold; border-bottom: 2px double var(--op-ink); padding: 0 10px;">10</span>
                     </div>
                 </div>
-                <div style="background: rgba(139, 28, 28, 0.05); padding: 15px; border-radius: 0px; border: 1px solid var(--hp-red); text-align: center;">
+                <div style="background: rgba(139, 28, 28, 0.05); padding: 15px; border-radius: 2px; border: 1px solid var(--hp-red); text-align: center;">
                     <label style="display:block; font-size: 10px; color: var(--hp-red); font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; font-family: 'Inter', sans-serif;">CARGA DE PRESSÃO TOTAL</label>
-                    <div style="font-family:'Playfair Display', serif; font-size: 36px; font-weight: bold; color: var(--op-ink); margin-top: 5px;">
-                        <span id="pressao-atual-combate">0</span> <span style="color: var(--cor-geral); font-size: 24px; font-family:'Inter'; font-weight:normal;">/</span> <span id="pressao-max-combate" style="color: var(--hp-red);">2</span>
+                    <div style="font-family:'Special Elite', monospace; font-size: 32px; font-weight: bold; color: var(--op-ink); margin-top: 5px;">
+                        <span id="pressao-atual-combate">0</span> <span style="color: var(--cor-geral); font-size: 24px;">/</span> <span id="pressao-max-combate" style="color: var(--hp-red);">2</span>
                     </div>
                 </div>
             </div>
 
             <div class="stat-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div style="background: var(--card-bg); padding: 10px; border: 1px solid var(--card-border); text-align: center; border-radius: 0px;">
+                <div style="background: var(--card-bg); padding: 10px; border: 1px solid var(--card-border); text-align: center; border-radius: 2px;">
                     <span style="font-size: 10px; color:var(--cor-geral); display: block; margin-bottom: 5px; text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: bold;">BLOQUEIO (Defesa + Fortitude)</span> 
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-bloqueio" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-bloqueio" style="font-size: 26px; font-family: 'Playfair Display', serif; font-weight: bold; margin-left: 10px; color: var(--op-ink);">0</span></div>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-bloqueio" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-bloqueio" style="font-size: 24px; font-family: 'Special Elite', monospace; font-weight: bold; margin-left: 10px; color: var(--op-ink);">0</span></div>
                 </div>
-                <div style="background: var(--card-bg); padding: 10px; border: 1px solid var(--card-border); text-align: center; border-radius: 0px;">
+                <div style="background: var(--card-bg); padding: 10px; border: 1px solid var(--card-border); text-align: center; border-radius: 2px;">
                     <span style="font-size: 10px; color:var(--cor-geral); display: block; margin-bottom: 5px; text-transform: uppercase; font-family: 'Inter', sans-serif; font-weight: bold;">ESQUIVA (Defesa + Reflexos)</span> 
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-esquiva" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-esquiva" style="font-size: 26px; font-family: 'Playfair Display', serif; font-weight: bold; margin-left: 10px; color: var(--op-ink);">0</span></div>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 5px;"><input id="bonus-esquiva" type="number" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px;"> <span id="display-esquiva" style="font-size: 24px; font-family: 'Special Elite', monospace; font-weight: bold; margin-left: 10px; color: var(--op-ink);">0</span></div>
                 </div>
             </div>
 
             <div class="body-map-container">
-                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 240px; height: 360px; opacity: 0.8; z-index: 0;">
+                <svg class="boneco-svg-container" viewBox="0 0 200 300" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 240px; height: 360px; opacity: 0.9; z-index: 0;">
                     <path id="svg-cabeca" class="membro-svg" d="M85,20 C85,5 115,5 115,20 C115,35 85,35 85,20 Z"/>
                     <path id="svg-torso" class="membro-svg" d="M75,40 L125,40 L115,130 L85,130 Z"/>
                     <path id="svg-braco-esq" class="membro-svg" d="M65,45 L40,110 L55,115 L70,50 Z"/>
@@ -755,7 +724,7 @@
                      </div>
                 </div>
 
-                <div class="limb-box-new" id="limb-torso" style="top: 170px; left: 50%; transform: translateX(-50%);">
+                <div class="limb-box-new" id="limb-torso" style="top: 180px; left: 50%; transform: translateX(-50%);">
                      <div class="title">TORSO</div>
                      <div style="font-size: 9px; color: var(--cor-geral); display: flex; justify-content: space-between; margin-bottom: 2px; font-family:'Inter'; font-weight: bold;"><span>1/4</span><span>1/2</span></div>
                      <div class="values">
@@ -792,7 +761,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; margin-top: 30px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; margin-top: 30px; flex-wrap: wrap; gap: 10px;">
                 <h3 class="section-header" style="margin:0;">SISTEMAS DE ARMAS E ATAQUES</h3>
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" onclick="toggleElem('modal-tpl-ataque')">+ LISTA</button>
@@ -808,7 +777,7 @@
         </div>
 
         <div id="aba-tracos" class="tab-content">
-            <div style="display: flex; gap: 15px; margin-bottom: 35px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 15px; margin-bottom: 35px; border-bottom: 1px dotted var(--card-border); padding-bottom: 25px; flex-wrap: wrap;">
                 <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
                     <div style="display:flex; gap:10px;">
                         <button class="cris-btn" onclick="toggleElem('modal-tpl-traco')">+ LISTA</button>
@@ -823,58 +792,52 @@
                 </div>
             </div>
             <div style="margin-bottom: 40px;">
-                <h3 class="section-header" style="margin-top: 0;">COMPORTAMENTOS E TRAÇOS</h3>
+                <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">COMPORTAMENTOS E TRAÇOS</h3>
                 <div id="lista-habilidades"></div>
             </div>
             <div id="container-poderes" style="display:none;">
-                <h3 class="section-header" style="margin-top: 0; border-bottom-color: var(--hp-red) !important; color: var(--hp-red) !important;">VÍNCULOS E ESPECIALIZAÇÕES</h3>
+                <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block; color: var(--hp-red) !important;">VÍNCULOS E ESPECIALIZAÇÕES</h3>
                 <div id="lista-poderes"></div>
             </div>
         </div>
 
         <div id="aba-rituais" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; flex-wrap: wrap; gap: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" onclick="toggleElem('modal-tpl-anomalia')">+ LISTA</button>
                     <button class="cris-btn" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button>
                 </div>
-                <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: var(--cor-geral); background: var(--card-bg); padding: 8px 15px; border-radius: 0px; border: 1px solid var(--card-border);">
-                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; background: transparent; border:none; border-bottom:1px solid var(--card-border); color:var(--op-ink); font-size:16px; text-align:center; outline:none; font-family:'Playfair Display', serif; font-weight:bold; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--op-ink); font-family: 'Playfair Display', serif; font-size: 26px; font-weight: bold;">10</span>
+                <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: var(--cor-geral); background: var(--card-bg); padding: 8px 15px; border-radius: 2px; border: 1px solid var(--card-border);">
+                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; background: transparent; border:1px dotted var(--card-border); color:var(--op-ink); font-size:14px; text-align:center; outline:none; font-family:'Special Elite', monospace; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--op-ink); font-family: 'Special Elite', monospace; font-size: 24px; font-weight: bold;">10</span>
                 </div>
             </div>
-            <h3 class="section-header" style="margin-top: 0;">REGISTRO DE ANOMALIAS</h3>
             <div id="lista-rituais"></div>
         </div>
 
         <div id="aba-inventario" class="tab-content">
-            <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; flex-wrap: wrap; gap: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px;">
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" onclick="toggleElem('modal-tpl-item')">+ LISTA</button>
                     <div class="cris-btn" onclick="novoItem()" style="border-color: var(--op-ink); color: var(--op-ink);">+ ADICIONAR ITEM MANUAL</div>
                 </div>
                 <div style="font-family:'Inter', sans-serif; font-size: 12px; font-weight: 900; color: var(--cor-geral);">
-                    CARGA DE PRESSÃO <span id="pressao-atual-inv" style="color:var(--op-ink); font-family: 'Playfair Display', serif; font-size: 22px; margin-left: 8px;">0</span> <span style="font-weight:normal;">/</span> <span id="pressao-max-inv" style="color:var(--hp-red); font-family: 'Playfair Display', serif; font-size: 22px;">2</span>
+                    CARGA DE PRESSÃO <span id="pressao-atual-inv" style="color:var(--op-ink); font-family: 'Special Elite', monospace; font-size: 20px; margin-left: 8px;">0</span> / <span id="pressao-max-inv" style="color:var(--hp-red); font-family: 'Special Elite', monospace; font-size: 20px;">2</span>
                 </div>
             </div>
-            <h3 class="section-header" style="margin-top: 0;">RELAÇÃO DE BENS E EVIDÊNCIAS</h3>
             <div id="lista-inventario"></div>
         </div>
 
         <div id="aba-background" class="tab-content">
-            <h3 class="section-header" style="margin-top: 0;">PERFIL PSICOLÓGICO E HISTÓRICO</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="bg-section"><label class="bg-label">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, trejeitos e biótipo..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que você acredita e defende..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Quem são as pessoas mais importantes para você?"></textarea></div>
-                <div class="bg-section"><label class="bg-label">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()" placeholder="Lugares que marcaram a sua vida..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()" placeholder="Objetos e heranças de imenso valor emocional..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()" placeholder="Manias, forma de falar, costumes visíveis..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()" placeholder="Marcas e cicatrizes de batalhas ou acidentes passados..."></textarea></div>
-                <div class="bg-section"><label class="bg-label">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()" placeholder="Medos irracionais e gatilhos emocionais..."></textarea></div>
-                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2; display: none; border-color: var(--hp-red);">
-                    <label class="section-header" style="background: var(--hp-red) !important; color: #fff !important;">ENCONTROS COM O DESCONHECIDO</label>
-                    <textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border: 1px solid var(--hp-red); background: rgba(139, 28, 28, 0.05); padding: 10px; box-sizing: border-box;" placeholder="Relate aqui detalhadamente suas experiências confidenciais com anomalias, artefatos ou situações inexplicáveis..."></textarea>
-                </div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">LOCAIS IMPORTANTES</label><textarea id="bgLocais" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">POSSES QUERIDAS</label><textarea id="bgPosses" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">CARACTERÍSTICAS MARCANTES</label><textarea id="bgTracos" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">FERIMENTOS E CICATRIZES</label><textarea id="bgCicatrizes" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">FOBIAS E MANIAS</label><textarea id="bgFobias" class="cris-textarea" onchange="salvarFicha()"></textarea></div>
+                <div class="bg-section" id="bgEncontros-container" style="grid-column: span 2; display: none; border-color: var(--hp-red);"><label class="section-header" style="color: var(--bg-paper) !important; background: var(--hp-red) !important; font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">ENCONTROS COM O DESCONHECIDO</label><textarea id="bgEncontros" class="cris-textarea" onchange="salvarFicha()" style="min-height: 120px; border-color: var(--hp-red); background: rgba(139, 28, 28, 0.05);"></textarea></div>
             </div>
         </div>
     </section>
@@ -1015,7 +978,7 @@
             document.getElementById('content-exposicao-real').style.display = 'flex'; document.getElementById('content-exposicao-fake').style.display = 'none'; document.getElementById('tab-anomalias').style.display = 'block';
             if(document.getElementById('btn-group-espec')) document.getElementById('btn-group-espec').style.display = 'flex';
             if(document.getElementById('container-poderes')) document.getElementById('container-poderes').style.display = 'block';
-            if (bgEnc) bgEnc.style.display = 'block';
+            if (bgEnc) bgEnc.style.display = 'flex';
             document.getElementById('sigilo-box').classList.remove('brilho-sangue', 'brilho-restricao');
             if(nexStr === "100%" && ef) document.getElementById('sigilo-box').classList.add('brilho-sangue'); else if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao');
         } else {
@@ -1057,7 +1020,7 @@
             const inf = bancoPericias[p]; let sH = "";
             if(inf.subs) { sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px;">`; inf.subs.forEach((s, idx) => { sH += `<div style="display:flex; align-items:center; gap:5px;"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif;">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()"></div>`; }); sH += `</div></div>`; } 
             else if (inf.subsInputs) { sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-0" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 1" onchange="salvarFicha()"><input type="number" id="sub-${p}-0" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-1" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 2" onchange="salvarFicha()"><input type="number" id="sub-${p}-1" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-2" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 3" onchange="salvarFicha()"><input type="number" id="sub-${p}-2" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><span style="font-size:10px; color:var(--cor-geral); width:120px; text-align:left; font-family:'Inter', sans-serif;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()"></div></div></div>`; }
-            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Playfair Display', serif; color:var(--op-ink); font-size:20px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">...</div>`;
+            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">...</div>`;
             if (inf.tipo === "profissao") hPr += blo; else hPe += blo;
         });
         document.getElementById('lista-pericias-pessoais').innerHTML = hPe; document.getElementById('lista-pericias-profissao').innerHTML = hPr;
@@ -1187,33 +1150,20 @@
     function marcarIT(r) { for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if (i <= r) e.classList.add('active'); else e.classList.remove('active'); } salvarFicha(); }
     function toggleMiniCond(t) { if (t === 'sequela') document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
 
-    async function aplicarOrigemTemplate() { 
-        const v = document.getElementById('select-origem-template').value; 
-        if(v === "Cultista Arrependido") { document.getElementById('origem-personagem').value = "Cultista Arrependido"; document.getElementById('treino-Ocultismo').value = 3; } 
-        else if (v === "Policial") { document.getElementById('origem-personagem').value = "Agente Policial"; document.getElementById('treino-Luta').value = 1; document.getElementById('treino-Investigação').value = 1; }
-        else if (v === "Academico") { document.getElementById('origem-personagem').value = "Acadêmico"; document.getElementById('treino-Ciências').value = 1; document.getElementById('treino-Religião').value = 1; }
-        else if (v === "Hacker") { document.getElementById('origem-personagem').value = "Especialista em TI"; document.getElementById('treino-Tecnologia').value = 1; document.getElementById('treino-Atualidades').value = 1; }
-        else if (v === "Sobrevivente") { document.getElementById('origem-personagem').value = "Sobrevivente"; document.getElementById('treino-Fortitude').value = 1; document.getElementById('treino-Sobrevivência').value = 1; }
-        else if (v === "Ocultista") { document.getElementById('origem-personagem').value = "Ocultista"; document.getElementById('treino-Ocultismo').value = 1; document.getElementById('treino-Vontade').value = 1; }
-        else if (v === "Mercenario") { document.getElementById('origem-personagem').value = "Mercenário"; document.getElementById('treino-Pontaria').value = 1; document.getElementById('treino-Tática').value = 1; }
-        else if (v === "Jornalista") { document.getElementById('origem-personagem').value = "Jornalista"; document.getElementById('treino-Atualidades').value = 1; document.getElementById('treino-Diplomacia').value = 1; }
-        else if (v === "Medico") { document.getElementById('origem-personagem').value = "Médico Legista"; document.getElementById('treino-Medicina').value = 1; document.getElementById('treino-Percepção').value = 1; }
-        salvarFicha(); toggleElem('modal-origem'); 
-    }
-
-    function carregarRituais() { if(unsubRit) unsubRit(); const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; unsubRit = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-rituais'); c.innerHTML = ""; const cE = { "Morte": "#888888", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; snap.forEach(doc => { const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); const iA = r.aprendido ? 'checked' : ''; const iP = r.primeiraConjuracao ? 'checked' : ''; const cor = cE[r.elemento] || "var(--op-ink)"; c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:900">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
-    function carregarPoderes() { if(unsubPod) unsubPod(); const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; unsubPod = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-poderes'); c.innerHTML = ""; const cE = { "Morte": "#888888", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--op-ink)", "Nenhum": "var(--op-ink)" }; snap.forEach(doc => { const po = doc.data(); const id = doc.id; const iO = menusAbertos.has('pod-' + id); const cor = cE[po.elemento] || "var(--op-ink)"; c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('pod-${id}')"><span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(po.elemento || 'Geral').toUpperCase()}</span></div><div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${po.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Vínculo Oculto</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)"><option value="Nenhum" ${po.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${po.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${po.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${po.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${po.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option value="Geral" ${po.elemento=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Descrição do Arquivo</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea></div><div style="margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 0px;"><span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
-    function carregarHabilidades() { if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-habilidades'); c.innerHTML = ""; snap.forEach(doc => { const h = doc.data(); const id = doc.id; const iO = menusAbertos.has('hab-' + id); c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px solid var(--card-border); font-family: 'Playfair Display', serif; font-size: 18px; font-weight: bold;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
+    function carregarRituais() { if(unsubRit) unsubRit(); const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; unsubRit = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-rituais'); c.innerHTML = ""; const cE = { "Morte": "--cor-morte", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; snap.forEach(doc => { const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); const iA = r.aprendido ? 'checked' : ''; const iP = r.primeiraConjuracao ? 'checked' : ''; const cor = cE[r.elemento] || "var(--op-ink)"; c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:900">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter'; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
+    function carregarPoderes() { if(unsubPod) unsubPod(); const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; unsubPod = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-poderes'); c.innerHTML = ""; const cE = { "Morte": "--cor-morte", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--op-ink)", "Nenhum": "var(--op-ink)" }; snap.forEach(doc => { const po = doc.data(); const id = doc.id; const iO = menusAbertos.has('pod-' + id); const cor = cE[po.elemento] || "var(--op-ink)"; c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('pod-${id}')"><span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(po.elemento || 'Geral').toUpperCase()}</span></div><div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${po.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Vínculo Oculto</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)"><option value="Nenhum" ${po.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${po.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${po.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${po.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${po.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option value="Geral" ${po.elemento=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Descrição do Arquivo</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea></div><div style="margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;"><span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
+    function carregarHabilidades() { if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-habilidades'); c.innerHTML = ""; snap.forEach(doc => { const h = doc.data(); const id = doc.id; const iO = menusAbertos.has('hab-' + id); c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Inter', sans-serif; font-size: 16px; font-weight: bold;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
     function carregarAtaques() { if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; snap.forEach(doc => { const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); l.innerHTML += `<div class="ritual-card" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; }); window.valPressaoAtaques = pA; syncPressaoVisuais(); }); }
     function carregarInventario() { if(unsubInv) unsubInv(); const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; unsubInv = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-inventario'); c.innerHTML = ""; let pI = 0; snap.forEach(doc => { const i = doc.data(); const id = doc.id; const iO = menusAbertos.has('inv-' + id); const pr = parseInt(i.pressao) || 0; const q = parseInt(i.quantidade) || 1; pI += (pr * q); c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--cor-geral);"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:var(--op-ink); font-weight:900">${i.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${i.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${pr*q}</span></div><div class="card-body" id="inv-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${i.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${i.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${i.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${i.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${i.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${i.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${i.pressao !== undefined ? i.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${i.quantidade !== undefined ? i.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`; }); window.valPressaoInventario = pI; syncPressaoVisuais(); }); }
-
-    async function novoRitual() { const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Anomalia", elemento: "Morte", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
-    async function novoPoder() { const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Especialização", elemento: "Geral", descricao: "", afinidade: "" }); }
+    
+    async function novoRitual() { const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); }
+    async function novoPoder() { const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Traço", descricao: "" }); }
     async function novoItem() { const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); }
     async function novoAtaque() { const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Arma", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }); }
 
     async function aplicarTemplate(c, ch) { const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; let d = {}; if (c === 'ataques') d = templatesAtaques[ch]; if (c === 'habilidades') d = templatesTracos[ch]; if (c === 'poderes') d = templatesEspecializacoes[ch]; if (c === 'rituais') d = templatesAnomalias[ch]; if (c === 'inventario') d = templatesInventario[ch]; if (d) await db.collection("fichas").doc(atual).collection(p).add(d); }
+    async function aplicarOrigemTemplate() { const v = document.getElementById('select-origem-template').value; if(v === "Cultista Arrependido") { document.getElementById('origem-personagem').value = "Cultista Arrependido"; document.getElementById('treino-Ocultismo').value = 3; salvarFicha(); } toggleElem('modal-origem'); }
     
     async function updateSub(id, col, campo, valor) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; let o = {}; o[campo] = valor; if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id); if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id); if (col === 'ataques') menusAbertos.add('atq-' + id); await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); }
     async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este registro?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
