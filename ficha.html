@@ -22,11 +22,6 @@
             --accent-gold: #a68a64;
         }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--card-bg); border-radius: 2px; }
-        ::-webkit-scrollbar-thumb { background: var(--cor-geral); border-radius: 4px; border: 1px solid var(--card-border); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--hp-red); }
-
         body.tema-escuro {
             --bg-paper: #161616; --op-ink: #d4d4d4; --op-red: #cc2929;
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
@@ -74,10 +69,6 @@
         .lista-padronizada { width: 100%; margin-bottom: 10px; border: 1px dotted var(--card-border); background: transparent; color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 14px; outline: none; overflow-y: auto; border-radius: 2px; }
         .lista-padronizada option { padding: 8px 10px; border-bottom: 1px dotted var(--card-border); cursor: pointer; background-color: var(--bg-paper); color: var(--op-ink); }
         .lista-padronizada option:hover, .lista-padronizada option:checked { background-color: var(--card-bg) !important; color: var(--hp-red) !important; font-weight: bold; }
-        
-        body.tema-escuro .lista-padronizada { background-color: rgba(0, 0, 0, 0.6) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
-        body.tema-escuro .lista-padronizada option { background-color: transparent !important; }
-        body.tema-escuro .lista-padronizada option:hover, body.tema-escuro .lista-padronizada option:checked { background-color: rgba(255, 255, 255, 0.08) !important; color: var(--hp-red) !important; }
 
         body { 
             background-color: var(--bg-desk);
@@ -397,15 +388,15 @@
     <input type="text" class="search-banco" placeholder="Pesquisar origem..." onkeyup="filtrarBanco(this, 'select-origem-template')">
     <select id="select-origem-template" class="lista-padronizada" size="6">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Profissão/Origem...</option>
-        <option value="Cultista Arrependido">Cultista Arrependido (Ocultismo +3 / Religião +1)</option>
-        <option value="Policial">Agente Policial (Luta +3 / Investigação +1)</option>
-        <option value="Academico">Acadêmico / Professor (Ciências +3 / Religião +1)</option>
-        <option value="Hacker">Especialista em TI (Tecnologia +3 / Atualidades +1)</option>
-        <option value="Sobrevivente">Sobrevivente de Desastre (Fortitude +3 / Sobrevivência +1)</option>
-        <option value="Ocultista">Estudioso do Oculto (Ocultismo +3 / Vontade +1)</option>
-        <option value="Mercenario">Ex-Militar (Pontaria +3 / Tática +1)</option>
-        <option value="Jornalista">Jornalista Investigativo (Atualidades +3 / Diplomacia +1)</option>
-        <option value="Medico">Médico Legista (Medicina +3 / Percepção +1)</option>
+        <option value="Cultista Arrependido">Cultista Arrependido (+ Ocultismo / Religião)</option>
+        <option value="Policial">Agente Policial (+ Luta / Investigação)</option>
+        <option value="Academico">Acadêmico / Professor (+ Ciências / Religião)</option>
+        <option value="Hacker">Especialista em TI (+ Tecnologia / Atualidades)</option>
+        <option value="Sobrevivente">Sobrevivente de Desastre (+ Fortitude / Sobrevivência)</option>
+        <option value="Ocultista">Estudioso do Oculto (+ Ocultismo / Vontade)</option>
+        <option value="Mercenario">Ex-Militar (+ Pontaria / Tática)</option>
+        <option value="Jornalista">Jornalista Investigativo (+ Atualidades / Diplomacia)</option>
+        <option value="Medico">Médico Legista (+ Medicina / Percepção)</option>
     </select>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
         <button class="cris-btn" onclick="aplicarOrigemTemplate()">APLICAR</button>
@@ -551,6 +542,7 @@
         <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-item')">CANCELAR</button>
     </div>
 </div>
+
 
 <div class="grid-container" id="grid-container">
     <section style="min-width: 0; overflow: hidden; position: relative; z-index: 2;">
@@ -1023,42 +1015,27 @@
     function ativarSegredo(campo) { document.body.classList.add('shake'); salvarFicha(); setTimeout(async () => { document.body.classList.remove('shake'); let doc = await db.collection("fichas").doc(atual).get(); let valAtual = doc.data()[campo] || false; let updates = {}; if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; } if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; } if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; } if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; } await db.collection("fichas").doc(atual).update(updates); aplicarSegredosUI(); }, 800); }
 
     function aplicarSegredosUI() {
-        const rf = isRevelado || globalRevelado; 
-        const hf = isHexatombe || globalHexatombe; 
-        const ef = isExtremos || globalExtremos; 
-        const ref = isRestricao || globalRestricao;
-        
+        const rf = isRevelado || globalRevelado; const hf = isHexatombe || globalHexatombe; const ef = isExtremos || globalExtremos; const ref = isRestricao || globalRestricao;
         if (hf) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
-        
-        const nexStr = document.getElementById('nex-personagem').value; 
-        const bgEnc = document.getElementById('bgEncontros-container');
-
-        const isSangue = (nexStr === "100%" && ef);
-        const isRestr = (nexStr === "0%" && ref);
-        const sigiloBox = document.getElementById('sigilo-box');
+        const nexStr = document.getElementById('nex-personagem').value; const bgEnc = document.getElementById('bgEncontros-container');
 
         if (rf) {
-            document.getElementById('content-exposicao-real').style.display = 'flex'; 
-            document.getElementById('content-exposicao-fake').style.display = 'none'; 
-            document.getElementById('tab-anomalias').style.display = 'block';
+            document.getElementById('content-exposicao-real').style.display = 'flex'; document.getElementById('content-exposicao-fake').style.display = 'none'; document.getElementById('tab-anomalias').style.display = 'block';
             if(document.getElementById('btn-group-espec')) document.getElementById('btn-group-espec').style.display = 'flex';
             if(document.getElementById('container-poderes')) document.getElementById('container-poderes').style.display = 'block';
             if (bgEnc) bgEnc.style.display = 'flex';
+            document.getElementById('sigilo-box').classList.remove('brilho-sangue', 'brilho-restricao');
+            if(nexStr === "100%" && ef) document.getElementById('sigilo-box').classList.add('brilho-sangue'); else if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao');
         } else {
             document.getElementById('content-exposicao-real').style.display = 'none'; 
-            const fakeBox = document.getElementById('content-exposicao-fake'); 
-            fakeBox.style.display = 'flex'; 
-            fakeBox.innerText = isRestr ? "RESTRIÇÃO CELESTIAL" : "ACESSO NEGADO"; 
-            fakeBox.style.color = isRestr ? "var(--op-ink)" : "var(--cor-geral)"; 
-            fakeBox.style.textShadow = isRestr ? "0 0 10px var(--op-ink)" : "none";
+            const fakeBox = document.getElementById('content-exposicao-fake'); fakeBox.style.display = 'flex'; fakeBox.innerText = (nexStr === "0%" && ref) ? "RESTRIÇÃO CELESTIAL" : "ACESSO NEGADO"; fakeBox.style.color = (nexStr === "0%" && ref) ? "var(--op-ink)" : "var(--cor-geral)"; fakeBox.style.textShadow = (nexStr === "0%" && ref) ? "0 0 10px var(--op-ink)" : "none";
             document.getElementById('tab-anomalias').style.display = 'none'; 
             if(document.getElementById('btn-group-espec')) document.getElementById('btn-group-espec').style.display = 'none';
             if(document.getElementById('container-poderes')) document.getElementById('container-poderes').style.display = 'none';
             if (bgEnc) bgEnc.style.display = 'none';
+            document.getElementById('sigilo-box').classList.remove('brilho-sangue');
+            if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao'); else document.getElementById('sigilo-box').classList.remove('brilho-restricao');
         }
-
-        if (isSangue) { if(!sigiloBox.classList.contains('brilho-sangue')) sigiloBox.classList.add('brilho-sangue'); } else sigiloBox.classList.remove('brilho-sangue');
-        if (isRestr) { if(!sigiloBox.classList.contains('brilho-restricao')) sigiloBox.classList.add('brilho-restricao'); } else sigiloBox.classList.remove('brilho-restricao');
     }
 
     function aplicarStatusVisual() { const st = document.getElementById('status-personagem').value; const o = document.getElementById('status-overlay'); const s = document.querySelector('.grid-container'); o.className = ''; s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake'); if(st === 'Sangrando') { o.classList.add('overlay-sangrando'); s.classList.add('papel-sangrando'); } if(st === 'Machucado') { o.classList.add('overlay-machucado'); s.classList.add('papel-machucado'); } if(st === 'Atordoado') o.classList.add('overlay-atordoado'); if(st === 'Assustado') { o.classList.add('overlay-assustado'); s.classList.add('blur-shake'); } }
