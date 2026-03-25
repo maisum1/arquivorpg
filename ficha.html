@@ -143,7 +143,7 @@
         .sigilo-container.brilho-sangue::before { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 20px #ff0000) drop-shadow(0 0 40px #ff0000) !important; opacity: 1 !important; animation: pulsar-sangue 1.5s infinite alternate !important; }
         
         /* CORREÇÃO DO BRILHO 0% LUZ / ESCURIDÃO */
-        .sigilo-container.brilho-restricao { filter: grayscale(100%) invert(1) drop-shadow(0 0 20px #fff) drop-shadow(0 0 40px #fff) brightness(1.5) !important; mix-blend-mode: screen !important; }
+        body.tema-escuro .sigilo-container.brilho-restricao { filter: grayscale(100%) invert(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.5)) brightness(1.5) !important; mix-blend-mode: screen !important; }
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(100%) drop-shadow(0 0 25px rgba(0, 0, 0, 1)) drop-shadow(0 0 15px rgba(0, 0, 0, 0.9)) brightness(0.4) !important; mix-blend-mode: normal !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
 
@@ -152,7 +152,7 @@
         .attr-label { font-size: 10px; font-weight: 900; color: var(--sigilo-ring); margin-top: -15px; letter-spacing: 1px; background: transparent; padding: 0 4px; font-family: 'Inter', sans-serif; text-shadow: 2px 0 0 var(--bg-paper), -2px 0 0 var(--bg-paper), 0 2px 0 var(--bg-paper), 0 -2px 0 var(--bg-paper), 1px 1px 0 var(--bg-paper), -1px -1px 0 var(--bg-paper), 1px -1px 0 var(--bg-paper), -1px 1px 0 var(--bg-paper); }
         
         .attr-box input { background: transparent; border: none; color: var(--op-ink); text-align: center; width: 100%; font-size: 26px; font-family: 'Special Elite', monospace; font-weight: 900; outline: none; text-shadow: 1.5px 1.5px 0 var(--bg-paper), -1.5px -1.5px 0 var(--bg-paper), 1.5px -1.5px 0 var(--bg-paper), -1.5px 1.5px 0 var(--bg-paper), 0 2px 0 var(--bg-paper), 2px 0 0 var(--bg-paper), 0 -2px 0 var(--bg-paper), -2px 0 0 var(--bg-paper) !important; }
-        .sigilo-container.brilho-restricao input { color: #ffffff !important; text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff !important; }
+        body.tema-escuro .sigilo-container.brilho-restricao input { color: #ffffff !important; text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff !important; }
         body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao input { color: #000000 !important; text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff !important; }
 
         .agi { top: 0; left: 102px; } .for { top: 75px; left: 5px; } .sag { top: 75px; right: 5px; } .von { bottom: 20px; left: 45px; } .vig { bottom: 20px; right: 45px; }
@@ -1104,7 +1104,7 @@
             ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
             const nv = parseInt(d.nivel) || 0; document.getElementById('nivel-personagem').value = nv; document.getElementById('nex-personagem').value = d.nex || "5%"; document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
             const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else dA.style.display = 'none';
-            const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nex >= 5 && nex <= 20) gC = "1º Grau"; else if (nex >= 25 && nex <= 40) gC = "2º Grau"; else if (nex >= 45 && nx <= 60) gC = "3º Grau"; else if (nex >= 65 && nx <= 80) gC = "4º Grau"; else if (nex >= 85 && nx <= 99) gC = "5º Grau"; else if (nex >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
+            const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
 
             let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
