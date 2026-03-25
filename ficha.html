@@ -22,6 +22,12 @@
             --accent-gold: #a68a64;
         }
 
+        /* SCROLLBAR CUSTOMIZADA */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-paper); border-left: 1px solid var(--card-border); }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cor-geral); }
+
         body.tema-escuro {
             --bg-paper: #161616; --op-ink: #d4d4d4; --op-red: #cc2929;
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
@@ -114,8 +120,10 @@
             background: var(--op-ink) !important; color: var(--bg-paper) !important; font-family: 'Crimson Text', serif !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 2px !important; padding: 6px 15px !important; box-shadow: 3px 3px 0px rgba(0,0,0,0.4) !important; display: inline-block; border: none !important; text-shadow: none !important;
         }
         body.tema-escuro .section-header, body.tema-escuro .tab-btn.active { background: #111 !important; color: var(--accent-gold) !important; box-shadow: 3px 3px 0px #000 !important; }
-        .modal-padrao .section-header { text-shadow: 2px 2px 0px rgba(0,0,0,0.8) !important; color: var(--bg-paper) !important; background: var(--op-ink) !important; }
-        body.tema-escuro .modal-padrao .section-header { text-shadow: none !important; color: var(--accent-gold) !important; background: transparent !important; border-bottom: 1px solid var(--card-border) !important;}
+        
+        /* FIX MODAIS E CABEÇALHOS EM MODO ESCURO */
+        .modal-padrao .section-header { text-shadow: none !important; color: var(--bg-paper) !important; background: var(--op-ink) !important; }
+        body.tema-escuro .modal-padrao .section-header { background: #080808 !important; color: var(--accent-gold) !important; border: 1px solid var(--card-border) !important; box-shadow: 2px 2px 0px #000 !important; }
 
         .header-name { width: 100%; background: transparent; border: none; border-bottom: 2px double var(--op-ink); color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 28px; font-weight: 900; letter-spacing: 1px; padding: 5px 0; margin-bottom: 10px; outline: none; text-transform: uppercase; }
         
@@ -142,8 +150,18 @@
         .sigilo-container.brilho-sangue { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 0, 0, 0.8)) !important; mix-blend-mode: normal !important; }
         .sigilo-container.brilho-sangue::before { filter: sepia(1) hue-rotate(-50deg) saturate(20) brightness(1.2) drop-shadow(0 0 20px #ff0000) drop-shadow(0 0 40px #ff0000) !important; opacity: 1 !important; animation: pulsar-sangue 1.5s infinite alternate !important; }
         
-        .sigilo-container.brilho-restricao { filter: grayscale(100%) drop-shadow(0 0 25px rgba(0, 0, 0, 1)) drop-shadow(0 0 15px rgba(0, 0, 0, 0.9)) brightness(0.4) !important; mix-blend-mode: normal !important; }
-        body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { filter: grayscale(0) drop-shadow(0 0 25px rgba(255, 255, 255, 1)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) brightness(1.5) !important; }
+        /* FIX RESTRIÇÃO (GLOW 0% EXP) */
+        @keyframes pulsar-restricao-dark {
+            0% { filter: grayscale(100%) drop-shadow(0 0 15px rgba(0, 0, 0, 0.8)) brightness(0.4); }
+            100% { filter: grayscale(100%) drop-shadow(0 0 35px rgba(0, 0, 0, 1)) drop-shadow(0 0 20px rgba(0, 0, 0, 0.9)) brightness(0.6); }
+        }
+        @keyframes pulsar-restricao-light {
+            0% { filter: grayscale(0) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) brightness(1.2); }
+            100% { filter: grayscale(0) drop-shadow(0 0 35px rgba(255, 255, 255, 1)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) brightness(1.6); }
+        }
+        
+        .sigilo-container.brilho-restricao { mix-blend-mode: normal !important; animation: pulsar-restricao-dark 2s infinite alternate !important; }
+        body:not(.tema-escuro):not(.tema-hexatombe) .sigilo-container.brilho-restricao { animation: pulsar-restricao-light 2s infinite alternate !important; }
         .sigilo-container.brilho-restricao::before { display: none !important; }
 
         .attr-box { position: absolute; width: 55px; height: 55px; background: transparent; border: 3px solid var(--sigilo-ring); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; transition: all 0.3s ease; }
@@ -1051,7 +1069,32 @@
     async function confirmarCrop() { const u = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; try { if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); } else { const d = {}; d[`portrait${modoCrop}`] = u; d[`p${modoCrop}X`] = x; d[`p${modoCrop}Y`] = y; d[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(d); alert(`Evidência arquivada!`); } fecharModal(); } catch (e) {} }
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
 
-    const bancoPericias = { "Acrobacia": { attr: "AGI", tipo: "pessoal" }, "Atletismo": { attr: "FOR", tipo: "pessoal" }, "Atualidades": { attr: "SAG", tipo: "pessoal" }, "Ciências": { attr: "SAG", tipo: "profissao" }, "Crime": { attr: "AGI", tipo: "profissao" }, "Diplomacia": { attr: "VON", tipo: "pessoal" }, "Enganação": { attr: "VON", tipo: "pessoal" }, "Fortitude": { attr: "VIG", tipo: "pessoal" }, "Furtividade": { attr: "AGI", tipo: "pessoal" }, "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true }, "Intuição": { attr: "VON", tipo: "pessoal" }, "Investigação": { attr: "SAG", tipo: "pessoal" }, "Luta": { attr: "FOR", tipo: "pessoal" }, "Medicina": { attr: "SAG", tipo: "profissao" }, "Ocultismo": { attr: "SAG", tipo: "profissao" }, "Percepção": { attr: "SAG", tipo: "pessoal" }, "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"] }, "Reflexos": { attr: "AGI", tipo: "pessoal" }, "Religião": { attr: "VON", tipo: "profissao" }, "Sobrevivência": { attr: "SAG", tipo: "pessoal", subs: ["Urbana", "Selva", "Deserto", "Polar"] }, "Tática": { attr: "SAG", tipo: "profissao" }, "Tecnologia": { attr: "SAG", tipo: "profissao" }, "Vontade": { attr: "VON", tipo: "pessoal" } };
+    /* DESCRICOES DAS PERICIAS PREENCHIDAS */
+    const bancoPericias = { 
+        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos e evasão de obstáculos." }, 
+        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Correr, nadar, escalar e proezas físicas." }, 
+        "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Conhecimento sobre o mundo moderno e notícias." }, 
+        "Ciências": { attr: "SAG", tipo: "profissao", desc: "Conhecimento científico (biologia, química, física)." }, 
+        "Crime": { attr: "AGI", tipo: "profissao", desc: "Arrombamento, pungismo e atividades ilícitas." }, 
+        "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Persuasão, empatia e negociação pacífica." }, 
+        "Enganação": { attr: "VON", tipo: "pessoal", desc: "Mentir, blefar e ocultar as verdadeiras intenções." }, 
+        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência física contra dor, venenos e doenças." }, 
+        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Mover-se em silêncio e esconder-se nas sombras." }, 
+        "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true, desc: "Compreensão e fluência em línguas estrangeiras." }, 
+        "Intuição": { attr: "VON", tipo: "pessoal", desc: "Ler emoções, perceber mentiras e intenções." }, 
+        "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Procurar pistas, analisar cenas e encontrar detalhes ocultos." }, 
+        "Luta": { attr: "FOR", tipo: "pessoal", desc: "Combate corpo a corpo e uso de armas brancas." }, 
+        "Medicina": { attr: "SAG", tipo: "profissao", desc: "Primeiros socorros, cirurgias e diagnósticos." }, 
+        "Ocultismo": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre o paranormal, rituais e entidades." }, 
+        "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Estar alerta, ouvir sussurros e notar presenças." }, 
+        "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"], desc: "Uso de armas de fogo e arremesso." }, 
+        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquiva rápida e reação a perigos repentinos." }, 
+        "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças e teologia." }, 
+        "Sobrevivência": { attr: "SAG", tipo: "pessoal", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Rastreio e adaptação em ambientes inóspitos." }, 
+        "Tática": { attr: "SAG", tipo: "profissao", desc: "Estratégia de combate e análise de cenários de risco." }, 
+        "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso de computadores, eletrônicos e hacking." }, 
+        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Resistência mental contra o medo e o paranormal." } 
+    };
     const nomesPericias = Object.keys(bancoPericias);
 
     function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
@@ -1065,7 +1108,8 @@
             const inf = bancoPericias[p]; let sH = "";
             if(inf.subs) { sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px;">`; inf.subs.forEach((s, idx) => { sH += `<div style="display:flex; align-items:center; gap:5px;"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif;">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()"></div>`; }); sH += `</div></div>`; } 
             else if (inf.subsInputs) { sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-0" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 1" onchange="salvarFicha()"><input type="number" id="sub-${p}-0" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-1" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 2" onchange="salvarFicha()"><input type="number" id="sub-${p}-1" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-2" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 3" onchange="salvarFicha()"><input type="number" id="sub-${p}-2" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><span style="font-size:10px; color:var(--cor-geral); width:120px; text-align:left; font-family:'Inter', sans-serif;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()"></div></div></div>`; }
-            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">...</div>`;
+            /* Aqui inserimos inf.desc no lugar do ... */
+            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">${inf.desc || '...'}</div>`;
             if (inf.tipo === "profissao") hPr += blo; else hPe += blo;
         });
         document.getElementById('lista-pericias-pessoais').innerHTML = hPe; document.getElementById('lista-pericias-profissao').innerHTML = hPr;
@@ -1246,9 +1290,11 @@
     }
     
     async function updateSub(id, col, campo, valor) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; let o = {}; o[campo] = valor; if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id); if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id); if (col === 'ataques') menusAbertos.add('atq-' + id); await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); }
+    
     async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este registro?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
     
     function toggleElem(id) { const b = document.getElementById(id); if(!b) return; if(b.style.display === 'block') { b.style.display = 'none'; menusAbertos.delete(id); } else { b.style.display = 'block'; menusAbertos.add(id); } }
+    
     function mudarAba(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); const a = document.getElementById('aba-' + id); if(a) a.classList.add('active'); if(event && event.currentTarget) event.currentTarget.classList.add('active'); }
 
     auth.onAuthStateChanged(user => { if (user) init(); else { alert("Sessão expirada."); window.location.href = "index.html"; } });
