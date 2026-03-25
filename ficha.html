@@ -171,9 +171,9 @@
         
         .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; align-items: center; transition: opacity 0.3s; color: var(--op-ink);}
         
-        body:not(.tema-escuro) #content-vida input, body:not(.tema-escuro) #content-vida span { color: #6b070a !important; font-family: 'Crimson Text', serif !important; }
-        body:not(.tema-escuro) #content-san input, body:not(.tema-escuro) #content-san span { color: #1c2633 !important; font-family: 'Crimson Text', serif !important; }
-        body:not(.tema-escuro) #content-pe input, body:not(.tema-escuro) #content-pe span { color: #423522 !important; font-family: 'Crimson Text', serif !important; }
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-vida input, body:not(.tema-escuro):not(.tema-hexatombe) #content-vida span { color: #6b070a !important; font-family: 'Crimson Text', serif !important; }
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-san input, body:not(.tema-escuro):not(.tema-hexatombe) #content-san span { color: #1c2633 !important; font-family: 'Crimson Text', serif !important; }
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-pe input, body:not(.tema-escuro):not(.tema-hexatombe) #content-pe span { color: #423522 !important; font-family: 'Crimson Text', serif !important; }
 
         body.tema-escuro #content-vida input, body.tema-escuro #content-vida span,
         body.tema-escuro #content-san input, body.tema-escuro #content-san span,
@@ -388,7 +388,7 @@
     <input type="text" class="search-banco" placeholder="Pesquisar origem..." onkeyup="filtrarBanco(this, 'select-origem-template')">
     <select id="select-origem-template" class="lista-padronizada" size="6">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Profissão/Origem...</option>
-        <option value="Cultista Arrependido">Cultista Arrependido (Ocultismo +3)</option>
+        <option value="Cultista Arrependido">Cultista Arrependido (+ Ocultismo / Religião)</option>
         <option value="Policial">Agente Policial (+ Luta / Investigação)</option>
         <option value="Academico">Acadêmico / Professor (+ Ciências / Religião)</option>
         <option value="Hacker">Especialista em TI (+ Tecnologia / Atualidades)</option>
@@ -1208,7 +1208,42 @@
     async function novoAtaque() { const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Arma", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }); }
 
     async function aplicarTemplate(c, ch) { const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; let d = {}; if (c === 'ataques') d = templatesAtaques[ch]; if (c === 'habilidades') d = templatesTracos[ch]; if (c === 'poderes') d = templatesEspecializacoes[ch]; if (c === 'rituais') d = templatesAnomalias[ch]; if (c === 'inventario') d = templatesInventario[ch]; if (d) await db.collection("fichas").doc(atual).collection(p).add(d); }
-    async function aplicarOrigemTemplate() { const v = document.getElementById('select-origem-template').value; if(v === "Cultista Arrependido") { document.getElementById('origem-personagem').value = "Cultista Arrependido"; document.getElementById('treino-Ocultismo').value = 3; salvarFicha(); } toggleElem('modal-origem'); }
+    
+    async function aplicarOrigemTemplate() { 
+        const v = document.getElementById('select-origem-template').value; 
+        
+        const origensMap = {
+            "Cultista Arrependido": { nome: "Cultista Arrependido", p1: "Ocultismo", p2: "Religião" },
+            "Policial": { nome: "Agente Policial", p1: "Luta", p2: "Investigação" },
+            "Academico": { nome: "Acadêmico / Professor", p1: "Ciências", p2: "Religião" },
+            "Hacker": { nome: "Especialista em TI", p1: "Tecnologia", p2: "Atualidades" },
+            "Sobrevivente": { nome: "Sobrevivente de Desastre", p1: "Fortitude", p2: "Sobrevivência" },
+            "Ocultista": { nome: "Estudioso do Oculto", p1: "Ocultismo", p2: "Vontade" },
+            "Mercenario": { nome: "Ex-Militar", p1: "Pontaria", p2: "Tática" },
+            "Jornalista": { nome: "Jornalista Investigativo", p1: "Atualidades", p2: "Diplomacia" },
+            "Medico": { nome: "Médico Legista", p1: "Medicina", p2: "Percepção" }
+        };
+
+        if(origensMap[v]) { 
+            const origem = origensMap[v];
+            document.getElementById('origem-personagem').value = origem.nome; 
+            
+            const p1Input = document.getElementById('treino-' + origem.p1);
+            if(p1Input) {
+                p1Input.value = "3"; 
+                atualizarCorPericia(origem.p1, "3");
+            }
+
+            const p2Input = document.getElementById('treino-' + origem.p2);
+            if(p2Input) {
+                p2Input.value = "1"; 
+                atualizarCorPericia(origem.p2, "1");
+            }
+            
+            salvarFicha(); 
+        } 
+        toggleElem('modal-origem'); 
+    }
     
     async function updateSub(id, col, campo, valor) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; let o = {}; o[campo] = valor; if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id); if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id); if (col === 'ataques') menusAbertos.add('atq-' + id); await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); }
     async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este registro?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
