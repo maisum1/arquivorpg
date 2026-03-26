@@ -211,8 +211,7 @@
         .pericia-nome::after { content: ' ▼'; font-size: 8px; opacity: 0.3; }
         .pericia-desc { display: none; background: var(--card-bg); border-left: 2px solid var(--op-red); padding: 10px; font-size: 11px; color: var(--op-ink); margin-bottom: 4px; line-height: 1.5; font-family: 'Special Elite', monospace; }
         
-        .sub-pericias-box { display: none; background: var(--card-bg); padding: 10px; border-radius: 2px; border-left: 2px solid var(--card-border); margin-bottom: 5px;}
-        .sub-input { background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; border-radius: 2px; font-family: 'Special Elite', monospace;}
+        .sub-pericias-box { display: none; background: transparent; padding: 5px 0; margin-bottom: 5px;}
         
         .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; outline: none; padding: 2px; font-family: 'Special Elite', monospace;}
         
@@ -306,18 +305,18 @@
             .bar-btn { font-size: 14px; }
             
             /* CORREÇÃO DO BONECO NO CELULAR */
-            .body-map-container { height: 320px !important; margin: 20px auto 30px auto !important; }
-            .boneco-svg-container { width: 170px; height: 255px; top: 15px; }
+            .body-map-container { height: 360px !important; margin: 10px auto 30px auto !important; }
+            .boneco-svg-container { width: 170px; height: 255px; top: 25px !important; }
             .limb-box-new { width: 90px; padding: 2px; }
             .limb-box-new .title { font-size: 8px; margin-bottom: 1px; }
             .limb-box-new .values { font-size: 13px; }
             .val-btn { width: 45%; } 
-            #limb-cabeca { top: -5px !important; } 
-            #limb-braco-esq { top: 70px !important; left: 0px !important; } 
-            #limb-braco-dir { top: 70px !important; right: 0px !important; } 
-            #limb-torso { top: 130px !important; } 
-            #limb-perna-esq { top: 205px !important; left: 25px !important; } 
-            #limb-perna-dir { top: 205px !important; right: 25px !important; }
+            #limb-cabeca { top: 0px !important; } 
+            #limb-braco-esq { top: 85px !important; left: -10px !important; } 
+            #limb-braco-dir { top: 85px !important; right: -10px !important; } 
+            #limb-torso { top: 150px !important; } 
+            #limb-perna-esq { top: 270px !important; left: 15px !important; } 
+            #limb-perna-dir { top: 270px !important; right: 15px !important; }
             
             .tabs-nav { gap: 5px !important; margin-bottom: 20px; }
             .tab-btn { font-size: 10px !important; padding: 10px 2px !important; letter-spacing: 0px !important; }
@@ -516,20 +515,21 @@
     <input type="text" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
     <select id="select-tpl-item" class="lista-padronizada" size="6" onchange="previewTemplate('item')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione um Item...</option>
+        <option value="Adrenalina">Seringa de Epinefrina</option>
         <option value="Algemas">Algemas Táticas</option>
         <option value="Bandagem">Bandagem</option>
-        <option value="CantilBebida">Cantil com Uísque</option>
         <option value="CameraPolaroid">Câmera Polaroid Antiga</option>
-        <option value="ComponenteMorte">Cinzas Humanas</option>
+        <option value="CantilBebida">Cantil com Uísque</option>
         <option value="ColeteLeve">Colete Balístico Leve</option>
-        <option value="EmsSop">Detector de EMF</option>
-        <option value="Grimorio">Diário de Ocultista</option>
-        <option value="GravadorK7">Gravador de Fitas K7</option>
-        <option value="KitPrimeirosSocorros">Kit de Primeiros Socorros</option>
-        <option value="KitInvestigacao">Maleta de Investigação</option>
-        <option value="PeDeCabra">Pé de Cabra</option>
+        <option value="ComponenteMorte">Cinzas Humanas</option>
         <option value="ComponenteSangue">Sangue de Sacrifício</option>
-        <option value="Adrenalina">Seringa de Epinefrina</option>
+        <option value="EmsSop">Detector de EMF</option>
+        <option value="GravadorK7">Gravador de Fitas K7</option>
+        <option value="Grimorio">Diário de Ocultista</option>
+        <option value="KitInvestigacao">Maleta de Investigação</option>
+        <option value="KitPrimeirosSocorros">Kit de Primeiros Socorros</option>
+        <option value="Lanterna">Lanterna Tática</option>
+        <option value="PeDeCabra">Pé de Cabra</option>
     </select>
     <div id="preview-item" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
@@ -1046,7 +1046,31 @@
     async function confirmarCrop() { const u = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; try { if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); } else { const d = {}; d[`portrait${modoCrop}`] = u; d[`p${modoCrop}X`] = x; d[`p${modoCrop}Y`] = y; d[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(d); alert(`Evidência arquivada!`); } fecharModal(); } catch (e) {} }
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
 
-    const bancoPericias = { "Acrobacia": { attr: "AGI", tipo: "pessoal" }, "Atletismo": { attr: "FOR", tipo: "pessoal" }, "Atualidades": { attr: "SAG", tipo: "pessoal" }, "Ciências": { attr: "SAG", tipo: "profissao" }, "Crime": { attr: "AGI", tipo: "profissao" }, "Diplomacia": { attr: "VON", tipo: "pessoal" }, "Enganação": { attr: "VON", tipo: "pessoal" }, "Fortitude": { attr: "VIG", tipo: "pessoal" }, "Furtividade": { attr: "AGI", tipo: "pessoal" }, "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true }, "Intuição": { attr: "VON", tipo: "pessoal" }, "Investigação": { attr: "SAG", tipo: "pessoal" }, "Luta": { attr: "FOR", tipo: "pessoal" }, "Medicina": { attr: "SAG", tipo: "profissao" }, "Ocultismo": { attr: "SAG", tipo: "profissao" }, "Percepção": { attr: "SAG", tipo: "pessoal" }, "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"] }, "Reflexos": { attr: "AGI", tipo: "pessoal" }, "Religião": { attr: "VON", tipo: "profissao" }, "Sobrevivência": { attr: "SAG", tipo: "pessoal", subs: ["Urbana", "Selva", "Deserto", "Polar"] }, "Tática": { attr: "SAG", tipo: "profissao" }, "Tecnologia": { attr: "SAG", tipo: "profissao" }, "Vontade": { attr: "VON", tipo: "pessoal" } };
+    const bancoPericias = { 
+        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas e redução de dano de queda." }, 
+        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Correr, nadar, escalar e proezas físicas." }, 
+        "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Conhecimentos gerais, política, cultura pop e eventos recentes." }, 
+        "Ciências": { attr: "SAG", tipo: "profissao", desc: "Biologia, química, física, matemática e astronomia." }, 
+        "Crime": { attr: "AGI", tipo: "profissao", desc: "Abrir fechaduras, sabotagem, furtar objetos e ocultar rastros." }, 
+        "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Persuasão, negociação, etiqueta e causar boa impressão." }, 
+        "Enganação": { attr: "VON", tipo: "pessoal", desc: "Mentir, blefar, falsificar e enganar." }, 
+        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência a fadiga, doenças, venenos e dores físicas." }, 
+        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Mover-se em silêncio, esconder-se e agir sem ser notado." }, 
+        "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true, desc: "Compreender e falar outras línguas e dialetos." }, 
+        "Intuição": { attr: "VON", tipo: "pessoal", desc: "Perceber mentiras, sentimentos e intenções ocultas." }, 
+        "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Procurar pistas, deduzir informações e analisar cenas." }, 
+        "Luta": { attr: "FOR", tipo: "pessoal", subs: ["Artes Marciais", "Briga", "Armas Leves", "Armas Pesadas"], desc: "Combate corpo a corpo, usar armas brancas e brigar." }, 
+        "Medicina": { attr: "SAG", tipo: "profissao", desc: "Primeiros socorros, cirurgias, tratar venenos e doenças." }, 
+        "Ocultismo": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre o paranormal, rituais, entidades e relíquias." }, 
+        "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Notar detalhes ao redor, ouvir sons baixos e vigilância geral." }, 
+        "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"], desc: "Uso de armas de fogo, arcos, bestas e arremesso de objetos." }, 
+        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." }, 
+        "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." }, 
+        "Sobrevivência": { attr: "SAG", tipo: "pessoal", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." }, 
+        "Tática": { attr: "SAG", tipo: "profissao", desc: "Estratégia militar, posicionamento de combate e liderança." }, 
+        "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso e reparo de computadores, eletrônicos e hackear sistemas." }, 
+        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem." } 
+    };
     const nomesPericias = Object.keys(bancoPericias);
 
     function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
@@ -1058,9 +1082,22 @@
         let hPe = ""; let hPr = "";
         nomesPericias.forEach(p => {
             const inf = bancoPericias[p]; let sH = "";
-            if(inf.subs) { sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px;">`; inf.subs.forEach((s, idx) => { sH += `<div style="display:flex; align-items:center; gap:5px;"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif;">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()"></div>`; }); sH += `</div></div>`; } 
-            else if (inf.subsInputs) { sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-0" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 1" onchange="salvarFicha()"><input type="number" id="sub-${p}-0" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-1" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 2" onchange="salvarFicha()"><input type="number" id="sub-${p}-1" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><input type="text" id="sub-nome-${p}-2" class="sub-input" style="width:120px; text-align:left; padding-left:5px;" placeholder="Idioma 3" onchange="salvarFicha()"><input type="number" id="sub-${p}-2" class="sub-input" value="0" onchange="salvarFicha()"></div><div style="display:flex; align-items:center; justify-content:space-between; gap:5px;"><span style="font-size:10px; color:var(--cor-geral); width:120px; text-align:left; font-family:'Inter', sans-serif;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()"></div></div></div>`; }
-            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">...</div>`;
+            if(inf.subs) { 
+                sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">`; 
+                inf.subs.forEach((s, idx) => { 
+                    sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:bold;" title="${s}">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`; 
+                }); 
+                sH += `</div></div>`; 
+            } 
+            else if (inf.subsInputs) { 
+                sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">`;
+                for(let i=0; i<3; i++) {
+                    sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><input type="text" id="sub-nome-${p}-${i}" class="sub-input" style="width:100%; text-align:left; border:none; border-bottom:1px dotted var(--card-border); background:transparent;" placeholder="Idioma ${i+1}" onchange="salvarFicha()"><input type="number" id="sub-${p}-${i}" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`;
+                }
+                sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><span style="font-size:10px; color:var(--cor-geral); width:100%; text-align:left; font-family:'Inter', sans-serif; font-weight:bold;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`;
+                sH += `</div></div>`; 
+            }
+            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">${inf.desc || "..."}</div>`;
             if (inf.tipo === "profissao") hPr += blo; else hPe += blo;
         });
         document.getElementById('lista-pericias-pessoais').innerHTML = hPe; document.getElementById('lista-pericias-profissao').innerHTML = hPr;
@@ -1143,7 +1180,6 @@
             isITActive = d.insanoTemporario || false; const it = document.getElementById('it-san'); const cs = document.getElementById('content-san');
             if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if(e) { if(i <= (d.itRounds || 0)) e.classList.add('active'); else e.classList.remove('active'); } } } else { it.classList.remove('active'); if(parseInt(d.sanAtual) > 0) cs.style.opacity = '1'; }
             
-            // CORREÇÃO: O background sempre puxará do root (d_raw), nunca do hexatombe_data
             document.getElementById('bgDescricao').value = d_raw.bgDescricao || ""; document.getElementById('bgIdeologia').value = d_raw.bgIdeologia || ""; document.getElementById('bgPessoas').value = d_raw.bgPessoas || ""; document.getElementById('bgLocais').value = d_raw.bgLocais || ""; document.getElementById('bgPosses').value = d_raw.bgPosses || ""; document.getElementById('bgTracos').value = d_raw.bgTracos || ""; document.getElementById('bgCicatrizes').value = d_raw.bgCicatrizes || ""; document.getElementById('bgFobias').value = d_raw.bgFobias || ""; document.getElementById('bgEncontros').value = d_raw.bgEncontros || "";
 
             recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); 
@@ -1174,7 +1210,6 @@
             insanoTemporario: isITActive, itRounds: iR, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao
         };
 
-        // CORREÇÃO: O background é salvo sempre no diretório principal (root), sem ser jogado dentro do hexatombe_data
         let bgData = {
             bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
         };
