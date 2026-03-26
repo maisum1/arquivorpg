@@ -305,18 +305,18 @@
             .bar-btn { font-size: 14px; }
             
             /* CORREÇÃO DO BONECO NO CELULAR */
-            .body-map-container { height: 380px !important; margin: 10px auto 30px auto !important; } /* Aumentei a altura para a perna não vazar */
-            .boneco-svg-container { width: 170px; height: 255px; top: 55px !important; } /* Aumentar o 'top' desce o boneco */
+            .body-map-container { height: 380px !important; margin: 10px auto 30px auto !important; }
+            .boneco-svg-container { width: 170px; height: 255px; top: 60px !important; }
             .limb-box-new { width: 90px; padding: 2px; }
             .limb-box-new .title { font-size: 8px; margin-bottom: 1px; }
             .limb-box-new .values { font-size: 13px; }
             .val-btn { width: 45%; } 
             #limb-cabeca { top: 0px !important; } 
-            #limb-braco-esq { top: 100px !important; left: 5px !important; } /* 'left' maior aproxima do centro */
-            #limb-braco-dir { top: 100px !important; right: 5px !important; } /* 'right' maior aproxima do centro */
-            #limb-torso { top: 190px !important; } /* Aumentar o 'top' desce a caixa do torso */
-            #limb-perna-esq { top: 290px !important; left: 35px !important; } /* 'left' maior aproxima do centro */
-            #limb-perna-dir { top: 290px !important; right: 35px !important; } /* 'right' maior aproxima do centro */
+            #limb-braco-esq { top: 100px !important; left: 5px !important; } 
+            #limb-braco-dir { top: 100px !important; right: 5px !important; } 
+            #limb-torso { top: 195px !important; } 
+            #limb-perna-esq { top: 290px !important; left: 35px !important; } 
+            #limb-perna-dir { top: 290px !important; right: 35px !important; }
             
             .tabs-nav { gap: 5px !important; margin-bottom: 20px; }
             .tab-btn { font-size: 10px !important; padding: 10px 2px !important; letter-spacing: 0px !important; }
@@ -1105,21 +1105,95 @@
 
     function toggleDescricao(n) { const d = document.getElementById(`desc-${n}`); d.style.display = d.style.display === 'block' ? 'none' : 'block'; const s = document.getElementById(`subs-${n}`); if(s) s.style.display = s.style.display === 'block' ? 'none' : 'block'; }
 
-    function mudouNex() { const ns = document.getElementById('nex-personagem').value || "5%"; let n = parseInt(ns) || 0; const ef = isExtremos || globalExtremos; if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; } atualizarOpcoesRessonancia(n); let gc = "1º Grau"; if (n === 0) gc = "Nulo"; else if (n >= 5 && n <= 20) gc = "1º Grau"; else if (n >= 25 && n <= 40) gc = "2º Grau"; else if (n >= 45 && n <= 60) gc = "3º Grau"; else if (n >= 65 && n <= 80) gc = "4º Grau"; else if (n >= 85 && n <= 99) gc = "5º Grau"; else if (n >= 100) gc = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gc; aplicarSegredosUI(); recalcularBases(true); salvarFicha(); }
+    function mudouNex() { 
+        const ns = document.getElementById('nex-personagem').value || "5%"; let n = parseInt(ns) || 0; const ef = isExtremos || globalExtremos; if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; } 
+        atualizarOpcoesRessonancia(n); 
+        let gc = "1º Grau"; if (n === 0) gc = "Nulo"; else if (n >= 5 && n <= 20) gc = "1º Grau"; else if (n >= 25 && n <= 40) gc = "2º Grau"; else if (n >= 45 && n <= 60) gc = "3º Grau"; else if (n >= 65 && n <= 80) gc = "4º Grau"; else if (n >= 85 && n <= 99) gc = "5º Grau"; else if (n >= 100) gc = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; 
+        document.getElementById('grau-ressonancia').value = gc; 
+        aplicarSegredosUI(); 
+        recalcularBases(); // fH fica false para não resetar a vida e fazer a "subida" dos PE
+        salvarFicha(); 
+    }
 
     function recalcularDefesas() { const ag = parseInt(document.getElementById('attr-agi').value) || 0; const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; const bd = parseInt(document.getElementById('bonus-defesa').value) || 0; const bb = parseInt(document.getElementById('bonus-bloqueio').value) || 0; const be = parseInt(document.getElementById('bonus-esquiva').value) || 0; const db = 10 + ag + nv + bd; document.getElementById('display-defesa').innerText = db; const ft = parseInt(document.getElementById('treino-Fortitude')?.value) || 0; const rt = parseInt(document.getElementById('treino-Reflexos')?.value) || 0; document.getElementById('display-bloqueio').innerText = db + ft + bb; document.getElementById('display-esquiva').innerText = db + rt + be; }
+    
     function alterarAtributoOuNivel() { recalcularBases(true); salvarFicha(); }
 
     function recalcularBases(fH = false) {
-        let vg = parseInt(document.getElementById('attr-vig').value) || 0; let vn = parseInt(document.getElementById('attr-von').value) || 0; let sg = parseInt(document.getElementById('attr-sag').value) || 0; const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; const ns = document.getElementById('nex-personagem').value || "0%"; let n = parseInt(ns) || 0; const cl = document.getElementById('classe-personagem').value; const ef = isExtremos || globalExtremos; if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
-        const nV = 12 + (2 * vg) + (3 * nv); const nS = 50 + (10 * vn + 10 * sg); let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); let nL = 1 + vg + vn + nv; if (cl === "Esotérico") { nP += (2 * sg); nL += (2 * sg); } else if (cl === "Canalizador" && nv > 2) { nP += (nv - 2) * 3; }
-        const iVM = document.getElementById('vida-max'); if (iVM && document.activeElement !== iVM) iVM.value = nV; const iSM = document.getElementById('san-max'); if (iSM && document.activeElement !== iSM) iSM.value = nS; const iPM = document.getElementById('pe-max'); if (iPM && document.activeElement !== iPM) iPM.value = nP;
-        if (fH) { document.getElementById('vida-atual').value = nV; document.getElementById('san-atual').value = nS; document.getElementById('pe-atual').value = nP; }
+        let vg = parseInt(document.getElementById('attr-vig').value) || 0; 
+        let vn = parseInt(document.getElementById('attr-von').value) || 0; 
+        let sg = parseInt(document.getElementById('attr-sag').value) || 0; 
+        const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; 
+        const ns = document.getElementById('nex-personagem').value || "0%"; 
+        let n = parseInt(ns) || 0; 
+        const cl = document.getElementById('classe-personagem').value; 
+        
+        const ef = isExtremos || globalExtremos; 
+        if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
+        
+        const nV = 12 + (2 * vg) + (3 * nv); 
+        const nS = 50 + (10 * vn + 10 * sg); 
+        let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); 
+        let nL = 1 + vg + vn + nv; 
+        
+        let bonusDtArq = 0;
+
+        // ========================================================
+        // SISTEMA DE UPGRADE E PROGRESSÃO POR ARQUÉTIPO
+        // ========================================================
+        if (cl === "Esotérico") { 
+            nP += (2 * sg); 
+            nL += (2 * sg); 
+        } else if (cl === "Canalizador" && nv > 2) { 
+            nP += (nv - 2) * 3; 
+        } else if (cl === "Focalizador" && nv >= 2) {
+            bonusDtArq = Math.floor(nv / 2) || 1; // Focalizador escala de DT a cada 2 níveis
+            nL += 1;
+        }
+        // ========================================================
+
+        const iVM = document.getElementById('vida-max'); if (iVM && document.activeElement !== iVM) iVM.value = nV; 
+        const iSM = document.getElementById('san-max'); if (iSM && document.activeElement !== iSM) iSM.value = nS; 
+        
+        const iPM = document.getElementById('pe-max'); 
+        let oldPeMax = parseInt(iPM.value) || 0;
+        if (iPM && document.activeElement !== iPM) iPM.value = nP;
+
+        // Acompanhar a subida de PE dinamicamente durante os Upgrades de NEX
+        const inptPeAtual = document.getElementById('pe-atual');
+        if (nP > oldPeMax && oldPeMax > 0) {
+            if (inptPeAtual && document.activeElement !== inptPeAtual) {
+                inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldPeMax);
+            }
+        } else if (oldPeMax === 0 && nP > 0) {
+            if (inptPeAtual && document.activeElement !== inptPeAtual) {
+                inptPeAtual.value = nP;
+            }
+        }
+
+        if (fH) { 
+            document.getElementById('vida-atual').value = nV; 
+            document.getElementById('san-atual').value = nS; 
+            document.getElementById('pe-atual').value = nP; 
+        }
+        
         const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
-        const bL = parseInt(document.getElementById('bonus-limite-pe').value) || 0; document.getElementById('display-limite-pe').innerText = nL + bL; const bD = parseInt(document.getElementById('bonus-dt').value) || 0; document.getElementById('dt-val').innerText = 10 + sg + bD; 
-        let nG = 0; if (n >= 5 && n <= 20) nG = 1; else if (n >= 25 && n <= 40) nG = 2; else if (n >= 45 && n <= 60) nG = 3; else if (n >= 65 && n <= 80) nG = 4; else if (n >= 85 && n <= 99) nG = 5; else if (n >= 100) nG = 6; if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = nG * 2; if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = nG * 2;
-        const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else { dA.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
-        recalcularDefesas(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
+        
+        const bL = parseInt(document.getElementById('bonus-limite-pe').value) || 0; 
+        document.getElementById('display-limite-pe').innerText = nL + bL; 
+        
+        const bD = parseInt(document.getElementById('bonus-dt').value) || 0; 
+        document.getElementById('dt-val').innerText = 10 + sg + bD + bonusDtArq; 
+        
+        let nG = 0; if (n >= 5 && n <= 20) nG = 1; else if (n >= 25 && n <= 40) nG = 2; else if (n >= 45 && n <= 60) nG = 3; else if (n >= 65 && n <= 80) nG = 4; else if (n >= 85 && n <= 99) nG = 5; else if (n >= 100) nG = 6; 
+        if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = nG * 2; 
+        if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = nG * 2;
+        
+        const dA = document.getElementById('grupo-arquetipo'); 
+        if (nv >= 2) dA.style.display = 'flex'; else { dA.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
+        
+        recalcularDefesas(); 
+        atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
     }
 
     function carregarFicha() {
