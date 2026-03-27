@@ -58,8 +58,19 @@
         }
 
         /* --- O CORPO DA PÁGINA AGORA É O ARQUIVO MANCHADO --- */
+        /* --- O CORPO DA PÁGINA COM TRANSIÇÃO SUAVE --- */
         body { 
             background-color: var(--bg-paper);
+            color: var(--op-ink); 
+            font-family: 'Courier Prime', monospace; margin: 0; display: flex; 
+            align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden;
+            padding: 20px; box-sizing: border-box; transition: background-color 0.5s ease;
+            position: relative; /* Necessário para a transição suave */
+        }
+        
+        /* A textura de papel foi movida para esta camada para poder fazer "Fade Out" */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
                 radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.06) 0%, transparent 30%),
@@ -67,12 +78,14 @@
                 radial-gradient(circle at 15% 80%, rgba(150, 130, 100, 0.05) 0%, transparent 35%),
                 radial-gradient(circle at 50% 45%, rgba(110, 90, 70, 0.04) 0%, transparent 40%),
                 radial-gradient(circle at center, transparent 30%, rgba(85, 55, 30, 0.35) 120%),
-                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.11"/%3E%3C/svg%3E'),
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.07"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
-            color: var(--op-ink); 
-            font-family: 'Courier Prime', monospace; margin: 0; display: flex; 
-            align-items: center; justify-content: center; min-height: 100vh; overflow-x: hidden;
-            padding: 20px; box-sizing: border-box; transition: background-color 0.5s ease;
+            opacity: 1; transition: opacity 0.5s ease; pointer-events: none;
+        }
+
+        /* Oculta o papel suavemente quando entra no modo escuro */
+        body.tema-escuro::before {
+            opacity: 0; 
         }
         
         #login-screen { display: flex; flex-direction: column; align-items: center; gap: 30px; text-align: center; padding: 60px 20px; width: 100%; max-width: 800px; }
