@@ -10,29 +10,32 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700;900&family=Special+Elite&display=swap');
+        /* Fontes padronizadas integrando o Crimson Text */
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700;900&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
 
         :root {
-            /* Paleta Bureaucrática / Backrooms (Modo Claro Padrão) */
+            /* Paleta Bureaucrática / Backrooms */
             --op-red: #9e0b0f;
             --op-dark-red: #5a0000;
             --op-ink: #1a1a1a;
-            --bg-desk: #24201c;
+            --bg-desk: #121211;
             --bg-paper: #dcd7cb;
             --paper-shadow: 0 20px 50px rgba(0,0,0,0.9);
             
-            /* Status Cores Pálidas */
             --san-purple: #2b3a4a;
             --pe-orange: #665235;
+            --cor-geral: #666;
+            --sigilo-ring: #4a3a2a;
+            --cor-morte: #2b2a2a;
+            --accent-gold: #a68a64;
 
-            /* Variáveis de Caixa (Faltavam aqui!) */
             --card-bg: rgba(0,0,0,0.03);
             --card-border: rgba(0,0,0,0.15);
             --card-hover: rgba(0,0,0,0.08);
         }
 
-        /* --- TEMA ESCURO (Estilo Suavizado e Limpo) --- */
+        /* --- TEMA ESCURO (Sincronizado com a Ficha de Player) --- */
         body.tema-escuro {
             --bg-desk: #000000;
             --bg-paper: #161616;
@@ -41,12 +44,14 @@
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
             --san-purple: #6a829e;
             --pe-orange: #a88a61;
+            --cor-geral: #888;
+            --sigilo-ring: #c0c0c0;
+            --accent-gold: #a68a64;
             
             --card-bg: rgba(255,255,255,0.02);
-            --card-border: rgba(255,255,255,0.1);
+            --card-border: rgba(255,255,255,0.08);
             --card-hover: rgba(255,255,255,0.06);
 
-            /* Fundo escuro liso sem o noise ruim */
             background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
         }
         body.tema-escuro .book-container { 
@@ -58,7 +63,7 @@
         body.tema-escuro .watermark-confidential { color: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.03); }
         body.tema-escuro .attr-label { background: var(--bg-paper); }
         body.tema-escuro .sub-label { color: #888; }
-        body.tema-escuro .section-header { background: var(--op-ink); color: var(--bg-paper); }
+        
         body.tema-escuro .dynamic-item-highlight { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); box-shadow: inset 2px 2px 5px rgba(255,255,255,0.01); border-left-color: var(--op-ink); }
         body.tema-escuro .btn-add { border-color: rgba(255,255,255,0.3); }
         body.tema-escuro .btn-add:hover { background: rgba(255,255,255,0.05); }
@@ -71,10 +76,19 @@
         body.tema-escuro .book-input:focus { background: rgba(255,255,255,0.05); border-bottom-color: var(--op-red); }
         body.tema-escuro .cris-textarea { color: var(--op-ink); border-bottom-color: rgba(255,255,255,0.2); }
         body.tema-escuro .cris-textarea:focus { background: rgba(255,255,255,0.05); }
-        body.tema-escuro .book-title { color: var(--op-ink); }
+        
+        /* Apenas o NOME na cor BRANCA no modo escuro */
+        body.tema-escuro .book-title { color: #ffffff !important; }
+        
         body.tema-escuro .barcode { color: var(--op-ink); }
         body.tema-escuro .attr-box { border-color: var(--op-ink); }
         body.tema-escuro .defesa-badge { border-color: var(--op-ink); }
+
+        /* Custom Scrollbar Integrado */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cor-geral); }
 
         /* --- TEMA HEXATOMBE (ARQUIVO CORROMPIDO) --- */
         body.tema-hexatombe .book-container, body.tema-escuro.tema-hexatombe .book-container {
@@ -89,7 +103,7 @@
         body.tema-hexatombe .attr-box { background: #1a0505 !important; border-color: #ff1a1a !important; box-shadow: 0 0 15px rgba(255,0,0,0.5) !important;}
         body.tema-hexatombe .attr-box input { color: #fff !important; text-shadow: 0 0 5px #f00 !important;}
         body.tema-hexatombe .dynamic-item-highlight { background: rgba(50,0,0,0.4) !important; border-color: #500 !important; border-left-color: #f00 !important; }
-        body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important;}
+        body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important; border: none !important;}
         body.tema-hexatombe .watermark-confidential { color: rgba(255,0,0,0.08) !important; text-shadow: 0 0 10px rgba(255,0,0,0.5); border-color: rgba(255,0,0,0.08) !important;}
         body.tema-hexatombe .portrait { filter: contrast(120%) sepia(30%) grayscale(50%); background: #111; border-color: #222; }
         body.tema-hexatombe .defesa-badge { border-color: #ff3333 !important; }
@@ -104,40 +118,39 @@
             transition: color 0.3s ease;
         }
 
-        /* Remove setinhas numéricas */
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* DOSSIÊ (PÁGINA DO ARQUIVO) COM O FUNDO ORIGINAL + VIGNETTE NAS BORDAS */
+        /* DOSSIÊ COM TRANSIÇÃO SUAVE (Sem glitch de ruído) */
         .book-container { 
             max-width: 1050px; margin: 0 auto; 
             background-color: var(--bg-paper); 
             background-image: 
-                /* Escurecimento nas bordas (Vignette) para envelhecimento */
-                radial-gradient(circle at center, transparent 40%, rgba(101, 67, 33, 0.18) 120%),
-                /* Textura Original de Ruído do Arquivo */
+                radial-gradient(circle at center, transparent 30%, rgba(85, 55, 30, 0.35) 120%),
+                url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.07"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
             box-shadow: var(--paper-shadow); 
             border: 1px solid #b3a996; position: relative; padding: 50px 60px; border-radius: 2px;
-            /* Evita tentar transicionar a background-image para não travar o FPS */
-            transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
             overflow: hidden;
         }
 
-        /* MARCA D'ÁGUA CONFIDENCIAL */
+        body.tema-escuro .book-container { 
+            border-color: #333; 
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
+        }
+
         .watermark-confidential {
             position: absolute; top: 35%; left: 50%;
             transform: translate(-50%, -50%) rotate(-25deg);
             font-family: 'Inter', sans-serif; font-weight: 900; font-size: 8rem;
-            color: rgba(163, 21, 21, 0.06); pointer-events: none; z-index: 0;
+            color: rgba(163, 21, 21, 0.06); pointer-events: none; z-index: 1; /* z-index ajustado para ficar acima do fade */
             white-space: nowrap; border: 8px solid rgba(163, 21, 21, 0.06); padding: 10px 40px;
             user-select: none;
         }
 
-        /* ESTILOS DE INPUT DATILOGRAFADO */
         .book-input { 
             background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); 
             color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; 
@@ -145,16 +158,15 @@
         }
         .book-input:focus { background: rgba(0,0,0,0.05); border-bottom: 1px solid var(--op-red); }
 
-        /* CABEÇALHO DO DOCUMENTO */
         .doc-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; font-family: 'Courier Prime', monospace; font-size: 12px; color: #555; position: relative; z-index: 2;}
         .barcode { font-family: 'Libre Barcode 39 Text', cursive; font-size: 40px; color: var(--op-ink); line-height: 0.8;}
         
         .book-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px double var(--op-ink); padding-bottom: 10px; margin-bottom: 25px; position: relative; z-index: 2;}
-        .book-title { font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 80%; letter-spacing: -1px; margin: 0; line-height: 0.9; border: none; background: transparent !important;}
         
+        /* Fontes ajustadas para a identidade da ficha */
+        .book-title { font-family: 'Crimson Text', serif; font-size: 3.2rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 80%; letter-spacing: 2px; margin: 0; line-height: 0.9; border: none; background: transparent !important;}
         .tipo-criatura { font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 14px; color: var(--op-red); text-transform: uppercase; letter-spacing: 1px; display: block; width: 100%; border: none;}
 
-        /* CARIMBO DE VD ATERRORIZANTE */
         .vd-badge { 
             border: 4px solid var(--op-red); color: var(--op-red); 
             padding: 5px 15px; transform: rotate(5deg); opacity: 0.9;
@@ -164,7 +176,6 @@
         .vd-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin-bottom: -5px; }
         .vd-input { width: 60px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.5rem; font-weight: 900; outline: none; font-family: 'Inter', sans-serif;}
 
-        /* ATRIBUTOS ALINHADOS NA HORIZONTAL */
         .attributes-bar {
             display: flex; justify-content: space-evenly; align-items: center;
             padding: 20px 0; margin-bottom: 35px; position: relative; z-index: 2;
@@ -173,8 +184,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 70px; height: 70px;
             border: 3px solid var(--op-ink); border-radius: 50%;
-            background: transparent;
-            position: relative;
+            background: transparent; position: relative;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
             transition: border-color 0.5s ease;
         }
@@ -189,19 +199,15 @@
             transition: color 0.5s ease;
         }
 
-        /* GRID PRINCIPAL (Status e Imagem) */
         .book-grid { display: grid; grid-template-columns: 1fr 340px; gap: 50px; position: relative; z-index: 2;}
 
-        /* LINHAS DE STATUS */
         .book-stat-row { padding: 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; font-size: 15px; line-height: 1.6;}
         .stat-label { color: var(--op-ink); font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-right: 5px; font-size: 13px; }
         .sub-label { color: #555; font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: color 0.5s ease;}
 
-        /* DEFESA EM DESTAQUE */
         .defesa-badge { display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--op-ink); padding: 2px 10px; border-radius: 2px; background: transparent;}
         .defesa-badge input { color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 22px; font-weight: bold; text-align: center; border: none !important; width: 40px; background: transparent;}
 
-        /* BARRAS DE STATUS */
         .resource-block { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 2px; margin-bottom: 10px;}
         .resource-inputs { display: flex; align-items: baseline; font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold; color: var(--op-ink);}
         .resource-inputs input { width: 40px; text-align: center; font-size: 18px; color: var(--op-ink);}
@@ -212,16 +218,21 @@
         #bar-pc { background: var(--san-purple); }
         #bar-pe { background: var(--pe-orange); }
 
-        /* TÍTULOS DE SESSÃO */
+        /* Cabeçalhos Customizados para bater com a Ficha */
         .section-header { 
-            background: var(--op-ink); color: var(--bg-paper); font-family: 'Inter', sans-serif; font-weight: 900; 
-            font-size: 1.1rem; padding: 4px 12px; margin: 35px 0 15px 0; text-transform: uppercase; letter-spacing: 2px;
-            display: inline-block; position: relative; z-index: 2;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+            background: var(--op-ink) !important; color: var(--bg-paper) !important; 
+            font-family: 'Crimson Text', serif !important; font-weight: bold !important; 
+            text-transform: uppercase !important; letter-spacing: 2px !important; 
+            padding: 6px 15px !important; box-shadow: 3px 3px 0px rgba(0,0,0,0.4) !important; 
+            display: inline-block; border: none !important; text-shadow: none !important;
+            margin: 35px 0 15px 0; position: relative; z-index: 2;
             transition: background-color 0.5s ease, color 0.5s ease;
         }
+        body.tema-escuro .section-header { 
+            background: #222 !important; color: var(--accent-gold) !important; 
+            box-shadow: 3px 3px 0px #000 !important; border: 1px solid #333 !important; 
+        }
 
-        /* FOTOGRAFIA */
         .portrait-container { width: 100%; position: relative; margin-bottom: 30px;}
         .portrait-container::before {
             content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
@@ -239,51 +250,52 @@
         .portrait img { width: 100%; height: 100%; object-fit: cover; }
         .upload-hint { position: absolute; color: #333; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.8;}
         
-        /* BLOCOS DINÂMICOS */
         .dynamic-item-highlight { 
             background: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--op-ink); 
-            padding: 15px; margin-bottom: 15px; position: relative; z-index: 2;
+            padding: 15px; margin-bottom: 15px; position: relative; z-index: 2; border-radius: 2px;
             box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); transition: background-color 0.5s ease, border-color 0.5s ease;
         }
         .btn-del { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--op-red); cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 16px; opacity: 0.4;}
         .btn-del:hover { opacity: 1; transform: scale(1.2);}
 
-        /* BOTÕES GERAIS */
         .btn-add { 
             display: block; width: fit-content; text-align: left;
             background: transparent; border: 1px dashed var(--op-ink); 
             color: var(--op-ink); padding: 8px 15px; cursor: pointer; 
             font-family: 'Courier Prime', monospace; font-size: 12px; 
             font-weight: bold; margin-top: 10px; transition: 0.3s; 
-            position: relative; z-index: 2; margin-left: 0;
+            position: relative; z-index: 2; margin-left: 0; border-radius: 2px;
         }
         .btn-add:hover { background: rgba(0,0,0,0.08); }
 
         .cris-textarea { width: 100%; background: transparent; border: none; border-bottom: 1px dotted rgba(0,0,0,0.4); color: var(--op-ink); font-size: 16px; padding: 5px; box-sizing: border-box; font-family: 'Special Elite', monospace; line-height: 1.6; outline: none; transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease; resize: vertical; min-height: 80px; position: relative; z-index: 2;}
         .cris-textarea:focus { background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--op-red); }
 
-        /* MODAIS E HUD */
         .btn-config { position: fixed; top: 10px; right: 10px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
-        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: #fff;}
+        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--op-ink);}
 
         .btn-theme { position: fixed; top: 10px; right: 50px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
-        .btn-theme:hover { opacity: 1; transform: scale(1.1); color: #fff;}
+        .btn-theme:hover { opacity: 1; transform: scale(1.1); color: var(--op-ink);}
 
-        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; color:#d3d3d3; border: 1px solid var(--op-red); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; font-family: 'Inter', sans-serif;}
-        .modal-padrao h3 { color: var(--op-red) !important;}
-        .rit-input { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; font-family: 'Inter', sans-serif; width:100%; box-sizing:border-box;}
-        .cris-btn-modal { background: #222; color: #d3d3d3; border: 1px solid #555; padding: 10px; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;}
-        .cris-btn-modal:hover { background: #333; color: #fff;}
-        .voltar-btn { position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; color: #888; padding: 10px 20px; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid #444; border-radius: 2px; z-index: 1000; transition: 0.3s; letter-spacing: 1px; }
-        .voltar-btn:hover { background: #333; color: #fff; }
+        /* Modal customizado acompanhando claro/escuro */
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-paper); border: 1px solid var(--op-ink); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; color: var(--op-ink); font-family: 'Inter', sans-serif;}
+        .modal-padrao h3 { font-family: 'Crimson Text', serif !important; color: var(--op-ink) !important; margin-top: 0; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;}
+        body.tema-escuro .modal-padrao h3 { color: var(--accent-gold) !important; }
+        
+        .rit-input { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none; padding: 3px 0; transition: 0.2s; width:100%; box-sizing:border-box; margin-bottom: 10px;}
+        .rit-input:focus { border-bottom: 1px solid var(--op-red); }
+        
+        .cris-btn-modal { background: rgba(0,0,0,0.04); color: var(--op-ink); border: 1px dashed var(--op-ink); padding: 10px; cursor: pointer; font-family: 'Courier Prime', monospace; font-weight: bold; transition: 0.3s; width: 100%; border-radius: 2px;}
+        body.tema-escuro .cris-btn-modal { background: rgba(255,255,255,0.04); }
+        .cris-btn-modal:hover { background: rgba(128,128,128,0.2); }
 
-        /* ========================================================
-   NOVA RESPONSIVIDADE MOBILE (Sem colunas pretas, preenchendo tela)
-   ======================================================== */
+        .voltar-btn { position: fixed; bottom: 20px; right: 20px; background: var(--op-ink); color: var(--bg-paper); padding: 10px 20px; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; border: 1px solid var(--op-ink); border-radius: 2px; z-index: 1000; transition: 0.3s; letter-spacing: 1px; }
+        body.tema-escuro .voltar-btn { background: #222; color: var(--accent-gold); border-color: #333; }
+        .voltar-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+
 @media (max-width: 900px) { 
     body { padding: 0 !important; margin: 0; }
     
-   /* 1. Divide o espaço do topo em duas metades exatas */
     .book-container { 
         padding: 20px 15px !important; 
         border: none !important; 
@@ -291,19 +303,15 @@
         width: 100%; 
         box-sizing: border-box;
         display: grid;
-        grid-template-columns: 1fr 1fr; /* <--- Metade pra cada um */
+        grid-template-columns: 1fr 1fr;
         column-gap: 15px;
         row-gap: 15px;
     }
-    /* 2. "Quebramos" as divisões horizontais do desktop para que os filhos fiquem livres no Grid */
     .book-header, .book-grid { display: contents; }
 
-    /* --- ORDENAÇÃO E POSICIONAMENTO --- */
-    
     .watermark-confidential { order: 1; grid-column: 1 / -1; }
     .doc-meta { order: 2; grid-column: 1 / -1; margin-bottom: 0; }
     
-    /* Nome e Tipo (Ocupa a linha toda) */
     .book-header > div:first-child { 
         order: 3; 
         grid-column: 1 / -1; 
@@ -312,46 +320,30 @@
     }
     .book-title { font-size: 2.2rem; width: 100%; }
 
-    /* 2. Empurra o VD para o meio termo (centralizado na sua coluna) */
     .vd-badge { 
         order: 4; 
         grid-column: 1; 
         align-self: center; 
-        justify-self: center; /* <--- Trocamos de 'end' para 'center' */
+        justify-self: center;
         transform: scale(0.8) rotate(5deg); 
         margin: 0;
     }
 
-    /* Imagem - Proporção EXATAMENTE igual a do PC (340x380) */
-    /* 3. Empurra a Foto para a ESQUERDA (pro meio da tela) */
     .col-art { 
         order: 5; 
         grid-column: 2; 
         width: 100%;
         display: flex;
-        justify-content: flex-start; /* <--- Traz a foto para o centro */
+        justify-content: flex-start; 
     }
     
-    .portrait-container { 
-        margin-bottom: 0; 
-        width: 150px; 
-    }
-    .portrait-container::before { 
-        transform: translateX(-50%) rotate(-3deg) scale(0.7); 
-        top: -6px; 
-    }
-    .portrait { 
-        height: 168px; 
-        width: 100%; 
-    }
+    .portrait-container { margin-bottom: 0; width: 150px; }
+    .portrait-container::before { transform: translateX(-50%) rotate(-3deg) scale(0.7); top: -6px; }
+    .portrait { height: 168px; width: 100%; }
 
-    /* Atributos */
     .attributes-bar { order: 6; grid-column: 1 / -1; padding: 10px 0; margin-bottom: 5px; }
-
-    /* Status e Defesas */
     .col-stats { order: 7; grid-column: 1 / -1; }
 
-    /* Todo o restante vai para baixo, seguindo o fluxo normal e ocupando a tela toda */
     input#fileInput, 
     .section-header, 
     #lista-acoes, 
@@ -363,7 +355,6 @@
         grid-column: 1 / -1;
     }
     
-    /* Pequeno respiro nas seções de baixo */
     .section-header { margin: 20px 0 10px 0; }
 }
     </style>
@@ -376,13 +367,13 @@
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Segredos">⚙️</button>
 
 <div id="modal-config" class="modal-padrao">
-    <h3 style="margin-top:0; font-family:'Inter', sans-serif; font-weight: 900; text-align:center; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px;">AJUSTES DE SISTEMA</h3>
-    <div style="border-top: 1px solid #333; margin-top: 10px; padding-top: 20px;">
-        <div style="text-align:left; font-size:9px; color:#888; margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Comandos Confidenciais (Mobile)</div>
+    <h3>AJUSTES DE SISTEMA</h3>
+    <div style="border-top: 1px dotted var(--card-border); margin-top: 10px; padding-top: 20px;">
+        <div style="text-align:left; font-size:9px; color:var(--cor-geral); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Comandos Confidenciais (Mobile)</div>
         <input type="password" id="input-cheat" class="rit-input" placeholder="Comando...">
-        <button class="cris-btn-modal" onclick="verificarCheat()" style="width: 100%; margin-top: 10px;">EXECUTAR COMANDO</button>
+        <button class="cris-btn-modal" onclick="verificarCheat()">EXECUTAR COMANDO</button>
     </div>
-    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:#888; border:none; padding:10px; cursor:pointer;">FECHAR PAINEL</button>
+    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
 
 <a href="index.html" class="voltar-btn">FECHAR ARQUIVO</a>
@@ -759,7 +750,7 @@
 
     async function addAcao() { 
         const path = (isHexatombe || globalHexatombe) ? "hexa_acoes" : "acoes"; 
-        await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "NOVA AÇÃO", alcance: "Curto", teste: "4d20", dano: "1d10" }); 
+        await db.collection("ameacas").doc(atual).collection(path).add({ tipo: "Padrão", nome: "Nova Ação", alcance: "Curto", teste: "4d20", dano: "1d10" }); 
     }
     
     function renderAcao(id, data, path) { 
@@ -771,17 +762,17 @@
                 <input class="book-input" placeholder="Padrão" value="${data.tipo || ''}" onchange="updateSub('${id}','${path}','tipo',this.value)" style="width: 70px; font-weight:bold; font-size: 14px; text-transform:capitalize; text-align:center;">
                 <span style="color:var(--op-ink); font-weight:bold; font-size:16px; margin-right:5px;">]</span>
                 
-                <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--op-red); text-transform: uppercase; min-width: 150px;">
+                <input class="book-input" placeholder="NOME DO ATAQUE" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-red); min-width: 150px; letter-spacing: 1px;">
                 
-                <span style="color:#555; margin: 0 5px;">|</span>
+                <span style="color:var(--cor-geral); margin: 0 5px;">|</span>
                 <span class="sub-label">TESTE:</span>
                 <input class="book-input" placeholder="4d20+15" value="${data.teste || ''}" onchange="updateSub('${id}','${path}','teste',this.value)" style="width: 90px; font-size: 15px; font-weight:bold;">
                 
-                <span style="color:#555; margin: 0 5px;">|</span>
+                <span style="color:var(--cor-geral); margin: 0 5px;">|</span>
                 <span class="sub-label">DANO:</span>
                 <input class="book-input" placeholder="2d10+10" value="${data.dano || ''}" onchange="updateSub('${id}','${path}','dano',this.value)" style="font-weight:bold; width: 140px; font-size: 15px;">
                 
-                <span style="color:#555; margin: 0 5px;">|</span>
+                <span style="color:var(--cor-geral); margin: 0 5px;">|</span>
                 
                 <input class="book-input" placeholder="Alcance" value="${data.alcance || ''}" onchange="updateSub('${id}','${path}','alcance',this.value)" style="width: 80px; font-size: 14px;">
             </div>
@@ -791,14 +782,14 @@
 
     async function addHabilidade() { 
         const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca"; 
-        await db.collection("ameacas").doc(atual).collection(path).add({ nome: "NOVO COMPORTAMENTO", descricao: "" }); 
+        await db.collection("ameacas").doc(atual).collection(path).add({ nome: "Novo Comportamento", descricao: "" }); 
     }
     
     function renderHabilidade(id, data, path) { 
         return `
         <div class="dynamic-item-highlight">
             <button class="btn-del" onclick="removerSub('${id}', '${path}')">[x]</button>
-            <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 85%; display:block; margin-bottom: 5px;">
+            <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-ink); width: 85%; display:block; margin-bottom: 5px; letter-spacing: 1px;">
             <textarea class="cris-textarea" placeholder="Detalhes do funcionamento da habilidade passiva ou comportamento..." onchange="updateSub('${id}','${path}','descricao',this.value)" style="min-height: 60px; border:none; width: 95%;">${data.descricao || ''}</textarea>
         </div>`; 
     }
