@@ -81,7 +81,7 @@
                 url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.07"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
             box-shadow: var(--paper-shadow); border: 1px solid #b3a996; padding: 50px 60px; border-radius: 2px;
-            display: grid; grid-template-columns: minmax(300px, 480px) minmax(0, 1fr); gap: 60px; max-width: 1400px; width: 100%; box-sizing: border-box; margin: 0 auto; align-items: start; position: relative;
+            display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; position: relative; 
         }
         
         body.tema-escuro .grid-container { 
@@ -217,8 +217,10 @@
         .sub-pericias-box { display: none; background: transparent; padding: 5px 0; margin-bottom: 5px;}
         
         .treino-select { background: transparent; color: var(--op-ink); border: none; border-bottom: 1px dotted var(--card-border) !important; font-size: 12px; text-align: center; width: 100%; outline: none; padding: 2px; font-family: 'Special Elite', monospace;}
-        .sub-input { color: var(--op-ink) !important; font-family: 'Special Elite', monospace; }
-        body.tema-escuro .sub-input { color: #d4d4d4 !important; }
+        .sub-input {
+            color: var(--op-ink) !important;
+            font-family: 'Special Elite', monospace;
+        }
         
         body:not(.tema-escuro) .p-verde { background: linear-gradient(100deg, transparent 1%, rgba(50, 180, 50, 0.4) 2%, rgba(50, 180, 50, 0.5) 98%, transparent 99%) !important; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; } 
         body:not(.tema-escuro) .p-laranja { background: linear-gradient(100deg, transparent 1%, rgba(220, 120, 0, 0.4) 2%, rgba(220, 120, 0, 0.5) 98%, transparent 99%) !important; border-radius: 15px 255px 15px 225px/225px 15px 255px 15px; } 
@@ -287,20 +289,17 @@
         body.tema-escuro .btn-criar { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
         body.tema-escuro .bg-label { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
 
-        /* AJUSTE PARA TABLET EM MODO PAISAGEM / PREVENIR VAZAMENTO */
-        @media (max-width: 1150px) {
+        /* NOVO: AJUSTE PARA TABLET EM MODO PAISAGEM / PREVENIR VAZAMENTO DO FUNDO */
+        @media (min-width: 901px) and (max-width: 1250px) {
             .grid-container {
-                grid-template-columns: 350px minmax(0, 1fr);
+                min-width: min-content; /* Garante que o fundo estique e acompanhe o conteúdo se houver scroll lateral */
+                grid-template-columns: 400px 1fr;
                 gap: 40px; padding: 40px 30px;
-                width: 100%; box-sizing: border-box;
             }
             .sigilo-container { width: 220px; height: 220px; margin-bottom: 5px; }
             .attr-box { width: 48px; height: 48px; }
             .attr-box input { font-size: 22px; }
             .agi { top: -5px; left: 84px; } .for { top: 60px; left: -2px; } .sag { top: 60px; right: -2px; } .von { bottom: 15px; left: 35px; } .vig { bottom: 15px; right: 35px; }
-            .profile-flex { gap: 15px !important; }
-            .portrait-box { width: 90px; height: 115px; }
-            .header-name { font-size: 24px; }
         }
 
         @media (max-width: 900px) {
@@ -706,12 +705,9 @@
         </nav>
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
-            <div style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;">
-                <span style="color:var(--hp-red); font-size: 11px;">❖</span> POSSUI SUBPERÍCIAS &nbsp;&nbsp;|&nbsp;&nbsp; <span style="color:var(--op-ink); font-size: 11px;">♦</span> EXIGE CONHECIMENTO ADQUIRIDO
-            </div>
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
-                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">CONHECIMENTOS ADQUIRIDOS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
+                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">FORMAÇÃO ACADÊMICA</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
             </div>
         </div>
         
@@ -1090,7 +1086,7 @@
         "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"], desc: "Uso de armas de fogo, arcos, bestas e arremesso de objetos." }, 
         "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." }, 
         "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." }, 
-        "Sobrevivência": { attr: "SAG", tipo: "profissao", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." }, 
+        "Sobrevivência": { attr: "SAG", tipo: "pessoal", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." }, 
         "Tática": { attr: "SAG", tipo: "profissao", desc: "Estratégia militar, posicionamento de combate e liderança." }, 
         "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso e reparo de computadores, eletrônicos e hackear sistemas." }, 
         "Vontade": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem." } 
@@ -1104,16 +1100,12 @@
 
     function gerarPericiasBase() {
         let hPe = ""; let hPr = "";
-        const trainedSubs = ["Fuzis", "Espingardas", "Pistolas", "Artes Marciais", "Armas Leves", "Armas Pesadas"];
         nomesPericias.forEach(p => {
             const inf = bancoPericias[p]; let sH = "";
-            let hasSubsMarker = (inf.subs || inf.subsInputs) ? `<span style="color:var(--hp-red); font-size:10px; margin-left:3px; vertical-align:top;" title="Possui Subperícias">❖</span>` : "";
-            
             if(inf.subs) { 
                 sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">`; 
                 inf.subs.forEach((s, idx) => { 
-                    let reqTreino = trainedSubs.includes(s) ? `<span style="color:var(--op-ink); font-size:10px; margin-left:4px;" title="Exige Conhecimento Adquirido">♦</span>` : "";
-                    sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:bold;" title="${s}">${s}${reqTreino}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`; 
+                    sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:bold;" title="${s}">${s}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`; 
                 }); 
                 sH += `</div></div>`; 
             } 
@@ -1125,7 +1117,7 @@
                 sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><span style="font-size:10px; color:var(--cor-geral); width:100%; text-align:left; font-family:'Inter', sans-serif; font-weight:bold;">Outros</span><input type="number" id="sub-${p}-3" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`;
                 sH += `</div></div>`; 
             }
-            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}${hasSubsMarker}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">${inf.desc || "..."}</div>`;
+            const blo = `<div class="pericia-row" id="row-${p}"><span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}</span><select id="attr-${p}" class="treino-select" onchange="salvarFicha()"><option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option><option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option><option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option><option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option><option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option></select><input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()"><select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();"><option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option></select><span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span></div>${sH}<div id="desc-${p}" class="pericia-desc">${inf.desc || "..."}</div>`;
             if (inf.tipo === "profissao") hPr += blo; else hPe += blo;
         });
         document.getElementById('lista-pericias-pessoais').innerHTML = hPe; document.getElementById('lista-pericias-profissao').innerHTML = hPr;
