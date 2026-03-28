@@ -199,7 +199,7 @@
 </head>
 <body>
     <button class="btn-theme" onclick="alternarTema()" title="Alternar Modo Escuro/Claro">🌗</button>
-    <button class="btn-config" onclick="toggleModalConfig()" title="Configurações do Jogador">⚙️</button>
+    <button id="btn-engrenagem" class="btn-config" style="display: none;" onclick="toggleModalConfig()" title="Configurações do Jogador">⚙️</button>
 
     <div id="modal-config" class="modal-padrao">
         <h3>IDENTIFICAÇÃO DO SISTEMA</h3>
@@ -343,6 +343,7 @@
                 localStorage.setItem('cris_logado', 'true');
                 loginSec.style.display = 'none';
                 hubSec.style.display = 'block';
+                document.getElementById('btn-engrenagem').style.display = 'block';
                 
                 // Fica "escutando" a nuvem para puxar o nome do jogador em tempo real
                 db.collection("usuarios").doc(user.uid).onSnapshot((doc) => {
@@ -369,6 +370,7 @@
                 localStorage.setItem('cris_logado', 'false');
                 loginSec.style.display = 'block';
                 hubSec.style.display = 'none';
+                document.getElementById('btn-engrenagem').style.display = 'none';
                 btnAmeacas.style.display = 'none';
                 btnMestre.style.display = 'none';
                 welcomeText.innerText = "SISTEMA DESCONECTADO";
