@@ -344,7 +344,9 @@
                 loginSec.style.display = 'none';
                 hubSec.style.display = 'block';
                 
-                const nomeUsuario = user.displayName ? user.displayName : user.email;
+                const nomeSalvo = localStorage.getItem('cris_nome_jogador');
+                const nomeUsuario = nomeSalvo ? nomeSalvo : (user.displayName || user.email);
+                window.nomeJogadorGlobal = nomeUsuario;
                 welcomeText.innerText = `JOGADOR: ${nomeUsuario}`;
 
                 if (user.email === EMAIL_MESTRE) {
@@ -471,7 +473,7 @@
 
         async function criarNovaFicha() {
             const user = auth.currentUser;
-            const nomeJogador = user.displayName ? user.displayName : user.email;
+            const nomeJogador = window.nomeJogadorGlobal || (user.displayName || user.email);
             const ref = await db.collection("fichas").add({ 
                 dono: user.uid, nomeJogador: nomeJogador, nome: "NOVA PERSONA", nex: "5%", 
                 forca: 0, agilidade: 0, sagacidade: 0, vigor: 0, vontade: 0,
