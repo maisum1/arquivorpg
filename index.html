@@ -344,10 +344,15 @@
                 loginSec.style.display = 'none';
                 hubSec.style.display = 'block';
                 
-                const nomeSalvo = localStorage.getItem('cris_nome_jogador');
-                const nomeUsuario = nomeSalvo ? nomeSalvo : (user.displayName || user.email);
-                window.nomeJogadorGlobal = nomeUsuario;
-                welcomeText.innerText = `JOGADOR: ${nomeUsuario}`;
+                // Fica "escutando" a nuvem para puxar o nome do jogador em tempo real
+                db.collection("usuarios").doc(user.uid).onSnapshot((doc) => {
+                    let nomeUsuario = user.displayName || user.email; // Padrão
+                    if (doc.exists && doc.data().nomeJogador) {
+                        nomeUsuario = doc.data().nomeJogador; // Substitui se achar na nuvem
+                    }
+                    window.nomeJogadorGlobal = nomeUsuario;
+                    welcomeText.innerText = `JOGADOR: ${nomeUsuario}`;
+                });
 
                 if (user.email === EMAIL_MESTRE) {
                     btnAmeacas.style.display = 'inline-block';
@@ -493,20 +498,22 @@
             if(m.style.display === 'block') { m.style.display = 'none'; }
             else { 
                 m.style.display = 'block'; 
-                const user = auth.currentUser;
-                const nomeSalvo = localStorage.getItem('cris_nome_jogador');
-                document.getElementById('input-nome-jogador').value = nomeSalvo || (user ? (user.displayName || user.email) : '');
+                // Puxa o nome global que já foi baixado do banco de dados
+                document.getElementById('input-nome-jogador').value = window.nomeJogadorGlobal || '';
             }
         }
 
-        function salvarNomeJogador() {
+        async function salvarNomeJogador() {
             const novoNome = document.getElementById('input-nome-jogador').value.trim();
-            if(novoNome) {
-                localStorage.setItem('cris_nome_jogador', novoNome);
-                window.nomeJogadorGlobal = novoNome;
-                document.getElementById('welcome').innerText = `JOGADOR: ${novoNome}`;
+            const user = auth.currentUser;
+            if(novoNome && user) {
+                // Salva o nome na nuvem, vinculado ao ID do usuário
+                await db.collection("usuarios").doc(user.uid).set({
+                    nomeJogador: novoNome
+                }, { merge: true });
+                
                 toggleModalConfig();
-                alert("Identificação atualizada com sucesso!");
+                alert("Identificação sincronizada com a nuvem!");
             }
         }
     </script>
