@@ -182,32 +182,11 @@
         /* Botão Tema */
         .btn-theme { position: fixed; top: 15px; right: 20px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-theme:hover { opacity: 1; transform: scale(1.1); color: var(--op-ink);}
-        /* Botão e Modal de Configuração no Hub */
-        .btn-config { position: fixed; top: 15px; right: 60px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
-        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--op-ink);}
-
-        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-paper); border: 1px solid var(--op-ink); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; text-align: center; color: var(--op-ink); font-family: 'Inter', sans-serif;}
-        body.tema-escuro .modal-padrao { background: #222; border-color: #333; color: var(--op-ink); }
-        
-        .modal-padrao h3 { font-family: 'Crimson Text', serif; font-size: 18px; margin-top: 0; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; margin-bottom: 20px; color: var(--op-ink);}
-        body.tema-escuro .modal-padrao h3 { color: var(--accent-gold); }
-
-        .hub-input { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none; padding: 5px 0; width: 100%; box-sizing: border-box; margin-bottom: 15px; text-align: center;}
-        .hub-input:focus { border-bottom: 1px solid var(--op-red); }
-        body.tema-escuro .hub-input { color: #ffffff; }
     </style>
 </head>
 <body>
     <button class="btn-theme" onclick="alternarTema()" title="Alternar Modo Escuro/Claro">🌗</button>
-    <button id="btn-engrenagem" class="btn-config" style="display: none;" onclick="toggleModalConfig()" title="Configurações do Jogador">⚙️</button>
-
-    <div id="modal-config" class="modal-padrao">
-        <h3>IDENTIFICAÇÃO DO SISTEMA</h3>
-        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Defina o nome que aparecerá no painel principal e ficará registrado como dono nas novas personas criadas.</p>
-        <input type="text" id="input-nome-jogador" class="hub-input" placeholder="Seu Nome...">
-        <button class="btn-google" onclick="salvarNomeJogador()" style="width: 100%;">SALVAR IDENTIFICAÇÃO</button>
-        <button onclick="toggleModalConfig()" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">FECHAR PAINEL</button>
-    </div>
+    
     <div id="loading-screen">ACESSANDO ARQUIVOS...</div>
 
     <div id="login-screen">
@@ -343,17 +322,9 @@
                 localStorage.setItem('cris_logado', 'true');
                 loginSec.style.display = 'none';
                 hubSec.style.display = 'block';
-                document.getElementById('btn-engrenagem').style.display = 'block';
                 
-                // Fica "escutando" a nuvem para puxar o nome do jogador em tempo real
-                db.collection("usuarios").doc(user.uid).onSnapshot((doc) => {
-                    let nomeUsuario = user.displayName || user.email; // Padrão
-                    if (doc.exists && doc.data().nomeJogador) {
-                        nomeUsuario = doc.data().nomeJogador; // Substitui se achar na nuvem
-                    }
-                    window.nomeJogadorGlobal = nomeUsuario;
-                    welcomeText.innerText = `JOGADOR: ${nomeUsuario}`;
-                });
+                const nomeUsuario = user.displayName ? user.displayName : user.email;
+                welcomeText.innerText = `JOGADOR: ${nomeUsuario}`;
 
                 if (user.email === EMAIL_MESTRE) {
                     btnAmeacas.style.display = 'inline-block';
@@ -370,7 +341,6 @@
                 localStorage.setItem('cris_logado', 'false');
                 loginSec.style.display = 'block';
                 hubSec.style.display = 'none';
-                document.getElementById('btn-engrenagem').style.display = 'none';
                 btnAmeacas.style.display = 'none';
                 btnMestre.style.display = 'none';
                 welcomeText.innerText = "SISTEMA DESCONECTADO";
@@ -480,7 +450,7 @@
 
         async function criarNovaFicha() {
             const user = auth.currentUser;
-            const nomeJogador = window.nomeJogadorGlobal || (user.displayName || user.email);
+            const nomeJogador = user.displayName ? user.displayName : user.email;
             const ref = await db.collection("fichas").add({ 
                 dono: user.uid, nomeJogador: nomeJogador, nome: "NOVA PERSONA", nex: "5%", 
                 forca: 0, agilidade: 0, sagacidade: 0, vigor: 0, vontade: 0,
@@ -494,29 +464,6 @@
             const user = auth.currentUser;
             const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", vd: "20", pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
             window.location.href = `ameaca.html?id=${ref.id}`;
-        }
-        function toggleModalConfig() {
-            const m = document.getElementById('modal-config');
-            if(m.style.display === 'block') { m.style.display = 'none'; }
-            else { 
-                m.style.display = 'block'; 
-                // Puxa o nome global que já foi baixado do banco de dados
-                document.getElementById('input-nome-jogador').value = window.nomeJogadorGlobal || '';
-            }
-        }
-
-        async function salvarNomeJogador() {
-            const novoNome = document.getElementById('input-nome-jogador').value.trim();
-            const user = auth.currentUser;
-            if(novoNome && user) {
-                // Salva o nome na nuvem, vinculado ao ID do usuário
-                await db.collection("usuarios").doc(user.uid).set({
-                    nomeJogador: novoNome
-                }, { merge: true });
-                
-                toggleModalConfig();
-                alert("Identificação sincronizada com a nuvem!");
-            }
         }
     </script>
 </body>
