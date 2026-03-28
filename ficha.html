@@ -30,10 +30,6 @@
             --accent-gold: #a68a64;
             background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
         }
-        
-        body.tema-escuro .grid-container {
-            background-image: linear-gradient(to right, rgba(255,255,255,0.02) 0%, transparent 3%, transparent 97%, rgba(255,255,255,0.02) 100%), linear-gradient(to bottom, rgba(255,255,255,0.01) 0%, transparent 2%, transparent 98%, rgba(255,255,255,0.01) 100%) !important;
-        }
 
         body.tema-hexatombe {
             --cris-purple: var(--op-red) !important; --bg-panel: rgba(50,0,0,0.4) !important; --cor-fixo: var(--op-red) !important;
@@ -71,6 +67,13 @@
 
         .grid-container { 
             background-color: var(--bg-paper); 
+            box-shadow: var(--paper-shadow); border: 1px solid #b3a996; padding: 50px 60px; border-radius: 2px;
+            display: grid; grid-template-columns: minmax(300px, 480px) minmax(0, 1fr); gap: 60px; max-width: 1400px; width: 100%; box-sizing: border-box; margin: 0 auto; align-items: start; position: relative; 
+            transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease, filter 0.3s ease; 
+        }
+        
+        .grid-container::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
                 radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.06) 0%, transparent 30%),
@@ -80,14 +83,12 @@
                 radial-gradient(circle at center, transparent 30%, rgba(85, 55, 30, 0.35) 120%),
                 url('data:image/svg+xml,%3Csvg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="300" height="300" filter="url(%23noise)" opacity="0.07"/%3E%3C/svg%3E'),
                 linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
-            box-shadow: var(--paper-shadow); border: 1px solid #b3a996; padding: 50px 60px; border-radius: 2px;
-            display: grid; grid-template-columns: 480px 1fr; gap: 60px; max-width: 1400px; margin: 0 auto; align-items: start; position: relative; 
+            opacity: 1; transition: opacity 0.5s ease; border-radius: 2px;
         }
+
+        body.tema-escuro .grid-container::before { opacity: 0; }
         
-        body.tema-escuro .grid-container { 
-            border-color: #333; 
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%) !important;
-        }
+        body.tema-escuro .grid-container { border-color: #333; }
         .grid-container.papel-sangrando { box-shadow: var(--paper-shadow), 0 0 25px rgba(139,28,28,0.6); border-color: rgba(139,28,28,0.7); }
         .grid-container.papel-machucado::after {
             opacity: 0.95;
@@ -287,18 +288,26 @@
         body.tema-escuro .btn-criar { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
         body.tema-escuro .bg-label { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
 
-        @media (max-width: 900px) {
-            body { padding: 0 !important; margin: 0; }
-            .grid-container { grid-template-columns: 1fr; gap: 20px; padding: 15px 10px !important; border: none !important; border-radius: 0 !important; width: 100%; box-sizing: border-box;} 
-            .profile-flex { gap: 15px !important; margin-bottom: 15px !important; }
-            .portrait-box { width: 90px; height: 115px; }
-            .header-name { font-size: 22px; min-width: 0; }
-            .header-sub-row { flex-direction: column; gap: 8px; margin-bottom: 10px; width: 100%; }
-            .sub-input-group { min-width: 100%; width: 100%; }
+        /* AJUSTE PARA TABLET EM MODO PAISAGEM / PREVENIR VAZAMENTO */
+        @media (max-width: 1150px) {
+            .grid-container {
+                grid-template-columns: 350px minmax(0, 1fr);
+                gap: 40px; padding: 40px 30px;
+            }
             .sigilo-container { width: 220px; height: 220px; margin-bottom: 5px; }
             .attr-box { width: 48px; height: 48px; }
             .attr-box input { font-size: 22px; }
             .agi { top: -5px; left: 84px; } .for { top: 60px; left: -2px; } .sag { top: 60px; right: -2px; } .von { bottom: 15px; left: 35px; } .vig { bottom: 15px; right: 35px; }
+            .profile-flex { gap: 15px !important; }
+            .portrait-box { width: 90px; height: 115px; }
+            .header-name { font-size: 24px; }
+        }
+
+        @media (max-width: 900px) {
+            body { padding: 0 !important; margin: 0; }
+            .grid-container { grid-template-columns: 1fr; gap: 20px; padding: 15px 10px !important; border: none !important; border-radius: 0 !important; width: 100%; box-sizing: border-box;} 
+            .header-sub-row { flex-direction: column; gap: 8px; margin-bottom: 10px; width: 100%; }
+            .sub-input-group { min-width: 100%; width: 100%; }
             .mid-stats { gap: 10px !important; margin-bottom: 15px; }
             .stat-box { padding: 6px 4px; }
             .stat-box label { font-size: 8px; letter-spacing: 0px; }
@@ -309,7 +318,6 @@
             .bar-content input { font-size: 16px; }
             .bar-btn { font-size: 14px; }
             
-            /* CORREÇÃO DO BONECO NO CELULAR */
             .body-map-container { height: 380px !important; margin: 10px auto 30px auto !important; }
             .boneco-svg-container { width: 170px; height: 255px; top: 60px !important; }
             .limb-box-new { width: 90px; padding: 2px; }
@@ -1046,7 +1054,7 @@
     function setLimbState(m, t) { if (membrosEstado[m] === t) membrosEstado[m] = 'normal'; else membrosEstado[m] = t; salvarFicha(); }
     function atualizarStatusVisual(t) { let at = document.getElementById(`${t}-atual`).value; let mx = document.getElementById(`${t}-max`).value; let c = at === '' ? 0 : parseFloat(at); let m = mx === '' ? 1 : parseFloat(mx); const b = document.getElementById(`bar-${t}`); if(b) { b.style.width = Math.max(0, Math.min((c / m) * 100, 100)) + "%"; if(m > 0 && c <= (m / 2)) b.style.filter = "brightness(0.35)"; else b.style.filter = "brightness(1)"; } const z = document.getElementById(`zero-${t}`); if (z) { if (c <= 0) z.classList.add('active'); else z.classList.remove('active'); } }
 
-    function assumirPosse() { if(confirm("Transferir a posse desta ficha?")) { const u = auth.currentUser; db.collection("fichas").doc(atual).update({ dono: u.uid, nomeJogador: u.displayName || u.email }).then(() => { alert("Você agora é o proprietário!"); document.getElementById('btn-assumir-posse').style.display = 'none'; }); } }
+    function assumirPosse() { if(confirm("Transferir a posse desta ficha?")) { const u = auth.currentUser; db.collection("fichas").doc(atual).update({ dono: u.uid, nomeJogador: window.nomeJogadorGlobal || u.displayName || u.email }).then(() => { alert("Você agora é o proprietário!"); document.getElementById('btn-assumir-posse').style.display = 'none'; }); } }
     function abrirUpload(t, id = "") { modoCrop = t; ritualIdAtual = id; document.getElementById('fileUploader').click(); }
     function processarArquivo(i) { if (i.files && i.files[0]) { const r = new FileReader(); r.onload = function(e) { const img = new Image(); img.src = e.target.result; img.onload = function() { const c = document.createElement('canvas'); const ctx = c.getContext('2d'); const mW = 600; const sc = mW / img.width; c.width = mW; c.height = img.height * sc; ctx.drawImage(img, 0, 0, c.width, c.height); document.getElementById('temp-img').src = c.toDataURL('image/webp', 0.6); document.getElementById('crop-zoom').value = 1; document.getElementById('crop-x').value = 50; document.getElementById('crop-y').value = 50; atualizarPreview(); const p = document.getElementById('crop-preview'); if(modoCrop === 'ritual') { p.style.width = "80px"; p.style.height = "80px"; } else { p.style.width = "110px"; p.style.height = "140px"; } document.getElementById('modal-config').style.display = 'none'; document.getElementById('crop-modal').style.display = 'block'; i.value = ""; }; }; r.readAsDataURL(i.files[0]); } }
     function atualizarPreview() { const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; document.getElementById('temp-img').style.objectPosition = `${x}% ${y}%`; document.getElementById('temp-img').style.transform = `scale(${z})`; }
@@ -1285,7 +1293,7 @@
         let iR = 0; for(let i=1; i<=4; i++) { if(document.getElementById(`it-${i}`).classList.contains('active')) iR = i; }
 
         let pl = {
-            nomeJogador: nj, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
+            nomeJogador: window.nomeJogadorGlobal || nj, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
             agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
             vidaMax: parseInt(document.getElementById('vida-max').value) || 12, sanMax: parseInt(document.getElementById('san-max').value) || 12, peMax: parseInt(document.getElementById('pe-max').value) || 2,
             nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
@@ -1333,7 +1341,6 @@
     
     async function aplicarOrigemTemplate() { 
         const v = document.getElementById('select-origem-template').value; 
-        
         const origensMap = {
             "Cultista Arrependido": { nome: "Cultista Arrependido", p1: "Ocultismo", p2: "Religião" },
             "Policial": { nome: "Agente Policial", p1: "Luta", p2: "Investigação" },
@@ -1349,19 +1356,10 @@
         if(origensMap[v]) { 
             const origem = origensMap[v];
             document.getElementById('origem-personagem').value = origem.nome; 
-            
             const p1Input = document.getElementById('treino-' + origem.p1);
-            if(p1Input) {
-                p1Input.value = "3"; 
-                atualizarCorPericia(origem.p1, "3");
-            }
-
+            if(p1Input) { p1Input.value = "3"; atualizarCorPericia(origem.p1, "3"); }
             const p2Input = document.getElementById('treino-' + origem.p2);
-            if(p2Input) {
-                p2Input.value = "1"; 
-                atualizarCorPericia(origem.p2, "1");
-            }
-            
+            if(p2Input) { p2Input.value = "1"; atualizarCorPericia(origem.p2, "1"); }
             salvarFicha(); 
         } 
         toggleElem('modal-origem'); 
