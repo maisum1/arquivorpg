@@ -182,11 +182,32 @@
         /* Botão Tema */
         .btn-theme { position: fixed; top: 15px; right: 20px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
         .btn-theme:hover { opacity: 1; transform: scale(1.1); color: var(--op-ink);}
+        /* Botão e Modal de Configuração no Hub */
+        .btn-config { position: fixed; top: 15px; right: 60px; z-index: 999; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+        .btn-config:hover { opacity: 1; transform: rotate(90deg); color: var(--op-ink);}
+
+        .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-paper); border: 1px solid var(--op-ink); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; text-align: center; color: var(--op-ink); font-family: 'Inter', sans-serif;}
+        body.tema-escuro .modal-padrao { background: #222; border-color: #333; color: var(--op-ink); }
+        
+        .modal-padrao h3 { font-family: 'Crimson Text', serif; font-size: 18px; margin-top: 0; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; margin-bottom: 20px; color: var(--op-ink);}
+        body.tema-escuro .modal-padrao h3 { color: var(--accent-gold); }
+
+        .hub-input { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none; padding: 5px 0; width: 100%; box-sizing: border-box; margin-bottom: 15px; text-align: center;}
+        .hub-input:focus { border-bottom: 1px solid var(--op-red); }
+        body.tema-escuro .hub-input { color: #ffffff; }
     </style>
 </head>
 <body>
     <button class="btn-theme" onclick="alternarTema()" title="Alternar Modo Escuro/Claro">🌗</button>
-    
+    <button class="btn-config" onclick="toggleModalConfig()" title="Configurações do Jogador">⚙️</button>
+
+    <div id="modal-config" class="modal-padrao">
+        <h3>IDENTIFICAÇÃO DO SISTEMA</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Defina o nome que aparecerá no painel principal e ficará registrado como dono nas novas personas criadas.</p>
+        <input type="text" id="input-nome-jogador" class="hub-input" placeholder="Seu Nome...">
+        <button class="btn-google" onclick="salvarNomeJogador()" style="width: 100%;">SALVAR IDENTIFICAÇÃO</button>
+        <button onclick="toggleModalConfig()" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">FECHAR PAINEL</button>
+    </div>
     <div id="loading-screen">ACESSANDO ARQUIVOS...</div>
 
     <div id="login-screen">
@@ -464,6 +485,27 @@
             const user = auth.currentUser;
             const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", vd: "20", pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
             window.location.href = `ameaca.html?id=${ref.id}`;
+        }
+        function toggleModalConfig() {
+            const m = document.getElementById('modal-config');
+            if(m.style.display === 'block') { m.style.display = 'none'; }
+            else { 
+                m.style.display = 'block'; 
+                const user = auth.currentUser;
+                const nomeSalvo = localStorage.getItem('cris_nome_jogador');
+                document.getElementById('input-nome-jogador').value = nomeSalvo || (user ? (user.displayName || user.email) : '');
+            }
+        }
+
+        function salvarNomeJogador() {
+            const novoNome = document.getElementById('input-nome-jogador').value.trim();
+            if(novoNome) {
+                localStorage.setItem('cris_nome_jogador', novoNome);
+                window.nomeJogadorGlobal = novoNome;
+                document.getElementById('welcome').innerText = `JOGADOR: ${novoNome}`;
+                toggleModalConfig();
+                alert("Identificação atualizada com sucesso!");
+            }
         }
     </script>
 </body>
