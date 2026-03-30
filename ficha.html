@@ -350,6 +350,16 @@
             .section-header { margin-top: 25px; margin-bottom: 10px; font-size: 16px !important;}
             .pericias-box { padding: 10px; }
         }
+        .texto-vermelho-linha {
+    color: var(--op-red) !important;
+}
+
+/* Isso garante que inputs e selects dentro da linha também fiquem vermelhos */
+.texto-vermelho-linha input, 
+.texto-vermelho-linha select, 
+.texto-vermelho-linha span {
+    color: var(--op-red) !important;
+}
     </style>
 </head>
 <body>
@@ -1106,17 +1116,19 @@
     };
     const nomesPericias = Object.keys(bancoPericias);
 
-    function atualizarTreinoBase(p, v) {
-        const e = document.getElementById(`row-${p}`);
-        const sel = document.getElementById(`base-treino-${p}`);
-        if(!e || !sel) return;
-        e.classList.remove('p-treinado');
-        sel.classList.remove('p-treinado-text');
-        if(v === 'true') {
-            e.classList.add('p-treinado');
-            sel.classList.add('p-treinado-text');
-        }
+    function atualizarTreinoBase(pericia, valor) {
+    const row = document.getElementById(`row-${pericia}`); // Localiza a linha da perícia
+    if (!row) return;
+
+    if (valor === "true" || valor === true) {
+        // Se for treinado: remove o grifado (se houver) e coloca o texto vermelho
+        row.classList.remove('p-treinado'); // Remove a classe antiga de fundo
+        row.classList.add('texto-vermelho-linha');
+    } else {
+        // Se não for treinado (leigo): remove o vermelho
+        row.classList.remove('texto-vermelho-linha');
     }
+}
 
     function atualizarCorPericia(n, v) { 
         const e = document.getElementById(`row-${n}`); 
