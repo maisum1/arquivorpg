@@ -1128,21 +1128,14 @@
     }
 
     function atualizarCorSub(p, i, v) { 
-        const sel = document.getElementById(`sub-treino-${p}-${i}`);
-        const row = document.getElementById(`row-sub-${p}-${i}`);
-        if(sel) {
-            sel.classList.remove('p-verde-text', 'p-laranja-text', 'p-vermelho-text'); 
-            if(v == "1") sel.classList.add('p-verde-text'); 
-            else if(v == "3") sel.classList.add('p-laranja-text'); 
-            else if(v == "5") sel.classList.add('p-vermelho-text');
-        }
-        if(row) {
-            row.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); 
-            if(v == "1") row.classList.add('p-verde'); 
-            else if(v == "3") row.classList.add('p-laranja'); 
-            else if(v == "5") row.classList.add('p-vermelho');
-        }
+    const row = document.getElementById(`row-sub-${p}-${i}`);
+    if(row) {
+        row.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); 
+        if(v == "1") row.classList.add('p-verde'); 
+        else if(v == "3") row.classList.add('p-laranja'); 
+        else if(v == "5") row.classList.add('p-vermelho');
     }
+}
 
     function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
     function gerarOpcoesNivelNex() { const ns = document.getElementById('nivel-personagem'); let lh = ''; for(let i=0; i<=5; i++) lh += `<option value="${i}">${i}</option>`; ns.innerHTML = lh; const nxs = document.getElementById('nex-personagem'); let nxh = ''; for(let i=0; i<=95; i+=5) { if(i === 5) nxh += `<option value="${i}%" selected>${i}%</option>`; else nxh += `<option value="${i}%">${i}%</option>`; } nxh += '<option value="99%">99%</option><option value="100%">100%</option>'; nxs.innerHTML = nxh; atualizarOpcoesRessonancia(5); }
