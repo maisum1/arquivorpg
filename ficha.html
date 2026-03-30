@@ -390,11 +390,11 @@
     <select id="select-origem-template" class="lista-padronizada" size="6">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Profissão/Origem...</option>
         <option value="Academico">Acadêmico / Professor (+ Ciências / Religião)</option>
-        <option value="Policial">Agente Policial (+ Luta / Investigação)</option>
+        <option value="Policial">Agente Policial (+ Combate / Investigação)</option>
         <option value="Cultista Arrependido">Cultista Arrependido (+ Ocultismo / Religião)</option>
         <option value="Hacker">Especialista em TI (+ Tecnologia / Atualidades)</option>
         <option value="Ocultista">Estudioso do Oculto (+ Ocultismo / Vontade)</option>
-        <option value="Mercenario">Ex-Militar (+ Pontaria / Tática)</option>
+        <option value="Mercenario">Ex-Militar (+ Balística / Tática)</option>
         <option value="Jornalista">Jornalista Investigativo (+ Atualidades / Diplomacia)</option>
         <option value="Medico">Médico Legista (+ Medicina / Percepção)</option>
         <option value="Sobrevivente">Sobrevivente de Desastre (+ Fortitude / Sobrevivência)</option>
@@ -692,11 +692,11 @@
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
             <div style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;">
-                <span style="color:var(--hp-red); font-size: 11px;">❖</span> POSSUI SUBPERÍCIAS &nbsp;&nbsp;|&nbsp;&nbsp; <span style="color:var(--op-ink); font-size: 11px;">♦</span> EXIGE CONHECIMENTO ADQUIRIDO
+                <span style="color:var(--hp-red); font-size: 11px;">❖</span> POSSUI SUBPERÍCIAS &nbsp;&nbsp;|&nbsp;&nbsp; <span style="color:var(--op-ink); font-size: 11px;">♦</span> EXIGE CONHECIMENTO TÉCNICO
             </div>
             <div id="pericias-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">APTIDÕES NATURAIS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-pessoais"></div></div>
-                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">CONHECIMENTOS ADQUIRIDOS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
+                <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">CONHECIMENTOS TÉCNICOS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
             </div>
         </div>
         
@@ -897,22 +897,22 @@
     }
 
     const templatesAtaques = { 
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0 }, 
-        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 },
-        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 },
-        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 2 },
-        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 2 },
-        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0 },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 1 },
-        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Pontaria", atributo: "AGI", pressao: 0 },
-        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Luta", atributo: "AGI", pressao: 1 },
-        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 },
-        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 2 },
-        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Luta", atributo: "AGI", pressao: 1 },
-        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Luta", atributo: "FOR", pressao: 2 },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 },
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Luta", atributo: "AGI", pressao: 1 },
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0 }, 
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 },
+        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
+        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
+        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
+        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0 },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 1 },
+        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0 },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1 },
+        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
+        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1 },
+        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 2 },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
+        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 1 },
         "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 }
     };
 
@@ -1055,30 +1055,41 @@
     async function confirmarCrop() { const u = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; try { if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); } else { const d = {}; d[`portrait${modoCrop}`] = u; d[`p${modoCrop}X`] = x; d[`p${modoCrop}Y`] = y; d[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(d); alert(`Evidência arquivada!`); } fecharModal(); } catch (e) {} }
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
 
-    const bancoPericias = { 
-        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas e redução de dano de queda." }, 
-        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Correr, nadar, escalar e proezas físicas." }, 
-        "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Conhecimentos gerais, política, cultura pop e eventos recentes." }, 
-        "Ciências": { attr: "SAG", tipo: "profissao", desc: "Biologia, química, física, matemática e astronomia." }, 
-        "Crime": { attr: "AGI", tipo: "profissao", desc: "Abrir fechaduras, sabotagem, furtar objetos e ocultar rastros." }, 
-        "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Persuasão, negociação, etiqueta e causar boa impressão." }, 
-        "Enganação": { attr: "VON", tipo: "pessoal", desc: "Mentir, blefar, falsificar e enganar." }, 
-        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência a fadiga, doenças, venenos e dores físicas." }, 
-        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Mover-se em silêncio, esconder-se e agir sem ser notado." }, 
-        "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true, desc: "Compreender e falar outras línguas e dialetos." }, 
-        "Intuição": { attr: "VON", tipo: "pessoal", desc: "Perceber mentiras, sentimentos e intenções ocultas." }, 
-        "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Procurar pistas, deduzir informações e analisar cenas." }, 
-        "Luta": { attr: "FOR", tipo: "pessoal", subs: ["Artes Marciais", "Briga", "Armas Leves", "Armas Pesadas"], desc: "Combate corpo a corpo, usar armas brancas e brigar." }, 
-        "Medicina": { attr: "SAG", tipo: "profissao", desc: "Primeiros socorros, cirurgias, tratar venenos e doenças." }, 
-        "Ocultismo": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre o paranormal, rituais, entidades e relíquias." }, 
-        "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Notar detalhes ao redor, ouvir sons baixos e vigilância geral." }, 
-        "Pontaria": { attr: "AGI", tipo: "pessoal", subs: ["Pistolas", "Fuzis", "Espingardas", "Arremesso"], desc: "Uso de armas de fogo, arcos, bestas e arremesso de objetos." }, 
-        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." }, 
-        "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." }, 
-        "Sobrevivência": { attr: "SAG", tipo: "profissao", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." }, 
-        "Tática": { attr: "SAG", tipo: "profissao", desc: "Estratégia militar, posicionamento de combate e liderança." }, 
-        "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso e reparo de computadores, eletrônicos e hackear sistemas." }, 
-        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem." } 
+    const bancoPericias = {
+        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas, redução de dano de queda e Escalar (usando Força)." },
+        "Adestramento": { attr: "VON", tipo: "pessoal", desc: "Lidar com animais, treinar, acalmar ou comandar feras." },
+        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Correr, saltos em distância/altura e proezas físicas em geral." },
+        "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Conhecimentos gerais, política, cultura pop e eventos recentes." },
+        "Avaliação": { attr: "SAG", tipo: "profissao", desc: "Analisar documentos, itens antigos e saber usar bibliotecas." },
+        "Balística": { attr: "AGI", tipo: "profissao", subs: ["Pistolas", "Rifles", "Espingardas", "Artilharia"], desc: "Uso proficiente e manutenção de armas de fogo e artilharia pesada." },
+        "Briga": { attr: "FOR", tipo: "pessoal", desc: "Combate corpo a corpo desarmado e instintivo." },
+        "Ciências": { attr: "SAG", tipo: "profissao", desc: "Biologia, química, física, matemática e astronomia." },
+        "Combate": { attr: "FOR", tipo: "profissao", subs: ["Artes Marciais", "Armas Leves", "Armas Pesadas", "Armas Exóticas"], desc: "Treinamento tático e uso de armamento corpo a corpo avançado." },
+        "Crime": { attr: "AGI", tipo: "profissao", desc: "Abrir fechaduras, sabotagem, furtar objetos e ocultar rastros." },
+        "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Persuasão, negociação, etiqueta e causar boa impressão." },
+        "Direção": { attr: "AGI", tipo: "pessoal", desc: "Conduzir veículos terrestres comuns em situações de risco." },
+        "Direito": { attr: "SAG", tipo: "profissao", desc: "Conhecimento de leis, processos penais, burocracia e advocacia." },
+        "Educação": { attr: "SAG", tipo: "profissao", subs: ["Humanas", "Biológicas", "Exatas"], desc: "Formação acadêmica específica e conhecimentos teóricos aprofundados." },
+        "Engenharia": { attr: "SAG", tipo: "profissao", desc: "Construção, arquitetura, eletrônica e consertos complexos." },
+        "Enganação": { attr: "VON", tipo: "pessoal", desc: "Mentir, blefar, falsificar e enganar." },
+        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência a fadiga, doenças, venenos e dores físicas." },
+        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Mover-se em silêncio, esconder-se e agir sem ser notado." },
+        "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true, desc: "Compreender e falar outras línguas e dialetos." },
+        "Intuição": { attr: "VON", tipo: "pessoal", desc: "Perceber mentiras, sentimentos e intenções ocultas." },
+        "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Procurar pistas, deduzir informações e analisar cenas." },
+        "Medicina": { attr: "SAG", tipo: "profissao", desc: "Primeiros socorros, cirurgias, tratar venenos e doenças." },
+        "Natação": { attr: "FOR", tipo: "pessoal", desc: "Nadar em condições adversas, prender o fôlego e mergulhar." },
+        "Ocultismo": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre o paranormal, rituais, entidades e relíquias." },
+        "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Notar detalhes ao redor, ouvir sons baixos e vigilância geral." },
+        "Pilotagem": { attr: "AGI", tipo: "profissao", subs: ["Esportiva", "Aérea", "Aquática", "Pesada"], desc: "Operação de veículos especiais, tratores, trens, barcos ou aeronaves." },
+        "Pontaria": { attr: "AGI", tipo: "pessoal", desc: "Arremesso de objetos, facas, granadas e precisão natural." },
+        "Recursos": { attr: "SAG", tipo: "profissao", desc: "Nível de crédito, riqueza disponível, contatos e influência financeira." },
+        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." },
+        "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." },
+        "Sobrevivência": { attr: "SAG", tipo: "profissao", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." },
+        "Tática": { attr: "SAG", tipo: "profissao", desc: "Estratégia militar, posicionamento de combate e liderança." },
+        "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso e reparo de computadores, eletrônicos e hackear sistemas." },
+        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem." }
     };
     const nomesPericias = Object.keys(bancoPericias);
 
@@ -1089,7 +1100,7 @@
 
     function gerarPericiasBase() {
         let hPe = ""; let hPr = "";
-        const trainedSubs = ["Fuzis", "Espingardas", "Pistolas", "Artes Marciais", "Armas Leves", "Armas Pesadas"];
+        const trainedSubs = ["Pistolas", "Rifles", "Espingardas", "Artilharia", "Artes Marciais", "Armas Leves", "Armas Pesadas", "Armas Exóticas", "Esportiva", "Aérea", "Aquática", "Pesada", "Humanas", "Biológicas", "Exatas"];
         nomesPericias.forEach(p => {
             const inf = bancoPericias[p]; let sH = "";
             let hasSubsMarker = (inf.subs || inf.subsInputs) ? `<span style="color:var(--hp-red); font-size:10px; margin-left:3px; vertical-align:top;" title="Possui Subperícias">❖</span>` : "";
@@ -1097,7 +1108,7 @@
             if(inf.subs) { 
                 sH = `<div id="subs-${p}" class="sub-pericias-box"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">`; 
                 inf.subs.forEach((s, idx) => { 
-                    let reqTreino = trainedSubs.includes(s) ? `<span style="color:var(--op-ink); font-size:10px; margin-left:4px;" title="Exige Conhecimento Adquirido">♦</span>` : "";
+                    let reqTreino = trainedSubs.includes(s) ? `<span style="color:var(--op-ink); font-size:10px; margin-left:4px;" title="Exige Conhecimento Técnico">♦</span>` : "";
                     sH += `<div style="display:flex; align-items:center; justify-content:space-between; gap:5px; background:var(--card-bg); padding:4px 6px; border-radius:2px; border:1px solid var(--card-border);"><span style="font-size:10px; color:var(--cor-geral); font-family:'Inter', sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:bold;" title="${s}">${s}${reqTreino}</span><input type="number" id="sub-${p}-${idx}" class="sub-input" value="0" onchange="salvarFicha()" style="width:35px; border:none; border-bottom:1px dotted var(--card-border); background:transparent;"></div>`; 
                 }); 
                 sH += `</div></div>`; 
@@ -1328,7 +1339,7 @@
     async function novoPoder() { const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Traço", descricao: "" }); }
     async function novoItem() { const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); }
-    async function novoAtaque() { const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Arma", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Luta", atributo: "FOR", pressao: 0 }); }
+    async function novoAtaque() { const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Arma", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 }); }
 
     async function aplicarTemplate(c, ch) { const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; let d = {}; if (c === 'ataques') d = templatesAtaques[ch]; if (c === 'habilidades') d = templatesTracos[ch]; if (c === 'poderes') d = templatesEspecializacoes[ch]; if (c === 'rituais') d = templatesAnomalias[ch]; if (c === 'inventario') d = templatesInventario[ch]; if (d) await db.collection("fichas").doc(atual).collection(p).add(d); }
     
@@ -1337,12 +1348,12 @@
         
         const origensMap = {
             "Cultista Arrependido": { nome: "Cultista Arrependido", p1: "Ocultismo", p2: "Religião" },
-            "Policial": { nome: "Agente Policial", p1: "Luta", p2: "Investigação" },
+            "Policial": { nome: "Agente Policial", p1: "Combate", p2: "Investigação" },
             "Academico": { nome: "Acadêmico / Professor", p1: "Ciências", p2: "Religião" },
             "Hacker": { nome: "Especialista em TI", p1: "Tecnologia", p2: "Atualidades" },
             "Sobrevivente": { nome: "Sobrevivente de Desastre", p1: "Fortitude", p2: "Sobrevivência" },
             "Ocultista": { nome: "Estudioso do Oculto", p1: "Ocultismo", p2: "Vontade" },
-            "Mercenario": { nome: "Ex-Militar", p1: "Pontaria", p2: "Tática" },
+            "Mercenario": { nome: "Ex-Militar", p1: "Balística", p2: "Tática" },
             "Jornalista": { nome: "Jornalista Investigativo", p1: "Atualidades", p2: "Diplomacia" },
             "Medico": { nome: "Médico Legista", p1: "Medicina", p2: "Percepção" }
         };
