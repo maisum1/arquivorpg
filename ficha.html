@@ -22,6 +22,16 @@
             --accent-gold: #a68a64;
         }
 
+        /* AJUSTE PLACEHOLDER: Correção de legibilidade em mobile */
+        ::placeholder {
+            color: rgba(0, 0, 0, 0.4) !important;
+            opacity: 1 !important;
+        }
+        body.tema-escuro ::placeholder, body.tema-hexatombe ::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+            opacity: 1 !important;
+        }
+
         body.tema-escuro {
             --bg-paper: #161616; --op-ink: #d4d4d4; --op-red: #542020;
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
@@ -172,6 +182,13 @@
         body.tema-escuro #content-vida input, body.tema-escuro #content-vida span,
         body.tema-escuro #content-san input, body.tema-escuro #content-san span,
         body.tema-escuro #content-pe input, body.tema-escuro #content-pe span {
+            color: #ffffff !important; font-family: 'Crimson Text', serif !important;
+        }
+
+        /* Hexatombe garante cor branca não importando se é claro ou escuro */
+        body.tema-hexatombe #content-vida input, body.tema-hexatombe #content-vida span,
+        body.tema-hexatombe #content-san input, body.tema-hexatombe #content-san span,
+        body.tema-hexatombe #content-pe input, body.tema-hexatombe #content-pe span {
             color: #ffffff !important; font-family: 'Crimson Text', serif !important;
         }
         
@@ -428,7 +445,7 @@
 
 <div id="modal-tpl-origem" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ORIGENS</h3>
-    <input type="text" id="search-select-tpl-origem" class="search-banco" placeholder="Pesquisar origem ou perícia..." onkeyup="filtrarBanco(this, 'select-tpl-origem')">
+    <input type="text" class="search-banco" placeholder="Pesquisar origem ou perícia..." onkeyup="filtrarBanco(this, 'select-tpl-origem')">
     <select id="select-tpl-origem" class="lista-padronizada" size="6" onchange="previewTemplate('origem')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Profissão/Origem...</option>
         <option value="Academico" data-search="ciencias investigacao">Acadêmico / Professor</option>
@@ -467,27 +484,28 @@
         <button class="btn-filtro active" onclick="setFiltroModal('select-tpl-ataque', 'Todos', this)">TODOS</button>
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-ataque', 'Corpo a Corpo', this)">CORPO A CORPO</button>
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-ataque', 'À Distância', this)">À DISTÂNCIA</button>
+        <button class="btn-filtro" id="btn-modal-filtro-anomalo-ataque" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroModal('select-tpl-ataque', 'Anômalo', this)">ANÔMALOS</button>
     </div>
-    <input type="text" id="search-select-tpl-ataque" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
+    <input type="text" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
     <select id="select-tpl-ataque" class="lista-padronizada" size="6" onchange="previewTemplate('ataque')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Arma...</option>
-        <option value="FacaRitual" data-categoria="Corpo a Corpo" data-anomalo="true">Adaga Obsidiana (1d4 Corte, Corpo a corpo)</option>
-        <option value="Taser" data-categoria="À Distância">Arma de Choque/Taser (1d4 Eletricidade, Curto)</option>
-        <option value="Dinamite" data-categoria="À Distância">Banana de Dinamite (4d6 Fogo, Área)</option>
-        <option value="BengalaEspada" data-categoria="Corpo a Corpo">Bengala-Espada Oculta (1d6 Corte, Corpo a corpo)</option>
-        <option value="Besta" data-categoria="À Distância">Besta de Caça (1d10 Perfurante, Médio)</option>
-        <option value="Escopeta" data-categoria="À Distância">Escopeta Calibre 12 (3d6 Balístico, Curto)</option>
-        <option value="Faca" data-categoria="Corpo a Corpo">Faca Tática (1d4+1 Corte, Corpo a corpo)</option>
-        <option value="Fuzil" data-categoria="À Distância">Fuzil de Assalto AR-15 (2d10 Balístico, Médio)</option>
-        <option value="FuzilPrecisao" data-categoria="À Distância">Fuzil Sniper (2d10+2 Balístico, Longo)</option>
-        <option value="Glock" data-categoria="À Distância">Glock 19 9mm (1d10 Balístico, Curto)</option>
-        <option value="Katana" data-categoria="Corpo a Corpo">Katana Antiga (1d10 Corte, Corpo a corpo)</option>
-        <option value="Machado" data-categoria="Corpo a Corpo">Machado de Incêndio (1d8+1 Corte, Corpo a corpo)</option>
-        <option value="Motosserra" data-categoria="Corpo a Corpo">Motosserra Pesada (3d6 Corte, Corpo a corpo)</option>
-        <option value="Sinalizador" data-categoria="À Distância">Pistola Sinalizadora (1d6 Fogo, Curto)</option>
-        <option value="Revolver" data-categoria="À Distância">Revólver .38 (1d10 Balístico, Curto)</option>
-        <option value="SocoIngles" data-categoria="Corpo a Corpo">Soco Inglês (1d4+1 Impacto, Corpo a corpo)</option>
-        <option value="Submetralhadora" data-categoria="À Distância">Submetralhadora (2d6 Balístico, Curto)</option>
+        <option value="FacaRitual" data-categoria="Anômalo" data-anomalo="true">Adaga Obsidiana (1d4 Corte, Corpo a corpo)</option>
+        <option value="Taser">Arma de Choque (Taser)</option>
+        <option value="Dinamite">Banana de Dinamite</option>
+        <option value="BengalaEspada">Bengala-Espada Oculta</option>
+        <option value="Besta">Besta de Caça</option>
+        <option value="Escopeta">Escopeta Calibre 12</option>
+        <option value="Faca">Faca Tática</option>
+        <option value="Fuzil">Fuzil de Assalto AR-15</option>
+        <option value="FuzilPrecisao">Fuzil de Precisão (Sniper)</option>
+        <option value="Glock">Glock 19 (9mm)</option>
+        <option value="Katana">Katana Antiga</option>
+        <option value="Machado">Machado de Incêndio</option>
+        <option value="Motosserra">Motosserra Pesada</option>
+        <option value="Sinalizador">Pistola Sinalizadora</option>
+        <option value="Revolver">Revólver .38</option>
+        <option value="SocoIngles">Soco Inglês</option>
+        <option value="Submetralhadora">Submetralhadora (Thompson/MP5)</option>
     </select>
     <div id="preview-ataque" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
@@ -498,7 +516,7 @@
 
 <div id="modal-tpl-traco" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE TRAÇOS</h3>
-    <input type="text" id="search-select-tpl-traco" class="search-banco" placeholder="Pesquisar traço..." onkeyup="filtrarBanco(this, 'select-tpl-traco')">
+    <input type="text" class="search-banco" placeholder="Pesquisar traço..." onkeyup="filtrarBanco(this, 'select-tpl-traco')">
     <select id="select-tpl-traco" class="lista-padronizada" size="6" onchange="previewTemplate('traco')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione um Traço...</option>
         <option value="Cetico">Cético Obstinado</option>
@@ -525,7 +543,7 @@
 
 <div id="modal-tpl-espec" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block; color: var(--hp-red) !important;">ESPECIALIZAÇÕES</h3>
-    <input type="text" id="search-select-tpl-espec" class="search-banco" placeholder="Pesquisar especialização..." onkeyup="filtrarBanco(this, 'select-tpl-espec')">
+    <input type="text" class="search-banco" placeholder="Pesquisar especialização..." onkeyup="filtrarBanco(this, 'select-tpl-espec')">
     <select id="select-tpl-espec" class="lista-padronizada" size="6" onchange="previewTemplate('espec')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Especialização...</option>
         <option value="Afortunado">Afortunado (Energia)</option>
@@ -553,7 +571,7 @@
 
 <div id="modal-tpl-anomalia" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ANOMALIAS</h3>
-    <input type="text" id="search-select-tpl-anomalia" class="search-banco" placeholder="Pesquisar anomalia..." onkeyup="filtrarBanco(this, 'select-tpl-anomalia')">
+    <input type="text" class="search-banco" placeholder="Pesquisar anomalia..." onkeyup="filtrarBanco(this, 'select-tpl-anomalia')">
     <select id="select-tpl-anomalia" class="lista-padronizada" size="6" onchange="previewTemplate('anomalia')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Anomalia...</option>
         <option value="AmaldicoarArma">Amaldiçoar Arma (Energia)</option>
@@ -584,9 +602,9 @@
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-item', 'Equipamento', this)">EQUIPAMENTO</button>
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-item', 'Consumível', this)">CONSUMÍVEL</button>
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-item', 'Geral', this)">GERAL</button>
-        <button class="btn-filtro" id="btn-modal-filtro-anomalo" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroModal('select-tpl-item', 'Anômalo', this)">ANÔMALOS</button>
+        <button class="btn-filtro" id="btn-modal-filtro-anomalo" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroModal('select-tpl-item', 'Anômalo', this)">ANÔMALOS</button>
     </div>
-    <input type="text" id="search-select-tpl-item" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
+    <input type="text" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
     <select id="select-tpl-item" class="lista-padronizada" size="6" onchange="previewTemplate('item')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione um Item...</option>
         <option value="Adrenalina" data-categoria="Consumível">Seringa de Epinefrina (Cura PV e tira Atordoado)</option>
@@ -770,7 +788,7 @@
         
         <div id="aba-combate" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div style="background: var(--card-bg); padding: 15px; border-radius: 2px; border: 1px solid var(--card-border); text-align: center;">
+                <div style="background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border); text-align: center;">
                     <label class="label-defesa" style="display:block; font-size: 10px; color: var(--op-ink); font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; font-family: 'Inter', sans-serif;">DEFESA (10 + AGI + NÍVEL)</label>
                     <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <input type="number" id="bonus-defesa" class="def-input-bonus" placeholder="+0" onchange="recalcularDefesas(); salvarFicha();" style="width: 40px; text-align: center;">
@@ -880,6 +898,7 @@
                 <button class="btn-filtro active" onclick="setFiltroAtaques('Todos', this)">TODOS</button>
                 <button class="btn-filtro" onclick="setFiltroAtaques('Corpo a Corpo', this)">CORPO A CORPO</button>
                 <button class="btn-filtro" onclick="setFiltroAtaques('À Distância', this)">FOGO/À DISTÂNCIA</button>
+                <button class="btn-filtro" id="btn-filtro-anomalo-ataque" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroAtaques('Anômalo', this)">ANÔMALOS</button>
             </div>
             
             <div id="lista-ataques"></div>
@@ -963,7 +982,7 @@
                 <button class="btn-filtro" onclick="setFiltroInventario('Equipamento', this)">EQUIPAMENTOS</button>
                 <button class="btn-filtro" onclick="setFiltroInventario('Consumível', this)">CONSUMÍVEIS</button>
                 <button class="btn-filtro" onclick="setFiltroInventario('Geral', this)">GERAL</button>
-                <button class="btn-filtro" id="btn-filtro-anomalo" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroInventario('Anômalo', this)">ANÔMALOS</button>
+                <button class="btn-filtro" id="btn-filtro-anomalo" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroInventario('Anômalo', this)">ANÔMALOS</button>
             </div>
             
             <div id="lista-inventario"></div>
@@ -1016,7 +1035,7 @@
         let despertado = isRevelado || globalRevelado;
 
         for (let i = 0; i < options.length; i++) {
-            if (options[i].value === "") continue; // Pula o placeholder
+            if (options[i].value === "") continue; 
 
             const isAnomalo = options[i].getAttribute('data-anomalo') === 'true' || options[i].getAttribute('data-categoria') === 'Anômalo';
             const optCat = options[i].getAttribute('data-categoria') || 'Outros';
@@ -1025,15 +1044,12 @@
 
             let show = true;
 
-            // Bloqueia itens anômalos caso o despertar não esteja ativo
             if (isAnomalo && !despertado) show = false;
             
-            // Filtro por botões do modal
             if (show && modalFiltros[selectId] && cat !== 'Todos') {
                 if (optCat !== cat) show = false;
             }
 
-            // Filtro de pesquisa digitada
             if (show && filterText !== "") {
                 if (!txt.includes(filterText) && !searchData.includes(filterText)) show = false;
             }
@@ -1042,7 +1058,6 @@
         }
     }
 
-    // Adaptado para integrar com todos os modais perfeitamente sem perder funcionalidade antiga
     function filtrarBanco(input, selectId) {
         atualizarListaModal(selectId, input.value);
     }
@@ -1073,23 +1088,23 @@
     };
 
     const templatesAtaques = { 
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0 }, 
-        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 },
-        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
-        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
-        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
-        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0 },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 1 },
-        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0 },
-        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1 },
-        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
-        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
-        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1 },
-        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 2 },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 1 },
-        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 }
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" }, 
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
+        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, categoria: "À Distância" },
+        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, categoria: "À Distância" },
+        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, categoria: "À Distância" },
+        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 1, categoria: "Corpo a Corpo" },
+        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Anômalo" },
+        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, categoria: "À Distância" },
+        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, categoria: "À Distância" },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Corpo a Corpo" },
+        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 2, categoria: "Corpo a Corpo" },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, categoria: "À Distância" },
+        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Corpo a Corpo" },
+        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1, categoria: "À Distância" }
     };
 
     const templatesTracos = { 
@@ -1217,9 +1232,24 @@
     }
 
     function aplicarFiltrosAtaques() {
+        let despertado = isRevelado || globalRevelado;
+        let btnAnomaloAtq = document.getElementById('btn-filtro-anomalo-ataque');
+        
+        if (btnAnomaloAtq) {
+            btnAnomaloAtq.style.display = despertado ? 'inline-block' : 'none';
+            if (!despertado && filtroAtualAtaques === 'Anômalo') {
+                setFiltroAtaques('Todos', document.querySelector('#filtros-ataques .btn-filtro'));
+                return;
+            }
+        }
+
         document.querySelectorAll('.ataque-card').forEach(el => {
             let catItem = el.getAttribute('data-categoria');
-            if (filtroAtualAtaques === 'Todos') {
+            let isAnomalo = (catItem === 'Anômalo');
+
+            if (!despertado && isAnomalo) {
+                el.style.display = 'none';
+            } else if (filtroAtualAtaques === 'Todos') {
                 el.style.display = 'block';
             } else if (filtroAtualAtaques === catItem) {
                 el.style.display = 'block';
@@ -1285,10 +1315,7 @@
     function ativarSegredo(campo) { document.body.classList.add('shake'); salvarFicha(); setTimeout(async () => { document.body.classList.remove('shake'); let doc = await db.collection("fichas").doc(atual).get(); let valAtual = doc.data()[campo] || false; let updates = {}; if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; } if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; } if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; } if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; } await db.collection("fichas").doc(atual).update(updates); aplicarSegredosUI(); }, 800); }
 
     function aplicarSegredosUI() {
-        const rf = isRevelado || globalRevelado; 
-        const hf = isHexatombe || globalHexatombe; 
-        const ef = isExtremos || globalExtremos; 
-        const ref = isRestricao || globalRestricao;
+        const rf = isRevelado || globalRevelado; const hf = isHexatombe || globalHexatombe; const ef = isExtremos || globalExtremos; const ref = isRestricao || globalRestricao;
         if (hf) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
         const nexStr = document.getElementById('nex-personagem').value; const bgEnc = document.getElementById('bgEncontros-container');
 
@@ -1309,9 +1336,10 @@
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
             if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao'); else document.getElementById('sigilo-box').classList.remove('brilho-restricao');
         }
-        aplicarFiltrosInventario();
         
-        // Atualiza os modais e seus botões de filtro
+        aplicarFiltrosInventario();
+        aplicarFiltrosAtaques();
+
         const btnAnomaloModal = document.getElementById('btn-modal-filtro-anomalo');
         if (btnAnomaloModal) {
             btnAnomaloModal.style.display = rf ? 'inline-block' : 'none';
@@ -1321,10 +1349,19 @@
             }
         }
         
-        let inputAtaque = document.getElementById('search-select-tpl-ataque');
+        const btnAnomaloAtqModal = document.getElementById('btn-modal-filtro-anomalo-ataque');
+        if (btnAnomaloAtqModal) {
+            btnAnomaloAtqModal.style.display = rf ? 'inline-block' : 'none';
+            if (!rf && modalFiltros['select-tpl-ataque'] === 'Anômalo') {
+                const container = btnAnomaloAtqModal.parentElement;
+                setFiltroModal('select-tpl-ataque', 'Todos', container.querySelector('.btn-filtro'));
+            }
+        }
+
+        let inputAtaque = document.querySelector('input[onkeyup*="select-tpl-ataque"]');
         atualizarListaModal('select-tpl-ataque', inputAtaque ? inputAtaque.value : "");
 
-        let inputItem = document.getElementById('search-select-tpl-item');
+        let inputItem = document.querySelector('input[onkeyup*="select-tpl-item"]');
         atualizarListaModal('select-tpl-item', inputItem ? inputItem.value : "");
     }
 
@@ -1543,7 +1580,7 @@
         let n = parseInt(ns) || 0; 
         const cl = document.getElementById('classe-personagem').value; 
         
-       const ef = isExtremos || globalExtremos; 
+        const ef = isExtremos || globalExtremos; 
         if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
         
         const nV = 12 + (2 * vg) + (3 * nv); 
@@ -1563,28 +1600,53 @@
             nL += 1;
         }
 
-        const iVM = document.getElementById('vida-max'); if (iVM && document.activeElement !== iVM) iVM.value = nV; 
-        const iSM = document.getElementById('san-max'); if (iSM && document.activeElement !== iSM) iSM.value = nS; 
-        
-        const iPM = document.getElementById('pe-max'); 
-        let oldPeMax = parseInt(iPM.value) || 0;
-        if (iPM && document.activeElement !== iPM) iPM.value = nP;
-
-        const inptPeAtual = document.getElementById('pe-atual');
-        if (nP > oldPeMax && oldPeMax > 0) {
-            if (inptPeAtual && document.activeElement !== inptPeAtual) {
-                inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldPeMax);
+        /* ----- ATUALIZAÇÃO E PRESERVAÇÃO DE VALORES MÁXIMOS ----- */
+        const iVM = document.getElementById('vida-max');
+        if (iVM) {
+            let oldBaseV = parseInt(iVM.dataset.base) || nV;
+            let currentV = parseInt(iVM.value) || oldBaseV;
+            if (document.activeElement !== iVM) {
+                iVM.value = nV + (currentV - oldBaseV);
             }
-        } else if (oldPeMax === 0 && nP > 0) {
-            if (inptPeAtual && document.activeElement !== inptPeAtual) {
-                inptPeAtual.value = nP;
-            }
+            iVM.dataset.base = nV;
         }
 
+        const iSM = document.getElementById('san-max');
+        if (iSM) {
+            let oldBaseS = parseInt(iSM.dataset.base) || nS;
+            let currentS = parseInt(iSM.value) || oldBaseS;
+            if (document.activeElement !== iSM) {
+                iSM.value = nS + (currentS - oldBaseS);
+            }
+            iSM.dataset.base = nS;
+        }
+
+        const iPM = document.getElementById('pe-max');
+        if (iPM) {
+            let oldBaseP = parseInt(iPM.dataset.base) || nP;
+            let currentP = parseInt(iPM.value) || oldBaseP;
+            if (document.activeElement !== iPM) {
+                iPM.value = nP + (currentP - oldBaseP);
+            }
+            iPM.dataset.base = nP;
+            
+            const inptPeAtual = document.getElementById('pe-atual');
+            if (nP > oldBaseP && oldBaseP > 0) {
+                if (inptPeAtual && document.activeElement !== inptPeAtual) {
+                    inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldBaseP);
+                }
+            } else if (oldBaseP === 0 && nP > 0) {
+                if (inptPeAtual && document.activeElement !== inptPeAtual) {
+                    inptPeAtual.value = nP;
+                }
+            }
+        }
+        /* -------------------------------------------------------- */
+
         if (fH) { 
-            document.getElementById('vida-atual').value = nV; 
-            document.getElementById('san-atual').value = nS; 
-            document.getElementById('pe-atual').value = nP; 
+            document.getElementById('vida-atual').value = parseInt(iVM.value); 
+            document.getElementById('san-atual').value = parseInt(iSM.value); 
+            document.getElementById('pe-atual').value = parseInt(iPM.value); 
         }
         
         const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
@@ -1629,8 +1691,14 @@
                 prevHexatombeFinal = hF; db.collection("fichas").doc(atual).update(up); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
             }
 
-            let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
-            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vA ?? 12; if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sA ?? 12; if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pA ?? 2;
+            let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; 
+            let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; 
+            let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
+            
+            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vA ?? 12; 
+            if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sA ?? 12; 
+            if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pA ?? 2;
+            
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
             ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
@@ -1852,7 +1920,7 @@
     async function novoPoder() { const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); }
     async function novaHabilidade() { const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Traço", descricao: "" }); }
     async function novoItem() { const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); }
-    async function novoAtaque() { const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Arma", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 }); }
+    async function novoAtaque() { const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; await db.collection("fichas").doc(atual).collection(p).add({ nome: "Arma", dano: "1d6", tipo: "Corte", alcance: "Curto", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" }); }
 
     async function aplicarTemplate(c, ch) { const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; let d = {}; if (c === 'ataques') d = templatesAtaques[ch]; if (c === 'habilidades') d = templatesTracos[ch]; if (c === 'poderes') d = templatesEspecializacoes[ch]; if (c === 'rituais') d = templatesAnomalias[ch]; if (c === 'inventario') d = templatesInventario[ch]; if (d) await db.collection("fichas").doc(atual).collection(p).add(d); }
     
