@@ -463,26 +463,32 @@
 
 <div id="modal-tpl-ataque" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
+    <div class="filtros-container" id="filtros-modal-ataque">
+        <button class="btn-filtro active" onclick="setFiltroModalAtaque('Todos', this)">TODAS</button>
+        <button class="btn-filtro" onclick="setFiltroModalAtaque('Corpo a Corpo', this)">CORPO A CORPO</button>
+        <button class="btn-filtro" onclick="setFiltroModalAtaque('À Distância', this)">À DISTÂNCIA</button>
+        <button class="btn-filtro btn-anomalo-modal" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroModalAtaque('Anômalo', this)">ANÔMALAS</button>
+    </div>
+    <input type="text" id="input-search-ataque" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
     <select id="select-tpl-ataque" class="lista-padronizada" size="6" onchange="previewTemplate('ataque')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Arma...</option>
-        <option value="FacaRitual">Adaga Obsidiana</option>
-        <option value="Taser">Arma de Choque (Taser)</option>
-        <option value="Dinamite">Banana de Dinamite</option>
-        <option value="BengalaEspada">Bengala-Espada Oculta</option>
-        <option value="Besta">Besta de Caça</option>
-        <option value="Escopeta">Escopeta Calibre 12</option>
-        <option value="Faca">Faca Tática</option>
-        <option value="Fuzil">Fuzil de Assalto AR-15</option>
-        <option value="FuzilPrecisao">Fuzil de Precisão (Sniper)</option>
-        <option value="Glock">Glock 19 (9mm)</option>
-        <option value="Katana">Katana Antiga</option>
-        <option value="Machado">Machado de Incêndio</option>
-        <option value="Motosserra">Motosserra Pesada</option>
-        <option value="Sinalizador">Pistola Sinalizadora</option>
-        <option value="Revolver">Revólver .38</option>
-        <option value="SocoIngles">Soco Inglês</option>
-        <option value="Submetralhadora">Submetralhadora (Thompson/MP5)</option>
+        <option value="Taser" data-categoria="À Distância">Arma de Choque (Taser)</option>
+        <option value="Dinamite" data-categoria="À Distância">Banana de Dinamite</option>
+        <option value="BengalaEspada" data-categoria="Corpo a Corpo">Bengala-Espada Oculta</option>
+        <option value="Besta" data-categoria="À Distância">Besta de Caça</option>
+        <option value="Escopeta" data-categoria="À Distância">Escopeta Calibre 12</option>
+        <option value="Faca" data-categoria="Corpo a Corpo">Faca Tática</option>
+        <option value="Fuzil" data-categoria="À Distância">Fuzil de Assalto AR-15</option>
+        <option value="FuzilPrecisao" data-categoria="À Distância">Fuzil de Precisão (Sniper)</option>
+        <option value="Glock" data-categoria="À Distância">Glock 19 (9mm)</option>
+        <option value="Katana" data-categoria="Corpo a Corpo">Katana Antiga</option>
+        <option value="Machado" data-categoria="Corpo a Corpo">Machado de Incêndio</option>
+        <option value="Motosserra" data-categoria="Corpo a Corpo">Motosserra Pesada</option>
+        <option value="Sinalizador" data-categoria="À Distância">Pistola Sinalizadora</option>
+        <option value="Revolver" data-categoria="À Distância">Revólver .38</option>
+        <option value="SocoIngles" data-categoria="Corpo a Corpo">Soco Inglês</option>
+        <option value="Submetralhadora" data-categoria="À Distância">Submetralhadora (Thompson/MP5)</option>
+        <option value="FacaRitual" data-categoria="Anômalo">Adaga Obsidiana</option>
     </select>
     <div id="preview-ataque" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
@@ -574,24 +580,31 @@
 
 <div id="modal-tpl-item" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ITENS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
+    <div class="filtros-container" id="filtros-modal-item">
+        <button class="btn-filtro active" onclick="setFiltroModalItem('Todos', this)">TODOS</button>
+        <button class="btn-filtro" onclick="setFiltroModalItem('Equipamento', this)">EQUIPAMENTOS</button>
+        <button class="btn-filtro" onclick="setFiltroModalItem('Consumível', this)">CONSUMÍVEIS</button>
+        <button class="btn-filtro" onclick="setFiltroModalItem('Geral', this)">GERAL</button>
+        <button class="btn-filtro btn-anomalo-modal" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroModalItem('Anômalo', this)">ANÔMALOS</button>
+    </div>
+    <input type="text" id="input-search-item" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
     <select id="select-tpl-item" class="lista-padronizada" size="6" onchange="previewTemplate('item')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione um Item...</option>
-        <option value="Adrenalina">Seringa de Epinefrina</option>
-        <option value="Algemas">Algemas Táticas</option>
-        <option value="Bandagem">Bandagem</option>
-        <option value="CameraPolaroid">Câmera Polaroid Antiga</option>
-        <option value="CantilBebida">Cantil com Uísque</option>
-        <option value="ColeteLeve">Colete Balístico Leve</option>
-        <option value="ComponenteMorte">Cinzas Humanas</option>
-        <option value="ComponenteSangue">Sangue de Sacrifício</option>
-        <option value="EmsSop">Detector de EMF</option>
-        <option value="GravadorK7">Gravador de Fitas K7</option>
-        <option value="Grimorio">Diário de Ocultista</option>
-        <option value="KitInvestigacao">Maleta de Investigação</option>
-        <option value="KitPrimeirosSocorros">Kit de Primeiros Socorros</option>
-        <option value="Lanterna">Lanterna Tática</option>
-        <option value="PeDeCabra">Pé de Cabra</option>
+        <option value="Adrenalina" data-categoria="Consumível">Seringa de Epinefrina</option>
+        <option value="Algemas" data-categoria="Equipamento">Algemas Táticas</option>
+        <option value="Bandagem" data-categoria="Consumível">Bandagem</option>
+        <option value="CameraPolaroid" data-categoria="Equipamento">Câmera Polaroid Antiga</option>
+        <option value="CantilBebida" data-categoria="Consumível">Cantil com Uísque</option>
+        <option value="ColeteLeve" data-categoria="Equipamento">Colete Balístico Leve</option>
+        <option value="EmsSop" data-categoria="Equipamento">Detector de EMF</option>
+        <option value="GravadorK7" data-categoria="Equipamento">Gravador de Fitas K7</option>
+        <option value="KitInvestigacao" data-categoria="Equipamento">Maleta de Investigação</option>
+        <option value="KitPrimeirosSocorros" data-categoria="Consumível">Kit de Primeiros Socorros</option>
+        <option value="Lanterna" data-categoria="Equipamento">Lanterna Tática</option>
+        <option value="PeDeCabra" data-categoria="Geral">Pé de Cabra</option>
+        <option value="ComponenteMorte" data-categoria="Anômalo">Cinzas Humanas</option>
+        <option value="ComponenteSangue" data-categoria="Anômalo">Sangue de Sacrifício</option>
+        <option value="Grimorio" data-categoria="Anômalo">Diário de Ocultista</option>
     </select>
     <div id="preview-item" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
@@ -865,9 +878,9 @@
             </div>
             
             <div class="filtros-container" id="filtros-ataques">
-                <button class="btn-filtro active" onclick="setFiltroAtaques('Todos', this)">TODOS</button>
+                <button class="btn-filtro active" onclick="setFiltroAtaques('Todos', this)">TODAS</button>
                 <button class="btn-filtro" onclick="setFiltroAtaques('Corpo a Corpo', this)">CORPO A CORPO</button>
-                <button class="btn-filtro" onclick="setFiltroAtaques('À Distância', this)">FOGO/À DISTÂNCIA</button>
+                <button class="btn-filtro" onclick="setFiltroAtaques('À Distância', this)">À DISTÂNCIA</button>
             </div>
             
             <div id="lista-ataques"></div>
@@ -951,7 +964,7 @@
                 <button class="btn-filtro" onclick="setFiltroInventario('Equipamento', this)">EQUIPAMENTOS</button>
                 <button class="btn-filtro" onclick="setFiltroInventario('Consumível', this)">CONSUMÍVEIS</button>
                 <button class="btn-filtro" onclick="setFiltroInventario('Geral', this)">GERAL</button>
-                <button class="btn-filtro" id="btn-filtro-anomalo" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroInventario('Anômalo', this)">ANÔMALOS</button>
+                <button class="btn-filtro btn-anomalo" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroInventario('Anômalo', this)">ANÔMALOS</button>
             </div>
             
             <div id="lista-inventario"></div>
@@ -977,15 +990,129 @@
     function alternarTema() { document.body.classList.toggle('tema-escuro'); localStorage.setItem('temaFichaAmeaca', document.body.classList.contains('tema-escuro') ? 'escuro' : 'claro'); }
     window.addEventListener('DOMContentLoaded', () => { if (localStorage.getItem('temaFichaAmeaca') === 'escuro') document.body.classList.add('tema-escuro'); });
 
+    let filtroAtualModalAtaque = 'Todos';
+    let filtroAtualModalItem = 'Todos';
+    let filtroAtualAtaques = 'Todos';
+    let filtroAtualInventario = 'Todos';
+
     function filtrarBanco(input, selectId) {
         const filter = input.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const select = document.getElementById(selectId);
         const options = select.options;
+        const despertado = isRevelado || globalRevelado;
+
+        let catFilter = 'Todos';
+        if (selectId === 'select-tpl-ataque') catFilter = filtroAtualModalAtaque;
+        if (selectId === 'select-tpl-item') catFilter = filtroAtualModalItem;
+
         for (let i = 0; i < options.length; i++) {
+            if (options[i].value === "") continue; 
+
             const txt = options[i].text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const searchData = (options[i].getAttribute('data-search') || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (txt.includes(filter) || searchData.includes(filter)) { options[i].style.display = ""; } else { options[i].style.display = "none"; }
+            const cat = options[i].getAttribute('data-categoria') || 'Geral';
+            const isAnomalo = (cat === 'Anômalo');
+
+            let matchText = txt.includes(filter) || searchData.includes(filter);
+            let matchCat = (catFilter === 'Todos' || catFilter === cat);
+
+            if (isAnomalo && !despertado) {
+                options[i].style.display = "none";
+            } else if (matchText && matchCat) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
         }
+    }
+
+    function setFiltroModalAtaque(cat, btn) {
+        filtroAtualModalAtaque = cat;
+        if(btn) {
+            document.querySelectorAll('#filtros-modal-ataque .btn-filtro').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        filtrarBanco(document.getElementById('input-search-ataque'), 'select-tpl-ataque');
+    }
+
+    function setFiltroModalItem(cat, btn) {
+        filtroAtualModalItem = cat;
+        if(btn) {
+            document.querySelectorAll('#filtros-modal-item .btn-filtro').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        filtrarBanco(document.getElementById('input-search-item'), 'select-tpl-item');
+    }
+
+    function setFiltroAtaques(cat, btn) {
+        filtroAtualAtaques = cat;
+        if(btn) {
+            document.querySelectorAll('#filtros-ataques .btn-filtro').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        aplicarFiltrosAtaques();
+    }
+
+    function aplicarFiltrosAtaques() {
+        let despertado = isRevelado || globalRevelado;
+        document.querySelectorAll('.ataque-card').forEach(el => {
+            let catItem = el.getAttribute('data-categoria') || 'Outros';
+            let isAnomalo = (catItem === 'Anômalo');
+            
+            if (!despertado && isAnomalo) {
+                el.style.display = 'none';
+            } else if (filtroAtualAtaques === 'Todos') {
+                el.style.display = 'block';
+            } else if (filtroAtualAtaques === catItem) {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+
+    function getAtaqueCat(a) {
+        if (!a) return 'Outros';
+        if (a.nome === "Adaga Obsidiana" || a.nome === "FacaRitual" || (a.descricao && a.descricao.toLowerCase().includes("profano"))) return 'Anômalo';
+        let alc = (a.alcance || '').toLowerCase();
+        if (alc.includes('corpo a corpo')) return 'Corpo a Corpo';
+        return 'À Distância';
+    }
+
+    function setFiltroInventario(cat, btn) {
+        filtroAtualInventario = cat;
+        if(btn) {
+            document.querySelectorAll('#filtros-inventario .btn-filtro').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        aplicarFiltrosInventario();
+    }
+
+    function aplicarFiltrosInventario() {
+        let despertado = isRevelado || globalRevelado;
+        let btnAnomalo = document.getElementById('btn-filtro-anomalo');
+        if (btnAnomalo) {
+            btnAnomalo.style.display = despertado ? 'inline-block' : 'none';
+            if (!despertado && filtroAtualInventario === 'Anômalo') {
+                setFiltroInventario('Todos', document.querySelector('#filtros-inventario .btn-filtro'));
+                return;
+            }
+        }
+
+        document.querySelectorAll('.item-card').forEach(el => {
+            let catItem = el.getAttribute('data-categoria');
+            let isAnomalo = (catItem === 'Anômalo');
+
+            if (!despertado && isAnomalo) {
+                el.style.display = 'none';
+            } else if (filtroAtualInventario === 'Todos') {
+                el.style.display = 'block';
+            } else if (filtroAtualInventario === catItem) {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        });
     }
 
     const templatesOrigens = {
@@ -1014,23 +1141,23 @@
     };
 
     const templatesAtaques = { 
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0 }, 
-        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 },
-        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
-        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
-        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
-        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0 },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 1 },
-        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0 },
-        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1 },
-        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
-        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2 },
-        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1 },
-        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 2 },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0 },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1 },
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 1 },
-        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1 }
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, descricao: "Arma de fogo clássica, confiável e fácil de ocultar.", categoria: "À Distância" }, 
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, descricao: "Lâmina curta de combate aproximado.", categoria: "Corpo a Corpo" },
+        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, descricao: "Pistola semi-automática moderna.", categoria: "À Distância" },
+        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, descricao: "Arma de fogo de cano longo e disparo rápido.", categoria: "À Distância" },
+        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, descricao: "Dispara chumbo espalhado, letal a curta distância.", categoria: "À Distância" },
+        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, descricao: "Dispara carga luminosa que queima o alvo.", categoria: "À Distância" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 1, descricao: "Ferramenta pesada capaz de causar grandes ferimentos.", categoria: "Corpo a Corpo" },
+        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0, descricao: "Arma não-letal que incapacita com choque elétrico.", categoria: "À Distância" },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, descricao: "Lâmina escura usada em rituais e sacrifícios profanos.", categoria: "Anômalo" },
+        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, descricao: "Arma automática leve de alta cadência.", categoria: "À Distância" },
+        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, descricao: "Rifle com luneta para abates a longa distância.", categoria: "À Distância" },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, descricao: "Espada japonesa ágil e extremamente afiada.", categoria: "Corpo a Corpo" },
+        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 2, descricao: "Ferramenta barulhenta, brutal e devastadora.", categoria: "Corpo a Corpo" },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, descricao: "Peça de metal encaixada nos dedos para socos duros.", categoria: "Corpo a Corpo" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, descricao: "Arma silenciosa que dispara virotes.", categoria: "À Distância" },
+        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 1, descricao: "Arma branca oculta em uma bengala elegante.", categoria: "Corpo a Corpo" },
+        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1, descricao: "Explosivo arremessável de grande dano em área.", categoria: "À Distância" }
     };
 
     const templatesTracos = { 
@@ -1102,74 +1229,6 @@
         "GravadorK7": { nome: "Gravador de Fitas K7", categoria: "Equipamento", pressao: 1, quantidade: 1, descricao: "Útil para gravar depoimentos (EVP) ou os sons que a criatura faz antes de atacar." }
     };
 
-    let filtroAtualInventario = 'Todos';
-    let filtroAtualAtaques = 'Todos';
-
-    function setFiltroInventario(cat, btn) {
-        filtroAtualInventario = cat;
-        if(btn) {
-            document.querySelectorAll('#filtros-inventario .btn-filtro').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        aplicarFiltrosInventario();
-    }
-
-    function aplicarFiltrosInventario() {
-        let despertado = isRevelado || globalRevelado;
-        let btnAnomalo = document.getElementById('btn-filtro-anomalo');
-        if (btnAnomalo) {
-            btnAnomalo.style.display = despertado ? 'inline-block' : 'none';
-            if (!despertado && filtroAtualInventario === 'Anômalo') {
-                setFiltroInventario('Todos', document.querySelector('#filtros-inventario .btn-filtro'));
-                return;
-            }
-        }
-
-        document.querySelectorAll('.item-card').forEach(el => {
-            let catItem = el.getAttribute('data-categoria');
-            let isAnomalo = (catItem === 'Anômalo');
-
-            if (!despertado && isAnomalo) {
-                el.style.display = 'none';
-            } else if (filtroAtualInventario === 'Todos') {
-                el.style.display = 'block';
-            } else if (filtroAtualInventario === catItem) {
-                el.style.display = 'block';
-            } else {
-                el.style.display = 'none';
-            }
-        });
-    }
-
-    function getAtaqueCat(a) {
-        if (!a) return 'Outros';
-        let alc = (a.alcance || '').toLowerCase();
-        if (alc.includes('corpo a corpo')) return 'Corpo a Corpo';
-        return 'À Distância';
-    }
-
-    function setFiltroAtaques(cat, btn) {
-        filtroAtualAtaques = cat;
-        if(btn) {
-            document.querySelectorAll('#filtros-ataques .btn-filtro').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        aplicarFiltrosAtaques();
-    }
-
-    function aplicarFiltrosAtaques() {
-        document.querySelectorAll('.ataque-card').forEach(el => {
-            let catItem = el.getAttribute('data-categoria');
-            if (filtroAtualAtaques === 'Todos') {
-                el.style.display = 'block';
-            } else if (filtroAtualAtaques === catItem) {
-                el.style.display = 'block';
-            } else {
-                el.style.display = 'none';
-            }
-        });
-    }
-
     function atualizarCredito() {
         let nc = parseInt(document.getElementById('nivel-credito').value);
         if (isNaN(nc)) nc = -1;
@@ -1191,11 +1250,11 @@
         let p = document.getElementById(`preview-${tipo}`);
         if (!val) { if(p) p.innerHTML = ""; return; }
 
-        if (tipo === 'ataque') { let d = templatesAtaques[val]; p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}`; } 
+        if (tipo === 'ataque') { let d = templatesAtaques[val]; p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${d.descricao}</span><strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}`; } 
         else if (tipo === 'traco') p.innerHTML = `<strong>Descrição:</strong> ${templatesTracos[val].descricao}`;
         else if (tipo === 'espec') p.innerHTML = `<strong>Elemento:</strong> ${templatesEspecializacoes[val].elemento}<br><strong>Efeito:</strong> ${templatesEspecializacoes[val].descricao}`;
         else if (tipo === 'anomalia') p.innerHTML = `<strong>Elemento:</strong> ${templatesAnomalias[val].elemento}<br><strong>Efeito:</strong> ${templatesAnomalias[val].descricao}`;
-        else if (tipo === 'item') p.innerHTML = `<strong>Categoria:</strong> ${templatesInventario[val].categoria} | <strong>Efeito:</strong> ${templatesInventario[val].descricao}`;
+        else if (tipo === 'item') p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${templatesInventario[val].descricao}</span><strong>Categoria:</strong> ${templatesInventario[val].categoria}`;
         else if (tipo === 'origem') { 
             let o = templatesOrigens[val]; 
             p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${o.desc}</span><strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${o.p1} (+3), ${o.p2} (+1)<br><strong style="color:var(--op-red)">Bônus de Nível de Crédito:</strong> ${o.bonusNC >= 0 ? '+' : ''}${o.bonusNC}`; 
@@ -1247,6 +1306,19 @@
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
             if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao'); else document.getElementById('sigilo-box').classList.remove('brilho-restricao');
         }
+
+        document.querySelectorAll('.btn-anomalo-modal').forEach(b => b.style.display = rf ? 'inline-block' : 'none');
+        document.querySelectorAll('.btn-anomalo').forEach(b => b.style.display = rf ? 'inline-block' : 'none');
+
+        if (!rf && filtroAtualModalAtaque === 'Anômalo') setFiltroModalAtaque('Todos', document.querySelector('#filtros-modal-ataque .btn-filtro'));
+        if (!rf && filtroAtualModalItem === 'Anômalo') setFiltroModalItem('Todos', document.querySelector('#filtros-modal-item .btn-filtro'));
+        if (!rf && filtroAtualAtaques === 'Anômalo') setFiltroAtaques('Todos', document.querySelector('#filtros-ataques .btn-filtro'));
+        if (!rf && filtroAtualInventario === 'Anômalo') setFiltroInventario('Todos', document.querySelector('#filtros-inventario .btn-filtro'));
+        
+        if(document.getElementById('input-search-ataque')) filtrarBanco(document.getElementById('input-search-ataque'), 'select-tpl-ataque');
+        if(document.getElementById('input-search-item')) filtrarBanco(document.getElementById('input-search-item'), 'select-tpl-item');
+
+        aplicarFiltrosAtaques();
         aplicarFiltrosInventario();
     }
 
@@ -1262,459 +1334,6 @@
     function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
     async function confirmarCrop() { const u = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; try { if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); } else { const d = {}; d[`portrait${modoCrop}`] = u; d[`p${modoCrop}X`] = x; d[`p${modoCrop}Y`] = y; d[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(d); alert(`Evidência arquivada!`); } fecharModal(); } catch (e) {} }
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
-
-    const bancoPericias = {
-        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas, redução de dano de queda e Escalar (usando Força)." },
-        "Adestramento": { attr: "VON", tipo: "pessoal", desc: "Lidar com animais, treinar, acalmar ou comandar feras." },
-        "Artes": { attr: "PRE", tipo: "pessoal", desc: "Expressão artística, música, pintura, atuação, etc." },
-        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Correr, saltos em distância/altura e proezas físicas em geral." },
-        "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Conhecimentos gerais, política, cultura pop e eventos recentes." },
-        "Avaliação": { attr: "SAG", tipo: "profissao", desc: "Analisar documentos, itens antigos e saber usar bibliotecas." },
-        "Balística": { attr: "AGI", tipo: "profissao", subs: ["Pistolas", "Rifles", "Espingardas", "Artilharia"], desc: "Uso proficiente e manutenção de armas de fogo e artilharia pesada." },
-        "Briga": { attr: "FOR", tipo: "pessoal", desc: "Combate corpo a corpo desarmado e instintivo." },
-        "Ciências": { attr: "SAG", tipo: "profissao", desc: "Biologia, química, física, matemática e astronomia." },
-        "Combate": { attr: "FOR", tipo: "profissao", subs: ["Artes Marciais", "Armas Leves", "Armas Pesadas", "Armas Exóticas"], desc: "Treinamento tático e uso de armamento corpo a corpo avançado." },
-        "Crime": { attr: "AGI", tipo: "profissao", desc: "Abrir fechaduras, sabotagem, furtar objetos e ocultar rastros." },
-        "Diplomacia": { attr: "VON", tipo: "pessoal", desc: "Persuasão, negociação, etiqueta e causar boa impressão." },
-        "Direção": { attr: "AGI", tipo: "pessoal", desc: "Conduzir veículos terrestres comuns em situações de risco." },
-        "Direito": { attr: "SAG", tipo: "profissao", desc: "Conhecimento de leis, processos penais, burocracia e advocacia." },
-        "Educação": { attr: "SAG", tipo: "profissao", subs: ["Humanas", "Biológicas", "Exatas"], desc: "Formação acadêmica específica e conhecimentos teóricos aprofundados." },
-        "Engenharia": { attr: "SAG", tipo: "profissao", desc: "Construção, arquitetura, eletrônica e consertos complexos." },
-        "Enganação": { attr: "VON", tipo: "pessoal", desc: "Mentir, blefar, falsificar e enganar." },
-        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência a fadiga, doenças, venenos e dores físicas." },
-        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Mover-se em silêncio, esconder-se e agir sem ser notado." },
-        "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true, desc: "Compreender e falar outras línguas e dialetos." },
-        "Intuição": { attr: "VON", tipo: "pessoal", desc: "Perceber mentiras, sentimentos e intenções ocultas." },
-        "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Procurar pistas, deduzir informações e analisar cenas." },
-        "Medicina": { attr: "SAG", tipo: "profissao", desc: "Primeiros socorros, cirurgias, tratar venenos e doenças." },
-        "Natação": { attr: "FOR", tipo: "pessoal", desc: "Nadar em condições adversas, prender o fôlego e mergulhar." },
-        "Ocultismo": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre o paranormal, rituais, entidades e relíquias." },
-        "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Notar detalhes ao redor, ouvir sons baixos e vigilância geral." },
-        "Pilotagem": { attr: "AGI", tipo: "profissao", subs: ["Esportiva", "Aérea", "Aquática", "Pesada"], desc: "Operação de veículos especiais, tratores, trens, barcos ou aeronaves." },
-        "Pontaria": { attr: "AGI", tipo: "pessoal", desc: "Arremesso de objetos, facas, granadas e precisão natural." },
-        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." },
-        "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." },
-        "Sobrevivência": { attr: "SAG", tipo: "profissao", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." },
-        "Tática": { attr: "SAG", tipo: "profissao", desc: "Estratégia militar, posicionamento de combate e liderança." },
-        "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso e reparo de computadores, eletrônicos e hackear sistemas." },
-        "Vontade": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem." }
-    };
-    const nomesPericias = Object.keys(bancoPericias);
-
-    function atualizarTreinoBase(pericia, valor) {
-        const row = document.getElementById(`row-${pericia}`); 
-        if (!row) return;
-
-        if (valor === "true" || valor === true) {
-            row.classList.remove('p-treinado'); 
-            row.classList.add('texto-vermelho-linha');
-        } else {
-            row.classList.remove('texto-vermelho-linha');
-        }
-    }
-
-    function atualizarCorPericia(n, v) { 
-        const e = document.getElementById(`row-${n}`); 
-        if(!e) return; 
-        e.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); 
-        if(v == "1") e.classList.add('p-verde'); 
-        else if(v == "3") e.classList.add('p-laranja'); 
-        else if(v == "5") e.classList.add('p-vermelho'); 
-    }
-
-    function atualizarCorSub(p, i, v) { 
-        const row = document.getElementById(`row-sub-${p}-${i}`);
-        if(row) {
-            row.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); 
-            if(v == "1") row.classList.add('p-verde'); 
-            else if(v == "3") row.classList.add('p-laranja'); 
-            else if(v == "5") row.classList.add('p-vermelho');
-        }
-    }
-
-    function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
-    function gerarOpcoesNivelNex() { const ns = document.getElementById('nivel-personagem'); let lh = ''; for(let i=0; i<=5; i++) lh += `<option value="${i}">${i}</option>`; ns.innerHTML = lh; const nxs = document.getElementById('nex-personagem'); let nxh = ''; for(let i=0; i<=95; i+=5) { if(i === 5) nxh += `<option value="${i}%" selected>${i}%</option>`; else nxh += `<option value="${i}%">${i}%</option>`; } nxh += '<option value="99%">99%</option><option value="100%">100%</option>'; nxs.innerHTML = nxh; atualizarOpcoesRessonancia(5); }
-
-    async function init() { gerarOpcoesNivelNex(); if (!atual) { window.location.href = "index.html"; } else { gerarPericiasBase(); carregarFicha(); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); } }
-
-    function gerarPericiasBase() {
-        let hPe = ""; let hPr = "";
-        
-        nomesPericias.forEach(p => {
-            const inf = bancoPericias[p]; 
-            let hasSubs = inf.subs || inf.subsInputs;
-            let hasSubsMarker = hasSubs ? `<span style="color:var(--hp-red); font-size:10px; margin-left:3px; vertical-align:top;" title="Possui Subperícias">❖</span>` : "";
-            
-            let sH = "";
-            let mainRowHTML = "";
-
-            if (hasSubs) {
-                mainRowHTML = `
-                <div class="pericia-row" id="row-${p}">
-                    <span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}${hasSubsMarker}</span>
-                    <select id="attr-${p}" class="treino-select" onchange="salvarFicha()">
-                        <option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option>
-                        <option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option>
-                        <option value="PRE" ${inf.attr==='PRE'?'selected':''}>PRE</option>
-                        <option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option>
-                        <option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option>
-                        <option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option>
-                    </select>
-                    <span style="color:var(--card-border); font-size:12px;">-</span>
-                    <div style="display:flex; align-items:center; justify-content:center;">
-                        <select id="base-treino-${p}" class="treino-select" onchange="atualizarTreinoBase('${p}', this.value); salvarFicha();" style="width: 74px; font-family: 'Inter', sans-serif; font-size: 11px; cursor: pointer; border-bottom: 1px dotted var(--card-border);">
-                            <option value="false">Leigo</option>
-                            <option value="true">Treinado</option>
-                        </select>
-                    </div>
-                    <span style="color:var(--card-border); font-size:12px;">-</span>
-                </div>`;
-
-                sH = `
-                <div id="subs-${p}" class="sub-pericias-box">
-                    <div style="display:flex; flex-direction:column; gap:4px; background:rgba(0,0,0,0.02); padding:8px; border:1px dashed var(--card-border); border-radius:2px;">
-                        <div style="display: grid; grid-template-columns: 1.5fr 45px 45px 35px; gap: 5px; font-size: 9px; color: var(--cor-geral); font-weight: bold; text-align: center; text-transform: uppercase; font-family:'Inter', sans-serif;">
-                            <span style="text-align:left;">Subperícia</span><span>Bônus</span><span>Treino</span><span>Soma</span>
-                        </div>`;
-
-                if (inf.subs) {
-                    inf.subs.forEach((s, idx) => {
-                        sH += `
-                        <div id="row-sub-${p}-${idx}" style="display: grid; grid-template-columns: 1.5fr 45px 45px 35px; gap: 5px; align-items:center; text-align:center; transition: background 0.3s; padding: 2px 4px; border-radius: 2px;">
-                            <span style="font-size:11px; color:var(--op-ink); font-family:'Inter', sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:bold; text-align:left;" title="${s}">${s}</span>
-                            <input type="number" id="sub-bonus-${p}-${idx}" class="treino-select" value="0" onchange="salvarFicha()" style="border-bottom:1px dotted var(--card-border);">
-                            <select id="sub-treino-${p}-${idx}" class="treino-select" onchange="atualizarCorSub('${p}', ${idx}, this.value); salvarFicha();" style="border-bottom:1px dotted var(--card-border); font-weight:bold; cursor:pointer;">
-                                <option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option>
-                            </select>
-                            <span id="sub-total-${p}-${idx}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:14px; font-weight: bold;">0</span>
-                        </div>`;
-                    });
-                } else if (inf.subsInputs) {
-                    for(let i=0; i<3; i++) {
-                        sH += `
-                        <div id="row-sub-${p}-${i}" style="display: grid; grid-template-columns: 1.5fr 45px 45px 35px; gap: 5px; align-items:center; text-align:center; transition: background 0.3s; padding: 2px 4px; border-radius: 2px;">
-                            <input type="text" id="sub-nome-${p}-${i}" class="sub-input" style="width:100%; text-align:left; border:none; border-bottom:1px dotted var(--card-border); background:transparent; font-size:11px;" placeholder="Idioma ${i+1}" onchange="salvarFicha()">
-                            <input type="number" id="sub-bonus-${p}-${i}" class="treino-select" value="0" onchange="salvarFicha()" style="border-bottom:1px dotted var(--card-border);">
-                            <select id="sub-treino-${p}-${i}" class="treino-select" onchange="atualizarCorSub('${p}', ${i}, this.value); salvarFicha();" style="border-bottom:1px dotted var(--card-border); font-weight:bold; cursor:pointer;">
-                                <option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option>
-                            </select>
-                            <span id="sub-total-${p}-${i}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:14px; font-weight: bold;">0</span>
-                        </div>`;
-                    }
-                    sH += `
-                        <div id="row-sub-${p}-3" style="display: grid; grid-template-columns: 1.5fr 45px 45px 35px; gap: 5px; align-items:center; text-align:center; transition: background 0.3s; padding: 2px 4px; border-radius: 2px;">
-                            <span style="font-size:11px; color:var(--cor-geral); font-family:'Inter', sans-serif; text-align:left; font-weight:bold;">Outros</span>
-                            <input type="number" id="sub-bonus-${p}-3" class="treino-select" value="0" onchange="salvarFicha()" style="border-bottom:1px dotted var(--card-border);">
-                            <select id="sub-treino-${p}-3" class="treino-select" onchange="atualizarCorSub('${p}', 3, this.value); salvarFicha();" style="border-bottom:1px dotted var(--card-border); font-weight:bold; cursor:pointer;">
-                                <option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option>
-                            </select>
-                            <span id="sub-total-${p}-3" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:14px; font-weight: bold;">0</span>
-                        </div>`;
-                }
-
-                sH += `</div></div>`;
-            } else {
-                mainRowHTML = `
-                <div class="pericia-row" id="row-${p}">
-                    <span class="pericia-nome" onclick="toggleDescricao('${p}')">${p}${hasSubsMarker}</span>
-                    <select id="attr-${p}" class="treino-select" onchange="salvarFicha()">
-                        <option value="AGI" ${inf.attr==='AGI'?'selected':''}>AGI</option>
-                        <option value="FOR" ${inf.attr==='FOR'?'selected':''}>FOR</option>
-                        <option value="PRE" ${inf.attr==='PRE'?'selected':''}>PRE</option>
-                        <option value="SAG" ${inf.attr==='SAG'?'selected':''}>SAG</option>
-                        <option value="VON" ${inf.attr==='VON'?'selected':''}>VON</option>
-                        <option value="VIG" ${inf.attr==='VIG'?'selected':''}>VIG</option>
-                    </select>
-                    <input type="number" id="bonus-${p}" class="treino-select" value="0" onchange="salvarFicha()">
-                    <select id="treino-${p}" class="treino-select" style="cursor:pointer; font-weight: bold;" onchange="atualizarCorPericia('${p}', this.value); salvarFicha();">
-                        <option value="0">0</option><option value="1">1</option><option value="3">3</option><option value="5">5</option>
-                    </select>
-                    <span id="total-${p}" style="font-family:'Special Elite', monospace; color:var(--op-ink); font-size:16px; font-weight: bold;">0</span>
-                </div>`;
-            }
-
-            const blo = mainRowHTML + sH + `<div id="desc-${p}" class="pericia-desc">${inf.desc || "..."}</div>`;
-            if (inf.tipo === "profissao") hPr += blo; else hPe += blo;
-        });
-        
-        document.getElementById('lista-pericias-pessoais').innerHTML = hPe; document.getElementById('lista-pericias-profissao').innerHTML = hPr;
-    }
-
-    function toggleDescricao(n) { const d = document.getElementById(`desc-${n}`); d.style.display = d.style.display === 'block' ? 'none' : 'block'; const s = document.getElementById(`subs-${n}`); if(s) s.style.display = s.style.display === 'block' ? 'none' : 'block'; }
-
-    function mudouNex() { 
-        const ns = document.getElementById('nex-personagem').value || "5%"; let n = parseInt(ns) || 0; const ef = isExtremos || globalExtremos; if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; } 
-        atualizarOpcoesRessonancia(n); 
-        let gc = "1º Grau"; if (n === 0) gc = "Nulo"; else if (n >= 5 && n <= 20) gc = "1º Grau"; else if (n >= 25 && n <= 40) gc = "2º Grau"; else if (n >= 45 && n <= 60) gc = "3º Grau"; else if (n >= 65 && n <= 80) gc = "4º Grau"; else if (n >= 85 && n <= 99) gc = "5º Grau"; else if (n >= 100) gc = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; 
-        document.getElementById('grau-ressonancia').value = gc; 
-        aplicarSegredosUI(); 
-        recalcularBases(); 
-        salvarFicha(); 
-    }
-
-    function recalcularDefesas() { const ag = parseInt(document.getElementById('attr-agi').value) || 0; const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; const bd = parseInt(document.getElementById('bonus-defesa').value) || 0; const bb = parseInt(document.getElementById('bonus-bloqueio').value) || 0; const be = parseInt(document.getElementById('bonus-esquiva').value) || 0; const db = 10 + ag + nv + bd; document.getElementById('display-defesa').innerText = db; const ft = parseInt(document.getElementById('treino-Fortitude')?.value) || 0; const rt = parseInt(document.getElementById('treino-Reflexos')?.value) || 0; document.getElementById('display-bloqueio').innerText = db + ft + bb; document.getElementById('display-esquiva').innerText = db + rt + be; }
-    
-    function alterarAtributoOuNivel() { recalcularBases(true); salvarFicha(); }
-
-    function recalcularBases(fH = false) {
-        let vg = parseInt(document.getElementById('attr-vig').value) || 0; 
-        let vn = parseInt(document.getElementById('attr-von').value) || 0; 
-        let sg = parseInt(document.getElementById('attr-sag').value) || 0; 
-        const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; 
-        const ns = document.getElementById('nex-personagem').value || "0%"; 
-        let n = parseInt(ns) || 0; 
-        const cl = document.getElementById('classe-personagem').value; 
-        
-        const ef = isExtremos || globalExtremos; 
-        if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
-        
-        const nV = 12 + (2 * vg) + (3 * nv); 
-        const nS = 50 + (10 * vn + 10 * sg); 
-        let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); 
-        let nL = 1 + vg + vn + nv; 
-        
-        let bonusDtArq = 0;
-
-        if (cl === "Esotérico") { 
-            nP += (2 * sg); 
-            nL += (2 * sg); 
-        } else if (cl === "Canalizador" && nv > 2) { 
-            nP += (nv - 2) * 3; 
-        } else if (cl === "Focalizador" && nv >= 2) {
-            bonusDtArq = Math.floor(nv / 2) || 1;
-            nL += 1;
-        }
-
-        const iVM = document.getElementById('vida-max'); if (iVM && document.activeElement !== iVM) iVM.value = nV; 
-        const iSM = document.getElementById('san-max'); if (iSM && document.activeElement !== iSM) iSM.value = nS; 
-        
-        const iPM = document.getElementById('pe-max'); 
-        let oldPeMax = parseInt(iPM.value) || 0;
-        if (iPM && document.activeElement !== iPM) iPM.value = nP;
-
-        const inptPeAtual = document.getElementById('pe-atual');
-        if (nP > oldPeMax && oldPeMax > 0) {
-            if (inptPeAtual && document.activeElement !== inptPeAtual) {
-                inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldPeMax);
-            }
-        } else if (oldPeMax === 0 && nP > 0) {
-            if (inptPeAtual && document.activeElement !== inptPeAtual) {
-                inptPeAtual.value = nP;
-            }
-        }
-
-        if (fH) { 
-            document.getElementById('vida-atual').value = nV; 
-            document.getElementById('san-atual').value = nS; 
-            document.getElementById('pe-atual').value = nP; 
-        }
-        
-        const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
-        
-        const bL = parseInt(document.getElementById('bonus-limite-pe').value) || 0; 
-        document.getElementById('display-limite-pe').innerText = nL + bL; 
-        
-        const bD = parseInt(document.getElementById('bonus-dt').value) || 0; 
-        document.getElementById('dt-val').innerText = 10 + sg + bD + bonusDtArq; 
-        
-        let nG = 0; if (n >= 5 && n <= 20) nG = 1; else if (n >= 25 && n <= 40) nG = 2; else if (n >= 45 && n <= 60) nG = 3; else if (n >= 65 && n <= 80) nG = 4; else if (n >= 85 && n <= 99) nG = 5; else if (n >= 100) nG = 6; 
-        if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = nG * 2; 
-        if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = nG * 2;
-        
-        const dA = document.getElementById('grupo-arquetipo'); 
-        if (nv >= 2) dA.style.display = 'flex'; else { dA.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
-        
-        recalcularDefesas(); 
-        atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
-    }
-
-    function carregarFicha() {
-        db.collection("fichas").doc(atual).onSnapshot(doc => {
-            const d_raw = doc.data(); if(!d_raw) return;
-            const dD = d_raw.dono; if (auth.currentUser && dD !== auth.currentUser.uid) document.getElementById('btn-assumir-posse').style.display = 'block'; else document.getElementById('btn-assumir-posse').style.display = 'none';
-            isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false; isRestricao = d_raw.restricao || false;
-            const hF = isHexatombe || globalHexatombe; let d = d_raw;
-            if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; }
-
-            if (prevHexatombeFinal !== hF) {
-                let vN = parseInt(d_raw.vig) || 0; let vnN = parseInt(d_raw.von) || 0; let sN = parseInt(d_raw.sag) || 0; let nv = parseInt(d_raw.nivel) || 0; let nx = parseInt(d_raw.nex) || 0; let cl = d_raw.classe || "";
-                let hD = d_raw.hexatombe_data || {};
-                if (hF && hD.vig === undefined) { hD.vig = vN; hD.for = d_raw.for; hD.agi = d_raw.agi; hD.sag = sN; hD.von = vnN; }
-                let vH = hD.vig !== undefined ? parseInt(hD.vig) : vN; let vnH = hD.von !== undefined ? parseInt(hD.von) : vnN; let sH = hD.sag !== undefined ? parseInt(hD.sag) : sN;
-                let mNV = 12 + (2 * vN) + (3 * nv); let mHV = 12 + (2 * vH) + (3 * nv); let mNS = 50 + (10 * vnN + 10 * sN); let mHS = 50 + (10 * vnH + 10 * sH);
-                let mNP = 2 + (2 * vN) + vnN + Math.floor(nx / 10); if (cl === "Esotérico") mNP += (2 * sN); else if (cl === "Canalizador" && nv > 2) mNP += (nv - 2) * 3;
-                let mHP = 2 + (2 * vH) + vnH + Math.floor(nx / 10); if (cl === "Esotérico") mHP += (2 * sH); else if (cl === "Canalizador" && nv > 2) mHP += (nv - 2) * 3;
-                let dV = mHV - mNV; let dS = mHS - mNS; let dP = mHP - mNP;
-                let up = {};
-                if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; up.hexatombe_data = hD; } 
-                else { let vH = parseInt(hD.vidaAtual) || 0; let sH = parseInt(hD.sanAtual) || 0; let pH = parseInt(hD.peAtual) || 0; let nV = vH - dV; if (dV > 0) { if(nV <= 0 && vH >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; } up.vidaAtual = nV; let nS = sH - dS; if (dS > 0) { if(nS <= 0 && sH >= 1) nS = 1; else if (nS < 0) nS = 0; } else { if (nS < 0) nS = 0; } up.sanAtual = nS; let nP = pH - dP; if(nP < 0) nP = 0; up.peAtual = nP; }
-                prevHexatombeFinal = hF; db.collection("fichas").doc(atual).update(up); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
-            }
-
-            let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
-            if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vA ?? 12; if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sA ?? 12; if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pA ?? 2;
-            document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
-            if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
-            ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
-            const nv = parseInt(d.nivel) || 0; document.getElementById('nivel-personagem').value = nv; document.getElementById('nex-personagem').value = d.nex || "5%"; document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
-            const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else dA.style.display = 'none';
-            const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
-            document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
-
-            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1;
-            document.getElementById('limite-gastos').value = d.limiteGastos || "R$ 0";
-            document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0";
-            document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
-
-            let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
-            
-            nomesPericias.forEach(p => {
-                const hasSubs = bancoPericias[p].subs || bancoPericias[p].subsInputs;
-                const dP = pLoad[p] || { bonus: 0, treino: 0, atributo: bancoPericias[p].attr, subs: [0,0,0,0], subsBonus: [0,0,0,0], subsTreino: [0,0,0,0], subsNames: ["","","",""], baseTreinado: false };
-
-                const aF = document.getElementById(`attr-${p}`);
-                if(aF && dP.atributo) aF.value = dP.atributo;
-
-                const aU = dP.atributo || bancoPericias[p].attr;
-                const aI = document.getElementById(`attr-${aU.toLowerCase()}`);
-                let aV = aI ? (parseInt(aI.value) || 0) : 0;
-
-                if (hasSubs) {
-                    const bT = document.getElementById(`base-treino-${p}`);
-                    if (bT) {
-                        bT.value = (dP.baseTreinado === true || dP.baseTreinado === 'true') ? 'true' : 'false';
-                        atualizarTreinoBase(p, bT.value);
-                    }
-
-                    for(let i=0; i<4; i++) {
-                        const sbB = document.getElementById(`sub-bonus-${p}-${i}`);
-                        const sbT = document.getElementById(`sub-treino-${p}-${i}`);
-                        const sbTot = document.getElementById(`sub-total-${p}-${i}`);
-
-                        let vB = dP.subsBonus ? (dP.subsBonus[i] || 0) : 0;
-                        let vT = dP.subsTreino ? (dP.subsTreino[i] || 0) : (dP.subs ? (dP.subs[i] || 0) : 0);
-
-                        if(sbB) sbB.value = vB;
-                        if(sbT) {
-                            sbT.value = vT;
-                            atualizarCorSub(p, i, sbT.value);
-                        }
-                        if(sbTot) {
-                            sbTot.innerText = aV + parseInt(vB) + parseInt(vT);
-                        }
-
-                        if(bancoPericias[p].subsInputs && i < 3) {
-                            const sN = document.getElementById(`sub-nome-${p}-${i}`);
-                            if(sN) sN.value = dP.subsNames ? (dP.subsNames[i] || "") : "";
-                        }
-                    }
-                } else {
-                    const bF = document.getElementById(`bonus-${p}`);
-                    const tF = document.getElementById(`treino-${p}`);
-                    const tS = document.getElementById(`total-${p}`);
-
-                    if(bF) bF.value = dP.bonus ?? 0;
-                    if(tF) {
-                        tF.value = dP.treino ?? 0;
-                        atualizarCorPericia(p, tF.value);
-                    }
-                    if(tS) {
-                        tS.innerText = (dP.bonus ?? 0) + (dP.treino ?? 0) + aV;
-                    }
-                }
-            });
-
-            document.getElementById('info-prot').value = d.protecao || ""; document.getElementById('info-vuln').value = d.vulnerabilidades || ""; document.getElementById('info-res').value = d.resistencias || ""; document.getElementById('info-prof').value = d.proficiencias || "";
-            document.getElementById('bonus-defesa').value = d.bonusDefesa ? d.bonusDefesa : ""; document.getElementById('bonus-esquiva').value = d.bonusEsquiva ? d.bonusEsquiva : ""; document.getElementById('bonus-bloqueio').value = d.bonusBloqueio ? d.bonusBloqueio : ""; document.getElementById('bonus-dt').value = d.bonusDt ? d.bonusDt : "";
-            
-            if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false; if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false; if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false; if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false; if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false; if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
-            
-            document.getElementById('status-personagem').value = d.statusPersonagem || 'Normal'; document.getElementById('chk-sequela').checked = d.condSequela || false; toggleMiniCond('sequela'); if(document.getElementById('desc-sequela')) document.getElementById('desc-sequela').value = d.descSequela || "";
-
-            if(d.membrosEstado) membrosEstado = d.membrosEstado;
-            Object.keys(membrosEstado).forEach(k => { 
-                const bx = document.getElementById('limb-'+k); const sg = document.getElementById('svg-'+k); const xm = document.getElementById('x-'+k); const v1 = document.getElementById('val-'+k+'-1'); const v2 = document.getElementById('val-'+k+'-2');
-                if (bx) { if (sg) { sg.classList.remove('lesionado', 'decepado'); if (membrosEstado[k] !== 'normal') sg.classList.add(membrosEstado[k]); } if (xm) { xm.style.display = (membrosEstado[k] === 'decepado') ? 'block' : 'none'; } if (v1 && v2) { v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half'; if (membrosEstado[k] === 'lesionado') v1.classList.add('lesionado'); else if (membrosEstado[k] === 'decepado') { v1.classList.add('decepado'); v2.classList.add('decepado'); } } }
-            });
-
-            isITActive = d.insanoTemporario || false; const it = document.getElementById('it-san'); const cs = document.getElementById('content-san');
-            if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if(e) { if(i <= (d.itRounds || 0)) e.classList.add('active'); else e.classList.remove('active'); } } } else { it.classList.remove('active'); if(parseInt(d.sanAtual) > 0) cs.style.opacity = '1'; }
-            
-            document.getElementById('bgDescricao').value = d_raw.bgDescricao || ""; document.getElementById('bgIdeologia').value = d_raw.bgIdeologia || ""; document.getElementById('bgPessoas').value = d_raw.bgPessoas || ""; document.getElementById('bgLocais').value = d_raw.bgLocais || ""; document.getElementById('bgPosses').value = d_raw.bgPosses || ""; document.getElementById('bgTracos').value = d_raw.bgTracos || ""; document.getElementById('bgCicatrizes').value = d_raw.bgCicatrizes || ""; document.getElementById('bgFobias').value = d_raw.bgFobias || ""; document.getElementById('bgEncontros').value = d_raw.bgEncontros || "";
-
-            recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); 
-        });
-    }
-
-    function salvarFicha() {
-        const hF = isHexatombe || globalHexatombe; const cu = auth.currentUser; const nj = cu ? (cu.displayName || cu.email) : "Desconhecido";
-        const pO = {};
-        
-        nomesPericias.forEach(p => {
-            const hasSubs = bancoPericias[p].subs || bancoPericias[p].subsInputs;
-            const a = document.getElementById(`attr-${p}`) ? document.getElementById(`attr-${p}`).value : bancoPericias[p].attr;
-            const aI = document.getElementById(`attr-${a.toLowerCase()}`);
-            let aV = aI ? (parseInt(aI.value) || 0) : 0;
-
-            if (hasSubs) {
-                let aS_bonus = [0,0,0,0]; let aS_treino = [0,0,0,0]; let aN = ["","","",""];
-                let bTreinadoElement = document.getElementById(`base-treino-${p}`);
-                let bTreinado = bTreinadoElement ? (bTreinadoElement.value === 'true') : false;
-
-                for(let i=0; i<4; i++) {
-                    aS_bonus[i] = parseInt(document.getElementById(`sub-bonus-${p}-${i}`)?.value) || 0;
-                    aS_treino[i] = parseInt(document.getElementById(`sub-treino-${p}-${i}`)?.value) || 0;
-                    if(bancoPericias[p].subsInputs && i < 3) aN[i] = document.getElementById(`sub-nome-${p}-${i}`)?.value || "";
-
-                    let sbTot = document.getElementById(`sub-total-${p}-${i}`);
-                    if(sbTot) sbTot.innerText = aV + aS_bonus[i] + aS_treino[i];
-                }
-                pO[p] = { bonus: 0, treino: 0, atributo: a, subsBonus: aS_bonus, subsTreino: aS_treino, subsNames: aN, baseTreinado: bTreinado };
-            } else {
-                const b = document.getElementById(`bonus-${p}`) ? parseInt(document.getElementById(`bonus-${p}`).value) || 0 : 0;
-                const t = document.getElementById(`treino-${p}`) ? parseInt(document.getElementById(`treino-${p}`).value) || 0 : 0;
-                let tS = document.getElementById(`total-${p}`);
-                if(tS) tS.innerText = aV + b + t;
-                pO[p] = { bonus: b, treino: t, atributo: a, subsBonus: [0,0,0,0], subsTreino: [0,0,0,0], subsNames: ["","","",""], baseTreinado: false };
-            }
-        });
-
-        let iR = 0; for(let i=1; i<=4; i++) { if(document.getElementById(`it-${i}`).classList.contains('active')) iR = i; }
-
-        let valNC = parseInt(document.getElementById('nivel-credito').value);
-        if (isNaN(valNC)) valNC = -1;
-
-        let pl = {
-            nomeJogador: nj, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
-            agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
-            vidaMax: parseInt(document.getElementById('vida-max').value) || 12, sanMax: parseInt(document.getElementById('san-max').value) || 12, peMax: parseInt(document.getElementById('pe-max').value) || 2,
-            nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
-            protecao: document.getElementById('info-prot').value, vulnerabilidades: document.getElementById('info-vuln').value, resistencias: document.getElementById('info-res').value, proficiencias: document.getElementById('info-prof').value,
-            bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
-            statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
-            enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
-            insanoTemporario: isITActive, itRounds: iR, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao,
-            nivelCredito: valNC, limiteGastos: document.getElementById('limite-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value, patrimonioRecursos: document.getElementById('patrimonio-recursos').value
-        };
-
-        let bgData = {
-            bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value
-        };
-
-        let rU = { hexatombe: isHexatombe, restricao: isRestricao, ...bgData };
-        let iV = parseInt(document.getElementById('vida-atual').value) || 0; let iS = parseInt(document.getElementById('san-atual').value) || 0; let iP = parseInt(document.getElementById('pe-atual').value) || 0;
-
-        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; } 
-        else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
-        db.collection("fichas").doc(atual).update(rU); recalcularBases();
-    }
-
-    function ajustar(t, v) { const i = document.getElementById(`${t}-atual`); const m = document.getElementById(`${t}-max`); if(i && m) { let nV = (parseInt(i.value) || 0) + v; document.getElementById(`${t}-atual`).value = nV; atualizarStatusVisual(t); salvarFicha(); } }
-    function estabilizarStatus(t) { document.getElementById(`${t}-atual`).value = 1; atualizarStatusVisual(t); if(t === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; } if(t === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; } salvarFicha(); }
-    function instakill() { document.getElementById(`vida-atual`).value = 0; atualizarStatusVisual('vida'); salvarFicha(); }
-    function toggleInsanoTemporario() { isITActive = !isITActive; const it = document.getElementById('it-san'); const cs = document.getElementById('content-san'); const zs = document.getElementById('zero-san'); if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; zs.classList.remove('active'); } else { it.classList.remove('active'); for(let i=1; i<=4; i++) { document.getElementById(`it-${i}`).classList.remove('active'); } const sA = parseInt(document.getElementById('san-atual').value) || 0; if (sA <= 0) zs.classList.add('active'); else cs.style.opacity = '1'; } salvarFicha(); }
-    function marcarIT(r) { for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if (i <= r) e.classList.add('active'); else e.classList.remove('active'); } salvarFicha(); }
-    function toggleMiniCond(t) { if (t === 'sequela') document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
 
     function carregarRituais() { if(unsubRit) unsubRit(); const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; unsubRit = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-rituais'); c.innerHTML = ""; const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; snap.forEach(doc => { const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); const iA = r.aprendido ? 'checked' : ''; const iP = r.primeiraConjuracao ? 'checked' : ''; const cor = cE[r.elemento] || "var(--op-ink)"; c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:900">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor};">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter', sans-serif; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
     
@@ -1735,13 +1354,13 @@
                 const iO = menusAbertos.has('atq-' + id); 
                 pA += (parseInt(a.pressao) || 0); 
                 
-                let cat = getAtaqueCat(a); // Define a categoria da arma para a filtragem
+                let cat = getAtaqueCat(a);
                 
                 l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; 
             }); 
             window.valPressaoAtaques = pA; 
             syncPressaoVisuais(); 
-            aplicarFiltrosAtaques(); // Atualiza a visualização caso algum filtro esteja ligado
+            aplicarFiltrosAtaques(); 
         }); 
     }
     
@@ -1760,13 +1379,13 @@
                 const q = parseInt(i.quantidade) || 1; 
                 pI += (pr * q); 
                 
-                let cat = i.categoria || 'Geral'; // Define a categoria do item
+                let cat = i.categoria || 'Geral';
                 
                 c.innerHTML += `<div class="ritual-card item-card" data-categoria="${cat}" style="border-left-color: var(--cor-geral);"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:var(--op-ink); font-weight:900">${i.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${cat} | Qtd: ${q} | Pressão: ${pr*q}</span></div><div class="card-body" id="inv-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${i.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${cat=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${cat=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${cat=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${cat=='Artefato'?'selected':''}>Artefato</option><option value="Anômalo" ${cat=='Anômalo'?'selected':''}>Anômalo</option><option value="Geral" ${cat=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${i.pressao !== undefined ? i.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${i.quantidade !== undefined ? i.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`; 
             }); 
             window.valPressaoInventario = pI; 
             syncPressaoVisuais(); 
-            aplicarFiltrosInventario(); // Atualiza a visualização caso algum filtro esteja ligado
+            aplicarFiltrosInventario(); 
         }); 
     }
     
