@@ -92,13 +92,13 @@
         .grid-container.papel-sangrando { box-shadow: inset 0 0 40px rgba(139,28,28,0.5); border: none; }
         .grid-container.papel-machucado::after {
             content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
             opacity: 0.95;
             background-image: radial-gradient(circle 60px at 10% 8%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 35px at 14% 10%, rgba(100,10,10,0.9) 0%, transparent 100%), radial-gradient(circle 50px at 95% 15%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 25px at 90% 20%, rgba(100,10,10,0.9) 0%, transparent 100%), radial-gradient(ellipse 70px 30px at 50% 98%, rgba(139,28,28,0.75) 0%, transparent 100%), radial-gradient(circle 20px at 7% 7%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 12px at 9% 6%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 40px at 12% 45%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 18px at 10% 43%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 55px at 85% 60%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 22px at 82% 64%, rgba(139,28,28,0.9) 0%, transparent 100%), radial-gradient(circle 35px at 30% 95%, rgba(139,28,28,0.85) 0%, transparent 100%), radial-gradient(circle 15px at 28% 97%, rgba(139,28,28,0.85) 0%, transparent 100%);
         }
@@ -241,9 +241,11 @@
         .p-verde-text { color: #32b432 !important; }
         .p-laranja-text { color: #dc7800 !important; }
         .p-vermelho-text { color: #b42828 !important; }
+        .p-treinado-text { color: #008b8b !important; font-weight: 900 !important; }
         body.tema-escuro .p-verde-text { color: #32b432 !important; }
         body.tema-escuro .p-laranja-text { color: #dc7800 !important; }
         body.tema-escuro .p-vermelho-text { color: #c83232 !important; }
+        body.tema-escuro .p-treinado-text { color: #008b8b !important; font-weight: 900 !important; }
 
         .def-input-bonus { width: 30px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); font-size: 11px; text-align: center; outline: none; border-radius: 2px; font-family: 'Special Elite', monospace;}
         
@@ -305,7 +307,7 @@
         body.tema-escuro .btn-criar { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
         body.tema-escuro .bg-label { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1200px) {
             body { padding: 0 !important; margin: 0; }
             .grid-container { grid-template-columns: 1fr; gap: 20px; padding: 15px 10px !important; border: none !important; border-radius: 0 !important; width: 100%; min-width: auto; box-sizing: border-box;} 
             .profile-flex { gap: 15px !important; margin-bottom: 15px !important; }
@@ -905,6 +907,25 @@
         </div>
 
         <div id="aba-inventario" class="tab-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 25px; background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border); border-radius: 2px;">
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">NÍVEL DE CRÉDITO</label>
+                    <input type="number" id="nivel-credito" onchange="atualizarCredito(); salvarFicha();" value="-1" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; outline: none;">
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">LIMITE DE GASTOS</label>
+                    <input type="text" id="limite-gastos" onchange="salvarFicha();" value="$0" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none;">
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">DINHEIRO ATUAL</label>
+                    <input type="text" id="dinheiro-especie" onchange="salvarFicha();" value="$0" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none;">
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">PATRIMÔNIO / BENS</label>
+                    <input type="text" id="patrimonio-recursos" onchange="salvarFicha();" value="$0" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none;">
+                </div>
+            </div>
+
             <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px;">
                 <div style="display:flex; gap:10px;">
                     <button class="cris-btn" onclick="toggleElem('modal-tpl-item')">+ LISTA</button>
@@ -1106,6 +1127,21 @@
     async function confirmarCrop() { const u = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; try { if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); } else { const d = {}; d[`portrait${modoCrop}`] = u; d[`p${modoCrop}X`] = x; d[`p${modoCrop}Y`] = y; d[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(d); alert(`Evidência arquivada!`); } fecharModal(); } catch (e) {} }
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
 
+    function atualizarCredito() {
+        let nc = parseInt(document.getElementById('nivel-credito').value) || -1;
+        let gastos = "$0", dinheiro = "$0", patrimonio = "$0";
+        
+        if (nc <= -1) { gastos = "$0"; dinheiro = "$0"; patrimonio = "$0"; }
+        else if (nc === 0) { gastos = "$10"; dinheiro = "$50"; patrimonio = "$500"; }
+        else if (nc === 1) { gastos = "$50"; dinheiro = "$200"; patrimonio = "$5.000"; }
+        else if (nc === 2) { gastos = "$200"; dinheiro = "$1.000"; patrimonio = "$50.000"; }
+        else if (nc >= 3) { gastos = "$1.000+"; dinheiro = "$5.000+"; patrimonio = "$500.000+"; }
+        
+        document.getElementById('limite-gastos').value = gastos;
+        document.getElementById('dinheiro-especie').value = dinheiro;
+        document.getElementById('patrimonio-recursos').value = patrimonio;
+    }
+
     const bancoPericias = {
         "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas, redução de dano de queda e Escalar (usando Força)." },
         "Adestramento": { attr: "VON", tipo: "pessoal", desc: "Lidar com animais, treinar, acalmar ou comandar feras." },
@@ -1135,7 +1171,6 @@
         "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Notar detalhes ao redor, ouvir sons baixos e vigilância geral." },
         "Pilotagem": { attr: "AGI", tipo: "profissao", subs: ["Esportiva", "Aérea", "Aquática", "Pesada"], desc: "Operação de veículos especiais, tratores, trens, barcos ou aeronaves." },
         "Pontaria": { attr: "AGI", tipo: "pessoal", desc: "Arremesso de objetos, facas, granadas e precisão natural." },
-        "Recursos": { attr: "SAG", tipo: "profissao", desc: "Nível de crédito, riqueza disponível, contatos e influência financeira." },
         "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." },
         "Religião": { attr: "VON", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." },
         "Sobrevivência": { attr: "SAG", tipo: "profissao", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." },
@@ -1410,6 +1445,11 @@
             const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
 
+            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1;
+            document.getElementById('limite-gastos').value = d.limiteGastos || "$0";
+            document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "$0";
+            document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "$0";
+
             let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
             
             nomesPericias.forEach(p => {
@@ -1534,7 +1574,8 @@
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
             enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
-            insanoTemporario: isITActive, itRounds: iR, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao
+            insanoTemporario: isITActive, itRounds: iR, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao,
+            nivelCredito: parseInt(document.getElementById('nivel-credito').value) || -1, limiteGastos: document.getElementById('limite-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value, patrimonioRecursos: document.getElementById('patrimonio-recursos').value
         };
 
         let bgData = {
