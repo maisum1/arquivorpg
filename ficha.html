@@ -378,19 +378,6 @@
 .texto-vermelho-linha .nome-pericia {
     letter-spacing: normal !important;
 }
-        /* Escurece o texto das opções de treino (0, 1, 3, 5) no Modo Escuro */
-.tema-escuro select option {
-    color: #222222 !important; /* Um cinza bem escuro quase preto */
-    background-color: #ffffff !important; /* Garante que o fundo da lista seja branco */
-}
-
-/* Caso queira ser ainda mais específico para os seletores de perícia */
-.tema-escuro .rit-input option,
-.tema-escuro select[id^="treino-"] option,
-.tema-escuro select[id^="sub-treino-"] option {
-    color: #1a1a1a !important;
-    font-weight: bold;
-}
     </style>
 </head>
 <body>
@@ -437,24 +424,25 @@
     </div>
 </div>
 
-<div id="modal-origem" class="modal-padrao">
+<div id="modal-tpl-origem" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ORIGENS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar origem..." onkeyup="filtrarBanco(this, 'select-origem-template')">
-    <select id="select-origem-template" class="lista-padronizada" size="6">
+    <input type="text" class="search-banco" placeholder="Pesquisar origem ou perícia..." onkeyup="filtrarBanco(this, 'select-tpl-origem')">
+    <select id="select-tpl-origem" class="lista-padronizada" size="6" onchange="previewTemplate('origem')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Profissão/Origem...</option>
-        <option value="Academico">Acadêmico / Professor (+ Ciências / Religião)</option>
-        <option value="Policial">Agente Policial (+ Combate / Investigação)</option>
-        <option value="Cultista Arrependido">Cultista Arrependido (+ Ocultismo / Religião)</option>
-        <option value="Hacker">Especialista em TI (+ Tecnologia / Atualidades)</option>
-        <option value="Ocultista">Estudioso do Oculto (+ Ocultismo / Vontade)</option>
-        <option value="Mercenario">Ex-Militar (+ Balística / Tática)</option>
-        <option value="Jornalista">Jornalista Investigativo (+ Atualidades / Diplomacia)</option>
-        <option value="Medico">Médico Legista (+ Medicina / Percepção)</option>
-        <option value="Sobrevivente">Sobrevivente de Desastre (+ Fortitude / Sobrevivência)</option>
+        <option value="Academico" data-search="ciencias religiao">Acadêmico / Professor</option>
+        <option value="Policial" data-search="combate investigacao">Agente Policial</option>
+        <option value="Cultista Arrependido" data-search="ocultismo religiao">Cultista Arrependido</option>
+        <option value="Hacker" data-search="tecnologia atualidades">Especialista em TI</option>
+        <option value="Ocultista" data-search="ocultismo vontade">Estudioso do Oculto</option>
+        <option value="Mercenario" data-search="balistica tatica">Ex-Militar</option>
+        <option value="Jornalista" data-search="atualidades diplomacia">Jornalista Investigativo</option>
+        <option value="Medico" data-search="medicina percepcao">Médico Legista</option>
+        <option value="Sobrevivente" data-search="fortitude sobrevivencia">Sobrevivente de Desastre</option>
     </select>
+    <div id="preview-origem" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:flex-end;">
         <button class="cris-btn" onclick="aplicarOrigemTemplate()">APLICAR</button>
-        <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-origem')">CANCELAR</button>
+        <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-tpl-origem')">CANCELAR</button>
     </div>
 </div>
 
@@ -622,7 +610,7 @@
                 </div>
                 <div class="header-sub-row">
                     <div class="sub-input-group" style="flex: 1.5;">
-                        <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-origem')" style="background:transparent; border:1px dashed var(--card-border); color:var(--cor-geral); cursor:pointer; font-size:10px; font-weight:bold;">+ LISTA</button></label>
+                        <label>PROFISSÃO/ORIGEM <button onclick="toggleElem('modal-tpl-origem')" style="background:transparent; border:1px dashed var(--card-border); color:var(--cor-geral); cursor:pointer; font-size:10px; font-weight:bold;">+ LISTA</button></label>
                         <input type="text" id="origem-personagem" onchange="salvarFicha()" placeholder="...">
                     </div>
                     <div class="sub-input-group" id="grupo-arquetipo" style="display: none; flex: 1;">
@@ -964,7 +952,8 @@
         const options = select.options;
         for (let i = 0; i < options.length; i++) {
             const txt = options[i].text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (txt.includes(filter)) { options[i].style.display = ""; } else { options[i].style.display = "none"; }
+            const searchData = (options[i].getAttribute('data-search') || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (txt.includes(filter) || searchData.includes(filter)) { options[i].style.display = ""; } else { options[i].style.display = "none"; }
         }
     }
 
@@ -1057,14 +1046,29 @@
         "GravadorK7": { nome: "Gravador de Fitas K7", categoria: "Equipamento", pressao: 1, quantidade: 1, descricao: "Útil para gravar depoimentos (EVP) ou os sons que a criatura faz antes de atacar." }
     };
 
+    const templatesOrigens = {
+        "Cultista Arrependido": { nome: "Cultista Arrependido", p1: "Ocultismo", p2: "Religião", nc: 0 },
+        "Policial": { nome: "Agente Policial", p1: "Combate", p2: "Investigação", nc: 1 },
+        "Academico": { nome: "Acadêmico / Professor", p1: "Ciências", p2: "Religião", nc: 1 },
+        "Hacker": { nome: "Especialista em TI", p1: "Tecnologia", p2: "Atualidades", nc: 1 },
+        "Sobrevivente": { nome: "Sobrevivente de Desastre", p1: "Fortitude", p2: "Sobrevivência", nc: 0 },
+        "Ocultista": { nome: "Estudioso do Oculto", p1: "Ocultismo", p2: "Vontade", nc: 0 },
+        "Mercenario": { nome: "Ex-Militar", p1: "Balística", p2: "Tática", nc: 1 },
+        "Jornalista": { nome: "Jornalista Investigativo", p1: "Atualidades", p2: "Diplomacia", nc: 1 },
+        "Medico": { nome: "Médico Legista", p1: "Medicina", p2: "Percepção", nc: 2 }
+    };
+
     function previewTemplate(tipo) {
-        let val = document.getElementById(`select-tpl-${tipo}`).value; let p = document.getElementById(`preview-${tipo}`);
-        if (!val) { p.innerHTML = ""; return; }
+        let val = document.getElementById(`select-tpl-${tipo}`)?.value; 
+        let p = document.getElementById(`preview-${tipo}`);
+        if (!val) { if(p) p.innerHTML = ""; return; }
+
         if (tipo === 'ataque') { let d = templatesAtaques[val]; p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}`; } 
         else if (tipo === 'traco') p.innerHTML = `<strong>Descrição:</strong> ${templatesTracos[val].descricao}`;
         else if (tipo === 'espec') p.innerHTML = `<strong>Elemento:</strong> ${templatesEspecializacoes[val].elemento}<br><strong>Efeito:</strong> ${templatesEspecializacoes[val].descricao}`;
         else if (tipo === 'anomalia') p.innerHTML = `<strong>Elemento:</strong> ${templatesAnomalias[val].elemento}<br><strong>Efeito:</strong> ${templatesAnomalias[val].descricao}`;
         else if (tipo === 'item') p.innerHTML = `<strong>Categoria:</strong> ${templatesInventario[val].categoria} | <strong>Efeito:</strong> ${templatesInventario[val].descricao}`;
+        else if (tipo === 'origem') { let o = templatesOrigens[val]; p.innerHTML = `<strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${o.p1} (+3), ${o.p2} (+1)<br><strong style="color:var(--op-red)">Nível de Crédito:</strong> ${o.nc > 0 ? '+'+o.nc : o.nc}`; }
     }
 
     function aplicarTemplateModal(c) { let t = {'ataques':'ataque','habilidades':'traco','poderes':'espec','rituais':'anomalia','inventario':'item'}[c]; let v = document.getElementById(`select-tpl-${t}`).value; if (v) { aplicarTemplate(c, v); toggleElem(`modal-tpl-${t}`); document.getElementById(`select-tpl-${t}`).value = ""; document.getElementById(`preview-${t}`).innerHTML = ""; } }
@@ -1602,7 +1606,7 @@
     
     function carregarHabilidades() { if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-habilidades'); c.innerHTML = ""; snap.forEach(doc => { const h = doc.data(); const id = doc.id; const iO = menusAbertos.has('hab-' + id); c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`; }); }); }
     
-   function carregarAtaques() { if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; snap.forEach(doc => { const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); l.innerHTML += `<div class="ritual-card" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; }); window.valPressaoAtaques = pA; syncPressaoVisuais(); }); }
+    function carregarAtaques() { if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; snap.forEach(doc => { const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); l.innerHTML += `<div class="ritual-card" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; }); window.valPressaoAtaques = pA; syncPressaoVisuais(); }); }
     
     function carregarInventario() { if(unsubInv) unsubInv(); const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; unsubInv = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { const c = document.getElementById('lista-inventario'); c.innerHTML = ""; let pI = 0; snap.forEach(doc => { const i = doc.data(); const id = doc.id; const iO = menusAbertos.has('inv-' + id); const pr = parseInt(i.pressao) || 0; const q = parseInt(i.quantidade) || 1; pI += (pr * q); c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--cor-geral);"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:var(--op-ink); font-weight:900">${i.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${i.categoria || 'Geral'} | Qtd: ${q} | Pressão: ${pr*q}</span></div><div class="card-body" id="inv-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${i.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${i.categoria=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${i.categoria=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${i.categoria=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${i.categoria=='Artefato'?'selected':''}>Artefato</option><option value="Geral" ${i.categoria=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${i.pressao !== undefined ? i.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${i.quantidade !== undefined ? i.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`; }); window.valPressaoInventario = pI; syncPressaoVisuais(); }); }
     
