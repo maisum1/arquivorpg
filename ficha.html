@@ -428,7 +428,7 @@
 
 <div id="modal-tpl-origem" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ORIGENS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar origem ou perícia..." onkeyup="filtrarBanco(this, 'select-tpl-origem')">
+    <input type="text" id="search-select-tpl-origem" class="search-banco" placeholder="Pesquisar origem ou perícia..." onkeyup="filtrarBanco(this, 'select-tpl-origem')">
     <select id="select-tpl-origem" class="lista-padronizada" size="6" onchange="previewTemplate('origem')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Profissão/Origem...</option>
         <option value="Academico" data-search="ciencias investigacao">Acadêmico / Professor</option>
@@ -463,26 +463,31 @@
 
 <div id="modal-tpl-ataque" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
+    <div class="filtros-container" style="justify-content: center; margin-bottom: 10px;">
+        <button class="btn-filtro active" onclick="setFiltroModal('select-tpl-ataque', 'Todos', this)">TODOS</button>
+        <button class="btn-filtro" onclick="setFiltroModal('select-tpl-ataque', 'Corpo a Corpo', this)">CORPO A CORPO</button>
+        <button class="btn-filtro" onclick="setFiltroModal('select-tpl-ataque', 'À Distância', this)">À DISTÂNCIA</button>
+    </div>
+    <input type="text" id="search-select-tpl-ataque" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
     <select id="select-tpl-ataque" class="lista-padronizada" size="6" onchange="previewTemplate('ataque')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Arma...</option>
-        <option value="FacaRitual">Adaga Obsidiana</option>
-        <option value="Taser">Arma de Choque (Taser)</option>
-        <option value="Dinamite">Banana de Dinamite</option>
-        <option value="BengalaEspada">Bengala-Espada Oculta</option>
-        <option value="Besta">Besta de Caça</option>
-        <option value="Escopeta">Escopeta Calibre 12</option>
-        <option value="Faca">Faca Tática</option>
-        <option value="Fuzil">Fuzil de Assalto AR-15</option>
-        <option value="FuzilPrecisao">Fuzil de Precisão (Sniper)</option>
-        <option value="Glock">Glock 19 (9mm)</option>
-        <option value="Katana">Katana Antiga</option>
-        <option value="Machado">Machado de Incêndio</option>
-        <option value="Motosserra">Motosserra Pesada</option>
-        <option value="Sinalizador">Pistola Sinalizadora</option>
-        <option value="Revolver">Revólver .38</option>
-        <option value="SocoIngles">Soco Inglês</option>
-        <option value="Submetralhadora">Submetralhadora (Thompson/MP5)</option>
+        <option value="FacaRitual" data-categoria="Corpo a Corpo" data-anomalo="true">Adaga Obsidiana (1d4 Corte, Corpo a corpo)</option>
+        <option value="Taser" data-categoria="À Distância">Arma de Choque/Taser (1d4 Eletricidade, Curto)</option>
+        <option value="Dinamite" data-categoria="À Distância">Banana de Dinamite (4d6 Fogo, Área)</option>
+        <option value="BengalaEspada" data-categoria="Corpo a Corpo">Bengala-Espada Oculta (1d6 Corte, Corpo a corpo)</option>
+        <option value="Besta" data-categoria="À Distância">Besta de Caça (1d10 Perfurante, Médio)</option>
+        <option value="Escopeta" data-categoria="À Distância">Escopeta Calibre 12 (3d6 Balístico, Curto)</option>
+        <option value="Faca" data-categoria="Corpo a Corpo">Faca Tática (1d4+1 Corte, Corpo a corpo)</option>
+        <option value="Fuzil" data-categoria="À Distância">Fuzil de Assalto AR-15 (2d10 Balístico, Médio)</option>
+        <option value="FuzilPrecisao" data-categoria="À Distância">Fuzil Sniper (2d10+2 Balístico, Longo)</option>
+        <option value="Glock" data-categoria="À Distância">Glock 19 9mm (1d10 Balístico, Curto)</option>
+        <option value="Katana" data-categoria="Corpo a Corpo">Katana Antiga (1d10 Corte, Corpo a corpo)</option>
+        <option value="Machado" data-categoria="Corpo a Corpo">Machado de Incêndio (1d8+1 Corte, Corpo a corpo)</option>
+        <option value="Motosserra" data-categoria="Corpo a Corpo">Motosserra Pesada (3d6 Corte, Corpo a corpo)</option>
+        <option value="Sinalizador" data-categoria="À Distância">Pistola Sinalizadora (1d6 Fogo, Curto)</option>
+        <option value="Revolver" data-categoria="À Distância">Revólver .38 (1d10 Balístico, Curto)</option>
+        <option value="SocoIngles" data-categoria="Corpo a Corpo">Soco Inglês (1d4+1 Impacto, Corpo a corpo)</option>
+        <option value="Submetralhadora" data-categoria="À Distância">Submetralhadora (2d6 Balístico, Curto)</option>
     </select>
     <div id="preview-ataque" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
@@ -493,7 +498,7 @@
 
 <div id="modal-tpl-traco" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE TRAÇOS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar traço..." onkeyup="filtrarBanco(this, 'select-tpl-traco')">
+    <input type="text" id="search-select-tpl-traco" class="search-banco" placeholder="Pesquisar traço..." onkeyup="filtrarBanco(this, 'select-tpl-traco')">
     <select id="select-tpl-traco" class="lista-padronizada" size="6" onchange="previewTemplate('traco')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione um Traço...</option>
         <option value="Cetico">Cético Obstinado</option>
@@ -520,7 +525,7 @@
 
 <div id="modal-tpl-espec" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block; color: var(--hp-red) !important;">ESPECIALIZAÇÕES</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar especialização..." onkeyup="filtrarBanco(this, 'select-tpl-espec')">
+    <input type="text" id="search-select-tpl-espec" class="search-banco" placeholder="Pesquisar especialização..." onkeyup="filtrarBanco(this, 'select-tpl-espec')">
     <select id="select-tpl-espec" class="lista-padronizada" size="6" onchange="previewTemplate('espec')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Especialização...</option>
         <option value="Afortunado">Afortunado (Energia)</option>
@@ -548,7 +553,7 @@
 
 <div id="modal-tpl-anomalia" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ANOMALIAS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar anomalia..." onkeyup="filtrarBanco(this, 'select-tpl-anomalia')">
+    <input type="text" id="search-select-tpl-anomalia" class="search-banco" placeholder="Pesquisar anomalia..." onkeyup="filtrarBanco(this, 'select-tpl-anomalia')">
     <select id="select-tpl-anomalia" class="lista-padronizada" size="6" onchange="previewTemplate('anomalia')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Anomalia...</option>
         <option value="AmaldicoarArma">Amaldiçoar Arma (Energia)</option>
@@ -574,24 +579,31 @@
 
 <div id="modal-tpl-item" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ITENS</h3>
-    <input type="text" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
+    <div class="filtros-container" style="justify-content: center; margin-bottom: 10px;">
+        <button class="btn-filtro active" onclick="setFiltroModal('select-tpl-item', 'Todos', this)">TODOS</button>
+        <button class="btn-filtro" onclick="setFiltroModal('select-tpl-item', 'Equipamento', this)">EQUIPAMENTO</button>
+        <button class="btn-filtro" onclick="setFiltroModal('select-tpl-item', 'Consumível', this)">CONSUMÍVEL</button>
+        <button class="btn-filtro" onclick="setFiltroModal('select-tpl-item', 'Geral', this)">GERAL</button>
+        <button class="btn-filtro" id="btn-modal-filtro-anomalo" style="display:none; color: var(--san-purple); border-color: var(--san-purple);" onclick="setFiltroModal('select-tpl-item', 'Anômalo', this)">ANÔMALOS</button>
+    </div>
+    <input type="text" id="search-select-tpl-item" class="search-banco" placeholder="Pesquisar item..." onkeyup="filtrarBanco(this, 'select-tpl-item')">
     <select id="select-tpl-item" class="lista-padronizada" size="6" onchange="previewTemplate('item')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione um Item...</option>
-        <option value="Adrenalina">Seringa de Epinefrina</option>
-        <option value="Algemas">Algemas Táticas</option>
-        <option value="Bandagem">Bandagem</option>
-        <option value="CameraPolaroid">Câmera Polaroid Antiga</option>
-        <option value="CantilBebida">Cantil com Uísque</option>
-        <option value="ColeteLeve">Colete Balístico Leve</option>
-        <option value="ComponenteMorte">Cinzas Humanas</option>
-        <option value="ComponenteSangue">Sangue de Sacrifício</option>
-        <option value="EmsSop">Detector de EMF</option>
-        <option value="GravadorK7">Gravador de Fitas K7</option>
-        <option value="Grimorio">Diário de Ocultista</option>
-        <option value="KitInvestigacao">Maleta de Investigação</option>
-        <option value="KitPrimeirosSocorros">Kit de Primeiros Socorros</option>
-        <option value="Lanterna">Lanterna Tática</option>
-        <option value="PeDeCabra">Pé de Cabra</option>
+        <option value="Adrenalina" data-categoria="Consumível">Seringa de Epinefrina (Cura PV e tira Atordoado)</option>
+        <option value="Algemas" data-categoria="Equipamento">Algemas Táticas (Prende alvos)</option>
+        <option value="Bandagem" data-categoria="Consumível">Bandagem (Cura 2d10 PV)</option>
+        <option value="CameraPolaroid" data-categoria="Equipamento">Câmera Polaroid Antiga (Revela Espectros)</option>
+        <option value="CantilBebida" data-categoria="Consumível">Cantil com Uísque (Cura Sanidade, -2 AGI)</option>
+        <option value="ColeteLeve" data-categoria="Equipamento">Colete Balístico Leve (+2 Defesa)</option>
+        <option value="ComponenteMorte" data-categoria="Anômalo" data-anomalo="true">Cinzas Humanas (Componente de Morte)</option>
+        <option value="ComponenteSangue" data-categoria="Anômalo" data-anomalo="true">Sangue de Sacrifício (Componente de Sangue)</option>
+        <option value="EmsSop" data-categoria="Equipamento">Detector de EMF (Capta Energia/Morte)</option>
+        <option value="GravadorK7" data-categoria="Equipamento">Gravador de Fitas K7 (Grava EVP)</option>
+        <option value="Grimorio" data-categoria="Anômalo" data-anomalo="true">Diário de Ocultista (Ajuda em rituais)</option>
+        <option value="KitInvestigacao" data-categoria="Equipamento">Maleta de Investigação (Vantagem em Investigação)</option>
+        <option value="KitPrimeirosSocorros" data-categoria="Consumível">Kit de Primeiros Socorros (+5 Medicina, cura)</option>
+        <option value="Lanterna" data-categoria="Equipamento">Lanterna Tática (Iluminação)</option>
+        <option value="PeDeCabra" data-categoria="Geral">Pé de Cabra (Arromba portas, 1d6 Impacto)</option>
     </select>
     <div id="preview-item" style="font-size: 11px; color: var(--cor-geral); font-family: 'Special Elite', monospace; margin-bottom: 20px; min-height: 40px;"></div>
     <div style="display:flex; gap:10px; justify-content:center;">
@@ -977,15 +989,62 @@
     function alternarTema() { document.body.classList.toggle('tema-escuro'); localStorage.setItem('temaFichaAmeaca', document.body.classList.contains('tema-escuro') ? 'escuro' : 'claro'); }
     window.addEventListener('DOMContentLoaded', () => { if (localStorage.getItem('temaFichaAmeaca') === 'escuro') document.body.classList.add('tema-escuro'); });
 
-    function filtrarBanco(input, selectId) {
-        const filter = input.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    let modalFiltros = {
+        'select-tpl-ataque': 'Todos',
+        'select-tpl-item': 'Todos'
+    };
+
+    function setFiltroModal(selectId, cat, btn) {
+        modalFiltros[selectId] = cat;
+        if(btn) {
+            let container = btn.parentElement;
+            container.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        let input = document.getElementById('search-' + selectId) || document.querySelector(`input[onkeyup*="${selectId}"]`);
+        let val = input ? input.value : '';
+        atualizarListaModal(selectId, val);
+    }
+
+    function atualizarListaModal(selectId, filterText = "") {
+        filterText = filterText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const select = document.getElementById(selectId);
+        if(!select) return;
+        
+        const cat = modalFiltros[selectId] || 'Todos';
         const options = select.options;
+        let despertado = isRevelado || globalRevelado;
+
         for (let i = 0; i < options.length; i++) {
+            if (options[i].value === "") continue; // Pula o placeholder
+
+            const isAnomalo = options[i].getAttribute('data-anomalo') === 'true' || options[i].getAttribute('data-categoria') === 'Anômalo';
+            const optCat = options[i].getAttribute('data-categoria') || 'Outros';
             const txt = options[i].text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const searchData = (options[i].getAttribute('data-search') || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (txt.includes(filter) || searchData.includes(filter)) { options[i].style.display = ""; } else { options[i].style.display = "none"; }
+
+            let show = true;
+
+            // Bloqueia itens anômalos caso o despertar não esteja ativo
+            if (isAnomalo && !despertado) show = false;
+            
+            // Filtro por botões do modal
+            if (show && modalFiltros[selectId] && cat !== 'Todos') {
+                if (optCat !== cat) show = false;
+            }
+
+            // Filtro de pesquisa digitada
+            if (show && filterText !== "") {
+                if (!txt.includes(filterText) && !searchData.includes(filterText)) show = false;
+            }
+
+            options[i].style.display = show ? "" : "none";
         }
+    }
+
+    // Adaptado para integrar com todos os modais perfeitamente sem perder funcionalidade antiga
+    function filtrarBanco(input, selectId) {
+        atualizarListaModal(selectId, input.value);
     }
 
     const templatesOrigens = {
@@ -1226,7 +1285,10 @@
     function ativarSegredo(campo) { document.body.classList.add('shake'); salvarFicha(); setTimeout(async () => { document.body.classList.remove('shake'); let doc = await db.collection("fichas").doc(atual).get(); let valAtual = doc.data()[campo] || false; let updates = {}; if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; } if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; } if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; } if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; } await db.collection("fichas").doc(atual).update(updates); aplicarSegredosUI(); }, 800); }
 
     function aplicarSegredosUI() {
-        const rf = isRevelado || globalRevelado; const hf = isHexatombe || globalHexatombe; const ef = isExtremos || globalExtremos; const ref = isRestricao || globalRestricao;
+        const rf = isRevelado || globalRevelado; 
+        const hf = isHexatombe || globalHexatombe; 
+        const ef = isExtremos || globalExtremos; 
+        const ref = isRestricao || globalRestricao;
         if (hf) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
         const nexStr = document.getElementById('nex-personagem').value; const bgEnc = document.getElementById('bgEncontros-container');
 
@@ -1248,6 +1310,22 @@
             if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao'); else document.getElementById('sigilo-box').classList.remove('brilho-restricao');
         }
         aplicarFiltrosInventario();
+        
+        // Atualiza os modais e seus botões de filtro
+        const btnAnomaloModal = document.getElementById('btn-modal-filtro-anomalo');
+        if (btnAnomaloModal) {
+            btnAnomaloModal.style.display = rf ? 'inline-block' : 'none';
+            if (!rf && modalFiltros['select-tpl-item'] === 'Anômalo') {
+                const container = btnAnomaloModal.parentElement;
+                setFiltroModal('select-tpl-item', 'Todos', container.querySelector('.btn-filtro'));
+            }
+        }
+        
+        let inputAtaque = document.getElementById('search-select-tpl-ataque');
+        atualizarListaModal('select-tpl-ataque', inputAtaque ? inputAtaque.value : "");
+
+        let inputItem = document.getElementById('search-select-tpl-item');
+        atualizarListaModal('select-tpl-item', inputItem ? inputItem.value : "");
     }
 
     function aplicarStatusVisual() { const st = document.getElementById('status-personagem').value; const o = document.getElementById('status-overlay'); const s = document.querySelector('.grid-container'); o.className = ''; s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake'); if(st === 'Sangrando') { o.classList.add('overlay-sangrando'); s.classList.add('papel-sangrando'); } if(st === 'Machucado') { o.classList.add('overlay-machucado'); s.classList.add('papel-machucado'); } if(st === 'Atordoado') o.classList.add('overlay-atordoado'); if(st === 'Assustado') { o.classList.add('overlay-assustado'); s.classList.add('blur-shake'); } }
@@ -1465,7 +1543,7 @@
         let n = parseInt(ns) || 0; 
         const cl = document.getElementById('classe-personagem').value; 
         
-        const ef = isExtremos || globalExtremos; 
+       const ef = isExtremos || globalExtremos; 
         if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
         
         const nV = 12 + (2 * vg) + (3 * nv); 
