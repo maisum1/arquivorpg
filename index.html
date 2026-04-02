@@ -546,7 +546,7 @@
 
             let infoExtra = '';
             if (context === 'monitor') {
-                infoExtra = `<br><small style="color:var(--op-red); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:var(--cor-geral)">|</span> <small style="color:var(--san-purple); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>`;
+                infoExtra = `<small style="color:var(--op-red); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:var(--cor-geral)">|</span> <small style="color:var(--san-purple); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>`;
             }
             if (d.campanhaId && context === 'hub-proprio') {
                 infoExtra += `<br><small style="color:var(--san-purple); font-weight:bold; font-size:9px;">VINCULADO: ${d.campanhaId}</small>`;
@@ -555,17 +555,20 @@
             return `
                 <div class="ficha-card" style="border-left-color:var(--cor-geral);">
                     ${botoesAcao}
-                    <div style="display:flex; align-items:center; flex:1; padding-right: ${rightPos + 10}px;">
+                    <div style="display:flex; align-items:center; flex:1; padding-right: ${rightPos + 5}px; min-width: 0;">
                         <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: var(--card-border); flex-shrink:0;">
                             ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
                         </div>
-                        <div style="min-width:0; overflow-wrap: break-word;">
-                            <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px;">${d.nome || 'PERSONA'}</strong> <small style="color:var(--cor-geral); font-family: 'Special Elite', monospace;">| EXP ${d.nex || '5%'}</small><br>
-                            <small style="color:var(--op-ink); font-family: 'Inter', sans-serif; font-size:9px; text-transform:uppercase; font-weight:bold;">Jogador: ${d.nomeJogador || 'Desconhecido'}</small>
+                        <div style="min-width:0; width: 100%;">
+                            <div style="display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap;">
+                                <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: inline-block;">${d.nome || 'PERSONA'}</strong>
+                            </div>
+                            <small style="color:var(--cor-geral); font-family: 'Special Elite', monospace; display: block; margin-top: -3px; margin-bottom: 2px;">EXP ${d.nex || '5%'}</small>
+                            <small style="color:var(--op-ink); font-family: 'Inter', sans-serif; font-size:9px; text-transform:uppercase; font-weight:bold; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">Jogador: ${d.nomeJogador || 'Desconhecido'}</small>
                             ${infoExtra}
                         </div>
                     </div>
-                    <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
+                    <a href="ficha.html?id=${doc.id}" class="btn-open" style="margin-left: 10px;">VER</a>
                 </div>`;
         }
 
