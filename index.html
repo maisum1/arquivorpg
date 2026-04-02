@@ -131,6 +131,7 @@
         .hub-input { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none; padding: 5px 0; width: 100%; box-sizing: border-box; margin-bottom: 15px; text-align: center;}
         .hub-input:focus { border-bottom: 1px solid var(--op-red); }
         body.tema-escuro .hub-input { color: #ffffff; }
+        #select-vinculo option { background: var(--bg-paper); color: var(--op-ink); }
 
         .mestre-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted var(--card-border); font-size: 12px; font-family: 'Courier Prime', monospace;}
         .btn-revogar { background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 10px; padding: 2px 5px; cursor: pointer; border-radius: 2px;}
@@ -179,6 +180,22 @@
         <button onclick="toggleModal('modal-vincular-campanha')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
+    <div id="modal-clonar-ameaca" class="modal-padrao">
+        <h3>CLONAR AMEAÇA (RÉPLICA)</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Cole abaixo o link da ameaça para replicá-la no seu banco de dados privado.</p>
+        <input type="text" id="input-link-clone" class="hub-input" placeholder="Cole o link da ameaça aqui...">
+        <button class="btn-google" onclick="clonarAmeacaPeloHub()" style="width: 100%; border-color: var(--san-purple); color: var(--san-purple);">CLONAR PARA MIM</button>
+        <button onclick="toggleModal('modal-clonar-ameaca')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
+    </div>
+
+    <div id="modal-selecionar-vinculo" class="modal-padrao">
+        <h3 id="titulo-modal-vinculo">VINCULAR...</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Selecione o arquivo que deseja adicionar a esta campanha.</p>
+        <select id="select-vinculo" class="hub-input" style="background:transparent; color:var(--op-ink); padding: 10px; cursor: pointer;"></select>
+        <button class="btn-google" onclick="confirmarVinculoMestre()" style="width:100%; border-color: var(--san-purple); color: var(--san-purple);">CONFIRMAR INSERÇÃO</button>
+        <button onclick="toggleModal('modal-selecionar-vinculo')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
+    </div>
+
     <div id="dashboard">
         <h2 id="welcome" style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px dotted var(--op-ink); padding-bottom: 15px; margin-bottom: 30px;">JOGADOR: CONECTANDO...</h2>
         
@@ -195,8 +212,11 @@
         </div>
 
         <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+                <button class="btn-google" style="border-color: var(--op-red); color: var(--op-red); margin-top: 0;" onclick="criarNovaAmeaca()">[+] DOCUMENTAR ANOMALIA</button>
+                <button class="btn-google" style="border-color: var(--san-purple); color: var(--san-purple); margin-top: 0;" onclick="toggleModal('modal-clonar-ameaca')">[📥] CLONAR VIA LINK</button>
+            </div>
             <div id="lista-ameacas" class="grid" style="max-width: 900px; margin: 0 auto;"></div>
-            <button class="btn-google" style="border-color: var(--op-red); color: var(--op-red); margin-top: 30px;" onclick="criarNovaAmeaca()">[+] DOCUMENTAR ANOMALIA</button>
         </div>
 
         <div id="hub-campanhas" class="conteudo-hub" style="display: none;">
@@ -215,6 +235,10 @@
                 <div style="margin-bottom: 30px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin: 0; color: var(--cor-geral);">PERSONAS VINCULADAS</h4>
+                        <div style="display:flex; gap: 10px;">
+                            <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="abrirModalVinculoMestre('ficha')">[+] ADD MINHA PERSONA / NPC</button>
+                            <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="alert('Forneça o Link da Campanha para os jogadores. Eles devem clicar em [ 📡 ] na aba MINHAS PERSONAS e colar seu link lá.')">[+] INSTRUIR JOGADOR</button>
+                        </div>
                     </div>
                     <div id="cv-fichas" class="grid" style="margin-top: 0;"></div>
                 </div>
@@ -222,7 +246,7 @@
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin: 0; color: var(--op-red);">AMEAÇAS DA CAMPANHA</h4>
-                        <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px; border-color: var(--op-red); color: var(--op-red);" onclick="vincularAmeacaModal()">[+] VINCULAR AMEAÇA</button>
+                        <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px; border-color: var(--op-red); color: var(--op-red);" onclick="abrirModalVinculoMestre('ameaca')">[+] ADD AMEAÇA</button>
                     </div>
                     <div id="cv-ameacas" class="grid" style="margin-top: 0;"></div>
                 </div>
@@ -250,13 +274,16 @@
     </div>
 
     <script>
-        // O E-mail intocável que gerencia todos (Seu email)
+        // Email Intocável - Altere somente aqui se necessário
         const EMAIL_SUPER_ADMIN = "pedroacpr@gmail.com";
+        
         let isSuperAdmin = false;
         let isMestre = false;
         let meusCodigosCampanha = [];
-        let minhasAmeacas = [];
+        let minhasAmeacasGlobais = [];
+        let minhasFichasGlobais = [];
         let campanhaAtivaView = null;
+        let tipoVinculoAtual = ''; // 'ficha' ou 'ameaca'
 
         function copiarLink(id) {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
@@ -267,7 +294,7 @@
         function copiarLinkAmeaca(id) {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ameaca.html?id=' + id;
             navigator.clipboard.writeText(url);
-            alert('Link Copiado! Compartilhe esta ameaça para que outro Mestre possa cloná-la.');
+            alert('Link Copiado! Mande para outro mestre colar na aba "Clonar via Link".');
         }
 
         function toggleGlobal(campo) {
@@ -324,8 +351,11 @@
             if(confirm(`Revogar o acesso de Mestre de ${email}?`)) { await db.collection("mestres").doc(email).update({ ativo: false }); }
         }
 
+        // ====== LÓGICA DE INICIALIZAÇÃO CORRIGIDA ======
         auth.onAuthStateChanged(user => {
-            const loading = document.getElementById('loading-screen');
+            // Remove o congelamento imediatamente para que o menu de login ou hub apareça
+            document.getElementById('loading-screen').style.display = 'none';
+
             const loginSec = document.getElementById('login-screen');
             const hubSec = document.getElementById('dashboard');
 
@@ -335,33 +365,34 @@
                 document.getElementById('btn-engrenagem').style.display = 'block';
                 
                 db.collection("usuarios").doc(user.uid).onSnapshot((doc) => {
-                    let nomeUsuario = user.displayName || user.email;
+                    let nomeUsuario = user.displayName || user.email || "Agente";
                     if (doc.exists && doc.data().nomeJogador) nomeUsuario = doc.data().nomeJogador;
                     window.nomeJogadorGlobal = nomeUsuario;
                     document.getElementById('welcome').innerText = `JOGADOR: ${nomeUsuario}`;
                 });
 
-                isSuperAdmin = (user.email === EMAIL_SUPER_ADMIN);
+                // Verifica o Super Admin sem travar (Mesmo que a conta não divulgue o email)
+                const userEmail = user.email ? user.email.toLowerCase() : "";
+                isSuperAdmin = (userEmail === EMAIL_SUPER_ADMIN.toLowerCase());
                 if(isSuperAdmin) document.getElementById('btn-admin').style.display = 'block';
 
-                // Verifica permissão de Mestre
-                db.collection("mestres").doc(user.email).onSnapshot(doc => {
-                    isMestre = isSuperAdmin || (doc.exists && doc.data().ativo);
-                    
-                    if (isMestre) {
-                        document.getElementById('btn-ameacas').style.display = 'inline-block';
-                        document.getElementById('btn-campanhas').style.display = 'inline-block';
-                        document.getElementById('btn-mestre').style.display = 'inline-block';
+                if (userEmail) {
+                    db.collection("mestres").doc(userEmail).onSnapshot(doc => {
+                        isMestre = isSuperAdmin || (doc.exists && doc.data().ativo);
                         
-                        listarAmeacas(user.uid);
-                        listarCampanhas(user.uid);
-                    } else {
-                        document.getElementById('btn-ameacas').style.display = 'none';
-                        document.getElementById('btn-campanhas').style.display = 'none';
-                        document.getElementById('btn-mestre').style.display = 'none';
-                    }
-                });
-
+                        if (isMestre) {
+                            document.getElementById('btn-ameacas').style.display = 'inline-block';
+                            document.getElementById('btn-campanhas').style.display = 'inline-block';
+                            document.getElementById('btn-mestre').style.display = 'inline-block';
+                            listarAmeacas(user.uid);
+                            listarCampanhas(user.uid);
+                        } else {
+                            document.getElementById('btn-ameacas').style.display = 'none';
+                            document.getElementById('btn-campanhas').style.display = 'none';
+                            document.getElementById('btn-mestre').style.display = 'none';
+                        }
+                    });
+                }
                 carregarFichasJogador(user.uid);
             } else {
                 localStorage.setItem('cris_logado', 'false');
@@ -370,7 +401,6 @@
                 document.getElementById('btn-admin').style.display = 'none';
                 document.getElementById('welcome').innerText = "SISTEMA DESCONECTADO";
             }
-            setTimeout(() => { loading.style.display = 'none'; }, 300);
         });
 
         function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
@@ -393,6 +423,43 @@
                 if (confirm(`Excluir campanha ${nome}? (Fichas e ameaças não serão apagadas, apenas desvinculadas)`)) { await db.collection(colecao).doc(id).delete(); document.getElementById('campanha-view').style.display = 'none'; }
             } else {
                 if (confirm(`CONFIRMAR DESTRUIÇÃO DE ARQUIVO: ${nome.toUpperCase()}?`)) { await db.collection(colecao).doc(id).delete(); }
+            }
+        }
+
+        // ====== SISTEMA DE CLONAGEM DE AMEAÇAS PELO HUB ======
+        async function clonarAmeacaPeloHub() {
+            const link = document.getElementById('input-link-clone').value.trim();
+            if(!link) return;
+            
+            let idExtraido = "";
+            if(link.includes('id=')) idExtraido = link.split('id=')[1].split('&')[0];
+            else idExtraido = link;
+            
+            if(!idExtraido) { alert("Link inválido."); return; }
+            
+            try {
+                let snap = await db.collection("ameacas").doc(idExtraido).get();
+                if(!snap.exists) { alert("Ameaça não encontrada ou o arquivo foi deletado pelo mestre original."); return; }
+                
+                let data = snap.data();
+                data.dono = auth.currentUser.uid;
+                data.campanhaId = null; // Tira vínculo de campanha original
+                
+                let novoRef = await db.collection("ameacas").add(data);
+                
+                // Clona as subcoleções (ações e rituais)
+                const colecoesSub = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca"];
+                for(let c of colecoesSub) {
+                    let subSnap = await db.collection("ameacas").doc(idExtraido).collection(c).get();
+                    for(let doc of subSnap.docs) {
+                        await db.collection("ameacas").doc(novoRef.id).collection(c).doc(doc.id).set(doc.data());
+                    }
+                }
+                alert("Ameaça Replicada com sucesso no seu banco de dados privado!");
+                toggleModal('modal-clonar-ameaca');
+                document.getElementById('input-link-clone').value = "";
+            } catch(e) {
+                alert("Erro ao clonar. Verifique se o link está correto.");
             }
         }
 
@@ -440,12 +507,15 @@
         function carregarFichasJogador(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
                 const div = document.getElementById('lista-fichas'); div.innerHTML = "";
+                minhasFichasGlobais = [];
                 snap.forEach(doc => {
                     const d = doc.data(); const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
+                    minhasFichasGlobais.push({ id: doc.id, nome: d.nome || 'Persona Desconhecida' });
+                    
                     div.innerHTML += `
                         <div class="ficha-card">
                             <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
-                            <button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Vincular a uma Campanha">[ 📡 ]</button>
+                            <button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>
                             <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="overflow: hidden; position: relative;">
@@ -464,7 +534,6 @@
         }
 
         // --- SISTEMA DE CAMPANHAS E ISOLAMENTO DE MESTRES ---
-
         async function criarCampanha() {
             const nome = prompt("Nome da nova Campanha:");
             if(!nome) return;
@@ -473,13 +542,13 @@
             const mestreNome = window.nomeJogadorGlobal || auth.currentUser.displayName || auth.currentUser.email;
 
             await db.collection("campanhas").add({ nome: nome, codigo: codigo, dono: auth.currentUser.uid, mestreNome: mestreNome, ocultarNome: ocultar });
-            alert("Campanha criada! Código: " + codigo);
+            alert("Campanha criada! O link/código está disponível na aba da campanha.");
         }
 
         function copiarLinkCampanha() {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'index.html?join=' + campanhaAtivaView;
             navigator.clipboard.writeText(url);
-            alert('Link Copiado! Envie para o jogador colar no menu do Hub.');
+            alert('Link Copiado! Envie para os jogadores (Eles precisam clicar no botão [ 📡 ] no painel deles e colar).');
         }
 
         function listarCampanhas(uid) {
@@ -498,8 +567,37 @@
                             </div>
                         </div>`;
                 });
-                carregarMonitorMestre(); // Atualiza o monitor global do mestre com base nos códigos reais
+                carregarMonitorMestre(); // Garante o sync de permissão do monitor
             });
+        }
+
+        // Puxar por dentro da aba Campanhas (Seleção)
+        function abrirModalVinculoMestre(tipo) {
+            tipoVinculoAtual = tipo;
+            const select = document.getElementById('select-vinculo');
+            select.innerHTML = "<option value=''>Selecione o arquivo...</option>";
+            
+            if (tipo === 'ficha') {
+                document.getElementById('titulo-modal-vinculo').innerText = "VINCULAR MINHA PERSONA / NPC";
+                minhasFichasGlobais.forEach(f => {
+                    select.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+                });
+            } else {
+                document.getElementById('titulo-modal-vinculo').innerText = "VINCULAR AMEAÇA";
+                minhasAmeacasGlobais.forEach(a => {
+                    select.innerHTML += `<option value="${a.id}">${a.nome}</option>`;
+                });
+            }
+            toggleModal('modal-selecionar-vinculo');
+        }
+
+        async function confirmarVinculoMestre() {
+            const id = document.getElementById('select-vinculo').value;
+            if(!id) return;
+            const col = tipoVinculoAtual === 'ficha' ? 'fichas' : 'ameacas';
+            await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView });
+            alert("Arquivo vinculado à campanha com sucesso!");
+            toggleModal('modal-selecionar-vinculo');
         }
 
         let unsubCampanhaFichas, unsubCampanhaAmeacas;
@@ -524,28 +622,14 @@
             });
         }
 
-        async function vincularAmeacaModal() {
-            if(minhasAmeacas.length === 0) { alert("Você não possui nenhuma ameaça documentada para vincular."); return; }
-            let opcoes = "Digite o número correspondente à ameaça que deseja trazer para esta campanha:\n\n";
-            minhasAmeacas.forEach((am, idx) => { opcoes += `[ ${idx} ] - ${am.nome}\n`; });
-            const res = prompt(opcoes);
-            if(res !== null && res.trim() !== "" && !isNaN(res)) {
-                const idx = parseInt(res);
-                if(minhasAmeacas[idx]) {
-                    await db.collection("ameacas").doc(minhasAmeacas[idx].id).update({ campanhaId: campanhaAtivaView });
-                    alert("Ameaça inserida na campanha!");
-                } else alert("Número inválido.");
-            }
-        }
-
         function listarAmeacas(uid) {
-            // Isolamento: O Mestre SÓ VÊ ameaças onde ele é o "dono"
+            // Isolamento: O Mestre SÓ VÊ ameaças onde ele é o dono original
             db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
                 const div = document.getElementById("lista-ameacas"); div.innerHTML = "";
-                minhasAmeacas = [];
+                minhasAmeacasGlobais = [];
                 snap.forEach(doc => {
                     const d = doc.data();
-                    minhasAmeacas.push({ id: doc.id, nome: d.nome || "Entidade" });
+                    minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
                     div.innerHTML += renderAmeacaCard(doc);
                 });
             });
@@ -572,12 +656,11 @@
         }
 
         function carregarMonitorMestre() {
-            // Isolamento no Monitor Geral
+            // Isolamento no Monitor Geral (Mostra somente fichas com campanha correspondente aos códigos dele ou tudo caso Super Admin)
             db.collection("fichas").onSnapshot(snap => {
                 const div = document.getElementById('monitor-mestre'); div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    
                     let temPermissaoParaVer = false;
                     if (isSuperAdmin) temPermissaoParaVer = true;
                     else if (d.campanhaId && meusCodigosCampanha.includes(d.campanhaId)) temPermissaoParaVer = true;
