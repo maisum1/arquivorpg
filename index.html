@@ -184,7 +184,7 @@
         <h3>CLONAR AMEAÇA (RÉPLICA)</h3>
         <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Cole abaixo o link da ameaça para replicá-la no seu banco de dados privado.</p>
         <input type="text" id="input-link-clone" class="hub-input" placeholder="Cole o link da ameaça aqui...">
-        <button class="btn-google" onclick="clonarAmeacaPeloHub()" style="width: 100%; border-color: var(--san-purple); color: var(--san-purple);">CLONAR PARA MIM</button>
+        <button id="btn-clonar-action" class="btn-google" onclick="clonarAmeacaPeloHub()" style="width: 100%; border-color: var(--san-purple); color: var(--san-purple);">CLONAR PARA MIM</button>
         <button onclick="toggleModal('modal-clonar-ameaca')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
@@ -237,7 +237,7 @@
                         <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin: 0; color: var(--cor-geral);">PERSONAS VINCULADAS</h4>
                         <div style="display:flex; gap: 10px;">
                             <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="abrirModalVinculoMestre('ficha')">[+] ADD MINHA PERSONA / NPC</button>
-                            <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="alert('Forneça o Link da Campanha para os jogadores. Eles devem clicar em [ 📡 ] na aba MINHAS PERSONAS e colar seu link lá.')">[+] INSTRUIR JOGADOR</button>
+                            <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="alert('Para adicionar fichas de outros jogadores, mande o Link da Campanha para eles. Eles precisam ir no Hub, clicar na antena [ 📡 ] e colar o seu link lá.')">[+] INSTRUIR JOGADOR</button>
                         </div>
                     </div>
                     <div id="cv-fichas" class="grid" style="margin-top: 0;"></div>
@@ -253,7 +253,7 @@
             </div>
         </div>
 
-       <div id="hub-mestre" class="conteudo-hub" style="display:none;">
+        <div id="hub-mestre" class="conteudo-hub" style="display:none;">
             <div class="mestre-panel">
                 <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
                 <p style="font-size: 12px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Alterações de status aplicadas globalmente em tempo real para todas as fichas.</p>
@@ -274,8 +274,8 @@
     </div>
 
     <script>
-        // Email Intocável - Altere somente aqui se necessário
-        const EMAIL_SUPER_ADMIN = "pedroacpr@gmail.com";
+        // === VARIÁVEIS GLOBAIS E CONFIG ===
+        const EMAIL_SUPER_ADMIN = "pedroacpr@gmail.com"; 
         
         let isSuperAdmin = false;
         let isMestre = false;
@@ -284,6 +284,53 @@
         let minhasFichasGlobais = [];
         let campanhaAtivaView = null;
         let tipoVinculoAtual = ''; // 'ficha' ou 'ameaca'
+
+        // Inicialização do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+            authDomain: "fichasrpg-7fc69.firebaseapp.com",
+            projectId: "fichasrpg-7fc69",
+            storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+            messagingSenderId: "758802032764",
+            appId: "1:758802032764:web:40467e15fdc24c570081f9"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+
+        // === UTILITÁRIOS DA INTERFACE ===
+        function alternarTema() {
+            document.body.classList.toggle('tema-escuro');
+            const isEscuro = document.body.classList.contains('tema-escuro');
+            localStorage.setItem('temaFichaAmeaca', isEscuro ? 'escuro' : 'claro');
+            document.querySelector('meta[name="theme-color"]').setAttribute("content", isEscuro ? "#161616" : "#dcd7cb");
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('temaFichaAmeaca') === 'escuro') {
+                document.body.classList.add('tema-escuro');
+                document.querySelector('meta[name="theme-color"]').setAttribute("content", "#161616");
+            }
+        });
+
+        function toggleModal(id) {
+            const m = document.getElementById(id);
+            if(m.style.display === 'block') m.style.display = 'none'; 
+            else m.style.display = 'block'; 
+            if(id === 'modal-config') document.getElementById('input-nome-jogador').value = window.nomeJogadorGlobal || '';
+        }
+
+        function mudarAbaHub(aba) {
+            document.querySelectorAll('.conteudo-hub').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('hub-' + aba).style.display = 'block';
+            if (aba === 'jogador') document.getElementById('btn-jog').classList.add('active');
+            if (aba === 'ameacas') document.getElementById('btn-ameacas').classList.add('active');
+            if (aba === 'campanhas') document.getElementById('btn-campanhas').classList.add('active');
+            if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
+        }
 
         function copiarLink(id) {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
@@ -297,73 +344,39 @@
             alert('Link Copiado! Mande para outro mestre colar na aba "Clonar via Link".');
         }
 
-        function toggleGlobal(campo) {
-            const docRef = db.collection("configuracoes").doc("globais");
-            docRef.get().then((doc) => {
-                let estadoAtual = false; if(doc.exists && doc.data()[campo]) estadoAtual = doc.data()[campo];
-                let o = {}; o[campo] = !estadoAtual;
-                docRef.set(o, { merge: true }).then(() => { alert(`Segredo Mestre [ ${campo.toUpperCase()} ] foi ${!estadoAtual ? "LIGADO" : "DESLIGADO"} globalmente.`); });
-            }).catch(() => { alert("Erro ao alterar! Verifique as permissões."); });
+        function copiarLinkCampanha() {
+            const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'index.html?join=' + campanhaAtivaView;
+            navigator.clipboard.writeText(url);
+            alert('Link Copiado! Envie para os jogadores (Eles precisam clicar no botão [ 📡 ] no painel deles e colar o link).');
         }
 
-        function toggleModal(id) {
-            const m = document.getElementById(id);
-            if(m.style.display === 'block') m.style.display = 'none'; 
-            else m.style.display = 'block'; 
-            if(id === 'modal-config') document.getElementById('input-nome-jogador').value = window.nomeJogadorGlobal || '';
-        }
-
-        async function salvarNomeJogador() {
-            const novoNome = document.getElementById('input-nome-jogador').value.trim();
-            const user = auth.currentUser;
-            if(novoNome && user) {
-                await db.collection("usuarios").doc(user.uid).set({ nomeJogador: novoNome }, { merge: true });
-                toggleModal('modal-config');
-                alert("Identificação salva!");
-            }
-        }
-
-        function abrirGerenciadorMestres() {
-            toggleModal('modal-gerenciar-mestres');
-            db.collection("mestres").where("ativo", "==", true).onSnapshot(snap => {
-                const div = document.getElementById('lista-mestres-ativos');
-                div.innerHTML = "";
-                snap.forEach(doc => {
-                    div.innerHTML += `<div class="mestre-item"><span>${doc.id}</span> <button class="btn-revogar" onclick="revogarMestre('${doc.id}')">REVOGAR</button></div>`;
-                });
-            });
-        }
-
-        async function adicionarMestre() {
-            const email = document.getElementById('novo-mestre-email').value.trim().toLowerCase();
-            if(email) { 
-                try {
-                    await db.collection("mestres").doc(email).set({ ativo: true }); 
-                    document.getElementById('novo-mestre-email').value = ""; 
-                    alert("Permissão de Mestre concedida com sucesso!");
-                } catch(e) {
-                    alert("Erro ao conceder permissão. Verifique regras do banco.");
+        async function deletarDocumento(colecao, id, nome) {
+            if (colecao === 'fichas') {
+                const digitado = prompt(`ATENÇÃO: Esta persona será incinerada permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
+                if (digitado === "EXCLUIR") { await db.collection(colecao).doc(id).delete(); } 
+            } else if (colecao === 'campanhas') {
+                if (confirm(`Excluir campanha ${nome}? (Fichas e ameaças não serão apagadas, apenas desvinculadas)`)) { 
+                    await db.collection(colecao).doc(id).delete(); 
+                    document.getElementById('campanha-view').style.display = 'none'; 
                 }
+            } else {
+                if (confirm(`CONFIRMAR DESTRUIÇÃO DE ARQUIVO: ${nome.toUpperCase()}?`)) { await db.collection(colecao).doc(id).delete(); }
             }
         }
 
-        async function revogarMestre(email) {
-            if(confirm(`Revogar o acesso de Mestre de ${email}?`)) { await db.collection("mestres").doc(email).update({ ativo: false }); }
-        }
-
-        // ====== LÓGICA DE INICIALIZAÇÃO CORRIGIDA ======
+        // === ESTADO DE AUTENTICAÇÃO PRINCIPAL ===
         auth.onAuthStateChanged(user => {
-            // Remove o congelamento imediatamente para que o menu de login ou hub apareça
-            document.getElementById('loading-screen').style.display = 'none';
-
+            const loading = document.getElementById('loading-screen');
             const loginSec = document.getElementById('login-screen');
             const hubSec = document.getElementById('dashboard');
 
             if (user) {
                 localStorage.setItem('cris_logado', 'true');
-                loginSec.style.display = 'none'; hubSec.style.display = 'block';
+                loginSec.style.display = 'none'; 
+                hubSec.style.display = 'block';
                 document.getElementById('btn-engrenagem').style.display = 'block';
                 
+                // Nome do Jogador
                 db.collection("usuarios").doc(user.uid).onSnapshot((doc) => {
                     let nomeUsuario = user.displayName || user.email || "Agente";
                     if (doc.exists && doc.data().nomeJogador) nomeUsuario = doc.data().nomeJogador;
@@ -371,7 +384,7 @@
                     document.getElementById('welcome').innerText = `JOGADOR: ${nomeUsuario}`;
                 });
 
-                // Verifica o Super Admin sem travar (Mesmo que a conta não divulgue o email)
+                // Verifica Mestre e Admin
                 const userEmail = user.email ? user.email.toLowerCase() : "";
                 isSuperAdmin = (userEmail === EMAIL_SUPER_ADMIN.toLowerCase());
                 if(isSuperAdmin) document.getElementById('btn-admin').style.display = 'block';
@@ -396,112 +409,73 @@
                 carregarFichasJogador(user.uid);
             } else {
                 localStorage.setItem('cris_logado', 'false');
-                loginSec.style.display = 'block'; hubSec.style.display = 'none';
+                loginSec.style.display = 'block'; 
+                hubSec.style.display = 'none';
                 document.getElementById('btn-engrenagem').style.display = 'none';
                 document.getElementById('btn-admin').style.display = 'none';
                 document.getElementById('welcome').innerText = "SISTEMA DESCONECTADO";
             }
+            // Remove a tela preta com segurança
+            if(loading) loading.style.display = 'none';
         });
 
         function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
 
-        function mudarAbaHub(aba) {
-            document.querySelectorAll('.conteudo-hub').forEach(d => d.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('hub-' + aba).style.display = 'block';
-            if (aba === 'jogador') document.getElementById('btn-jog').classList.add('active');
-            if (aba === 'ameacas') document.getElementById('btn-ameacas').classList.add('active');
-            if (aba === 'campanhas') document.getElementById('btn-campanhas').classList.add('active');
-            if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
-        }
-
-        async function deletarDocumento(colecao, id, nome) {
-            if (colecao === 'fichas') {
-                const digitado = prompt(`ATENÇÃO: Esta persona será incinerada permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
-                if (digitado === "EXCLUIR") { await db.collection(colecao).doc(id).delete(); } 
-            } else if (colecao === 'campanhas') {
-                if (confirm(`Excluir campanha ${nome}? (Fichas e ameaças não serão apagadas, apenas desvinculadas)`)) { await db.collection(colecao).doc(id).delete(); document.getElementById('campanha-view').style.display = 'none'; }
-            } else {
-                if (confirm(`CONFIRMAR DESTRUIÇÃO DE ARQUIVO: ${nome.toUpperCase()}?`)) { await db.collection(colecao).doc(id).delete(); }
+        // === FUNÇÕES DE NOME E ADMIN ===
+        async function salvarNomeJogador() {
+            const novoNome = document.getElementById('input-nome-jogador').value.trim();
+            const user = auth.currentUser;
+            if(novoNome && user) {
+                await db.collection("usuarios").doc(user.uid).set({ nomeJogador: novoNome }, { merge: true });
+                toggleModal('modal-config');
+                alert("Identificação salva!");
             }
         }
 
-        // ====== SISTEMA DE CLONAGEM DE AMEAÇAS PELO HUB ======
-        async function clonarAmeacaPeloHub() {
-            const link = document.getElementById('input-link-clone').value.trim();
-            if(!link) return;
-            
-            let idExtraido = "";
-            if(link.includes('id=')) idExtraido = link.split('id=')[1].split('&')[0];
-            else idExtraido = link;
-            
-            if(!idExtraido) { alert("Link inválido."); return; }
-            
-            try {
-                let snap = await db.collection("ameacas").doc(idExtraido).get();
-                if(!snap.exists) { alert("Ameaça não encontrada ou o arquivo foi deletado pelo mestre original."); return; }
-                
-                let data = snap.data();
-                data.dono = auth.currentUser.uid;
-                data.campanhaId = null; // Tira vínculo de campanha original
-                
-                let novoRef = await db.collection("ameacas").add(data);
-                
-                // Clona as subcoleções (ações e rituais)
-                const colecoesSub = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca"];
-                for(let c of colecoesSub) {
-                    let subSnap = await db.collection("ameacas").doc(idExtraido).collection(c).get();
-                    for(let doc of subSnap.docs) {
-                        await db.collection("ameacas").doc(novoRef.id).collection(c).doc(doc.id).set(doc.data());
-                    }
-                }
-                alert("Ameaça Replicada com sucesso no seu banco de dados privado!");
-                toggleModal('modal-clonar-ameaca');
-                document.getElementById('input-link-clone').value = "";
-            } catch(e) {
-                alert("Erro ao clonar. Verifique se o link está correto.");
+        function abrirGerenciadorMestres() {
+            toggleModal('modal-gerenciar-mestres');
+            db.collection("mestres").where("ativo", "==", true).onSnapshot(snap => {
+                const div = document.getElementById('lista-mestres-ativos');
+                div.innerHTML = "";
+                snap.forEach(doc => {
+                    div.innerHTML += `<div class="mestre-item"><span>${doc.id}</span> <button class="btn-revogar" onclick="revogarMestre('${doc.id}')">REVOGAR</button></div>`;
+                });
+            });
+        }
+
+        async function adicionarMestre() {
+            const email = document.getElementById('novo-mestre-email').value.trim().toLowerCase();
+            if(email) { 
+                await db.collection("mestres").doc(email).set({ ativo: true }); 
+                document.getElementById('novo-mestre-email').value = ""; 
             }
         }
 
-        // --- SISTEMA DE VÍNCULO PLAYER -> CAMPANHA ---
-        function abrirModalVincular(fichaId) {
-            document.getElementById('vincular-ficha-id').value = fichaId;
-            document.getElementById('input-link-campanha').value = "";
-            document.getElementById('preview-campanha').innerHTML = "";
-            document.getElementById('btn-confirmar-vinculo').style.display = 'none';
-            toggleModal('modal-vincular-campanha');
+        async function revogarMestre(email) {
+            if(confirm(`Revogar o acesso de Mestre de ${email}?`)) { await db.collection("mestres").doc(email).update({ ativo: false }); }
         }
 
-        async function buscarPreviewCampanha() {
-            let val = document.getElementById('input-link-campanha').value.trim();
-            if(!val) { document.getElementById('preview-campanha').innerHTML = ""; document.getElementById('btn-confirmar-vinculo').style.display = 'none'; return; }
-            
-            let codigo = val;
-            if(val.includes('join=')) { codigo = val.split('join=')[1].split('&')[0]; } 
-            else if (val.includes('?campanha=')) { codigo = val.split('?campanha=')[1].split('&')[0]; }
-            
-            const snap = await db.collection("campanhas").where("codigo", "==", codigo).get();
-            if(snap.empty) {
-                document.getElementById('preview-campanha').innerHTML = "<span style='color:var(--op-red)'>Nenhuma campanha encontrada com este código.</span>";
-                document.getElementById('btn-confirmar-vinculo').style.display = 'none';
-            } else {
-                const c = snap.docs[0].data();
-                const nomeMestre = c.mestreNome || 'Desconhecido';
-                const nomeCamp = c.ocultarNome ? '[ CONFIDENCIAL ]' : c.nome;
-                document.getElementById('preview-campanha').innerHTML = `<strong>Mestre:</strong> ${nomeMestre}<br><strong>Campanha:</strong> ${nomeCamp}`;
-                document.getElementById('btn-confirmar-vinculo').style.display = 'block';
-                document.getElementById('btn-confirmar-vinculo').dataset.codigo = codigo;
-            }
+        // === FUNÇÕES GLOBAIS DO MESTRE (SEGREDOS) ===
+        function toggleGlobal(campo) {
+            const docRef = db.collection("configuracoes").doc("globais");
+            docRef.get().then((doc) => {
+                let estadoAtual = false; if(doc.exists && doc.data()[campo]) estadoAtual = doc.data()[campo];
+                let o = {}; o[campo] = !estadoAtual;
+                docRef.set(o, { merge: true }).then(() => { alert(`Segredo Mestre [ ${campo.toUpperCase()} ] foi ${!estadoAtual ? "LIGADO" : "DESLIGADO"} globalmente.`); });
+            }).catch(() => { alert("Erro ao alterar! Verifique as permissões."); });
         }
 
-        async function confirmarVinculoCampanha() {
-            const fichaId = document.getElementById('vincular-ficha-id').value;
-            const codigo = document.getElementById('btn-confirmar-vinculo').dataset.codigo;
-            if(fichaId && codigo) {
-                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo });
-                alert("Persona vinculada com sucesso à Campanha!");
-                toggleModal('modal-vincular-campanha');
-            }
+        // === FUNÇÕES DA FICHA (JOGADOR) ===
+        async function criarNovaFicha() {
+            const user = auth.currentUser;
+            const nomeJogador = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
+            const ref = await db.collection("fichas").add({ 
+                dono: user.uid, nomeJogador: nomeJogador, nome: "NOVA PERSONA", nex: "5%", 
+                forca: 0, agilidade: 0, sagacidade: 0, vigor: 0, vontade: 0,
+                vidaAtual: 12, vidaMax: 12, sanAtual: 50, sanMax: 50, peAtual: 2, peMax: 2, 
+                pX: 50, pY: 50, pZ: 1 
+            });
+            window.location.href = `ficha.html?id=${ref.id}`;
         }
 
         function carregarFichasJogador(uid) {
@@ -511,7 +485,6 @@
                 snap.forEach(doc => {
                     const d = doc.data(); const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
                     minhasFichasGlobais.push({ id: doc.id, nome: d.nome || 'Persona Desconhecida' });
-                    
                     div.innerHTML += `
                         <div class="ficha-card">
                             <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
@@ -533,7 +506,125 @@
             });
         }
 
-        // --- SISTEMA DE CAMPANHAS E ISOLAMENTO DE MESTRES ---
+        // === VINCULAR FICHA A CAMPANHA (COMO JOGADOR) ===
+        function abrirModalVincular(fichaId) {
+            document.getElementById('vincular-ficha-id').value = fichaId;
+            document.getElementById('input-link-campanha').value = "";
+            document.getElementById('preview-campanha').innerHTML = "";
+            document.getElementById('btn-confirmar-vinculo').style.display = 'none';
+            toggleModal('modal-vincular-campanha');
+        }
+
+        async function buscarPreviewCampanha() {
+            let val = document.getElementById('input-link-campanha').value.trim();
+            const btnConfirmar = document.getElementById('btn-confirmar-vinculo');
+            const previewDiv = document.getElementById('preview-campanha');
+            
+            if(!val) { previewDiv.innerHTML = ""; btnConfirmar.style.display = 'none'; return; }
+            
+            let codigo = val;
+            if(val.includes('join=')) { codigo = val.split('join=')[1].split('&')[0]; } 
+            
+            try {
+                const snap = await db.collection("campanhas").where("codigo", "==", codigo).get();
+                if(snap.empty) {
+                    previewDiv.innerHTML = "<span style='color:var(--op-red)'>Nenhuma campanha encontrada com este código.</span>";
+                    btnConfirmar.style.display = 'none';
+                } else {
+                    const c = snap.docs[0].data();
+                    const nomeMestre = c.mestreNome || 'Desconhecido';
+                    const nomeCamp = c.ocultarNome ? '[ CONFIDENCIAL ]' : c.nome;
+                    previewDiv.innerHTML = `<strong>Diretor Responsável:</strong> ${nomeMestre}<br><strong>Campanha:</strong> ${nomeCamp}`;
+                    btnConfirmar.style.display = 'block';
+                    btnConfirmar.dataset.codigo = codigo;
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function confirmarVinculoCampanha() {
+            const fichaId = document.getElementById('vincular-ficha-id').value;
+            const codigo = document.getElementById('btn-confirmar-vinculo').dataset.codigo;
+            if(fichaId && codigo) {
+                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo });
+                alert("Persona vinculada com sucesso à Campanha!");
+                toggleModal('modal-vincular-campanha');
+            }
+        }
+
+        // === SISTEMA DE AMEAÇAS E CLONAGEM (MESTRE) ===
+        async function criarNovaAmeaca() {
+            const user = auth.currentUser;
+            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", na: 20, pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
+            window.location.href = `ameaca.html?id=${ref.id}`;
+        }
+
+        function listarAmeacas(uid) {
+            db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
+                const div = document.getElementById("lista-ameacas"); div.innerHTML = "";
+                minhasAmeacasGlobais = [];
+                snap.forEach(doc => {
+                    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
+                    minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
+                    div.innerHTML += `
+                        <div class="ameaca-card">
+                            <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link para Compartilhar/Clonar">[ 🔗 ]</button>
+                            <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ X ]</button>
+                            <div style="display:flex; align-items:center; flex:1">
+                                <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
+                                    ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                                </div>
+                                <div>
+                                    <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
+                                    <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
+                                    ${d.campanhaId ? `<br><small style="color:var(--cor-geral); font-size:9px; font-weight:bold; font-family:'Inter';">CAMPANHA: ${d.campanhaId}</small>` : ''}
+                                </div>
+                            </div>
+                            <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
+                        </div>`;
+                });
+            });
+        }
+
+        async function clonarAmeacaPeloHub() {
+            const link = document.getElementById('input-link-clone').value.trim();
+            if(!link) return;
+            
+            let idExtraido = link;
+            if(link.includes('id=')) idExtraido = link.split('id=')[1].split('&')[0];
+            
+            try {
+                document.getElementById('btn-clonar-action').innerText = "CLONANDO...";
+                let snap = await db.collection("ameacas").doc(idExtraido).get();
+                if(!snap.exists) { 
+                    alert("Ameaça não encontrada ou o arquivo foi deletado."); 
+                    document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM";
+                    return; 
+                }
+                
+                let data = snap.data();
+                data.dono = auth.currentUser.uid;
+                data.campanhaId = null; // Tira vínculo original se tiver
+                
+                let novoRef = await db.collection("ameacas").add(data);
+                
+                const colecoesSub = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca"];
+                for(let c of colecoesSub) {
+                    let subSnap = await db.collection("ameacas").doc(idExtraido).collection(c).get();
+                    for(let doc of subSnap.docs) {
+                        await db.collection("ameacas").doc(novoRef.id).collection(c).doc(doc.id).set(doc.data());
+                    }
+                }
+                alert("Ameaça Replicada com sucesso no seu banco de dados privado!");
+                toggleModal('modal-clonar-ameaca');
+                document.getElementById('input-link-clone').value = "";
+                document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM";
+            } catch(e) {
+                alert("Erro ao clonar. Verifique se o link está correto.");
+                document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM";
+            }
+        }
+
+        // === SISTEMA DE CAMPANHAS E MONITOR ===
         async function criarCampanha() {
             const nome = prompt("Nome da nova Campanha:");
             if(!nome) return;
@@ -543,12 +634,6 @@
 
             await db.collection("campanhas").add({ nome: nome, codigo: codigo, dono: auth.currentUser.uid, mestreNome: mestreNome, ocultarNome: ocultar });
             alert("Campanha criada! O link/código está disponível na aba da campanha.");
-        }
-
-        function copiarLinkCampanha() {
-            const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'index.html?join=' + campanhaAtivaView;
-            navigator.clipboard.writeText(url);
-            alert('Link Copiado! Envie para os jogadores (Eles precisam clicar no botão [ 📡 ] no painel deles e colar).');
         }
 
         function listarCampanhas(uid) {
@@ -567,37 +652,8 @@
                             </div>
                         </div>`;
                 });
-                carregarMonitorMestre(); // Garante o sync de permissão do monitor
+                carregarMonitorMestre(); 
             });
-        }
-
-        // Puxar por dentro da aba Campanhas (Seleção)
-        function abrirModalVinculoMestre(tipo) {
-            tipoVinculoAtual = tipo;
-            const select = document.getElementById('select-vinculo');
-            select.innerHTML = "<option value=''>Selecione o arquivo...</option>";
-            
-            if (tipo === 'ficha') {
-                document.getElementById('titulo-modal-vinculo').innerText = "VINCULAR MINHA PERSONA / NPC";
-                minhasFichasGlobais.forEach(f => {
-                    select.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
-                });
-            } else {
-                document.getElementById('titulo-modal-vinculo').innerText = "VINCULAR AMEAÇA";
-                minhasAmeacasGlobais.forEach(a => {
-                    select.innerHTML += `<option value="${a.id}">${a.nome}</option>`;
-                });
-            }
-            toggleModal('modal-selecionar-vinculo');
-        }
-
-        async function confirmarVinculoMestre() {
-            const id = document.getElementById('select-vinculo').value;
-            if(!id) return;
-            const col = tipoVinculoAtual === 'ficha' ? 'fichas' : 'ameacas';
-            await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView });
-            alert("Arquivo vinculado à campanha com sucesso!");
-            toggleModal('modal-selecionar-vinculo');
         }
 
         let unsubCampanhaFichas, unsubCampanhaAmeacas;
@@ -618,50 +674,58 @@
             unsubCampanhaAmeacas = db.collection("ameacas").where("campanhaId", "==", codigo).onSnapshot(snap => {
                 const div = document.getElementById('cv-ameacas'); div.innerHTML = "";
                 if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhuma ameaça vinculada a esta campanha.</p>"; }
-                snap.forEach(doc => { div.innerHTML += renderAmeacaCard(doc); });
-            });
-        }
-
-        function listarAmeacas(uid) {
-            // Isolamento: O Mestre SÓ VÊ ameaças onde ele é o dono original
-            db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById("lista-ameacas"); div.innerHTML = "";
-                minhasAmeacasGlobais = [];
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
-                    div.innerHTML += renderAmeacaCard(doc);
+                snap.forEach(doc => { 
+                    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
+                    div.innerHTML += `
+                        <div class="ameaca-card">
+                            <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
+                            <div style="display:flex; align-items:center; flex:1">
+                                <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
+                                    ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                                </div>
+                                <div>
+                                    <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
+                                    <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
+                                </div>
+                            </div>
+                            <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
+                        </div>`;
                 });
             });
         }
 
-        function renderAmeacaCard(doc) {
-            const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
-            return `
-                <div class="ameaca-card">
-                    <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link para Compartilhar/Clonar">[ 🔗 ]</button>
-                    <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ X ]</button>
-                    <div style="display:flex; align-items:center; flex:1">
-                        <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
-                            ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                        </div>
-                        <div>
-                            <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
-                            <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
-                            ${d.campanhaId ? `<br><small style="color:var(--cor-geral); font-size:9px; font-weight:bold; font-family:'Inter';">CAMPANHA: ${d.campanhaId}</small>` : ''}
-                        </div>
-                    </div>
-                    <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
-                </div>`;
+        // Puxar por dentro da aba Campanhas (Seleção do Mestre)
+        function abrirModalVinculoMestre(tipo) {
+            tipoVinculoAtual = tipo;
+            const select = document.getElementById('select-vinculo');
+            select.innerHTML = "<option value=''>Selecione o arquivo...</option>";
+            
+            if (tipo === 'ficha') {
+                document.getElementById('titulo-modal-vinculo').innerText = "VINCULAR MINHA PERSONA / NPC";
+                minhasFichasGlobais.forEach(f => { select.innerHTML += `<option value="${f.id}">${f.nome}</option>`; });
+            } else {
+                document.getElementById('titulo-modal-vinculo').innerText = "VINCULAR AMEAÇA";
+                minhasAmeacasGlobais.forEach(a => { select.innerHTML += `<option value="${a.id}">${a.nome}</option>`; });
+            }
+            toggleModal('modal-selecionar-vinculo');
+        }
+
+        async function confirmarVinculoMestre() {
+            const id = document.getElementById('select-vinculo').value;
+            if(!id) return;
+            const col = tipoVinculoAtual === 'ficha' ? 'fichas' : 'ameacas';
+            await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView });
+            alert("Arquivo vinculado à campanha com sucesso!");
+            toggleModal('modal-selecionar-vinculo');
         }
 
         function carregarMonitorMestre() {
-            // Isolamento no Monitor Geral (Mostra somente fichas com campanha correspondente aos códigos dele ou tudo caso Super Admin)
             db.collection("fichas").onSnapshot(snap => {
                 const div = document.getElementById('monitor-mestre'); div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
                     let temPermissaoParaVer = false;
+                    
                     if (isSuperAdmin) temPermissaoParaVer = true;
                     else if (d.campanhaId && meusCodigosCampanha.includes(d.campanhaId)) temPermissaoParaVer = true;
                     
@@ -690,19 +754,6 @@
                     </div>
                     <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
                 </div>`;
-        }
-
-        async function criarNovaFicha() {
-            const user = auth.currentUser;
-            const nomeJogador = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
-            const ref = await db.collection("fichas").add({ dono: user.uid, nomeJogador: nomeJogador, nome: "NOVA PERSONA", nex: "5%", forca: 0, agilidade: 0, sagacidade: 0, vigor: 0, vontade: 0, vidaAtual: 12, vidaMax: 12, sanAtual: 50, sanMax: 50, peAtual: 2, peMax: 2, pX: 50, pY: 50, pZ: 1 });
-            window.location.href = `ficha.html?id=${ref.id}`;
-        }
-
-        async function criarNovaAmeaca() {
-            const user = auth.currentUser;
-            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", na: 20, pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
-            window.location.href = `ameaca.html?id=${ref.id}`;
         }
     </script>
 </body>
