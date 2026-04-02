@@ -366,7 +366,10 @@
 
         // === ESTADO DE AUTENTICAÇÃO PRINCIPAL ===
         auth.onAuthStateChanged(user => {
+            // Remove a tela preta com segurança IMEDIATAMENTE
             const loading = document.getElementById('loading-screen');
+            if(loading) loading.style.display = 'none';
+            
             const loginSec = document.getElementById('login-screen');
             const hubSec = document.getElementById('dashboard');
 
@@ -389,23 +392,42 @@
                 isSuperAdmin = (userEmail === EMAIL_SUPER_ADMIN.toLowerCase());
                 if(isSuperAdmin) document.getElementById('btn-admin').style.display = 'block';
 
+                // SE FOR SUPER ADMIN, LIBERA IMEDIATAMENTE IGNORANDO O FIREBASE:
+                if (isSuperAdmin) {
+                    isMestre = true;
+                    document.getElementById('btn-ameacas').style.display = 'inline-block';
+                    document.getElementById('btn-campanhas').style.display = 'inline-block';
+                    document.getElementById('btn-mestre').style.display = 'inline-block';
+                    listarAmeacas(user.uid);
+                    listarCampanhas(user.uid);
+                }
+
+                // Escuta o banco de dados pra ver se a pessoa ganhou mestre
                 if (userEmail) {
                     db.collection("mestres").doc(userEmail).onSnapshot(doc => {
-                        isMestre = isSuperAdmin || (doc.exists && doc.data().ativo);
+                        let docExisteEAtivo = doc.exists && doc.data().ativo;
                         
-                        if (isMestre) {
-                            document.getElementById('btn-ameacas').style.display = 'inline-block';
-                            document.getElementById('btn-campanhas').style.display = 'inline-block';
-                            document.getElementById('btn-mestre').style.display = 'inline-block';
-                            listarAmeacas(user.uid);
-                            listarCampanhas(user.uid);
-                        } else {
-                            document.getElementById('btn-ameacas').style.display = 'none';
-                            document.getElementById('btn-campanhas').style.display = 'none';
-                            document.getElementById('btn-mestre').style.display = 'none';
+                        // Se não for super admin, depende do banco.
+                        if (!isSuperAdmin) {
+                            isMestre = docExisteEAtivo;
+                            
+                            if (isMestre) {
+                                document.getElementById('btn-ameacas').style.display = 'inline-block';
+                                document.getElementById('btn-campanhas').style.display = 'inline-block';
+                                document.getElementById('btn-mestre').style.display = 'inline-block';
+                                listarAmeacas(user.uid);
+                                listarCampanhas(user.uid);
+                            } else {
+                                document.getElementById('btn-ameacas').style.display = 'none';
+                                document.getElementById('btn-campanhas').style.display = 'none';
+                                document.getElementById('btn-mestre').style.display = 'none';
+                            }
                         }
+                    }, (error) => {
+                        // Silencia o erro de permissão caso a pessoa não seja mestre e o firebase bloqueie a leitura.
                     });
                 }
+                
                 carregarFichasJogador(user.uid);
             } else {
                 localStorage.setItem('cris_logado', 'false');
@@ -415,8 +437,6 @@
                 document.getElementById('btn-admin').style.display = 'none';
                 document.getElementById('welcome').innerText = "SISTEMA DESCONECTADO";
             }
-            // Remove a tela preta com segurança
-            if(loading) loading.style.display = 'none';
         });
 
         function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
@@ -656,44 +676,6 @@
             });
         }
 
-        let unsubCampanhaFichas, unsubCampanhaAmeacas;
-        function abrirCampanhaView(codigo, nome) {
-            campanhaAtivaView = codigo;
-            document.getElementById('cv-titulo').innerText = nome.toUpperCase();
-            document.getElementById('cv-codigo').innerText = "CÓDIGO: " + codigo;
-            document.getElementById('campanha-view').style.display = 'block';
-
-            if(unsubCampanhaFichas) unsubCampanhaFichas();
-            unsubCampanhaFichas = db.collection("fichas").where("campanhaId", "==", codigo).onSnapshot(snap => {
-                const div = document.getElementById('cv-fichas'); div.innerHTML = "";
-                if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhum jogador vinculado a este código ainda.</p>"; }
-                snap.forEach(doc => { div.innerHTML += renderFichaMonitorCard(doc); });
-            });
-
-            if(unsubCampanhaAmeacas) unsubCampanhaAmeacas();
-            unsubCampanhaAmeacas = db.collection("ameacas").where("campanhaId", "==", codigo).onSnapshot(snap => {
-                const div = document.getElementById('cv-ameacas'); div.innerHTML = "";
-                if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhuma ameaça vinculada a esta campanha.</p>"; }
-                snap.forEach(doc => { 
-                    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
-                    div.innerHTML += `
-                        <div class="ameaca-card">
-                            <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
-                                    ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                                </div>
-                                <div>
-                                    <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
-                                    <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
-                                </div>
-                            </div>
-                            <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
-                        </div>`;
-                });
-            });
-        }
-
         // Puxar por dentro da aba Campanhas (Seleção do Mestre)
         function abrirModalVinculoMestre(tipo) {
             tipoVinculoAtual = tipo;
@@ -717,6 +699,45 @@
             await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView });
             alert("Arquivo vinculado à campanha com sucesso!");
             toggleModal('modal-selecionar-vinculo');
+        }
+
+        let unsubCampanhaFichas, unsubCampanhaAmeacas;
+        function abrirCampanhaView(codigo, nome) {
+            campanhaAtivaView = codigo;
+            document.getElementById('cv-titulo').innerText = nome.toUpperCase();
+            document.getElementById('cv-codigo').innerText = "CÓDIGO: " + codigo;
+            document.getElementById('campanha-view').style.display = 'block';
+
+            if(unsubCampanhaFichas) unsubCampanhaFichas();
+            unsubCampanhaFichas = db.collection("fichas").where("campanhaId", "==", codigo).onSnapshot(snap => {
+                const div = document.getElementById('cv-fichas'); div.innerHTML = "";
+                if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhum jogador vinculado a este código ainda.</p>"; }
+                snap.forEach(doc => { div.innerHTML += renderFichaMonitorCard(doc); });
+            });
+
+            if(unsubCampanhaAmeacas) unsubCampanhaAmeacas();
+            unsubCampanhaAmeacas = db.collection("ameacas").where("campanhaId", "==", codigo).onSnapshot(snap => {
+                const div = document.getElementById('cv-ameacas'); div.innerHTML = "";
+                if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhuma ameaça vinculada a esta campanha.</p>"; }
+                snap.forEach(doc => { 
+                    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
+                    div.innerHTML += `
+                        <div class="ameaca-card">
+                            <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
+                            <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" style="right: 8px; top: 8px;">[ X ]</button>
+                            <div style="display:flex; align-items:center; flex:1">
+                                <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
+                                    ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                                </div>
+                                <div>
+                                    <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
+                                    <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
+                                </div>
+                            </div>
+                            <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
+                        </div>`;
+                });
+            });
         }
 
         function carregarMonitorMestre() {
