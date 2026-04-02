@@ -97,14 +97,11 @@
         body.tema-escuro .btn-google { background: rgba(255,255,255,0.04); }
         .btn-google:hover { background: rgba(128,128,128,0.2); }
 
-        .btn-action-node { position: absolute; background: none; border: none; color: var(--op-red); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; opacity: 0.7; padding: 4px; }
+        .btn-action-node { position: absolute; background: none; border: none; color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; opacity: 0.7; padding: 4px; z-index: 10;}
         .btn-action-node:hover { opacity: 1; transform: scale(1.1); }
-        .btn-action-node.btn-del { top: 8px; right: 8px; }
-        .btn-action-node.btn-copy { top: 8px; right: 40px; color: var(--op-ink); }
-        .btn-action-node.btn-link { top: 8px; right: 72px; color: var(--san-purple); }
         
-        body:not(.tema-escuro) .btn-action-node.btn-copy { filter: grayscale(100%) brightness(0); }
-        body.tema-escuro .btn-action-node.btn-copy { filter: grayscale(100%) brightness(200%); }
+        body:not(.tema-escuro) .btn-copy { filter: grayscale(100%) brightness(0); }
+        body.tema-escuro .btn-copy { filter: grayscale(100%) brightness(200%); }
         
         .btn-open { color: var(--op-ink); text-decoration: none; font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold; padding: 5px 10px; border-bottom: 1px dotted var(--card-border); transition: 0.3s; }
         .btn-open:hover { border-bottom-color: var(--op-red); background: rgba(0,0,0,0.05); }
@@ -237,7 +234,7 @@
                         <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin: 0; color: var(--cor-geral);">PERSONAS VINCULADAS</h4>
                         <div style="display:flex; gap: 10px;">
                             <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="abrirModalVinculoMestre('ficha')">[+] ADD MINHA PERSONA / NPC</button>
-                            <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="alert('Para adicionar fichas de outros jogadores, mande o Link da Campanha para eles. Eles precisam ir no Hub, clicar na antena [ 📡 ] e colar o seu link lá.')">[+] INSTRUIR JOGADOR</button>
+                            <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="alert('Para adicionar fichas de outros jogadores, mande o Link da Campanha para eles. Eles precisam ir na aba MINHAS PERSONAS e clicar no botão de Antena [ 📡 ] para se vincular.')">[+] INSTRUIR JOGADOR</button>
                         </div>
                     </div>
                     <div id="cv-fichas" class="grid" style="margin-top: 0;"></div>
@@ -283,9 +280,8 @@
         let minhasAmeacasGlobais = [];
         let minhasFichasGlobais = [];
         let campanhaAtivaView = null;
-        let tipoVinculoAtual = ''; // 'ficha' ou 'ameaca'
+        let tipoVinculoAtual = ''; 
 
-        // Inicialização do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
             authDomain: "fichasrpg-7fc69.firebaseapp.com",
@@ -364,6 +360,16 @@
             }
         }
 
+        async function desvincularDocumento(colecao, id, nome) {
+            if(confirm(`Tem certeza que deseja DESVINCULAR o arquivo "${nome}" da campanha?\n(O arquivo NÃO será apagado, apenas removido da campanha).`)) {
+                try {
+                    await db.collection(colecao).doc(id).update({ campanhaId: null });
+                } catch(e) {
+                    alert("Erro ao desvincular. Verifique suas permissões.");
+                }
+            }
+        }
+
         // === ESTADO DE AUTENTICAÇÃO PRINCIPAL ===
         auth.onAuthStateChanged(user => {
             // Remove a tela preta com segurança IMEDIATAMENTE
@@ -424,7 +430,7 @@
                             }
                         }
                     }, (error) => {
-                        // Silencia o erro de permissão caso a pessoa não seja mestre e o firebase bloqueie a leitura.
+                        // Silencia o erro de permissão
                     });
                 }
                 
@@ -466,8 +472,13 @@
         async function adicionarMestre() {
             const email = document.getElementById('novo-mestre-email').value.trim().toLowerCase();
             if(email) { 
-                await db.collection("mestres").doc(email).set({ ativo: true }); 
-                document.getElementById('novo-mestre-email').value = ""; 
+                try {
+                    await db.collection("mestres").doc(email).set({ ativo: true }); 
+                    document.getElementById('novo-mestre-email').value = ""; 
+                    alert("Permissão de Mestre concedida com sucesso!");
+                } catch(e) {
+                    alert("Erro ao conceder permissão. Verifique regras do banco.");
+                }
             }
         }
 
@@ -485,7 +496,7 @@
             }).catch(() => { alert("Erro ao alterar! Verifique as permissões."); });
         }
 
-        // === FUNÇÕES DA FICHA (JOGADOR) ===
+        // === FUNÇÕES DA FICHA (JOGADOR E RENDER DE CARDS) ===
         async function criarNovaFicha() {
             const user = auth.currentUser;
             const nomeJogador = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
@@ -498,6 +509,46 @@
             window.location.href = `ficha.html?id=${ref.id}`;
         }
 
+        function renderFichaMonitorCard(doc, context = 'monitor') {
+            const d = doc.data(); const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
+            const isOwner = d.dono === auth.currentUser.uid;
+            
+            let botoesAcao = '';
+            let rightPos = 8;
+            
+            // Só mostra o botão de EXCLUIR se o usuário atual for o DONO da ficha
+            if (isOwner) {
+                botoesAcao += `<button class="btn-action-node" style="top:8px; right:${rightPos}px; color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`;
+                rightPos += 32;
+            }
+            
+            // Só mostra o botão de DESVINCULAR se estiver dentro da visão de uma Campanha
+            if (context === 'campanha') {
+                botoesAcao += `<button class="btn-action-node" style="top:8px; right:${rightPos}px; color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Desvincular da Campanha">[ 🔌 ]</button>`;
+                rightPos += 32;
+            }
+
+            // O botão de COPIAR LINK aparece em todos os cenários
+            botoesAcao += `<button class="btn-action-node btn-copy" style="top:8px; right:${rightPos}px;" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
+
+            return `
+                <div class="ficha-card" style="border-left-color:var(--cor-geral);">
+                    ${botoesAcao}
+                    <div style="display:flex; align-items:center; flex:1; padding-right: ${rightPos + 10}px;">
+                        <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: var(--card-border); flex-shrink:0;">
+                            ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                        </div>
+                        <div style="min-width:0; word-break: break-word;">
+                            <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px;">${d.nome || 'PERSONA'}</strong> <small style="color:var(--cor-geral); font-family: 'Special Elite', monospace;">| EXP ${d.nex || '5%'}</small><br>
+                            <small style="color:var(--op-ink); font-family: 'Inter', sans-serif; font-size:9px; text-transform:uppercase; font-weight:bold;">Jogador: ${d.nomeJogador || 'Desconhecido'}</small><br>
+                            <small style="color:var(--op-red); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:var(--cor-geral)">|</span> 
+                            <small style="color:var(--san-purple); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>
+                        </div>
+                    </div>
+                    <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
+                </div>`;
+        }
+
         function carregarFichasJogador(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
                 const div = document.getElementById('lista-fichas'); div.innerHTML = "";
@@ -507,14 +558,14 @@
                     minhasFichasGlobais.push({ id: doc.id, nome: d.nome || 'Persona Desconhecida' });
                     div.innerHTML += `
                         <div class="ficha-card">
-                            <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
-                            <button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>
-                            <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="overflow: hidden; position: relative;">
+                            <button class="btn-action-node" style="top:8px; right:8px; color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>
+                            <button class="btn-action-node" style="top:8px; right:40px; color:var(--san-purple);" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>
+                            <button class="btn-action-node btn-copy" style="top:8px; right:72px;" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
+                            <div style="display:flex; align-items:center; flex:1; padding-right: 100px;">
+                                <div class="portrait-mini" style="overflow: hidden; position: relative; flex-shrink:0;">
                                     ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
                                 </div>
-                                <div>
+                                <div style="min-width:0; word-break: break-word;">
                                     <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome || 'PERSONA DESCONHECIDA'}</strong><br>
                                     <small style="font-family: 'Special Elite', monospace; color: var(--cor-geral);">EXP ${d.nex || '5%'}</small>
                                     ${d.campanhaId ? `<br><small style="color:var(--san-purple); font-weight:bold; font-size:9px;">VINCULADO: ${d.campanhaId}</small>` : ''}
@@ -578,29 +629,50 @@
             window.location.href = `ameaca.html?id=${ref.id}`;
         }
 
+        function renderAmeacaCard(doc, context = 'hub') {
+            const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
+            const isOwner = d.dono === auth.currentUser.uid;
+            
+            let botoesAcao = '';
+            let rightPos = 8;
+            
+            if (isOwner) {
+                botoesAcao += `<button class="btn-action-node" style="top:8px; right:${rightPos}px; color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`;
+                rightPos += 32;
+            }
+            
+            if (context === 'campanha') {
+                botoesAcao += `<button class="btn-action-node" style="top:8px; right:${rightPos}px; color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Desvincular da Campanha">[ 🔌 ]</button>`;
+                rightPos += 32;
+            }
+
+            botoesAcao += `<button class="btn-action-node btn-copy" style="top:8px; right:${rightPos}px;" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
+
+            return `
+                <div class="ameaca-card">
+                    ${botoesAcao}
+                    <div style="display:flex; align-items:center; flex:1; padding-right: ${rightPos + 10}px;">
+                        <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative; flex-shrink:0;">
+                            ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
+                        </div>
+                        <div style="min-width:0; word-break: break-word;">
+                            <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
+                            <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
+                            ${d.campanhaId && context !== 'campanha' ? `<br><small style="color:var(--cor-geral); font-size:9px; font-weight:bold; font-family:'Inter';">CAMPANHA: ${d.campanhaId}</small>` : ''}
+                        </div>
+                    </div>
+                    <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
+                </div>`;
+        }
+
         function listarAmeacas(uid) {
             db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
                 const div = document.getElementById("lista-ameacas"); div.innerHTML = "";
                 minhasAmeacasGlobais = [];
                 snap.forEach(doc => {
-                    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
+                    const d = doc.data(); 
                     minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
-                    div.innerHTML += `
-                        <div class="ameaca-card">
-                            <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link para Compartilhar/Clonar">[ 🔗 ]</button>
-                            <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ X ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
-                                    ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                                </div>
-                                <div>
-                                    <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
-                                    <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
-                                    ${d.campanhaId ? `<br><small style="color:var(--cor-geral); font-size:9px; font-weight:bold; font-family:'Inter';">CAMPANHA: ${d.campanhaId}</small>` : ''}
-                                </div>
-                            </div>
-                            <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
-                        </div>`;
+                    div.innerHTML += renderAmeacaCard(doc, 'hub');
                 });
             });
         }
@@ -650,8 +722,6 @@
             if(!nome) return;
             
             const ocultar = confirm("Deseja OCULTAR o nome da campanha para os jogadores quando eles forem vincular a ficha?\n\n[OK] = Ocultar (Aparecerá como CONFIDENCIAL)\n[Cancelar] = Mostrar nome real");
-            
-            // Gera um código de 6 caracteres aleatórios
             const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
             
             try {
@@ -673,6 +743,20 @@
             }
         }
 
+        async function editarCampanha(id, codigo, nomeAtual) {
+            const novoNome = prompt("Digite o novo nome para esta campanha:", nomeAtual);
+            if(novoNome && novoNome.trim() !== "" && novoNome !== nomeAtual) {
+                try {
+                    await db.collection("campanhas").doc(id).update({ nome: novoNome.trim() });
+                    if (campanhaAtivaView === codigo) {
+                        document.getElementById('cv-titulo').innerText = novoNome.trim().toUpperCase();
+                    }
+                } catch(e) {
+                    alert("Erro ao alterar o nome da campanha.");
+                }
+            }
+        }
+
         function listarCampanhas(uid) {
             db.collection("campanhas").where("dono", "==", uid).onSnapshot(snap => {
                 const div = document.getElementById('lista-campanhas'); div.innerHTML = "";
@@ -682,8 +766,9 @@
                     meusCodigosCampanha.push(c.codigo);
                     div.innerHTML += `
                         <div class="campanha-card" onclick="abrirCampanhaView('${c.codigo}', '${c.nome}')">
-                            <button class="btn-action-node btn-del" onclick="event.stopPropagation(); deletarDocumento('campanhas', '${doc.id}', '${c.nome}')">[ X ]</button>
-                            <div>
+                            <button class="btn-action-node" style="top:8px; right:8px; color:var(--op-red);" onclick="event.stopPropagation(); deletarDocumento('campanhas', '${doc.id}', '${c.nome}')" title="Excluir Campanha">[ X ]</button>
+                            <button class="btn-action-node" style="top:8px; right:40px; color:var(--op-ink);" onclick="event.stopPropagation(); editarCampanha('${doc.id}', '${c.codigo}', '${c.nome}')" title="Editar Nome da Campanha">[ ✏️ ]</button>
+                            <div style="padding-right: 60px;">
                                 <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: 900; letter-spacing: 1px;">${c.nome}</strong><br>
                                 <small style="font-family: 'Special Elite', monospace; color: var(--san-purple); font-weight: bold; font-size: 12px;">CÓDIGO: ${c.codigo}</small>
                             </div>
@@ -729,31 +814,14 @@
             unsubCampanhaFichas = db.collection("fichas").where("campanhaId", "==", codigo).onSnapshot(snap => {
                 const div = document.getElementById('cv-fichas'); div.innerHTML = "";
                 if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhum jogador vinculado a este código ainda.</p>"; }
-                snap.forEach(doc => { div.innerHTML += renderFichaMonitorCard(doc); });
+                snap.forEach(doc => { div.innerHTML += renderFichaMonitorCard(doc, 'campanha'); });
             });
 
             if(unsubCampanhaAmeacas) unsubCampanhaAmeacas();
             unsubCampanhaAmeacas = db.collection("ameacas").where("campanhaId", "==", codigo).onSnapshot(snap => {
                 const div = document.getElementById('cv-ameacas'); div.innerHTML = "";
                 if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhuma ameaça vinculada a esta campanha.</p>"; }
-                snap.forEach(doc => { 
-                    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
-                    div.innerHTML += `
-                        <div class="ameaca-card">
-                            <button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
-                            <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" style="right: 8px; top: 8px;">[ X ]</button>
-                            <div style="display:flex; align-items:center; flex:1">
-                                <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative;">
-                                    ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                                </div>
-                                <div>
-                                    <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
-                                    <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
-                                </div>
-                            </div>
-                            <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
-                        </div>`;
-                });
+                snap.forEach(doc => { div.innerHTML += renderAmeacaCard(doc, 'campanha'); });
             });
         }
 
@@ -769,29 +837,9 @@
                     
                     if (!temPermissaoParaVer) return;
 
-                    div.innerHTML += renderFichaMonitorCard(doc);
+                    div.innerHTML += renderFichaMonitorCard(doc, 'monitor');
                 });
             });
-        }
-
-        function renderFichaMonitorCard(doc) {
-            const d = doc.data(); const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
-            return `
-                <div class="ficha-card" style="border-left-color:var(--cor-geral);">
-                    <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
-                    <div style="display:flex; align-items:center; flex:1">
-                        <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: var(--card-border);">
-                            ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
-                        </div>
-                        <div>
-                            <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px;">${d.nome || 'PERSONA'}</strong> <small style="color:var(--cor-geral); font-family: 'Special Elite', monospace;">| EXP ${d.nex || '5%'}</small><br>
-                            <small style="color:var(--op-ink); font-family: 'Inter', sans-serif; font-size:9px; text-transform:uppercase; font-weight:bold;">Jogador: ${d.nomeJogador || 'Desconhecido'}</small><br>
-                            <small style="color:var(--op-red); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:var(--cor-geral)">|</span> 
-                            <small style="color:var(--san-purple); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>
-                        </div>
-                    </div>
-                    <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
-                </div>`;
         }
     </script>
 </body>
