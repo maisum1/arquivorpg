@@ -101,6 +101,8 @@
         .btn-action-node:hover { opacity: 1; transform: scale(1.1); }
         .btn-action-node.btn-del { top: 8px; right: 8px; }
         .btn-action-node.btn-copy { top: 8px; right: 40px; color: var(--op-ink); }
+        .btn-action-node.btn-link { top: 8px; right: 72px; color: var(--san-purple); }
+        
         body:not(.tema-escuro) .btn-action-node.btn-copy { filter: grayscale(100%) brightness(0); }
         body.tema-escuro .btn-action-node.btn-copy { filter: grayscale(100%) brightness(200%); }
         
@@ -130,10 +132,8 @@
         .hub-input:focus { border-bottom: 1px solid var(--op-red); }
         body.tema-escuro .hub-input { color: #ffffff; }
 
-        /* Lista de mestres no modal */
         .mestre-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted var(--card-border); font-size: 12px; font-family: 'Courier Prime', monospace;}
         .btn-revogar { background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 10px; padding: 2px 5px; cursor: pointer; border-radius: 2px;}
-
     </style>
 </head>
 <body>
@@ -154,7 +154,7 @@
 
     <div id="modal-config" class="modal-padrao">
         <h3>IDENTIFICAÇÃO DO SISTEMA</h3>
-        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Defina o nome que aparecerá no painel principal e ficará registrado como dono nas novas personas criadas.</p>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Defina o nome que aparecerá no painel principal e nas personas.</p>
         <input type="text" id="input-nome-jogador" class="hub-input" placeholder="Seu Nome...">
         <button class="btn-google" onclick="salvarNomeJogador()" style="width: 100%;">SALVAR IDENTIFICAÇÃO</button>
         <button onclick="toggleModal('modal-config')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">FECHAR PAINEL</button>
@@ -165,10 +165,18 @@
         <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Conceda permissão de Mestre para outros e-mails.</p>
         <input type="email" id="novo-mestre-email" class="hub-input" placeholder="Email do novo mestre...">
         <button class="btn-google" onclick="adicionarMestre()" style="width: 100%; margin-bottom: 20px;">CONCEDER PERMISSÃO</button>
-        
         <div id="lista-mestres-ativos" style="max-height: 150px; overflow-y: auto; text-align: left; background: var(--card-bg); padding: 10px; border-radius: 2px;"></div>
-        
         <button onclick="toggleModal('modal-gerenciar-mestres')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">FECHAR PAINEL</button>
+    </div>
+
+    <div id="modal-vincular-campanha" class="modal-padrao">
+        <h3>SINTONIZAR CAMPANHA</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Cole abaixo o Link ou Código fornecido pelo seu Mestre.</p>
+        <input type="hidden" id="vincular-ficha-id">
+        <input type="text" id="input-link-campanha" class="hub-input" placeholder="Cole o Link ou Código aqui..." oninput="buscarPreviewCampanha()">
+        <div id="preview-campanha" style="margin: 15px 0; font-size: 12px; color: var(--cor-geral); min-height: 40px; font-family: 'Inter', sans-serif;"></div>
+        <button class="btn-google" id="btn-confirmar-vinculo" style="width: 100%; display:none; border-color: var(--san-purple); color: var(--san-purple);" onclick="confirmarVinculoCampanha()">CONFIRMAR VÍNCULO</button>
+        <button onclick="toggleModal('modal-vincular-campanha')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
     <div id="dashboard">
@@ -198,13 +206,15 @@
             <div id="campanha-view" style="display:none; margin-top: 40px; text-align:left; border-top: 2px dashed var(--card-border); padding-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px;">
                     <h3 id="cv-titulo" style="font-family: 'Crimson Text', serif; font-size: 2rem; margin:0; color: var(--op-ink);">NOME DA CAMPANHA</h3>
-                    <span id="cv-codigo" style="font-family: 'Special Elite', monospace; font-size: 1.2rem; background: var(--card-bg); padding: 5px 15px; border: 1px dotted var(--card-border);">CÓDIGO</span>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button class="btn-google" style="margin:0; padding: 5px 10px; font-size:10px;" onclick="copiarLinkCampanha()">[🔗] COPIAR LINK DA CAMPANHA</button>
+                        <span id="cv-codigo" style="font-family: 'Special Elite', monospace; font-size: 1.2rem; background: var(--card-bg); padding: 5px 15px; border: 1px dotted var(--card-border);">CÓDIGO</span>
+                    </div>
                 </div>
 
                 <div style="margin-bottom: 30px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin: 0; color: var(--cor-geral);">PERSONAS VINCULADAS</h4>
-                        <button class="btn-google" style="margin:0; padding: 5px 10px; font-size: 10px;" onclick="alert('Forneça o Código da Campanha para os seus jogadores. Eles devem inseri-lo no menu de Configurações (⚙️) dentro de suas próprias Fichas de Persona.')">[+] INSTRUIR JOGADOR</button>
                     </div>
                     <div id="cv-fichas" class="grid" style="margin-top: 0;"></div>
                 </div>
@@ -222,22 +232,16 @@
        <div id="hub-mestre" class="conteudo-hub" style="display:none;">
             <div class="mestre-panel">
                 <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
-                <p style="font-size: 12px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Alterações de status aplicadas globalmente em tempo real para todas as fichas no sistema.</p>
+                <p style="font-size: 12px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Alterações de status aplicadas globalmente em tempo real para todas as fichas.</p>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <button onclick="toggleGlobal('revelado')" class="mestre-btn">
-                        [ 👁️ ERGUER O VÉU ]
-                    </button>
-                    <button onclick="toggleGlobal('extremos')" class="mestre-btn red">
-                        [ 🩸 ATIVAR 100% NEX ]
-                    </button>
-                    <button onclick="toggleGlobal('hexatombe')" class="mestre-btn red" style="border-style: solid;">
-                        [ 💀 PROTOCOLO HEXATOMBE ]
-                    </button>
+                    <button onclick="toggleGlobal('revelado')" class="mestre-btn">[ 👁️ ERGUER O VÉU ]</button>
+                    <button onclick="toggleGlobal('extremos')" class="mestre-btn red">[ 🩸 ATIVAR 100% NEX ]</button>
+                    <button onclick="toggleGlobal('hexatombe')" class="mestre-btn red" style="border-style: solid;">[ 💀 PROTOCOLO HEXATOMBE ]</button>
                 </div>
             </div>
             
-            <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral); text-align: left; margin-bottom: 5px;">MONITOR GERAL (TODAS AS SUAS CAMPANHAS)</h4>
+            <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral); text-align: left; margin-bottom: 5px;">MONITOR GERAL (SUAS CAMPANHAS)</h4>
             <div id="monitor-mestre" class="grid" style="margin-top: 0;"></div>
         </div>
 
@@ -246,36 +250,7 @@
     </div>
 
     <script>
-        function alternarTema() {
-            document.body.classList.toggle('tema-escuro');
-            const isEscuro = document.body.classList.contains('tema-escuro');
-            localStorage.setItem('temaFichaAmeaca', isEscuro ? 'escuro' : 'claro');
-            document.querySelector('meta[name="theme-color"]').setAttribute("content", isEscuro ? "#161616" : "#dcd7cb");
-        }
-        
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('temaFichaAmeaca') === 'escuro') {
-                document.body.classList.add('tema-escuro');
-                document.querySelector('meta[name="theme-color"]').setAttribute("content", "#161616");
-            }
-        });
-
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const estavaLogado = localStorage.getItem('cris_logado') === 'true';
-            if (estavaLogado) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                document.getElementById('loading-screen').style.display = 'none';
-            }
-        });
-
-        const firebaseConfig = { apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI", authDomain: "fichasrpg-7fc69.firebaseapp.com", projectId: "fichasrpg-7fc69", storageBucket: "fichasrpg-7fc69.firebasestorage.app", messagingSenderId: "758802032764", appId: "1:758802032764:web:40467e15fdc24c570081f9" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); const db = firebase.firestore();
-
-        // Email intocável do dono/admin
+        // O E-mail intocável que gerencia todos (Seu email)
         const EMAIL_SUPER_ADMIN = "pedroacpr@gmail.com";
         let isSuperAdmin = false;
         let isMestre = false;
@@ -334,7 +309,15 @@
 
         async function adicionarMestre() {
             const email = document.getElementById('novo-mestre-email').value.trim().toLowerCase();
-            if(email) { await db.collection("mestres").doc(email).set({ ativo: true }); document.getElementById('novo-mestre-email').value = ""; }
+            if(email) { 
+                try {
+                    await db.collection("mestres").doc(email).set({ ativo: true }); 
+                    document.getElementById('novo-mestre-email').value = ""; 
+                    alert("Permissão de Mestre concedida com sucesso!");
+                } catch(e) {
+                    alert("Erro ao conceder permissão. Verifique regras do banco.");
+                }
+            }
         }
 
         async function revogarMestre(email) {
@@ -372,7 +355,6 @@
                         
                         listarAmeacas(user.uid);
                         listarCampanhas(user.uid);
-                        // O monitor mestre é chamado dentro de listarCampanhas para garantir que os códigos foram carregados
                     } else {
                         document.getElementById('btn-ameacas').style.display = 'none';
                         document.getElementById('btn-campanhas').style.display = 'none';
@@ -405,12 +387,53 @@
 
         async function deletarDocumento(colecao, id, nome) {
             if (colecao === 'fichas') {
-                const digitado = prompt(`ATENÇÃO: Esta persona será incinerada: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
+                const digitado = prompt(`ATENÇÃO: Esta persona será incinerada permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
                 if (digitado === "EXCLUIR") { await db.collection(colecao).doc(id).delete(); } 
             } else if (colecao === 'campanhas') {
                 if (confirm(`Excluir campanha ${nome}? (Fichas e ameaças não serão apagadas, apenas desvinculadas)`)) { await db.collection(colecao).doc(id).delete(); document.getElementById('campanha-view').style.display = 'none'; }
             } else {
                 if (confirm(`CONFIRMAR DESTRUIÇÃO DE ARQUIVO: ${nome.toUpperCase()}?`)) { await db.collection(colecao).doc(id).delete(); }
+            }
+        }
+
+        // --- SISTEMA DE VÍNCULO PLAYER -> CAMPANHA ---
+        function abrirModalVincular(fichaId) {
+            document.getElementById('vincular-ficha-id').value = fichaId;
+            document.getElementById('input-link-campanha').value = "";
+            document.getElementById('preview-campanha').innerHTML = "";
+            document.getElementById('btn-confirmar-vinculo').style.display = 'none';
+            toggleModal('modal-vincular-campanha');
+        }
+
+        async function buscarPreviewCampanha() {
+            let val = document.getElementById('input-link-campanha').value.trim();
+            if(!val) { document.getElementById('preview-campanha').innerHTML = ""; document.getElementById('btn-confirmar-vinculo').style.display = 'none'; return; }
+            
+            let codigo = val;
+            if(val.includes('join=')) { codigo = val.split('join=')[1].split('&')[0]; } 
+            else if (val.includes('?campanha=')) { codigo = val.split('?campanha=')[1].split('&')[0]; }
+            
+            const snap = await db.collection("campanhas").where("codigo", "==", codigo).get();
+            if(snap.empty) {
+                document.getElementById('preview-campanha').innerHTML = "<span style='color:var(--op-red)'>Nenhuma campanha encontrada com este código.</span>";
+                document.getElementById('btn-confirmar-vinculo').style.display = 'none';
+            } else {
+                const c = snap.docs[0].data();
+                const nomeMestre = c.mestreNome || 'Desconhecido';
+                const nomeCamp = c.ocultarNome ? '[ CONFIDENCIAL ]' : c.nome;
+                document.getElementById('preview-campanha').innerHTML = `<strong>Mestre:</strong> ${nomeMestre}<br><strong>Campanha:</strong> ${nomeCamp}`;
+                document.getElementById('btn-confirmar-vinculo').style.display = 'block';
+                document.getElementById('btn-confirmar-vinculo').dataset.codigo = codigo;
+            }
+        }
+
+        async function confirmarVinculoCampanha() {
+            const fichaId = document.getElementById('vincular-ficha-id').value;
+            const codigo = document.getElementById('btn-confirmar-vinculo').dataset.codigo;
+            if(fichaId && codigo) {
+                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo });
+                alert("Persona vinculada com sucesso à Campanha!");
+                toggleModal('modal-vincular-campanha');
             }
         }
 
@@ -422,6 +445,7 @@
                     div.innerHTML += `
                         <div class="ficha-card">
                             <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
+                            <button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Vincular a uma Campanha">[ 📡 ]</button>
                             <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
                             <div style="display:flex; align-items:center; flex:1">
                                 <div class="portrait-mini" style="overflow: hidden; position: relative;">
@@ -430,7 +454,7 @@
                                 <div>
                                     <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome || 'PERSONA DESCONHECIDA'}</strong><br>
                                     <small style="font-family: 'Special Elite', monospace; color: var(--cor-geral);">EXP ${d.nex || '5%'}</small>
-                                    ${d.campanhaId ? `<br><small style="color:var(--san-purple); font-weight:bold; font-size:9px;">CÓDIGO: ${d.campanhaId}</small>` : ''}
+                                    ${d.campanhaId ? `<br><small style="color:var(--san-purple); font-weight:bold; font-size:9px;">VINCULADO: ${d.campanhaId}</small>` : ''}
                                 </div>
                             </div>
                             <a href="ficha.html?id=${doc.id}" class="btn-open">ABRIR</a>
@@ -444,8 +468,18 @@
         async function criarCampanha() {
             const nome = prompt("Nome da nova Campanha:");
             if(!nome) return;
+            const ocultar = confirm("Deseja OCULTAR o nome da campanha para os jogadores quando eles forem vincular a ficha?\n\n[OK] = Ocultar (Aparecerá como CONFIDENCIAL)\n[Cancelar] = Mostrar nome real");
             const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-            await db.collection("campanhas").add({ nome: nome, codigo: codigo, dono: auth.currentUser.uid });
+            const mestreNome = window.nomeJogadorGlobal || auth.currentUser.displayName || auth.currentUser.email;
+
+            await db.collection("campanhas").add({ nome: nome, codigo: codigo, dono: auth.currentUser.uid, mestreNome: mestreNome, ocultarNome: ocultar });
+            alert("Campanha criada! Código: " + codigo);
+        }
+
+        function copiarLinkCampanha() {
+            const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'index.html?join=' + campanhaAtivaView;
+            navigator.clipboard.writeText(url);
+            alert('Link Copiado! Envie para o jogador colar no menu do Hub.');
         }
 
         function listarCampanhas(uid) {
@@ -529,7 +563,7 @@
                         </div>
                         <div>
                             <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px;">${d.nome}</strong><br>
-                            <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">VD ${d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
+                            <small style="color:var(--op-red); font-family: 'Special Elite', monospace; font-weight: bold;">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</small>
                             ${d.campanhaId ? `<br><small style="color:var(--cor-geral); font-size:9px; font-weight:bold; font-family:'Inter';">CAMPANHA: ${d.campanhaId}</small>` : ''}
                         </div>
                     </div>
@@ -538,13 +572,12 @@
         }
 
         function carregarMonitorMestre() {
-            // Isolamento no Monitor Geral: Mostra fichas se (Super Admin) OU se o campanhaId da ficha estiver na lista de campanhas deste mestre.
+            // Isolamento no Monitor Geral
             db.collection("fichas").onSnapshot(snap => {
                 const div = document.getElementById('monitor-mestre'); div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
                     
-                    // Lógica de Isolamento
                     let temPermissaoParaVer = false;
                     if (isSuperAdmin) temPermissaoParaVer = true;
                     else if (d.campanhaId && meusCodigosCampanha.includes(d.campanhaId)) temPermissaoParaVer = true;
@@ -585,7 +618,7 @@
 
         async function criarNovaAmeaca() {
             const user = auth.currentUser;
-            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", vd: 20, pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
+            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", na: 20, pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
             window.location.href = `ameaca.html?id=${ref.id}`;
         }
     </script>
