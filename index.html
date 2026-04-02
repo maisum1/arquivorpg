@@ -648,12 +648,29 @@
         async function criarCampanha() {
             const nome = prompt("Nome da nova Campanha:");
             if(!nome) return;
+            
             const ocultar = confirm("Deseja OCULTAR o nome da campanha para os jogadores quando eles forem vincular a ficha?\n\n[OK] = Ocultar (Aparecerá como CONFIDENCIAL)\n[Cancelar] = Mostrar nome real");
+            
+            // Gera um código de 6 caracteres aleatórios
             const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const mestreNome = window.nomeJogadorGlobal || auth.currentUser.displayName || auth.currentUser.email;
+            
+            try {
+                const user = auth.currentUser;
+                const mestreNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
 
-            await db.collection("campanhas").add({ nome: nome, codigo: codigo, dono: auth.currentUser.uid, mestreNome: mestreNome, ocultarNome: ocultar });
-            alert("Campanha criada! O link/código está disponível na aba da campanha.");
+                await db.collection("campanhas").add({ 
+                    nome: nome, 
+                    codigo: codigo, 
+                    dono: user.uid, 
+                    mestreNome: mestreNome, 
+                    ocultarNome: ocultar 
+                });
+                
+                alert(`Campanha criada com sucesso!\n\nCÓDIGO GERADO: ${codigo}\n\nA campanha já deve aparecer na sua lista logo abaixo.`);
+            } catch (erro) {
+                console.error("Erro ao criar campanha: ", erro);
+                alert("ERRO: O Firebase bloqueou a criação da campanha.\n\nVá no painel do Firebase > Firestore Database > Regras (Rules) e certifique-se de que a leitura e escrita (read, write) estão permitidas (true).");
+            }
         }
 
         function listarCampanhas(uid) {
