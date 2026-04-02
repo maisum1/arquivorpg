@@ -27,6 +27,16 @@
             --accent-gold: #a68a64;
         }
 
+        /* Deixa a barra de rolagem principal invisível */
+        body::-webkit-scrollbar { display: none; }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Barras de rolagem de áreas internas (modais) */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cor-geral); }
+
         body.tema-escuro {
             --bg-paper: #161616; --op-ink: #d4d4d4; --op-red: #cc2929;
             --paper-shadow: 0 20px 50px rgba(0,0,0,1);
@@ -97,7 +107,7 @@
         body.tema-escuro .btn-google { background: rgba(255,255,255,0.04); }
         .btn-google:hover { background: rgba(128,128,128,0.2); }
 
-        .btn-action-node { position: absolute; background: none; border: none; color: var(--op-red); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; opacity: 0.7; padding: 4px; }
+        .btn-action-node { position: absolute; background: none; border: none; color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; opacity: 0.7; padding: 4px; z-index: 10;}
         .btn-action-node:hover { opacity: 1; transform: scale(1.1); }
         
         body:not(.tema-escuro) .btn-copy { filter: grayscale(100%) brightness(0); }
@@ -517,40 +527,42 @@
             let botoesAcao = '';
             let rightPos = 8;
             
-            // Só mostra o botão de EXCLUIR se o usuário atual for o DONO da ficha
             if (isOwner) {
                 botoesAcao += `<button class="btn-action-node" style="top:8px; right:${rightPos}px; color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`;
                 rightPos += 32;
             }
             
-            // Só mostra o botão de DESVINCULAR se estiver dentro da visão de uma Campanha
             if (context === 'campanha') {
                 botoesAcao += `<button class="btn-action-node" style="top:8px; right:${rightPos}px; color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Desvincular da Campanha">[ 🔌 ]</button>`;
                 rightPos += 32;
             }
 
-            // Para o contexto do próprio jogador na aba MINHAS PERSONAS
             if (context === 'hub-proprio') {
                 botoesAcao += `<button class="btn-action-node btn-link" style="top:8px; right:${rightPos}px;" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>`;
                 rightPos += 32;
             }
 
-            // O botão de COPIAR LINK aparece em todos os cenários
             botoesAcao += `<button class="btn-action-node btn-copy" style="top:8px; right:${rightPos}px;" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
+
+            let infoExtra = '';
+            if (context === 'monitor') {
+                infoExtra = `<br><small style="color:var(--op-red); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:var(--cor-geral)">|</span> <small style="color:var(--san-purple); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>`;
+            }
+            if (d.campanhaId && context === 'hub-proprio') {
+                infoExtra += `<br><small style="color:var(--san-purple); font-weight:bold; font-size:9px;">VINCULADO: ${d.campanhaId}</small>`;
+            }
 
             return `
                 <div class="ficha-card" style="border-left-color:var(--cor-geral);">
                     ${botoesAcao}
-                    <div style="display:flex; align-items:center; flex:1; padding-right: 15px;">
+                    <div style="display:flex; align-items:center; flex:1; padding-right: ${rightPos + 10}px;">
                         <div class="portrait-mini" style="overflow: hidden; position: relative; border-color: var(--card-border); flex-shrink:0;">
                             ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
                         </div>
                         <div style="min-width:0; overflow-wrap: break-word;">
                             <strong style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px;">${d.nome || 'PERSONA'}</strong> <small style="color:var(--cor-geral); font-family: 'Special Elite', monospace;">| EXP ${d.nex || '5%'}</small><br>
-                            <small style="color:var(--op-ink); font-family: 'Inter', sans-serif; font-size:9px; text-transform:uppercase; font-weight:bold;">Jogador: ${d.nomeJogador || 'Desconhecido'}</small><br>
-                            <small style="color:var(--op-red); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</small> <span style="color:var(--cor-geral)">|</span> 
-                            <small style="color:var(--san-purple); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 1px;">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</small>
-                            ${d.campanhaId && context === 'hub-proprio' ? `<br><small style="color:var(--san-purple); font-weight:bold; font-size:9px;">VINCULADO: ${d.campanhaId}</small>` : ''}
+                            <small style="color:var(--op-ink); font-family: 'Inter', sans-serif; font-size:9px; text-transform:uppercase; font-weight:bold;">Jogador: ${d.nomeJogador || 'Desconhecido'}</small>
+                            ${infoExtra}
                         </div>
                     </div>
                     <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
@@ -562,7 +574,7 @@
                 const div = document.getElementById('lista-fichas'); div.innerHTML = "";
                 minhasFichasGlobais = [];
                 snap.forEach(doc => {
-                    const d = doc.data(); 
+                    const d = doc.data();
                     minhasFichasGlobais.push({ id: doc.id, nome: d.nome || 'Persona Desconhecida' });
                     div.innerHTML += renderFichaMonitorCard(doc, 'hub-proprio');
                 });
@@ -643,7 +655,7 @@
             return `
                 <div class="ameaca-card">
                     ${botoesAcao}
-                    <div style="display:flex; align-items:center; flex:1; padding-right: 15px;">
+                    <div style="display:flex; align-items:center; flex:1; padding-right: ${rightPos + 10}px;">
                         <div class="portrait-mini" style="border-color:var(--op-red); overflow: hidden; position: relative; flex-shrink:0;">
                             ${d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : ''}
                         </div>
