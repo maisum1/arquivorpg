@@ -700,7 +700,6 @@
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center;"><label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">NÍVEL DE CRÉDITO</label><input type="number" id="nivel-credito" onchange="atualizarCredito(); salvarFicha();" value="-1" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; outline: none;"></div>
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center;"><label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">DINHEIRO ATUAL</label><input type="text" id="dinheiro-especie" onchange="salvarFicha();" value="R$ 0" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none;"></div>
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center;"><label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">LIMITE DE GASTOS</label><input type="text" id="limite-gastos" onchange="salvarFicha();" value="R$ 0" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none;"></div>
-                <div style="display: flex; flex-direction: column; align-items: center; text-align: center;"><label style="font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">PATRIMÔNIO / BENS</label><input type="text" id="patrimonio-recursos" onchange="salvarFicha();" value="R$ 0" style="width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none;"></div>
             </div>
 
             <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px;">
@@ -1000,9 +999,9 @@
 
     function atualizarCredito() {
         let nc = parseInt(document.getElementById('nivel-credito').value); if (isNaN(nc)) nc = -1;
-        let gastos = "R$ 0", dinheiro = "R$ 0", patrimonio = "R$ 0";
-        if (nc <= -2) { gastos = "R$ 0"; dinheiro = "R$ 0"; patrimonio = "R$ 0"; } else if (nc === -1) { gastos = "R$ 50"; dinheiro = "R$ 100"; patrimonio = "R$ 500"; } else if (nc === 0) { gastos = "R$ 300"; dinheiro = "R$ 800"; patrimonio = "R$ 15.000"; } else if (nc === 1) { gastos = "R$ 2.000"; dinheiro = "R$ 5.000"; patrimonio = "R$ 150.000"; } else if (nc >= 2) { gastos = "R$ 15.000"; dinheiro = "R$ 50.000"; patrimonio = "R$ 2.000.000+"; }
-        document.getElementById('limite-gastos').value = gastos; document.getElementById('dinheiro-especie').value = dinheiro; document.getElementById('patrimonio-recursos').value = patrimonio;
+        let gastos = "R$ 0", dinheiro = "R$ 0";
+        if (nc <= -2) { gastos = "R$ 0"; dinheiro = "R$ 0"; } else if (nc === -1) { gastos = "R$ 50"; dinheiro = "R$ 100"; } else if (nc === 0) { gastos = "R$ 300"; dinheiro = "R$ 800"; } else if (nc === 1) { gastos = "R$ 2.000"; dinheiro = "R$ 5.000"; } else if (nc >= 2) { gastos = "R$ 15.000"; dinheiro = "R$ 50.000"; }
+        document.getElementById('limite-gastos').value = gastos; document.getElementById('dinheiro-especie').value = dinheiro;
     }
 
     function previewTemplate(tipo) {
@@ -1197,8 +1196,7 @@
             const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else dA.style.display = 'none';
             const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
-            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('limite-gastos').value = d.limiteGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
-
+            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('limite-gastos').value = d.limiteGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0";
             let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
             nomesPericias.forEach(p => {
                 const hasSubs = bancoPericias[p].subs || bancoPericias[p].subsInputs;
@@ -1278,7 +1276,7 @@
             statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
             enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
             insanoTemporario: isITActive, itRounds: iR, revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao,
-            nivelCredito: valNC, limiteGastos: document.getElementById('limite-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value, patrimonioRecursos: document.getElementById('patrimonio-recursos').value,
+            nivelCredito: valNC, limiteGastos: document.getElementById('limite-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value,
             campanhaId: document.getElementById('campanhaId-config').value
         };
 
