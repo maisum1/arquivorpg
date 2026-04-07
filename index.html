@@ -422,11 +422,11 @@
         function carregarFichasJogador(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
                 const div = document.getElementById('lista-fichas');
-                let conteudoHTML = "";
+                div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
                     const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
-                    conteudoHTML += `
+                    div.innerHTML += `
                         <div class="ficha-card">
                             <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>
                             <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
@@ -442,18 +442,17 @@
                             <a href="ficha.html?id=${doc.id}" class="btn-open">ABRIR</a>
                         </div>`;
                 });
-                div.innerHTML = conteudoHTML;
             });
         }
 
         function listarAmeacas() {
             db.collection("ameacas").onSnapshot(snap => {
                 const div = document.getElementById("lista-ameacas");
-                let conteudoHTML = "";
+                div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
                     const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
-                    conteudoHTML += `
+                    div.innerHTML += `
                         <div class="ameaca-card">
                             <button class="btn-action-node btn-del" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')">[ X ]</button>
                             <div style="display:flex; align-items:center; flex:1">
@@ -468,18 +467,17 @@
                             <a href="ameaca.html?id=${doc.id}" class="btn-open">INSPECIONAR</a>
                         </div>`;
                 });
-                div.innerHTML = conteudoHTML;
             });
         }
 
         function carregarMonitorMestre() {
             db.collection("fichas").onSnapshot(snap => {
                 const div = document.getElementById('monitor-mestre');
-                let conteudoHTML = "";
+                div.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
                     const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
-                    conteudoHTML += `
+                    div.innerHTML += `
                         <div class="ficha-card" style="border-left-color:var(--cor-geral);">
                             <button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link para Transferir">[ 🔗 ]</button>
                             <button class="btn-action-node btn-del" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')">[ X ]</button>
@@ -497,7 +495,6 @@
                             <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
                         </div>`;
                 });
-                div.innerHTML = conteudoHTML;
             });
         }
 
