@@ -1439,5 +1439,29 @@
     
     auth.onAuthStateChanged(user => { if (user) init(); else { alert("Sessão expirada."); window.location.href = "index.html"; } });
 </script>
+    
+    <script>
+    // TRAVA DE MODO VISUALIZAÇÃO
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('view') === 'true') {
+            // Cria um estilo bloqueador
+            const lockStyle = document.createElement('style');
+            lockStyle.innerHTML = `
+                input, textarea, select { pointer-events: none !important; }
+                .cris-textarea { pointer-events: auto !important; } /* Permite scroll no textarea */
+                .btn-criar, .btn-add, .btn-del, .bar-btn, .btn-status-action, .btn-config, #btn-assumir-posse, .btn-curar, .val-btn, .it-round { display: none !important; }
+                .portrait-box, .rit-symbol-box { pointer-events: none !important; }
+                #label-portrait { display: none !important; }
+            `;
+            document.head.appendChild(lockStyle);
+            
+            // Depois de meio segundo, congela todo o texto
+            setTimeout(() => {
+                document.querySelectorAll('.cris-textarea').forEach(el => { el.readOnly = true; el.style.outline = 'none'; });
+            }, 500);
+        }
+    });
+</script>
 </body>
 </html>
