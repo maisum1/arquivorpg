@@ -83,10 +83,10 @@
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        .portrait-box { width: 130px; height: 165px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2; box-sizing: border-box; }
+        #label-portrait { color: #1a1a1a !important; font-weight: 900; text-align: center; }
+        .portrait-box { width: 130px; height: 165px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2; }
         .portrait-box::before { content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 80px; height: 25px; background: rgba(230,225,210,0.8); box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.05); z-index: 10; pointer-events: none; }
         body.tema-escuro .portrait-box::before { background: rgba(50,50,50,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        body.tema-escuro #label-portrait { color: #1a1a1a !important; font-weight: 900; }
         .portrait-img-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; z-index: 1; }
         .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
 
@@ -274,7 +274,7 @@
             body { padding: 0 !important; margin: 0; }
             .grid-container { grid-template-columns: 1fr; gap: 20px; padding: 15px 10px !important; border: none !important; border-radius: 0 !important; width: 100%; min-width: auto; box-sizing: border-box;} 
             .profile-flex { gap: 15px !important; margin-bottom: 15px !important; }
-            .portrait-box { width: 110px; height: 140px; box-sizing: border-box; overflow: hidden; }
+            .portrait-box { width: 110px; height: 140px; }
             #label-portrait { font-size: 9px !important; line-height: 1.2; text-align: center; }
             .header-name { font-size: 22px; min-width: 0; }
             .header-sub-row { flex-direction: column; gap: 8px; margin-bottom: 10px; width: 100%; }
@@ -1114,6 +1114,8 @@
         atualizarListaModal('select-tpl-ataque', inputAtaque ? inputAtaque.value : "");
         let inputItem = document.querySelector('input[onkeyup*="select-tpl-item"]');
         atualizarListaModal('select-tpl-item', inputItem ? inputItem.value : "");
+
+        if (typeof forcarAtualizacaoRessonancia === 'function') forcarAtualizacaoRessonancia();
     }
 
     function aplicarStatusVisual() { const st = document.getElementById('status-personagem').value; const o = document.getElementById('status-overlay'); const s = document.querySelector('.grid-container'); o.className = ''; s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake'); if(st === 'Sangrando') { o.classList.add('overlay-sangrando'); s.classList.add('papel-sangrando'); } if(st === 'Machucado') { o.classList.add('overlay-machucado'); s.classList.add('papel-machucado'); } if(st === 'Atordoado') o.classList.add('overlay-atordoado'); if(st === 'Assustado') { o.classList.add('overlay-assustado'); s.classList.add('blur-shake'); } }
@@ -1156,11 +1158,31 @@
 
     function toggleDescricao(n) { const d = document.getElementById(`desc-${n}`); d.style.display = d.style.display === 'block' ? 'none' : 'block'; const s = document.getElementById(`subs-${n}`); if(s) s.style.display = s.style.display === 'block' ? 'none' : 'block'; }
 
-    function mudouNex() { 
-        const ns = document.getElementById('nex-personagem').value || "5%"; let n = parseInt(ns) || 0; const ef = isExtremos || globalExtremos; if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; } 
+   function forcarAtualizacaoRessonancia() {
+        const ns = document.getElementById('nex-personagem').value || "5%"; 
+        let n = parseInt(ns) || 0; 
+        const ef = isExtremos || globalExtremos; 
+        const ref = isRestricao || globalRestricao;
+        if (!ef && n >= 100) n = 99; 
+        if (!ref && n <= 0) n = 5; 
+        
         atualizarOpcoesRessonancia(n); 
-        let gc = "1º Grau"; if (n === 0) gc = "Nulo"; else if (n >= 5 && n <= 20) gc = "1º Grau"; else if (n >= 25 && n <= 40) gc = "2º Grau"; else if (n >= 45 && n <= 60) gc = "3º Grau"; else if (n >= 65 && n <= 80) gc = "4º Grau"; else if (n >= 85 && n <= 99) gc = "5º Grau"; else if (n >= 100) gc = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; 
-        document.getElementById('grau-ressonancia').value = gc; aplicarSegredosUI(); recalcularBases(); salvarFicha(); 
+        
+        let gc = "1º Grau"; 
+        if (n === 0) gc = "Nulo"; 
+        else if (n >= 5 && n <= 20) gc = "1º Grau"; 
+        else if (n >= 25 && n <= 40) gc = "2º Grau"; 
+        else if (n >= 45 && n <= 60) gc = "3º Grau"; 
+        else if (n >= 65 && n <= 80) gc = "4º Grau"; 
+        else if (n >= 85 && n <= 99) gc = "5º Grau"; 
+        else if (n >= 100) gc = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; 
+        
+        document.getElementById('grau-ressonancia').value = gc; 
+    }
+
+    function mudouNex() { 
+        forcarAtualizacaoRessonancia();
+        aplicarSegredosUI(); recalcularBases(); salvarFicha(); 
     }
 
     function recalcularDefesas() { const ag = parseInt(document.getElementById('attr-agi').value) || 0; const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; const bd = parseInt(document.getElementById('bonus-defesa').value) || 0; const bb = parseInt(document.getElementById('bonus-bloqueio').value) || 0; const be = parseInt(document.getElementById('bonus-esquiva').value) || 0; const dbVal = 10 + ag + nv + bd; document.getElementById('display-defesa').innerText = dbVal; const ft = parseInt(document.getElementById('treino-Fortitude')?.value) || 0; const rt = parseInt(document.getElementById('treino-Reflexos')?.value) || 0; document.getElementById('display-bloqueio').innerText = dbVal + ft + bb; document.getElementById('display-esquiva').innerText = dbVal + rt + be; }
@@ -1216,7 +1238,10 @@
             ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
             const nv = parseInt(d.nivel) || 0; document.getElementById('nivel-personagem').value = nv; document.getElementById('nex-personagem').value = d.nex || "5%"; document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
             const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else dA.style.display = 'none';
-            const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
+            const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); 
+            if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; 
+            else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
+            if (typeof forcarAtualizacaoRessonancia === 'function') forcarAtualizacaoRessonancia();
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
             document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('limite-gastos').value = d.limiteGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
 
