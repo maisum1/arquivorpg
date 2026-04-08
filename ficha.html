@@ -1130,8 +1130,25 @@
     function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
     function gerarOpcoesNivelNex() { const ns = document.getElementById('nivel-personagem'); let lh = ''; for(let i=0; i<=5; i++) lh += `<option value="${i}">${i}</option>`; ns.innerHTML = lh; const nxs = document.getElementById('nex-personagem'); let nxh = ''; for(let i=0; i<=95; i+=5) { if(i === 5) nxh += `<option value="${i}%" selected>${i}%</option>`; else nxh += `<option value="${i}%">${i}%</option>`; } nxh += '<option value="99%">99%</option><option value="100%">100%</option>'; nxs.innerHTML = nxh; atualizarOpcoesRessonancia(5); }
 
-    async function init() { gerarOpcoesNivelNex(); popularModais(); if (!atual) { window.location.href = "index.html"; } else { gerarPericiasBase(); carregarFicha(); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); } }
-
+    async function init() { 
+        gerarOpcoesNivelNex(); 
+        if (!atual) { 
+            window.location.href = "index.html"; 
+        } else { 
+            // Otimização: Permite ao celular desenhar a tela antes de travar processando as perícias
+            setTimeout(() => {
+                popularModais();
+                gerarPericiasBase(); 
+                carregarFicha(); 
+                carregarRituais(); 
+                carregarPoderes(); 
+                carregarHabilidades(); 
+                carregarInventario(); 
+                carregarAtaques();
+            }, 50);
+        } 
+    }
+    
     function gerarPericiasBase() {
         let hPe = ""; let hPr = "";
         nomesPericias.forEach(p => {
