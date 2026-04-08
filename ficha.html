@@ -83,13 +83,11 @@
         @keyframes shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         .shake { animation: shake 0.5s; animation-iteration-count: infinite; }
 
-        /* MOLDURA E FOTO 100% PERFEITAS (ANTI-ALIASING FIX) */
-        #label-portrait { color: #1a1a1a !important; font-weight: 900; text-align: center; z-index: 3; position: relative; }
-        .portrait-box { width: 130px; height: 165px; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg) translateZ(0); margin-top: 10px; z-index: 2; border-radius: 2px; }
-        .portrait-box::after { content: ""; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; border: 3px solid #fff; pointer-events: none; z-index: 5; border-radius: 3px; }
-        .portrait-box::before { content: ""; position: absolute; top: -15px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 80px; height: 25px; background: rgba(230,225,210,0.8); box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.05); z-index: 10; pointer-events: none; }
+        #label-portrait { color: #1a1a1a !important; font-weight: 900; text-align: center; }
+        .portrait-box { width: 130px; height: 165px; border: 3px solid #fff; background: #e0e0e0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); transform: rotate(-2deg); margin-top: 10px; z-index: 2; }
+        .portrait-box::before { content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 80px; height: 25px; background: rgba(230,225,210,0.8); box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.05); z-index: 10; pointer-events: none; }
         body.tema-escuro .portrait-box::before { background: rgba(50,50,50,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        .portrait-img-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: 1; border-radius: 1px; }
+        .portrait-img-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; z-index: 1; }
         .portrait-box img { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; mix-blend-mode: normal !important; filter: none !important;}
 
         .sigilo-container { position: relative; width: 260px; height: 260px; margin: 0 auto 10px auto; background: url('https://www.ordemparanormal.com.br/assets/rituais/circulo_atributos.png') no-repeat center; background-size: contain; filter: sepia(0.6) hue-rotate(-20deg) brightness(0.4) opacity(0.85); mix-blend-mode: multiply; transition: filter 0.5s ease; }
@@ -257,6 +255,7 @@
         body.tema-escuro .btn-criar { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
         body.tema-escuro .bg-label { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
 
+        /* ================= NOVAS REGRAS DE COMPACTAÇÃO ================= */
         .combat-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
         .combat-stat-box { background: var(--card-bg); padding: 12px 5px; border-radius: 2px; border: 1px solid var(--card-border); text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .combat-stat-label { display:block; font-size: 11px; color: var(--op-ink); font-weight: 900; letter-spacing: 1px; margin-bottom: 5px; font-family: 'Inter', sans-serif; line-height: 1.2; }
@@ -272,21 +271,11 @@
         .inv-stats-grid input { width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; outline: none; }
 
         @media (max-width: 1200px) {
-            /* REMOVENDO EFEITOS PESADOS NO CELULAR PARA O SITE RODAR LISO */
-            body { background-image: none; background-color: var(--bg-desk); padding: 0 !important; margin: 0; }
-            .grid-container { 
-                background-image: 
-                    radial-gradient(circle at 10% 20%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
-                    radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.06) 0%, transparent 30%),
-                    linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.05) 100%);
-                grid-template-columns: 1fr; gap: 20px; padding: 15px 10px !important; border: none !important; border-radius: 0 !important; width: 100%; min-width: auto; box-sizing: border-box;
-                background-color: var(--bg-paper);
-            } 
-            body.tema-escuro .grid-container { background-image: none !important; background-color: #1a1a1a; }
-            body.tema-hexatombe .grid-container { background-image: radial-gradient(circle at center, rgba(150,0,0,0.1) 0%, #0a0000 100%) !important; background-color: #0a0000 !important; box-shadow: inset 0 0 50px rgba(0,0,0,0.9) !important; }
-
+            body { padding: 0 !important; margin: 0; }
+            .grid-container { grid-template-columns: 1fr; gap: 20px; padding: 15px 10px !important; border: none !important; border-radius: 0 !important; width: 100%; min-width: auto; box-sizing: border-box;} 
             .profile-flex { gap: 15px !important; margin-bottom: 15px !important; }
             .portrait-box { width: 110px; height: 140px; }
+            #label-portrait { font-size: 9px !important; line-height: 1.2; text-align: center; }
             .header-name { font-size: 22px; min-width: 0; }
             .header-sub-row { flex-direction: column; gap: 8px; margin-bottom: 10px; width: 100%; }
             .sub-input-group { min-width: 100%; width: 100%; }
@@ -661,7 +650,7 @@
                     </div>
                 </div>
                 <div class="combat-stat-box" style="border-color: var(--hp-red); background: rgba(139, 28, 28, 0.05);">
-                    <label class="combat-stat-label" style="color: var(--hp-red) !important;">PRESSÃO <span class="combat-stat-sub">(CARGA TOTAL)</span></label>
+                    <label class="combat-stat-label" style="color: var(--hp-red) !important;">PRESSÃO</label>
                     <div class="combat-stat-val" style="margin-top: 4px;">
                         <span id="pressao-atual-combate">0</span><span style="color: var(--cor-geral); font-size: 16px; margin: 0 4px;">/</span><span id="pressao-max-combate" style="color: var(--hp-red);">2</span>
                     </div>
@@ -705,11 +694,7 @@
             </div>
             <div id="lista-ataques"></div>
 
-            <div class="info-row" style="margin-top: 25px;"><label class="info-label">EQUIPAMENTO DE PROTEÇÃO</label><input type="text" id="info-prot" class="info-field" onchange="salvarFicha()"></div>
-            <div class="info-row"><label class="info-label">VULNERABILIDADES</label><input type="text" id="info-vuln" class="info-field" placeholder="" onchange="salvarFicha()"></div>
-            <div class="info-row"><label class="info-label">TOLERÂNCIAS (RESISTÊNCIAS)</label><input type="text" id="info-res" class="info-field" onchange="salvarFicha()"></div>
-            <div class="info-row"><label class="info-label">PROFICIÊNCIAS TÁTICAS</label><input type="text" id="info-prof" class="info-field" onchange="salvarFicha()"></div>
-        </div>
+            </div>
 
         <div id="aba-tracos" class="tab-content">
             <div style="display: flex; gap: 15px; margin-bottom: 35px; border-bottom: 1px dotted var(--card-border); padding-bottom: 25px; flex-wrap: wrap;">
@@ -728,7 +713,7 @@
             <div style="display:flex; justify-content:space-between; margin-bottom:30px; align-items:center; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                 <div style="display:flex; gap:10px;"><button class="cris-btn" onclick="toggleElem('modal-tpl-anomalia')">+ LISTA</button><button class="cris-btn btn-criar" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button></div>
                 <div style="font-family:'Inter', sans-serif; display:flex; align-items:center; font-size: 11px; font-weight: bold; color: var(--cor-geral); background: var(--card-bg); padding: 8px 15px; border-radius: 2px; border: 1px solid var(--card-border);">
-                    DIFICULDADE BASE DE RITUAL (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; background: transparent; border:1px dotted var(--card-border); color:var(--op-ink); font-size:14px; text-align:center; outline:none; font-family:'Special Elite', monospace; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--op-ink); font-family: 'Special Elite', monospace; font-size: 24px; font-weight: bold;">10</span>
+                    DT DE ANOMALIAS (10 + SAG) <span style="margin: 0 10px;">+</span> <input type="number" id="bonus-dt" placeholder="Bônus" onchange="recalcularBases(true); salvarFicha();" style="width:45px; background: transparent; border:1px dotted var(--card-border); color:var(--op-ink); font-size:14px; text-align:center; outline:none; font-family:'Special Elite', monospace; padding: 4px;"> <span style="margin: 0 10px;">=</span> <span id="dt-val" style="color:var(--op-ink); font-family: 'Special Elite', monospace; font-size: 24px; font-weight: bold;">10</span>
                 </div>
             </div>
             <div id="lista-rituais"></div>
@@ -784,7 +769,6 @@
         "Artista": { nome: "Artista / Celebridade", p1: "Artes", p2: "Enganação", bonusNC: 1, search: "artes enganacao" },
         "Atleta": { nome: "Atleta Profissional", p1: "Atletismo", p2: "Acrobacia", bonusNC: 1, search: "atletismo acrobacia" },
         "Criminoso": { nome: "Criminoso / Mafioso", p1: "Crime", p2: "Furtividade", bonusNC: 2, search: "crime furtividade mafioso" },
-        "Cultista Arrependido": { nome: "Cultista Arrependido", p1: "Ocultismo", p2: "Religião", bonusNC: 0, search: "ocultismo religiao" },
         "Desgarrado": { nome: "Desgarrado / Ermitão", p1: "Sobrevivência", p2: "Adestramento", bonusNC: 0, search: "sobrevivencia adestramento ermitao" },
         "Engenheiro": { nome: "Engenheiro / Mecânico", p1: "Engenharia", p2: "Tecnologia", bonusNC: 2, search: "engenharia tecnologia mecanico" },
         "Executivo": { nome: "Executivo / Empresário", p1: "Diplomacia", p2: "Atualidades", bonusNC: 2, search: "diplomacia atualidades empresario" },
@@ -804,23 +788,23 @@
     };
 
     const templatesAtaques = { 
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" }, 
+        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
         "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, categoria: "À Distância" },
-        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, categoria: "À Distância" },
-        "Escopeta": { nome: "Escopeta Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, categoria: "À Distância" },
-        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 1, categoria: "Corpo a Corpo" },
-        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
         "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Anômalo" },
-        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, categoria: "À Distância" },
-        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 2, categoria: "À Distância" },
-        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Corpo a Corpo" },
-        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 2, categoria: "Corpo a Corpo" },
+        "Fuzil": { nome: "Fuzil de Assalto AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "FuzilPrecisao": { nome: "Fuzil de Precisão (Sniper)", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Glock": { nome: "Glock 19 (9mm)", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
+        "Motosserra": { nome: "Motosserra Pesada", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
         "SocoIngles": { nome: "Soco Inglês", dano: "1d4+1", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 1, categoria: "À Distância" },
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Corpo a Corpo" },
-        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 1, categoria: "À Distância" }
+        "Submetralhadora": { nome: "Submetralhadora (Thompson/MP5)", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
+        "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" }
     };
 
     const templatesTracos = {};
@@ -828,21 +812,16 @@
     const templatesAnomalias = {};
 
     const templatesInventario = { 
-        "Bandagem": { nome: "Bandagem", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Cura 2d10 PV." }, 
-        "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas." },
-        "KitPrimeirosSocorros": { nome: "Kit de Primeiros Socorros", categoria: "Consumível", pressao: 1, quantidade: 1, descricao: "Garante +5 no teste de Medicina. Pode ser consumido para curar 2d10+5 PV." },
-        "CameraPolaroid": { nome: "Câmera Polaroid Antiga", categoria: "Equipamento", pressao: 1, quantidade: 1, descricao: "Câmera instantânea. Algumas vezes, as fotos revelam espectros e rastros paranormais invisíveis a olho nu." },
-        "Adrenalina": { nome: "Seringa de Epinefrina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação rápida. Remove a condição 'Atordoado' e cura 10 PV temporários que somem no fim da cena." },
-        "Grimorio": { nome: "Diário de Ocultista", categoria: "Anômalo", pressao: 1, quantidade: 1, descricao: "Cheio de anotações confusas. Reduz em 1 a penalidade de aprender novos rituais (Anomalias).", anomalo: true },
-        "EmsSop": { nome: "Detector de EMF", categoria: "Equipamento", pressao: 1, quantidade: 1, descricao: "Capta oscilações magnéticas severas. Usado para encontrar entidades do elemento Energia ou rastros de Morte." },
+        "Adrenalina": { nome: "Seringa de Adrenalina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação rápida. Remove a condição 'Atordoado' e cura 10 PV temporários que somem no fim da cena." },
         "Algemas": { nome: "Algemas Táticas", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Feitas de aço reforçado. Exigem um teste de Força DT 25 ou Crime DT 20 para escapar." },
-        "KitInvestigacao": { nome: "Maleta de Investigação", categoria: "Equipamento", pressao: 2, quantidade: 1, descricao: "Luvas, pinças, pó de digital e luz UV. Garante Vantagem em Investigação." },
-        "PeDeCabra": { nome: "Pé de Cabra", categoria: "Geral", pressao: 1, quantidade: 1, descricao: "Ajuda a abrir portas trancadas (+2 Atletismo/Crime). Pode servir de arma (1d6 Impacto)." },
-        "ColeteLeve": { nome: "Colete Balístico Leve", categoria: "Equipamento", pressao: 2, quantidade: 1, descricao: "Concede +2 na Defesa e Resistência Balística 2." },
-        "CantilBebida": { nome: "Cantil com Uísque", categoria: "Consumível", pressao: 1, quantidade: 1, descricao: "Um gole para acalmar os nervos. Cura 1d4 de Sanidade, mas você sofre -2 em Agilidade por 1 hora." },
-        "ComponenteSangue": { nome: "Sangue de Sacrifício", categoria: "Anômalo", pressao: 0, quantidade: 1, descricao: "Frasco com sangue putrefato. Necessário para conjurar rituais pesados de Sangue.", anomalo: true },
-        "ComponenteMorte": { nome: "Cinzas Humanas", categoria: "Anômalo", pressao: 0, quantidade: 1, descricao: "Urna pequena com cinzas frias. Necessário para conjurar rituais de Morte.", anomalo: true },
-        "GravadorK7": { nome: "Gravador de Fitas K7", categoria: "Equipamento", pressao: 1, quantidade: 1, descricao: "Útil para gravar depoimentos (EVP) ou os sons que a criatura faz antes de atacar." }
+        "Aspirina": { nome: "Pote de Aspirina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação rápida. Alivia dores de cabeça e estresse mental, recuperando 1d4 de lucidez." },
+        "Bandagem": { nome: "Bandagem", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Cura 2d10 PV." },
+        "CantilBebida": { nome: "Cantil com Uísque", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Um gole para acalmar os nervos. Cura 1d4 de Sanidade, mas você sofre -2 em Agilidade por 1 hora." },
+        "ColeteLeve": { nome: "Colete Balístico Leve", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Concede +2 na Defesa e Resistência Balística 2." },
+        "KitInvestigacao": { nome: "Maleta de Investigação", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Luvas, pinças, pó de digital e luz UV. Garante Vantagem em Investigação." },
+        "KitPrimeirosSocorros": { nome: "Kit de Primeiros Socorros", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Garante +5 no teste de Medicina. Pode ser consumido para curar 2d10+5 PV." },
+        "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas." },
+        "PeDeCabra": { nome: "Pé de Cabra", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Ajuda a abrir portas trancadas (+2 Atletismo/Crime). Pode servir de arma (1d6 Impacto)." }
     };
 
     const bancoPericias = {
@@ -1148,42 +1127,7 @@
     function atualizarCorPericia(n, v) { const e = document.getElementById(`row-${n}`); if(!e) return; e.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); if(v == "1") e.classList.add('p-verde'); else if(v == "3") e.classList.add('p-laranja'); else if(v == "5") e.classList.add('p-vermelho'); }
     function atualizarCorSub(p, i, v) { const row = document.getElementById(`row-sub-${p}-${i}`); if(row) { row.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); if(v == "1") row.classList.add('p-verde'); else if(v == "3") row.classList.add('p-laranja'); else if(v == "5") row.classList.add('p-vermelho'); } }
 
-    function atualizarOpcoesRessonancia(nx) { 
-        const r = document.getElementById('grau-ressonancia'); if (!r) return; 
-        const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; 
-        if (nx === 0 && (isRestricao || globalRestricao)) {
-            o += `<option value="Nulo">Nulo</option>`; 
-        } else { 
-            o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; 
-            if (nx >= 100 && ef) o += `<option value="Imensuravel" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; 
-        } 
-        r.innerHTML = o; 
-        if (o.includes(`value="${v}"`)) r.value = v; 
-        else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; 
-    }
-
-    function forcarAtualizacaoRessonancia() {
-        const ns = document.getElementById('nex-personagem').value || "5%"; 
-        let n = parseInt(ns) || 0; 
-        const ef = isExtremos || globalExtremos; 
-        const ref = isRestricao || globalRestricao;
-        if (!ef && n >= 100) n = 99; 
-        if (!ref && n <= 0) n = 5; 
-        
-        atualizarOpcoesRessonancia(n); 
-        
-        let gc = "1º Grau"; 
-        if (n === 0 && ref) gc = "Nulo"; 
-        else if (n >= 5 && n <= 20) gc = "1º Grau"; 
-        else if (n >= 25 && n <= 40) gc = "2º Grau"; 
-        else if (n >= 45 && n <= 60) gc = "3º Grau"; 
-        else if (n >= 65 && n <= 80) gc = "4º Grau"; 
-        else if (n >= 85 && n <= 99) gc = "5º Grau"; 
-        else if (n >= 100 && ef) gc = "Imensuravel"; 
-        
-        document.getElementById('grau-ressonancia').value = gc; 
-    }
-
+    function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
     function gerarOpcoesNivelNex() { const ns = document.getElementById('nivel-personagem'); let lh = ''; for(let i=0; i<=5; i++) lh += `<option value="${i}">${i}</option>`; ns.innerHTML = lh; const nxs = document.getElementById('nex-personagem'); let nxh = ''; for(let i=0; i<=95; i+=5) { if(i === 5) nxh += `<option value="${i}%" selected>${i}%</option>`; else nxh += `<option value="${i}%">${i}%</option>`; } nxh += '<option value="99%">99%</option><option value="100%">100%</option>'; nxs.innerHTML = nxh; atualizarOpcoesRessonancia(5); }
 
     async function init() { gerarOpcoesNivelNex(); popularModais(); if (!atual) { window.location.href = "index.html"; } else { gerarPericiasBase(); carregarFicha(); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); } }
@@ -1213,6 +1157,28 @@
     }
 
     function toggleDescricao(n) { const d = document.getElementById(`desc-${n}`); d.style.display = d.style.display === 'block' ? 'none' : 'block'; const s = document.getElementById(`subs-${n}`); if(s) s.style.display = s.style.display === 'block' ? 'none' : 'block'; }
+
+   function forcarAtualizacaoRessonancia() {
+        const ns = document.getElementById('nex-personagem').value || "5%"; 
+        let n = parseInt(ns) || 0; 
+        const ef = isExtremos || globalExtremos; 
+        const ref = isRestricao || globalRestricao;
+        if (!ef && n >= 100) n = 99; 
+        if (!ref && n <= 0) n = 5; 
+        
+        atualizarOpcoesRessonancia(n); 
+        
+        let gc = "1º Grau"; 
+        if (n === 0) gc = "Nulo"; 
+        else if (n >= 5 && n <= 20) gc = "1º Grau"; 
+        else if (n >= 25 && n <= 40) gc = "2º Grau"; 
+        else if (n >= 45 && n <= 60) gc = "3º Grau"; 
+        else if (n >= 65 && n <= 80) gc = "4º Grau"; 
+        else if (n >= 85 && n <= 99) gc = "5º Grau"; 
+        else if (n >= 100) gc = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; 
+        
+        document.getElementById('grau-ressonancia').value = gc; 
+    }
 
     function mudouNex() { 
         forcarAtualizacaoRessonancia();
@@ -1272,24 +1238,10 @@
             ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
             const nv = parseInt(d.nivel) || 0; document.getElementById('nivel-personagem').value = nv; document.getElementById('nex-personagem').value = d.nex || "5%"; document.getElementById('deslocamento-personagem').value = d.deslocamento || "9 m / 6 q";
             const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else dA.style.display = 'none';
-            
-            const nx = parseInt(d.nex) || 0; 
-            atualizarOpcoesRessonancia(nx); 
-            if (d.ressonancia) {
-                document.getElementById('grau-ressonancia').value = d.ressonancia; 
-            } else { 
-                let gC = "1º Grau"; 
-                if (nx === 0) gC = "Nulo"; 
-                else if (nx >= 5 && nx <= 20) gC = "1º Grau"; 
-                else if (nx >= 25 && nx <= 40) gC = "2º Grau"; 
-                else if (nx >= 45 && nx <= 60) gC = "3º Grau"; 
-                else if (nx >= 65 && nx <= 80) gC = "4º Grau"; 
-                else if (nx >= 85 && nx <= 99) gC = "5º Grau"; 
-                else if (nx >= 100) gC = "Imensuravel"; 
-                document.getElementById('grau-ressonancia').value = gC; 
-            }
+            const nx = parseInt(d.nex) || 0; atualizarOpcoesRessonancia(nx); 
+            if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; 
+            else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             if (typeof forcarAtualizacaoRessonancia === 'function') forcarAtualizacaoRessonancia();
-
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
             document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('limite-gastos').value = d.limiteGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
 
@@ -1313,7 +1265,6 @@
                 }
             });
 
-            document.getElementById('info-prot').value = d.protecao || ""; document.getElementById('info-vuln').value = d.vulnerabilidades || ""; document.getElementById('info-res').value = d.resistencias || ""; document.getElementById('info-prof').value = d.proficiencias || "";
             document.getElementById('bonus-defesa').value = d.bonusDefesa ? d.bonusDefesa : ""; document.getElementById('bonus-esquiva').value = d.bonusEsquiva ? d.bonusEsquiva : ""; document.getElementById('bonus-bloqueio').value = d.bonusBloqueio ? d.bonusBloqueio : ""; document.getElementById('bonus-dt').value = d.bonusDt ? d.bonusDt : "";
             
             if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false; if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false; if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false; if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false; if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false; if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
@@ -1367,7 +1318,6 @@
             agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
             vidaMax: parseInt(document.getElementById('vida-max').value) || 12, sanMax: parseInt(document.getElementById('san-max').value) || 12, peMax: parseInt(document.getElementById('pe-max').value) || 2,
             nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
-            protecao: document.getElementById('info-prot').value, vulnerabilidades: document.getElementById('info-vuln').value, resistencias: document.getElementById('info-res').value, proficiencias: document.getElementById('info-prof').value,
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
             enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
@@ -1435,7 +1385,7 @@
             snap.forEach(doc => { 
                 const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); 
                 let cat = getAtaqueCat(a);
-                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Carga de Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; 
+                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; 
             }); 
             window.valPressaoAtaques = pA; syncPressaoVisuais(); aplicarFiltrosAtaques(); 
         }); 
