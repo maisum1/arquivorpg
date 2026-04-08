@@ -48,7 +48,7 @@
         body.tema-escuro h2#welcome, body.tema-escuro .mestre-panel h3 { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
         body.tema-escuro #hub-jogador .btn-google { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
 
-        /* Login e Dashboard escondidos por padrão para não piscar */
+        /* Login e Dashboard escondidos por padrão para não piscar a tela */
         #login-screen, #dashboard { display: none; }
 
         body { 
@@ -152,12 +152,14 @@
         /* MODO MOBILE ULTRA COMPACTO (Fichas 2x2) COM SOBREPOSIÇÃO CORRIGIDA */
         @media (max-width: 600px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .base-card { padding: 10px 8px; justify-content: flex-start; align-items: stretch; }
-            .card-content { flex-direction: column; align-items: center; margin-bottom: 8px; padding-right: 0; text-align: center; }
-            .portrait-mini { margin: 0 auto 8px auto; width: 65px; height: 85px; }
+            .base-card { padding: 12px 8px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
+            .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; padding-right: 0; width: 100%; height: auto; flex: 1;}
+            .portrait-mini { margin: 0 auto 8px auto; width: 60px; height: 80px; }
             .card-actions { position: absolute; top: 4px; right: 4px; flex-direction: column; gap: 4px; z-index: 10;}
-            .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; }
-            .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 2px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
+            
+            .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; margin-top: 4px;}
+            .card-info strong { font-size: 1rem; line-height: 1.2; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
+            
             .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
             
             .campanha-card { flex-direction: column; align-items: flex-start; text-align: left; padding: 12px;}
@@ -310,7 +312,7 @@
         let campanhaAtivaView = null;
         let tipoVinculoAtual = ''; 
         
-        let globalRevelado = false; // Guardará o segredo do mestre em tempo real
+        let globalRevelado = false; 
 
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
@@ -444,11 +446,9 @@
                     });
                 }
 
-                // Escuta global do Véu para esconder a EXP do Jogador
                 db.collection("configuracoes").doc("globais").onSnapshot(doc => { 
                     if(doc.exists) { 
                         globalRevelado = doc.data().revelado || false; 
-                        // Força a recarga visual das fichas pro jogador ver (ou não) a EXP na hora
                         if (document.getElementById('lista-fichas')) {
                             carregarFichasJogador(user.uid);
                             if (isMestre) carregarMonitorMestre();
@@ -524,14 +524,13 @@
             let campanhaInfo = '';
             let expInfo = '';
 
-            // Regra do Véu: Oculta a EXP no Hub do jogador se estiver desativado no Mestre
             if (globalRevelado) {
                 expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
             }
 
             if (context === 'monitor' || context === 'campanha') {
                 playerInfo = `<span class="player-tag">Jogador: ${d.nomeJogador || 'Desconhecido'}</span>`;
-                expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; // O mestre sempre vê a exp
+                expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; 
                 statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
             }
             
@@ -601,7 +600,7 @@
                     previewDiv.innerHTML = `<strong>Diretor Responsável:</strong> ${nomeMestre}<br><strong>Campanha:</strong> ${nomeCamp}`;
                     btnConfirmar.style.display = 'block';
                     btnConfirmar.dataset.codigo = codigo;
-                    btnConfirmar.dataset.nomecamp = c.nome; // Guarda o nome real para colar na ficha do jogador
+                    btnConfirmar.dataset.nomecamp = c.nome; 
                 }
             } catch(e) {}
         }
@@ -633,7 +632,8 @@
             if (isOwner) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`; }
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
-            let campInfo = (d.campanhaId && context !== 'campanha') ? `<span class="camp-tag">${d.campanhaId}</span>` : '';
+            let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
+            let campInfo = (d.campanhaId && context !== 'campanha') ? `<span class="camp-tag">${nomeVisual}</span>` : '';
 
             return `
                 <div class="ameaca-card base-card">
@@ -670,7 +670,7 @@
                 document.getElementById('btn-clonar-action').innerText = "CLONANDO...";
                 let snap = await db.collection("ameacas").doc(idExtraido).get();
                 if(!snap.exists) { alert("Ameaça não encontrada."); document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM"; return; }
-                let data = snap.data(); data.dono = auth.currentUser.uid; data.campanhaId = null; 
+                let data = snap.data(); data.dono = auth.currentUser.uid; data.campanhaId = null; data.campanhaNome = null;
                 let novoRef = await db.collection("ameacas").add(data);
                 const cols = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca"];
                 for(let c of cols) { let subSnap = await db.collection("ameacas").doc(idExtraido).collection(c).get(); for(let doc of subSnap.docs) { await db.collection("ameacas").doc(novoRef.id).collection(c).doc(doc.id).set(doc.data()); } }
@@ -708,7 +708,7 @@
                     const c = doc.data();
                     meusCodigosCampanha.push(c.codigo);
                     div.innerHTML += `
-                        <div class="campanha-card base-card">
+                        <div class="campanha-card base-card" onclick="abrirCampanhaView('${c.codigo}', '${c.nome}')">
                             <div class="card-actions">
                                 <button class="btn-action-node" style="color:var(--op-red);" onclick="event.stopPropagation(); deletarDocumento('campanhas', '${doc.id}', '${c.nome}')" title="Excluir Campanha">[ X ]</button>
                                 <button class="btn-action-node" style="color:var(--op-ink);" onclick="event.stopPropagation(); editarCampanha('${doc.id}', '${c.codigo}', '${c.nome}')" title="Editar Nome da Campanha">[ ✏️ ]</button>
@@ -742,7 +742,6 @@
             if(!id) return;
             const col = tipoVinculoAtual === 'ficha' ? 'fichas' : 'ameacas';
             
-            // Quando o Mestre vincula a própria ficha dele à campanha por dentro do painel
             let nomeCamp = "";
             try {
                 let s = await db.collection("campanhas").where("codigo", "==", campanhaAtivaView).get();
