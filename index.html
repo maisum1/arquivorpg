@@ -56,6 +56,8 @@
         body.tema-escuro h2#welcome, body.tema-escuro .mestre-panel h3 { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
         body.tema-escuro #hub-jogador .btn-google { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
 
+        #login-screen, #dashboard { display: none; }
+
         body { 
             background-color: var(--bg-paper);
             background-image: 
@@ -152,21 +154,26 @@
         .mestre-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted var(--card-border); font-size: 12px; font-family: 'Courier Prime', monospace;}
         .btn-revogar { background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 10px; padding: 2px 5px; cursor: pointer; border-radius: 2px;}
 
+        /* MODO MOBILE ULTRA COMPACTO (Fichas 2x2) */
         @media (max-width: 600px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .base-card { padding: 12px 8px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
             .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; padding-right: 0; width: 100%; height: auto; flex: 1;}
             .portrait-mini { margin: 0 auto 8px auto; width: 60px; height: 75px; }
-            .card-actions { position: absolute; top: 4px; right: 4px; flex-direction: column; gap: 4px; z-index: 10;}
+            
+            /* Botões movidos um pouco para cima para fugir de nomes longos */
+            .card-actions { position: absolute; top: -3px; right: 2px; flex-direction: column; gap: 4px; z-index: 10;}
             
             .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 4px;}
             .card-info strong { font-size: 1rem; line-height: 1.2; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
             
             .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
             
-            .campanha-card { flex-direction: column; align-items: flex-start; text-align: left; padding: 12px;}
-            .campanha-card > div { padding-right: 30px; width: 100%; box-sizing: border-box; }
+            /* Correção para evitar os cartões de Campanha esticados e com buracos no Mobile */
+            .campanha-card { flex-direction: column; align-items: flex-start; text-align: left; padding: 15px; min-height: auto !important; justify-content: center; }
+            .campanha-card > div { padding-right: 25px; width: 100%; box-sizing: border-box; }
             .campanha-card strong { font-size: 1.2rem; }
+            .campanha-card .card-actions { position: absolute; top: 10px; right: 10px; flex-direction: column; gap: 8px; }
         }
     </style>
 </head>
@@ -174,7 +181,7 @@
     <button class="btn-theme" onclick="alternarTema()" title="Alternar Modo Escuro/Claro">🌗</button>
     <button id="btn-engrenagem" class="btn-config" style="display: none;" onclick="toggleModal('modal-config')" title="Configurações do Jogador">⚙️</button>
     <button id="btn-admin" class="btn-admin" onclick="abrirGerenciadorMestres()" title="Painel do Super Admin">🛡️</button>
-    
+
     <div id="login-screen">
         <div>
             <h1>A.R.Q.U.I.V.O.</h1>
