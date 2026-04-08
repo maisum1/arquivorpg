@@ -103,7 +103,7 @@
         body.tema-escuro .ameaca-card:hover { border-color: var(--op-red); }
         body.tema-escuro .campanha-card:hover { border-color: var(--san-purple); }
 
-        .card-actions { position: absolute; top: 4px; right: 8px; display: flex; gap: 4px; flex-direction: row-reverse; z-index: 5;}
+        .card-actions { position: absolute; top: -4px; right: 8px; display: flex; gap: 4px; flex-direction: row-reverse; z-index: 5;}
         .btn-action-node { background: none; border: none; color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; opacity: 0.6; padding: 2px 4px; }
         .btn-action-node:hover { opacity: 1; transform: scale(1.1); }
         body:not(.tema-escuro) .btn-copy { filter: grayscale(100%) brightness(0); }
@@ -163,7 +163,7 @@
             .portrait-mini { margin: 0 auto 8px auto; width: 60px; height: 75px; }
             .ameaca-card .portrait-mini { width: 67px !important; height: 75px !important; }
             
-            .card-actions { position: absolute; top: -3px; right: -2px; flex-direction: column; gap: 4px; z-index: 10;}
+            .card-actions { position: absolute; top: -10px; right: -2px; flex-direction: column; gap: 4px; z-index: 10;}
             
             .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 4px;}
             .card-info strong { font-size: 1rem; line-height: 1.2; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
@@ -273,7 +273,7 @@
             <div id="campanha-view" style="display:none; margin-top: 40px; text-align:left; border-top: 2px dashed var(--card-border); padding-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px;">
                     <h3 id="cv-titulo" style="font-family: 'Crimson Text', serif; font-size: 2rem; margin:0; color: var(--op-ink);">NOME DA CAMPANHA</h3>
-                    <div style="display:flex; gap:10px; align-items:center;">
+                    <div style="display:flex; gap:10px; align-items:center;" id="header-acoes-campanha">
                         <button class="btn-google" style="margin:0; padding: 5px 10px; font-size:10px;" onclick="copiarLinkCampanha()">[🔗] COPIAR LINK</button>
                         <span id="cv-codigo" style="font-family: 'Special Elite', monospace; font-size: 1.2rem; background: var(--card-bg); padding: 5px 15px; border: 1px dotted var(--card-border);">CÓDIGO</span>
                     </div>
@@ -301,8 +301,13 @@
 
         <div id="hub-mestre" class="conteudo-hub" style="display:none;">
             <div class="mestre-panel">
-                <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
-                <p style="font-size: 12px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Alterações de status aplicadas globalmente em tempo real para todas as fichas.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
+                        <p style="font-size: 11px; color: var(--cor-geral); margin: 0; font-family: 'Inter', sans-serif;">Alterações globais nas fichas.</p>
+                    </div>
+                    <button id="btn-raiox" class="mestre-btn" style="display:none; border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleRaioX()">[ 👁️‍🗨️ MODO RAIO-X ]</button>
+                </div>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <button onclick="toggleGlobal('revelado')" class="mestre-btn">[ 👁️ ERGUER O VÉU ]</button>
@@ -311,8 +316,9 @@
                 </div>
             </div>
             
-            <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral); text-align: left; margin-bottom: 5px;">MONITOR GERAL (SUAS CAMPANHAS)</h4>
-            <div id="monitor-mestre" class="grid" style="margin-top: 0;"></div>
+            <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral); text-align: left; margin-bottom: 5px;">MONITOR GERAL</h4>
+            <div id="monitor-fichas" class="grid" style="margin-top: 0; margin-bottom: 20px;"></div>
+            <div id="monitor-ameacas" class="grid" style="margin-top: 0;"></div>
         </div>
 
         <br><br>
@@ -331,6 +337,7 @@
         let tipoVinculoAtual = ''; 
         
         let globalRevelado = false; 
+        let isXRayMode = false; // Controle do Modo Raio-X do Super Admin
 
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
@@ -368,6 +375,17 @@
         }
 
         function mudarAbaHub(aba) {
+            // Desativa o Raio-X se sair da aba do Mestre
+            if (isXRayMode && aba !== 'mestre') {
+                isXRayMode = false;
+                let btnRx = document.getElementById('btn-raiox');
+                if (btnRx) {
+                    btnRx.innerText = "[ 👁️‍🗨️ MODO RAIO-X ]";
+                    btnRx.style.background = "#000";
+                }
+                if (isMestre) carregarMonitorMestre();
+            }
+
             document.querySelectorAll('.conteudo-hub').forEach(d => d.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('hub-' + aba).style.display = 'block';
@@ -377,23 +395,34 @@
             if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
         }
 
-        // Nova função para abrir o modal de escolha do link
+        function toggleRaioX() {
+            if (!isSuperAdmin) return;
+            if (isXRayMode) {
+                isXRayMode = false;
+                document.getElementById('btn-raiox').innerText = "[ 👁️‍🗨️ MODO RAIO-X ]";
+                document.getElementById('btn-raiox').style.background = "#000";
+                carregarMonitorMestre();
+            } else {
+                if(prompt("MODO DE SEGURANÇA MÁXIMA.\nDigite RAIOX para acessar e controlar todos os arquivos do sistema:") === "RAIOX") {
+                    isXRayMode = true;
+                    document.getElementById('btn-raiox').innerText = "[ 👁️‍🗨️ RAIO-X ATIVADO ]";
+                    document.getElementById('btn-raiox').style.background = "var(--op-red)";
+                    carregarMonitorMestre();
+                }
+            }
+        }
+
         function abrirModalCopiarLink(id) {
             document.getElementById('link-ficha-id-copy').value = id;
             toggleModal('modal-copiar-link');
         }
 
-        // Nova função para processar a escolha do link (Visualizar vs Editar)
         function executarCopiaLink(modo) {
             const id = document.getElementById('link-ficha-id-copy').value;
             let url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
-            
-            if (modo === 'view') {
-                url += '&view=true';
-            }
-            
+            if (modo === 'view') { url += '&view=true'; }
             navigator.clipboard.writeText(url);
-            alert(modo === 'view' ? 'Link de VISUALIZAÇÃO copiado com sucesso! Quem receber não poderá alterar a ficha.' : 'Link de EDIÇÃO e POSSE copiado com sucesso! Quem receber poderá assumir a ficha e alterar dados.');
+            alert(modo === 'view' ? 'Link de VISUALIZAÇÃO copiado! Quem receber NÃO poderá editar a ficha.' : 'Link de EDIÇÃO copiado! Quem receber poderá assumir a ficha.');
             toggleModal('modal-copiar-link');
         }
         
@@ -406,26 +435,28 @@
         function copiarLinkCampanha() {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'index.html?join=' + campanhaAtivaView;
             navigator.clipboard.writeText(url);
-            alert('Link Copiado! Envie para os jogadores (Eles precisam clicar no botão [ 📡 ] no painel deles e colar o link).');
+            alert('Link Copiado! Envie para os jogadores se vincularem.');
         }
 
         async function deletarDocumento(colecao, id, nome) {
-            if (colecao === 'fichas') {
-                const digitado = prompt(`ATENÇÃO: Esta persona será incinerada permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
+            if (colecao === 'fichas' || colecao === 'ameacas') {
+                const digitado = prompt(`ATENÇÃO: Este arquivo será incinerado permanentemente: ${nome.toUpperCase()}.\nDigite EXCLUIR para confirmar:`);
                 if (digitado === "EXCLUIR") { await db.collection(colecao).doc(id).delete(); } 
             } else if (colecao === 'campanhas') {
                 if (confirm(`Excluir campanha ${nome}? (Fichas e ameaças não serão apagadas, apenas desvinculadas)`)) { 
                     await db.collection(colecao).doc(id).delete(); 
                     document.getElementById('campanha-view').style.display = 'none'; 
                 }
-            } else {
-                if (confirm(`CONFIRMAR DESTRUIÇÃO DE ARQUIVO: ${nome.toUpperCase()}?`)) { await db.collection(colecao).doc(id).delete(); }
             }
         }
 
         async function desvincularDocumento(colecao, id, nome) {
             if(confirm(`Tem certeza que deseja DESVINCULAR o arquivo "${nome}" da campanha?\n(O arquivo NÃO será apagado, apenas removido da campanha).`)) {
-                try { await db.collection(colecao).doc(id).update({ campanhaId: null, campanhaNome: null }); } catch(e) {}
+                if (colecao === 'ameacas') {
+                    await db.collection('ameacas').doc(id).update({ campanhasIds: firebase.firestore.FieldValue.arrayRemove(campanhaAtivaView) });
+                } else {
+                    await db.collection(colecao).doc(id).update({ campanhaId: null, campanhaNome: null, campanhaOculta: null });
+                }
             }
         }
 
@@ -451,9 +482,10 @@
 
                 const userEmail = user.email ? user.email.toLowerCase() : "";
                 isSuperAdmin = (userEmail === EMAIL_SUPER_ADMIN.toLowerCase());
-                if(isSuperAdmin) document.getElementById('btn-admin').style.display = 'block';
-
-                if (isSuperAdmin) {
+                
+                if(isSuperAdmin) {
+                    document.getElementById('btn-admin').style.display = 'block';
+                    document.getElementById('btn-raiox').style.display = 'inline-block';
                     isMestre = true;
                     document.getElementById('btn-ameacas').style.display = 'inline-block';
                     document.getElementById('btn-campanhas').style.display = 'inline-block';
@@ -461,21 +493,19 @@
                     listarAmeacas(user.uid); listarCampanhas(user.uid);
                 }
 
-                if (userEmail) {
+                if (userEmail && !isSuperAdmin) {
                     db.collection("mestres").doc(userEmail).onSnapshot(doc => {
                         let docExisteEAtivo = doc.exists && doc.data().ativo;
-                        if (!isSuperAdmin) {
-                            isMestre = docExisteEAtivo;
-                            if (isMestre) {
-                                document.getElementById('btn-ameacas').style.display = 'inline-block';
-                                document.getElementById('btn-campanhas').style.display = 'inline-block';
-                                document.getElementById('btn-mestre').style.display = 'inline-block';
-                                listarAmeacas(user.uid); listarCampanhas(user.uid);
-                            } else {
-                                document.getElementById('btn-ameacas').style.display = 'none';
-                                document.getElementById('btn-campanhas').style.display = 'none';
-                                document.getElementById('btn-mestre').style.display = 'none';
-                            }
+                        isMestre = docExisteEAtivo;
+                        if (isMestre) {
+                            document.getElementById('btn-ameacas').style.display = 'inline-block';
+                            document.getElementById('btn-campanhas').style.display = 'inline-block';
+                            document.getElementById('btn-mestre').style.display = 'inline-block';
+                            listarAmeacas(user.uid); listarCampanhas(user.uid);
+                        } else {
+                            document.getElementById('btn-ameacas').style.display = 'none';
+                            document.getElementById('btn-campanhas').style.display = 'none';
+                            document.getElementById('btn-mestre').style.display = 'none';
                         }
                     });
                 }
@@ -554,34 +584,39 @@
             const isOwner = d.dono === auth.currentUser.uid;
             
             let botoesAcao = '';
-            
-            // O botão de copiar agora chama o Modal de compartilhamento inteligente
             botoesAcao += `<button class="btn-action-node btn-copy" onclick="abrirModalCopiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
             
             if (context === 'hub-proprio') { botoesAcao += `<button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>`; }
             if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
             
-            // MESTRE SUPER ADMIN AGORA PODE EXCLUIR FICHAS
-            if (isOwner || isSuperAdmin) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`; }
+            // Excluir: Dono OU Super Admin no modo Raio-X
+            if (isOwner || (isSuperAdmin && isXRayMode)) { 
+                botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`; 
+            }
 
             let playerInfo = '';
             let statsInfo = '';
             let campanhaInfo = '';
             let expInfo = '';
 
-            if (globalRevelado) {
-                expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
-            }
+            if (globalRevelado) { expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; }
 
-            if (context === 'monitor' || context === 'campanha') {
+            if (context === 'monitor' || context === 'raiox' || context === 'campanha') {
                 playerInfo = `<span class="player-tag">Jogador: ${d.nomeJogador || 'Desconhecido'}</span>`;
                 expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; 
                 statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
             }
             
-            if (d.campanhaId && context === 'hub-proprio') {
-                let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
-                campanhaInfo = `<span class="camp-tag">${nomeVisual}</span>`;
+            if (d.campanhaId) {
+                if (context === 'hub-proprio') {
+                    // Jogador só vê a campanha real se não for oculta
+                    let nomeVisual = d.campanhaOculta ? "[ CONFIDENCIAL ]" : (d.campanhaNome ? d.campanhaNome : d.campanhaId);
+                    campanhaInfo = `<span class="camp-tag">${nomeVisual}</span>`;
+                } else if (context === 'monitor' || context === 'raiox') {
+                    // Mestre no Monitor/Raio-X vê o nome da campanha
+                    let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
+                    campanhaInfo = `<span class="camp-tag">${nomeVisual}</span>`;
+                }
             }
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
@@ -646,6 +681,7 @@
                     btnConfirmar.style.display = 'block';
                     btnConfirmar.dataset.codigo = codigo;
                     btnConfirmar.dataset.nomecamp = c.nome; 
+                    btnConfirmar.dataset.ocultar = c.ocultarNome; 
                 }
             } catch(e) {}
         }
@@ -654,8 +690,10 @@
             const fichaId = document.getElementById('vincular-ficha-id').value;
             const codigo = document.getElementById('btn-confirmar-vinculo').dataset.codigo;
             const nomeCamp = document.getElementById('btn-confirmar-vinculo').dataset.nomecamp;
+            const ocultar = document.getElementById('btn-confirmar-vinculo').dataset.ocultar === 'true';
+            
             if(fichaId && codigo) {
-                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo, campanhaNome: nomeCamp });
+                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo, campanhaNome: nomeCamp, campanhaOculta: ocultar });
                 alert("Persona vinculada com sucesso à Campanha!");
                 toggleModal('modal-vincular-campanha');
             }
@@ -663,7 +701,8 @@
 
         async function criarNovaAmeaca() {
             const user = auth.currentUser;
-            const ref = await db.collection("ameacas").add({ dono: user.uid, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", na: 20, pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1 });
+            const mNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
+            const ref = await db.collection("ameacas").add({ dono: user.uid, mestreNome: mNome, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", na: 20, pvAtual: 100, pvMax: 100, pX: 50, pY: 50, pZ: 1, campanhasIds: [] });
             window.location.href = `ameaca.html?id=${ref.id}`;
         }
 
@@ -675,12 +714,17 @@
             botoesAcao += `<button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ ⿻ ]</button>`;
             if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
             
-            // MESTRE SUPER ADMIN AGORA PODE EXCLUIR AMEAÇAS
-            if (isOwner || isSuperAdmin) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`; }
+            // Excluir: Dono OU Super Admin no modo Raio-X
+            if (isOwner || (isSuperAdmin && isXRayMode)) { 
+                botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`; 
+            }
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
-            let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
-            let campInfo = (d.campanhaId && context !== 'campanha') ? `<span class="camp-tag">${nomeVisual}</span>` : '';
+            
+            let campInfo = '';
+            if (context === 'raiox') {
+                campInfo = `<span class="camp-tag">Dono/Criador: ${d.mestreNome || d.dono}</span>`;
+            }
 
             return `
                 <div class="ameaca-card base-card">
@@ -717,7 +761,15 @@
                 document.getElementById('btn-clonar-action').innerText = "CLONANDO...";
                 let snap = await db.collection("ameacas").doc(idExtraido).get();
                 if(!snap.exists) { alert("Ameaça não encontrada."); document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM"; return; }
-                let data = snap.data(); data.dono = auth.currentUser.uid; data.campanhaId = null; data.campanhaNome = null;
+                let data = snap.data(); 
+                
+                const user = auth.currentUser;
+                const mNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
+                
+                data.dono = user.uid; 
+                data.mestreNome = mNome;
+                data.campanhasIds = []; // Limpa vínculos antigos
+                
                 let novoRef = await db.collection("ameacas").add(data);
                 const cols = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca"];
                 for(let c of cols) { let subSnap = await db.collection("ameacas").doc(idExtraido).collection(c).get(); for(let doc of subSnap.docs) { await db.collection("ameacas").doc(novoRef.id).collection(c).doc(doc.id).set(doc.data()); } }
@@ -755,7 +807,7 @@
                     const c = doc.data();
                     meusCodigosCampanha.push(c.codigo);
                     div.innerHTML += `
-                        <div class="campanha-card base-card" onclick="abrirCampanhaView('${c.codigo}', '${c.nome}')">
+                        <div class="campanha-card base-card" onclick="abrirCampanhaView('${c.codigo}', '${c.nome}', '${doc.id}', ${c.ocultarNome || false})">
                             <div class="card-actions">
                                 <button class="btn-action-node" style="color:var(--op-red);" onclick="event.stopPropagation(); deletarDocumento('campanhas', '${doc.id}', '${c.nome}')" title="Excluir Campanha">[ X ]</button>
                                 <button class="btn-action-node" style="color:var(--op-ink);" onclick="event.stopPropagation(); editarCampanha('${doc.id}', '${c.codigo}', '${c.nome}')" title="Editar Nome da Campanha">[ ✏️ ]</button>
@@ -789,21 +841,43 @@
             if(!id) return;
             const col = tipoVinculoAtual === 'ficha' ? 'fichas' : 'ameacas';
             
-            let nomeCamp = "";
-            try {
-                let s = await db.collection("campanhas").where("codigo", "==", campanhaAtivaView).get();
-                if (!s.empty) nomeCamp = s.docs[0].data().nome;
-            } catch(e){}
+            if (col === 'ameacas') {
+                await db.collection(col).doc(id).update({ campanhasIds: firebase.firestore.FieldValue.arrayUnion(campanhaAtivaView) });
+            } else {
+                let nomeCamp = "";
+                let oculta = false;
+                try {
+                    let s = await db.collection("campanhas").where("codigo", "==", campanhaAtivaView).get();
+                    if (!s.empty) { nomeCamp = s.docs[0].data().nome; oculta = s.docs[0].data().ocultarNome || false; }
+                } catch(e){}
 
-            await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView, campanhaNome: nomeCamp });
+                await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView, campanhaNome: nomeCamp, campanhaOculta: oculta });
+            }
             alert("Arquivo vinculado à campanha com sucesso!"); toggleModal('modal-selecionar-vinculo');
         }
 
         let unsubCampanhaFichas, unsubCampanhaAmeacas;
-        function abrirCampanhaView(codigo, nome) {
+        function abrirCampanhaView(codigo, nome, idDoc, ocultarNome) {
             campanhaAtivaView = codigo;
             document.getElementById('cv-titulo').innerText = nome.toUpperCase();
             document.getElementById('cv-codigo').innerText = "CÓDIGO: " + codigo;
+            
+            // Injeta o botão de revelar se a campanha for secreta
+            const areaAcoes = document.getElementById('header-acoes-campanha');
+            // Limpa botões antigos de revelação
+            const btnAntigo = document.getElementById('btn-revelar-campanha-atual');
+            if(btnAntigo) btnAntigo.remove();
+
+            if(ocultarNome === true) {
+                const btnRev = document.createElement('button');
+                btnRev.id = 'btn-revelar-campanha-atual';
+                btnRev.className = 'btn-google';
+                btnRev.style = "margin:0 10px 0 0; padding: 5px 10px; font-size:10px; border-color:var(--op-ink); color:var(--op-ink);";
+                btnRev.innerText = "[ 👁️ REVELAR NOME ]";
+                btnRev.onclick = () => revelarCampanha(idDoc, codigo);
+                areaAcoes.prepend(btnRev);
+            }
+
             document.getElementById('campanha-view').style.display = 'block';
 
             if(unsubCampanhaFichas) unsubCampanhaFichas();
@@ -814,25 +888,64 @@
             });
 
             if(unsubCampanhaAmeacas) unsubCampanhaAmeacas();
-            unsubCampanhaAmeacas = db.collection("ameacas").where("campanhaId", "==", codigo).onSnapshot(snap => {
+            unsubCampanhaAmeacas = db.collection("ameacas").where("campanhasIds", "array-contains", codigo).onSnapshot(snap => {
                 const div = document.getElementById('cv-ameacas'); div.innerHTML = "";
                 if(snap.empty) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhuma ameaça vinculada a esta campanha.</p>"; }
                 snap.forEach(doc => { div.innerHTML += renderAmeacaCard(doc, 'campanha'); });
             });
         }
 
+        async function revelarCampanha(idDoc, codigo) {
+            if(!confirm("Revelar o nome desta campanha para todos os jogadores vinculados? (Essa ação não pode ser desfeita)")) return;
+            
+            await db.collection("campanhas").doc(idDoc).update({ ocultarNome: false });
+            
+            // Atualiza todas as fichas vinculadas
+            const fichas = await db.collection("fichas").where("campanhaId", "==", codigo).get();
+            const batch = db.batch();
+            fichas.forEach(f => { batch.update(f.ref, { campanhaOculta: false }); });
+            await batch.commit();
+            
+            alert("Nome revelado com sucesso!");
+            document.getElementById('btn-revelar-campanha-atual').remove();
+        }
+
+        let unsubMonitorFichas, unsubMonitorAmeacas;
         function carregarMonitorMestre() {
-            db.collection("fichas").onSnapshot(snap => {
-                const div = document.getElementById('monitor-mestre'); div.innerHTML = "";
+            if(unsubMonitorFichas) unsubMonitorFichas();
+            if(unsubMonitorAmeacas) unsubMonitorAmeacas();
+
+            const divFichas = document.getElementById('monitor-fichas'); 
+            const divAmeacas = document.getElementById('monitor-ameacas');
+            divFichas.innerHTML = "";
+            divAmeacas.innerHTML = "";
+
+            unsubMonitorFichas = db.collection("fichas").onSnapshot(snap => {
+                divFichas.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
                     let temPermissaoParaVer = false;
-                    if (isSuperAdmin) temPermissaoParaVer = true;
-                    else if (d.campanhaId && meusCodigosCampanha.includes(d.campanhaId)) temPermissaoParaVer = true;
-                    if (!temPermissaoParaVer) return;
-                    div.innerHTML += renderFichaMonitorCard(doc, 'monitor');
+                    
+                    if (isXRayMode) {
+                        temPermissaoParaVer = true;
+                    } else if (d.campanhaId && meusCodigosCampanha.includes(d.campanhaId)) {
+                        temPermissaoParaVer = true;
+                    }
+                    
+                    if (temPermissaoParaVer) {
+                        divFichas.innerHTML += renderFichaMonitorCard(doc, isXRayMode ? 'raiox' : 'monitor');
+                    }
                 });
             });
+
+            if (isXRayMode) {
+                unsubMonitorAmeacas = db.collection("ameacas").onSnapshot(snap => {
+                    divAmeacas.innerHTML = "";
+                    snap.forEach(doc => {
+                        divAmeacas.innerHTML += renderAmeacaCard(doc, 'raiox');
+                    });
+                });
+            }
         }
     </script>
 </body>
