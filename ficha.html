@@ -1215,7 +1215,7 @@
             const dD = d_raw.dono; if (auth.currentUser && dD !== auth.currentUser.uid) document.getElementById('btn-assumir-posse').style.display = 'block'; else document.getElementById('btn-assumir-posse').style.display = 'none';
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false; isRestricao = d_raw.restricao || false;
             const hF = isHexatombe || globalHexatombe; let d = d_raw;
-            if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; }
+            if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; d.origem = d_raw.origem; d.nivelCredito = d_raw.nivelCredito; d.limiteGastos = d_raw.limiteGastos; d.dinheiroEspecie = d_raw.dinheiroEspecie; d.patrimonioRecursos = d_raw.patrimonioRecursos; }
 
             if (prevHexatombeFinal !== hF) {
                 let vN = parseInt(d_raw.vig) || 0; let vnN = parseInt(d_raw.von) || 0; let sN = parseInt(d_raw.sag) || 0; let nv = parseInt(d_raw.nivel) || 0; let nx = parseInt(d_raw.nex) || 0; let cl = d_raw.classe || "";
@@ -1331,7 +1331,7 @@
         let rU = { hexatombe: isHexatombe, restricao: isRestricao, ...bgData, campanhaId: pl.campanhaId };
         let iV = parseInt(document.getElementById('vida-atual').value) || 0; let iS = parseInt(document.getElementById('san-atual').value) || 0; let iP = parseInt(document.getElementById('pe-atual').value) || 0;
 
-        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; } 
+        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.limiteGastos = pl.limiteGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
         db.collection("fichas").doc(atual).update(rU); recalcularBases();
     }
