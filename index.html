@@ -12,9 +12,9 @@
 
     <script>
         if (localStorage.getItem('cris_logado') === 'true') {
-            document.write('<style>#login-screen { display: none !important; } #dashboard { display: block !important; }</style>');
+            document.write('<style id="anti-flash-css">#login-screen { display: none !important; } #dashboard { display: block !important; }</style>');
         } else {
-            document.write('<style>#login-screen { display: flex !important; } #dashboard { display: none !important; }</style>');
+            document.write('<style id="anti-flash-css">#login-screen { display: flex !important; } #dashboard { display: none !important; }</style>');
         }
     </script>
 
@@ -408,7 +408,12 @@
             }
         }
 
+        // --- SISTEMA DE AUTENTICAÇÃO E INICIALIZAÇÃO LIMPA ---
         auth.onAuthStateChanged(user => {
+            // Remove a trava do anti-flash para permitir a transição imediata
+            const antiFlash = document.getElementById('anti-flash-css');
+            if (antiFlash) antiFlash.remove();
+
             const loginSec = document.getElementById('login-screen');
             const hubSec = document.getElementById('dashboard');
 
