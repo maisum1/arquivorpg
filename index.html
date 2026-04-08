@@ -48,6 +48,7 @@
         body.tema-escuro h2#welcome, body.tema-escuro .mestre-panel h3 { color: var(--accent-gold) !important; border-bottom-color: var(--card-border) !important; }
         body.tema-escuro #hub-jogador .btn-google { color: var(--accent-gold) !important; border-color: var(--accent-gold) !important; }
 
+        /* Login e Dashboard escondidos por padrão para não piscar */
         #login-screen, #dashboard { display: none; }
 
         body { 
@@ -67,7 +68,7 @@
             padding: 20px; box-sizing: border-box;
         }
         
-        #login-screen { display: flex; flex-direction: column; align-items: center; gap: 30px; text-align: center; padding: 60px 20px; width: 100%; max-width: 800px; }
+        #login-screen { flex-direction: column; align-items: center; gap: 30px; text-align: center; padding: 60px 20px; width: 100%; max-width: 800px; }
         
         h1 { font-family: 'Crimson Text', serif; font-size: 3.5rem; font-weight: 900; letter-spacing: 4px; margin: 0; color: var(--op-ink); border-bottom: 4px double var(--op-ink); padding-bottom: 10px;}
         .barcode { font-family: 'Libre Barcode 39 Text', cursive; font-size: 40px; color: var(--op-ink); line-height: 0.8;}
@@ -109,7 +110,8 @@
         .card-info .exp-tag { color: var(--cor-geral); font-family: 'Special Elite', monospace; font-size: 11px; display: block; margin-bottom: 4px; }
         .card-info .player-tag { color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 9px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;}
         .card-info .stats-tag { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1px; display: block; margin-top: 4px; }
-        .card-info .camp-tag { color: var(--cor-geral); opacity: 0.5; font-size: 10px; text-transform: uppercase; font-weight: bold; font-family: 'Inter', sans-serif; display: block; margin-top: 2px; }
+        .card-info .camp-tag { color: var(--san-purple); opacity: 0.65; font-size: 9px; font-weight: 900; font-family: 'Inter', sans-serif; display: block; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
+        body.tema-escuro .card-info .camp-tag { color: #8e9db0; opacity: 0.8; }
 
         .portrait-mini { width: 55px; height: 70px; background: #e0e0e0; overflow: hidden; margin-right: 15px; border: 2px solid #fff; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transform: rotate(-2deg); box-sizing: border-box; flex-shrink: 0; }
         .portrait-mini img { width: 100%; height: 100%; object-fit: cover; }
@@ -147,16 +149,20 @@
         .mestre-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted var(--card-border); font-size: 12px; font-family: 'Courier Prime', monospace;}
         .btn-revogar { background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 10px; padding: 2px 5px; cursor: pointer; border-radius: 2px;}
 
-        /* MODO MOBILE ULTRA COMPACTO (Fichas 2x2) */
+        /* MODO MOBILE ULTRA COMPACTO (Fichas 2x2) COM SOBREPOSIÇÃO CORRIGIDA */
         @media (max-width: 600px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .base-card { padding: 10px; align-items: center; text-align: center; }
-            .card-content { flex-direction: column; align-items: center; margin-bottom: 5px; padding-right: 0; }
-            .portrait-mini { margin: 0 0 8px 0; width: 50px; height: 65px; }
-            .card-actions { top: 4px; right: 4px; background: var(--card-bg); padding: 2px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-            .card-info strong { font-size: 1.1rem; }
-            .btn-open { align-self: center; margin-top: 5px; width: 100%; box-sizing: border-box; }
-            .campanha-card { flex-direction: column; align-items: flex-start; text-align: left; }
+            .base-card { padding: 10px 8px; justify-content: flex-start; align-items: stretch; }
+            .card-content { flex-direction: column; align-items: center; margin-bottom: 8px; padding-right: 0; text-align: center; }
+            .portrait-mini { margin: 0 auto 8px auto; width: 65px; height: 85px; }
+            .card-actions { position: absolute; top: 4px; right: 4px; flex-direction: column; gap: 4px; z-index: 10;}
+            .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; }
+            .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 2px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
+            .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
+            
+            .campanha-card { flex-direction: column; align-items: flex-start; text-align: left; padding: 12px;}
+            .campanha-card > div { padding-right: 30px; width: 100%; box-sizing: border-box; }
+            .campanha-card strong { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -165,7 +171,7 @@
     <button id="btn-engrenagem" class="btn-config" style="display: none;" onclick="toggleModal('modal-config')" title="Configurações do Jogador">⚙️</button>
     <button id="btn-admin" class="btn-admin" onclick="abrirGerenciadorMestres()" title="Painel do Super Admin">🛡️</button>
     
-    <div id="login-screen" style="display: flex;">
+    <div id="login-screen">
         <div>
             <h1>A.R.Q.U.I.V.O.</h1>
             <div class="barcode">*IDENTIFICACAO*</div>
@@ -303,6 +309,8 @@
         let minhasFichasGlobais = [];
         let campanhaAtivaView = null;
         let tipoVinculoAtual = ''; 
+        
+        let globalRevelado = false; // Guardará o segredo do mestre em tempo real
 
         const firebaseConfig = {
             apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
@@ -383,10 +391,11 @@
 
         async function desvincularDocumento(colecao, id, nome) {
             if(confirm(`Tem certeza que deseja DESVINCULAR o arquivo "${nome}" da campanha?\n(O arquivo NÃO será apagado, apenas removido da campanha).`)) {
-                try { await db.collection(colecao).doc(id).update({ campanhaId: null }); } catch(e) {}
+                try { await db.collection(colecao).doc(id).update({ campanhaId: null, campanhaNome: null }); } catch(e) {}
             }
         }
 
+        // --- SISTEMA DE AUTENTICAÇÃO E INICIALIZAÇÃO LIMPA ---
         auth.onAuthStateChanged(user => {
             const loginSec = document.getElementById('login-screen');
             const hubSec = document.getElementById('dashboard');
@@ -432,16 +441,27 @@
                                 document.getElementById('btn-mestre').style.display = 'none';
                             }
                         }
-                    }, (error) => {});
+                    });
                 }
-                carregarFichasJogador(user.uid);
+
+                // Escuta global do Véu para esconder a EXP do Jogador
+                db.collection("configuracoes").doc("globais").onSnapshot(doc => { 
+                    if(doc.exists) { 
+                        globalRevelado = doc.data().revelado || false; 
+                        // Força a recarga visual das fichas pro jogador ver (ou não) a EXP na hora
+                        if (document.getElementById('lista-fichas')) {
+                            carregarFichasJogador(user.uid);
+                            if (isMestre) carregarMonitorMestre();
+                        }
+                    } 
+                });
+                
             } else {
                 localStorage.setItem('cris_logado', 'false');
-                loginSec.style.display = 'block'; 
+                loginSec.style.display = 'flex'; 
                 hubSec.style.display = 'none';
                 document.getElementById('btn-engrenagem').style.display = 'none';
                 document.getElementById('btn-admin').style.display = 'none';
-                document.getElementById('welcome').innerText = "SISTEMA DESCONECTADO";
             }
         });
 
@@ -502,13 +522,22 @@
             let playerInfo = '';
             let statsInfo = '';
             let campanhaInfo = '';
+            let expInfo = '';
 
-            if (context === 'monitor') {
+            // Regra do Véu: Oculta a EXP no Hub do jogador se estiver desativado no Mestre
+            if (globalRevelado) {
+                expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
+            }
+
+            if (context === 'monitor' || context === 'campanha') {
                 playerInfo = `<span class="player-tag">Jogador: ${d.nomeJogador || 'Desconhecido'}</span>`;
+                expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; // O mestre sempre vê a exp
                 statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
             }
+            
             if (d.campanhaId && context === 'hub-proprio') {
-                campanhaInfo = `<span class="camp-tag">${d.campanhaId}</span>`;
+                let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
+                campanhaInfo = `<span class="camp-tag">${nomeVisual}</span>`;
             }
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
@@ -520,7 +549,7 @@
                         <div class="portrait-mini">${img}</div>
                         <div class="card-info">
                             <strong>${d.nome || 'PERSONA'}</strong>
-                            <span class="exp-tag">EXP ${d.nex || '5%'}</span>
+                            ${expInfo}
                             ${playerInfo}
                             ${statsInfo}
                             ${campanhaInfo}
@@ -572,6 +601,7 @@
                     previewDiv.innerHTML = `<strong>Diretor Responsável:</strong> ${nomeMestre}<br><strong>Campanha:</strong> ${nomeCamp}`;
                     btnConfirmar.style.display = 'block';
                     btnConfirmar.dataset.codigo = codigo;
+                    btnConfirmar.dataset.nomecamp = c.nome; // Guarda o nome real para colar na ficha do jogador
                 }
             } catch(e) {}
         }
@@ -579,8 +609,9 @@
         async function confirmarVinculoCampanha() {
             const fichaId = document.getElementById('vincular-ficha-id').value;
             const codigo = document.getElementById('btn-confirmar-vinculo').dataset.codigo;
+            const nomeCamp = document.getElementById('btn-confirmar-vinculo').dataset.nomecamp;
             if(fichaId && codigo) {
-                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo });
+                await db.collection("fichas").doc(fichaId).update({ campanhaId: codigo, campanhaNome: nomeCamp });
                 alert("Persona vinculada com sucesso à Campanha!");
                 toggleModal('modal-vincular-campanha');
             }
@@ -710,7 +741,15 @@
             const id = document.getElementById('select-vinculo').value;
             if(!id) return;
             const col = tipoVinculoAtual === 'ficha' ? 'fichas' : 'ameacas';
-            await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView });
+            
+            // Quando o Mestre vincula a própria ficha dele à campanha por dentro do painel
+            let nomeCamp = "";
+            try {
+                let s = await db.collection("campanhas").where("codigo", "==", campanhaAtivaView).get();
+                if (!s.empty) nomeCamp = s.docs[0].data().nome;
+            } catch(e){}
+
+            await db.collection(col).doc(id).update({ campanhaId: campanhaAtivaView, campanhaNome: nomeCamp });
             alert("Arquivo vinculado à campanha com sucesso!"); toggleModal('modal-selecionar-vinculo');
         }
 
