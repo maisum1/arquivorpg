@@ -103,7 +103,7 @@
         body.tema-escuro .ameaca-card:hover { border-color: var(--op-red); }
         body.tema-escuro .campanha-card:hover { border-color: var(--san-purple); }
 
-        .card-actions { position: absolute; top: 4px; right: 8px; display: flex; gap: 4px; flex-direction: row-reverse; z-index: 5;}
+        .card-actions { position: absolute; top: -4px; right: 8px; display: flex; gap: 4px; flex-direction: row-reverse; z-index: 5;}
         .btn-action-node { background: none; border: none; color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; opacity: 0.6; padding: 2px 4px; }
         .btn-action-node:hover { opacity: 1; transform: scale(1.1); }
         body:not(.tema-escuro) .btn-copy { filter: grayscale(100%) brightness(0); }
@@ -120,6 +120,8 @@
 
         .portrait-mini { width: 56px; height: 70px; background: #e0e0e0; overflow: hidden; margin-right: 15px; border: 2px solid #fff; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transform: rotate(-2deg); box-sizing: border-box; flex-shrink: 0; }
         .portrait-mini img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .ameaca-card .portrait-mini { width: 63px !important; height: 70px !important; }
 
         .btn-open { color: var(--op-ink); text-decoration: none; font-family: 'Special Elite', monospace; font-size: 14px; font-weight: bold; padding: 5px 10px; border-bottom: 1px dotted var(--card-border); transition: 0.3s; align-self: flex-start; text-transform: uppercase;}
         .btn-open:hover { border-bottom-color: var(--op-red); background: rgba(0,0,0,0.05); }
@@ -154,29 +156,23 @@
         .mestre-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dotted var(--card-border); font-size: 12px; font-family: 'Courier Prime', monospace;}
         .btn-revogar { background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 10px; padding: 2px 5px; cursor: pointer; border-radius: 2px;}
 
-        /* MODO MOBILE ULTRA COMPACTO (Fichas 2x2) COM SOBREPOSIÇÃO CORRIGIDA */
         @media (max-width: 600px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .base-card { padding: 12px 8px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
             .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; padding-right: 0; width: 100%; height: auto; flex: 1;}
-            .portrait-mini { width: 56px; height: 70px; background: #e0e0e0; overflow: hidden; margin-right: 15px; border: 2px solid #fff; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); transform: rotate(-2deg); box-sizing: border-box; flex-shrink: 0; }
-            .portrait-mini img { width: 100%; height: 100%; object-fit: cover; }
-
+            .portrait-mini { margin: 0 auto 8px auto; width: 60px; height: 75px; }
+            .ameaca-card .portrait-mini { width: 67px !important; height: 75px !important; }
             
-            /* Botões das Fichas: Mais pra cima e pra direita */
-            .card-actions { position: absolute; top: -1px; right: -2px; flex-direction: column; gap: 4px; z-index: 10;}
+            .card-actions { position: absolute; top: -10px; right: -2px; flex-direction: column; gap: 4px; z-index: 10;}
             
             .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 4px;}
             .card-info strong { font-size: 1rem; line-height: 1.2; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
             
             .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
             
-            /* Correção Definitiva das Campanhas */
             .campanha-card { flex-direction: column !important; align-items: flex-start !important; text-align: left !important; padding: 15px 12px !important; min-height: auto !important; justify-content: center !important; }
-            /* Força margem na direita do texto pra nunca encostar nos botões (vence o código JS) */
             .campanha-card > div:not(.card-actions) { padding-right: 75px !important; width: 100%; box-sizing: border-box; }
             .campanha-card strong { font-size: 1.15rem !important; word-wrap: break-word; }
-            /* Botões da campanha em linha reta (horizontal) na direita */
             .campanha-card .card-actions { position: absolute; top: 15px; right: 5px; flex-direction: row; gap: 6px; }
         }
     </style>
@@ -236,6 +232,15 @@
         <select id="select-vinculo" class="hub-input" style="background:transparent; color:var(--op-ink); padding: 10px; cursor: pointer;"></select>
         <button class="btn-google" onclick="confirmarVinculoMestre()" style="width:100%; border-color: var(--san-purple); color: var(--san-purple);">CONFIRMAR INSERÇÃO</button>
         <button onclick="toggleModal('modal-selecionar-vinculo')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
+    </div>
+
+    <div id="modal-copiar-link" class="modal-padrao">
+        <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">COMPARTILHAR ARQUIVO</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Escolha qual o nível de acesso você quer dar ao enviar este link.</p>
+        <input type="hidden" id="link-ficha-id-copy">
+        <button class="btn-google" onclick="executarCopiaLink('view')" style="width: 100%; border-color: var(--san-purple); color: var(--san-purple); margin-bottom: 10px;">[ 👁️ ] APENAS VISUALIZAÇÃO</button>
+        <button class="btn-google" onclick="executarCopiaLink('edit')" style="width: 100%; border-color: var(--op-red); color: var(--op-red);">[ ✍️ ] PERMITIR EDIÇÃO / POSSE</button>
+        <button onclick="toggleModal('modal-copiar-link')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
     <div id="dashboard">
@@ -372,10 +377,24 @@
             if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
         }
 
-        function copiarLink(id) {
-            const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
+        // Nova função para abrir o modal de escolha do link
+        function abrirModalCopiarLink(id) {
+            document.getElementById('link-ficha-id-copy').value = id;
+            toggleModal('modal-copiar-link');
+        }
+
+        // Nova função para processar a escolha do link (Visualizar vs Editar)
+        function executarCopiaLink(modo) {
+            const id = document.getElementById('link-ficha-id-copy').value;
+            let url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
+            
+            if (modo === 'view') {
+                url += '&view=true';
+            }
+            
             navigator.clipboard.writeText(url);
-            alert('Link Copiado! Envie para o jogador.');
+            alert(modo === 'view' ? 'Link de VISUALIZAÇÃO copiado com sucesso! Quem receber não poderá alterar a ficha.' : 'Link de EDIÇÃO e POSSE copiado com sucesso! Quem receber poderá assumir a ficha e alterar dados.');
+            toggleModal('modal-copiar-link');
         }
         
         function copiarLinkAmeaca(id) {
@@ -410,9 +429,7 @@
             }
         }
 
-        // --- SISTEMA DE AUTENTICAÇÃO E INICIALIZAÇÃO LIMPA ---
         auth.onAuthStateChanged(user => {
-            // Remove a trava do anti-flash para permitir a transição imediata
             const antiFlash = document.getElementById('anti-flash-css');
             if (antiFlash) antiFlash.remove();
 
@@ -537,10 +554,15 @@
             const isOwner = d.dono === auth.currentUser.uid;
             
             let botoesAcao = '';
-            botoesAcao += `<button class="btn-action-node btn-copy" onclick="copiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
+            
+            // O botão de copiar agora chama o Modal de compartilhamento inteligente
+            botoesAcao += `<button class="btn-action-node btn-copy" onclick="abrirModalCopiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
+            
             if (context === 'hub-proprio') { botoesAcao += `<button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>`; }
             if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
-            if (isOwner) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`; }
+            
+            // MESTRE SUPER ADMIN AGORA PODE EXCLUIR FICHAS
+            if (isOwner || isSuperAdmin) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`; }
 
             let playerInfo = '';
             let statsInfo = '';
@@ -652,7 +674,9 @@
             let botoesAcao = '';
             botoesAcao += `<button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ ⿻ ]</button>`;
             if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
-            if (isOwner) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`; }
+            
+            // MESTRE SUPER ADMIN AGORA PODE EXCLUIR AMEAÇAS
+            if (isOwner || isSuperAdmin) { botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`; }
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
             let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
