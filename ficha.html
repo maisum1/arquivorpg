@@ -1445,7 +1445,13 @@
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('view') === 'true') {
-            // Cria um estilo bloqueador
+            
+            // 1. Desliga o motor de salvamento e os comandos secretos
+            window.ativarSegredo = function() { console.log('Bloqueado'); return false; };
+            window.verificarCheat = function() { console.log('Bloqueado'); return false; };
+            window.salvarFicha = function() { return false; };
+            
+            // 2. Cria um estilo bloqueador visual
             const lockStyle = document.createElement('style');
             lockStyle.innerHTML = `
                 input, textarea, select { pointer-events: none !important; }
@@ -1456,7 +1462,7 @@
             `;
             document.head.appendChild(lockStyle);
             
-            // Depois de meio segundo, congela todo o texto
+            // 3. Congela os textos grandes
             setTimeout(() => {
                 document.querySelectorAll('.cris-textarea').forEach(el => { el.readOnly = true; el.style.outline = 'none'; });
             }, 500);
