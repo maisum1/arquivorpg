@@ -330,6 +330,21 @@
         .texto-vermelho-linha input, .texto-vermelho-linha select, .texto-vermelho-linha span { color: rgba(169, 0, 20, 0.9) !important; }
         .texto-vermelho-linha select, .texto-vermelho-linha .btn-treino, .texto-vermelho-linha .sub-treino-selector { font-weight: 700 !important; }
         .texto-vermelho-linha span, .texto-vermelho-linha .nome-pericia { letter-spacing: normal !important; }
+
+        /* CORREÇÕES SOLICITADAS: Legibilidade na barra de vida escurecida e anti-lag touch no tablet */
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-vida.is-low input, 
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-vida.is-low span,
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-san.is-low input, 
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-san.is-low span,
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-pe.is-low input, 
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-pe.is-low span {
+            color: #ffffff !important;
+            text-shadow: 0px 0px 3px rgba(0,0,0,0.9), 1px 1px 2px rgba(0,0,0,0.8) !important;
+        }
+
+        button, input, select, textarea, .bar-btn, .val-btn, .cris-btn, .tab-btn, .card-header, .pericia-nome, .mini-cond-label, .it-round, .portrait-box, .rit-symbol-box, [onclick] {
+            touch-action: manipulation !important;
+        }
     </style>
 </head>
 <body>
@@ -1012,7 +1027,7 @@
     function setFiltroAtaques(cat, btn) { filtroAtualAtaques = cat; if(btn) { document.querySelectorAll('#filtros-ataques .btn-filtro').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } aplicarFiltrosAtaques(); }
     function aplicarFiltrosAtaques() {
         let despertado = isRevelado || globalRevelado;
-        let btnAnomaloAtq = document.getElementById('btn-filtro-anomalo-ataque');
+        let btnAnomaloAtq = document.getElementById('btn-modal-filtro-anomalo-ataque');
         if (btnAnomaloAtq) { btnAnomaloAtq.style.display = despertado ? 'inline-block' : 'none'; if (!despertado && filtroAtualAtaques === 'Anômalo') { setFiltroAtaques('Todos', document.querySelector('#filtros-ataques .btn-filtro')); return; } }
         document.querySelectorAll('.ataque-card').forEach(card => {
             let catItem = card.getAttribute('data-categoria'); let isAnomalo = (catItem === 'Anômalo');
@@ -1122,7 +1137,27 @@
     function aplicarStatusVisual() { const st = document.getElementById('status-personagem').value; const o = document.getElementById('status-overlay'); const s = document.querySelector('.grid-container'); o.className = ''; s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake'); if(st === 'Sangrando') { o.classList.add('overlay-sangrando'); s.classList.add('papel-sangrando'); } if(st === 'Machucado') { o.classList.add('overlay-machucado'); s.classList.add('papel-machucado'); } if(st === 'Atordoado') o.classList.add('overlay-atordoado'); if(st === 'Assustado') { o.classList.add('overlay-assustado'); s.classList.add('blur-shake'); } }
 
     function setLimbState(m, t) { if (membrosEstado[m] === t) membrosEstado[m] = 'normal'; else membrosEstado[m] = t; salvarFicha(); }
-    function atualizarStatusVisual(t) { let at = document.getElementById(`${t}-atual`).value; let mx = document.getElementById(`${t}-max`).value; let c = at === '' ? 0 : parseFloat(at); let m = mx === '' ? 1 : parseFloat(mx); const b = document.getElementById(`bar-${t}`); if(b) { b.style.width = Math.max(0, Math.min((c / m) * 100, 100)) + "%"; if(m > 0 && c <= (m / 2)) b.style.filter = "brightness(0.35)"; else b.style.filter = "brightness(1)"; } const z = document.getElementById(`zero-${t}`); if (z) { if (c <= 0) z.classList.add('active'); else z.classList.remove('active'); } }
+    
+    function atualizarStatusVisual(t) { 
+        let at = document.getElementById(`${t}-atual`).value; 
+        let mx = document.getElementById(`${t}-max`).value; 
+        let c = at === '' ? 0 : parseFloat(at); 
+        let m = mx === '' ? 1 : parseFloat(mx); 
+        const b = document.getElementById(`bar-${t}`); 
+        const content = document.getElementById(`content-${t}`);
+        if(b) { 
+            b.style.width = Math.max(0, Math.min((c / m) * 100, 100)) + "%"; 
+            if(m > 0 && c <= (m / 2)) {
+                b.style.filter = "brightness(0.35)"; 
+                if(content) content.classList.add('is-low');
+            } else { 
+                b.style.filter = "brightness(1)"; 
+                if(content) content.classList.remove('is-low');
+            } 
+        } 
+        const z = document.getElementById(`zero-${t}`); 
+        if (z) { if (c <= 0) z.classList.add('active'); else z.classList.remove('active'); } 
+    }
 
     function atualizarTreinoBase(pericia, valor) { const row = document.getElementById(`row-${pericia}`); if (!row) return; if (valor === "true" || valor === true) { row.classList.remove('p-treinado'); row.classList.add('texto-vermelho-linha'); } else { row.classList.remove('texto-vermelho-linha'); } }
     function atualizarCorPericia(n, v) { const e = document.getElementById(`row-${n}`); if(!e) return; e.classList.remove('p-verde', 'p-laranja', 'p-vermelho'); if(v == "1") e.classList.add('p-verde'); else if(v == "3") e.classList.add('p-laranja'); else if(v == "5") e.classList.add('p-vermelho'); }
@@ -1379,7 +1414,7 @@
         }); 
     }
     
-    function carregarAtaques() { 
+   function carregarAtaques() { 
         if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
         unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; 
@@ -1441,7 +1476,7 @@
     auth.onAuthStateChanged(user => { if (user) init(); else { alert("Sessão expirada."); window.location.href = "index.html"; } });
 </script>
     
-    <script>
+<script>
     // TRAVA DE MODO VISUALIZAÇÃO
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
