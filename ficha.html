@@ -292,6 +292,7 @@
             .status-header { font-size: 10px; margin-bottom: 2px; }
             .bar-bg { height: auto; min-height: 28px; align-items: stretch;}
             .bar-content input { font-size: 16px; padding: 0; margin: 0; line-height: 1;}
+            .bar-btn { font-size: 14px; }
             
             .body-map-container { height: 380px !important; margin: 10px auto 30px auto !important; }
             .boneco-svg-container { width: 170px; height: 255px; top: 60px !important; }
@@ -330,26 +331,15 @@
         .texto-vermelho-linha select, .texto-vermelho-linha .btn-treino, .texto-vermelho-linha .sub-treino-selector { font-weight: 700 !important; }
         .texto-vermelho-linha span, .texto-vermelho-linha .nome-pericia { letter-spacing: normal !important; }
 
-        /* NOVAS CORES PARA BARRAS ESCURECIDAS (< 50%) */
-        #content-vida.is-low input, #content-vida.is-low span { color: #ff9999 !important; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000 !important; }
-        #content-san.is-low input, #content-san.is-low span { color: #99ccff !important; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000 !important; }
-        #content-pe.is-low input, #content-pe.is-low span { color: #ffcc99 !important; text-shadow: 1px 1px 2px #000, -1px -1px 2px #000 !important; }
-
-        /* OTIMIZAÇÃO DOS BOTÕES DE AJUSTE (+1, +5, -1, -5) */
-        .bar-content input { background: transparent; border: none; width: 40px; text-align: center; font-weight: bold; outline: none; font-size: 16px; padding: 0; margin: 0; line-height: 1;}
-        .bar-btn-group { display: flex; gap: 8px; align-items: center; }
-        .bar-btn { 
-            cursor: pointer; font-size: 22px; opacity: 0.6; user-select: none; 
-            font-family: 'Inter', sans-serif !important; 
-            padding: 4px 12px; margin: 0; display: flex; align-items: center; justify-content: center;
-            transition: 0.2s; border-radius: 4px; line-height: 1; height: 100%;
-        }
-        .bar-btn:hover { opacity: 1; background: rgba(0,0,0,0.15); transform: scale(1.05); }
-        body.tema-escuro .bar-btn:hover, body.tema-hexatombe .bar-btn:hover { background: rgba(255,255,255,0.15); }
-        
-        @media (max-width: 1200px) {
-            .bar-btn-group { gap: 4px; }
-            .bar-btn { font-size: 24px; padding: 12px 18px; } /* Botões bem maiores no touch para evitar missclick */
+        /* CORREÇÕES SOLICITADAS: Legibilidade na barra de vida escurecida e anti-lag touch no tablet */
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-vida.is-low input, 
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-vida.is-low span,
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-san.is-low input, 
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-san.is-low span,
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-pe.is-low input, 
+        body:not(.tema-escuro):not(.tema-hexatombe) #content-pe.is-low span {
+            color: #ffffff !important;
+            text-shadow: 0px 0px 3px rgba(0,0,0,0.9), 1px 1px 2px rgba(0,0,0,0.8) !important;
         }
 
         button, input, select, textarea, .bar-btn, .val-btn, .cris-btn, .tab-btn, .card-header, .pericia-nome, .mini-cond-label, .it-round, .portrait-box, .rit-symbol-box, [onclick] {
@@ -583,48 +573,39 @@
             <div class="bar-bg">
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
-                    <div class="bar-btn-group">
-                        <span class="bar-btn" onclick="ajustar('vida', -5)">&laquo;</span>
-                        <span class="bar-btn" onclick="ajustar('vida', -1)">&lsaquo;</span>
-                    </div>
+                    <span class="bar-btn" onclick="ajustar('vida', -1)">« <</span>
                     <div><input type="number" id="vida-atual" placeholder="0" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()"> <span>/</span> <input type="number" id="vida-max" placeholder="0" oninput="atualizarStatusVisual('vida')" onchange="salvarFicha()"></div>
-                    <div class="bar-btn-group">
-                        <span class="bar-btn" onclick="ajustar('vida', 1)">&rsaquo;</span>
-                        <span class="bar-btn" onclick="ajustar('vida', 5)">&raquo;</span>
-                    </div>
+                    <span class="bar-btn" onclick="ajustar('vida', 1)">> »</span>
                 </div>
+                <div class="zero-state" id="zero-vida"><span style="color:var(--hp-red); letter-spacing: 2px;">ESTADO CRÍTICO</span><input type="checkbox" id="mor-1" onchange="salvarFicha()"><input type="checkbox" id="mor-2" onchange="salvarFicha()"><input type="checkbox" id="mor-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('vida')">ESTABILIZAR</button></div>
+            </div>
+        </div>
 
         <div class="status-container">
             <div class="status-header-container"><div class="status-header" style="color: var(--san-purple);">LUCIDEZ</div><button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Choque Psicológico">CHOQUE</button></div>
             <div class="bar-bg">
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
-                    <div class="bar-btn-group">
-                        <span class="bar-btn" onclick="ajustar('san', -5)">&laquo;</span>
-                        <span class="bar-btn" onclick="ajustar('san', -1)">&lsaquo;</span>
-                    </div>
+                    <span class="bar-btn" onclick="ajustar('san', -1)">« <</span>
                     <div><input type="number" id="san-atual" placeholder="0" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()"> <span>/</span> <input type="number" id="san-max" placeholder="0" oninput="atualizarStatusVisual('san')" onchange="salvarFicha()"></div>
-                    <div class="bar-btn-group">
-                        <span class="bar-btn" onclick="ajustar('san', 1)">&rsaquo;</span>
-                        <span class="bar-btn" onclick="ajustar('san', 5)">&raquo;</span>
-                    </div>
+                    <span class="bar-btn" onclick="ajustar('san', 1)">> »</span>
                 </div>
+                <div class="zero-state" id="zero-san" style="border-color: var(--san-purple);"><span style="color:var(--san-purple); letter-spacing: 2px;">COLAPSO MENTAL</span><input type="checkbox" id="enlou-1" onchange="salvarFicha()"><input type="checkbox" id="enlou-2" onchange="salvarFicha()"><input type="checkbox" id="enlou-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('san')">ACALMAR</button></div>
+                <div class="it-state" id="it-san"><span style="letter-spacing: 1px;">CHOQUE: </span><div class="it-round" id="it-1" onclick="marcarIT(1)"></div><div class="it-round" id="it-2" onclick="marcarIT(2)"></div><div class="it-round" id="it-3" onclick="marcarIT(3)"></div><div class="it-round" id="it-4" onclick="marcarIT(4)"></div><button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">RECUPERAR</button></div>
+            </div>
+        </div>
 
         <div class="status-container">
             <div class="status-header-container"><div class="status-header" style="color: var(--pe-orange); text-align: center; width: 100%;">FÔLEGO</div></div>
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
                 <div class="bar-content" id="content-pe">
-                    <div class="bar-btn-group">
-                        <span class="bar-btn" onclick="ajustar('pe', -5)">&laquo;</span>
-                        <span class="bar-btn" onclick="ajustar('pe', -1)">&lsaquo;</span>
-                    </div>
+                    <span class="bar-btn" onclick="ajustar('pe', -1)">« <</span>
                     <div><input type="number" id="pe-atual" placeholder="0" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()"> <span>/</span> <input type="number" id="pe-max" placeholder="0" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()"></div>
-                    <div class="bar-btn-group">
-                        <span class="bar-btn" onclick="ajustar('pe', 1)">&rsaquo;</span>
-                        <span class="bar-btn" onclick="ajustar('pe', 5)">&raquo;</span>
-                    </div>
+                    <span class="bar-btn" onclick="ajustar('pe', 1)">> »</span>
                 </div>
+            </div>
+        </div>
 
         <div style="display: flex; gap: 15px; margin-top: 20px;">
             <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 2px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
