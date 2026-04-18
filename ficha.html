@@ -356,10 +356,17 @@
         body.tema-escuro .bar-btn:hover, body.tema-hexatombe .bar-btn:hover { background: rgba(255,255,255,0.15) !important; }
         
         @media (max-width: 1200px) {
-            /* No celular, herda as cores automaticamente, só aumenta o tamanho da área de clique */
-            .bar-btn { font-size: 22px !important; padding: 12px 14px !important; }
+            /* 1. Reduz o espaço vertical para a barra não ficar gorda, mas mantém a largura para o toque */
+            .bar-btn { font-size: 24px !important; padding: 2px 16px !important; }
+            
+            /* 2. Remove o "fundo escuro" de hover que fica travado eternamente no celular */
+            .bar-btn:hover { background: transparent !important; transform: none !important; opacity: 0.6 !important; }
+            body.tema-escuro .bar-btn:hover, body.tema-hexatombe .bar-btn:hover { background: transparent !important; }
+            
+            /* (Opcional) Dá um feedback super rápido brilhando o botão APENAS no milissegundo do toque */
+            .bar-btn:active { opacity: 1 !important; transform: scale(1.1) !important; }
         }
-
+        
         button, input, select, textarea, .bar-btn, .val-btn, .cris-btn, .tab-btn, .card-header, .pericia-nome, .mini-cond-label, .it-round, .portrait-box, .rit-symbol-box, [onclick] {
             touch-action: manipulation !important;
         }
