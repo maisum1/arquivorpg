@@ -329,7 +329,7 @@
 
         /* CORRECAO DEFINITIVA DAS BARRAS E BOTOES ANTI-LAG */
         
-        /* 1. Modo Claro (Cores corrigidas nas barras certas) */
+        /* 1. Modo Claro (Cores escuras nas barras quando < 50%) */
         body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-vida.is-low input, 
         body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-vida.is-low span { color: #210303 !important; text-shadow: none !important; }
         
@@ -337,20 +337,15 @@
         body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-san.is-low span { color: #051526 !important; text-shadow: none !important; }
         
         body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-pe.is-low input, 
-        body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-pe.is-low span { color: #210303 !important; text-shadow: none !important; }
+        body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-pe.is-low span { color: #361700 !important; text-shadow: none !important; } /* Usei um marrom escuro pro Fôlego */
 
-        /* 2. Modo Escuro (Sem o contorno/sombra preta) */
-        body.tema-escuro:not(.tema-hexatombe) #grid-container #content-vida.is-low input, 
-        body.tema-escuro:not(.tema-hexatombe) #grid-container #content-vida.is-low span,
-        body.tema-escuro:not(.tema-hexatombe) #grid-container #content-san.is-low input, 
-        body.tema-escuro:not(.tema-hexatombe) #grid-container #content-san.is-low span,
-        body.tema-escuro:not(.tema-hexatombe) #grid-container #content-pe.is-low input, 
-        body.tema-escuro:not(.tema-hexatombe) #grid-container #content-pe.is-low span { color: #ffffff !important; text-shadow: none !important; }
-
-        /* 3. MODO HEXATOMBE (Mantém o branco padrão do sistema com brilho) */
+        /* 2. Modo Escuro e Hexatombe (Branco absoluto SEM NENHUM contorno/sombra) */
+        body.tema-escuro #grid-container #content-vida.is-low input, body.tema-escuro #grid-container #content-vida.is-low span,
+        body.tema-escuro #grid-container #content-san.is-low input, body.tema-escuro #grid-container #content-san.is-low span,
+        body.tema-escuro #grid-container #content-pe.is-low input, body.tema-escuro #grid-container #content-pe.is-low span,
         body.tema-hexatombe #grid-container #content-vida.is-low input, body.tema-hexatombe #grid-container #content-vida.is-low span,
         body.tema-hexatombe #grid-container #content-san.is-low input, body.tema-hexatombe #grid-container #content-san.is-low span,
-        body.tema-hexatombe #grid-container #content-pe.is-low input, body.tema-hexatombe #grid-container #content-pe.is-low span { color: #ffffff !important; text-shadow: 0px 0px 3px rgba(0,0,0,0.9), 1px 1px 2px rgba(0,0,0,0.8) !important; }
+        body.tema-hexatombe #grid-container #content-pe.is-low input, body.tema-hexatombe #grid-container #content-pe.is-low span { color: #ffffff !important; text-shadow: none !important; }
 
         .bar-content { display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; flex-wrap: nowrap !important; padding: 0 4px !important; }
         .bar-content > div { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 2px !important; flex-wrap: nowrap !important; white-space: nowrap !important; }
@@ -1408,7 +1403,7 @@
         let pl = {
             nomeJogador: nj, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
             agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
-            vidaMax: parseInt(document.getElementById('vida-max').value) || 12, sanMax: parseInt(document.getElementById('san-max').value) || 12, peMax: parseInt(document.getElementById('pe-max').value) || 2,
+            vidaMax: !isNaN(parseInt(document.getElementById('vida-max').value)) ? parseInt(document.getElementById('vida-max').value) : 12, sanMax: !isNaN(parseInt(document.getElementById('san-max').value)) ? parseInt(document.getElementById('san-max').value) : 12, peMax: !isNaN(parseInt(document.getElementById('pe-max').value)) ? parseInt(document.getElementById('pe-max').value) : 2,
             nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
@@ -1421,8 +1416,10 @@
         let bgData = { bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value };
 
         let rU = { hexatombe: isHexatombe, restricao: isRestricao, ...bgData, campanhaId: pl.campanhaId };
-        let iV = parseInt(document.getElementById('vida-atual').value) || 0; let iS = parseInt(document.getElementById('san-atual').value) || 0; let iP = parseInt(document.getElementById('pe-atual').value) || 0;
-
+        let iV = parseInt(document.getElementById('vida-atual').value); iV = isNaN(iV) ? 0 : iV;
+        let iS = parseInt(document.getElementById('san-atual').value); iS = isNaN(iS) ? 0 : iS;
+        let iP = parseInt(document.getElementById('pe-atual').value); iP = isNaN(iP) ? 0 : iP;
+        
         if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.limiteGastos = pl.limiteGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
         db.collection("fichas").doc(atual).update(rU); recalcularBases();
