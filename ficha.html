@@ -337,7 +337,7 @@
         body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-san.is-low span { color: #051526 !important; text-shadow: none !important; }
         
         body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-pe.is-low input, 
-        body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-pe.is-low span { color: #361700 !important; text-shadow: none !important; } /* Usei um marrom escuro pro Fôlego */
+        body:not(.tema-escuro):not(.tema-hexatombe) #grid-container #content-pe.is-low span { color: #361700 !important; text-shadow: none !important; }
 
         /* 2. Modo Escuro e Hexatombe (Branco absoluto SEM NENHUM contorno/sombra) */
         body.tema-escuro #grid-container #content-vida.is-low input, body.tema-escuro #grid-container #content-vida.is-low span,
@@ -871,7 +871,9 @@
         "Taser": { nome: "Arma de Choque (Taser)", dano: "1d4", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" }
     };
 
-    const templatesTracos = {};
+    const templatesTracos = {
+        "EuConhecoUmCara": { nome: "Eu Conheço Um Cara (Nível 1 a 3)", descricao: "Mecânica Única: Você tem um contato que lhe deve um favor de acordo com o nível.\nNível 1: Alguém simples (feirante, porteiro).\nNível 2: Alguém com autoridade (investigador de polícia, gerente).\nNível 3: Alguém de muito poder (diretor de hospital, chefe do crime organizado).\n(Origens sugeridas: Executivo, Criminoso, Policial, Investigador, Trambiqueiro, Jornalista)" }
+    };
     const templatesEspecializacoes = {};
     const templatesAnomalias = {};
 
@@ -1278,9 +1280,9 @@
         const nV = 12 + (2 * vg) + (3 * nv); const nS = 50 + (10 * vn + 10 * sg); let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); let nL = 1 + vg + vn + nv; let bonusDtArq = 0;
         if (cl === "Esotérico") { nP += (2 * sg); nL += (2 * sg); } else if (cl === "Canalizador" && nv > 2) { nP += (nv - 2) * 3; } else if (cl === "Focalizador" && nv >= 2) { bonusDtArq = Math.floor(nv / 2) || 1; nL += 1; }
 
-        const iVM = document.getElementById('vida-max'); if (iVM) { let oldBaseV = parseInt(iVM.dataset.base) || nV; let currentV = parseInt(iVM.value) || oldBaseV; if (document.activeElement !== iVM) { iVM.value = nV + (currentV - oldBaseV); } iVM.dataset.base = nV; }
-        const iSM = document.getElementById('san-max'); if (iSM) { let oldBaseS = parseInt(iSM.dataset.base) || nS; let currentS = parseInt(iSM.value) || oldBaseS; if (document.activeElement !== iSM) { iSM.value = nS + (currentS - oldBaseS); } iSM.dataset.base = nS; }
-        const iPM = document.getElementById('pe-max'); if (iPM) { let oldBaseP = parseInt(iPM.dataset.base) || nP; let currentP = parseInt(iPM.value) || oldBaseP; if (document.activeElement !== iPM) { iPM.value = nP + (currentP - oldBaseP); } iPM.dataset.base = nP; const inptPeAtual = document.getElementById('pe-atual'); if (nP > oldBaseP && oldBaseP > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldBaseP); } } else if (oldBaseP === 0 && nP > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = nP; } } }
+        const iVM = document.getElementById('vida-max'); if (iVM) { let oldBaseV = parseInt(iVM.dataset.base) || nV; let currentV = !isNaN(parseInt(iVM.value)) ? parseInt(iVM.value) : oldBaseV; if (document.activeElement !== iVM) { iVM.value = nV + (currentV - oldBaseV); } iVM.dataset.base = nV; }
+        const iSM = document.getElementById('san-max'); if (iSM) { let oldBaseS = parseInt(iSM.dataset.base) || nS; let currentS = !isNaN(parseInt(iSM.value)) ? parseInt(iSM.value) : oldBaseS; if (document.activeElement !== iSM) { iSM.value = nS + (currentS - oldBaseS); } iSM.dataset.base = nS; }
+        const iPM = document.getElementById('pe-max'); if (iPM) { let oldBaseP = parseInt(iPM.dataset.base) || nP; let currentP = !isNaN(parseInt(iPM.value)) ? parseInt(iPM.value) : oldBaseP; if (document.activeElement !== iPM) { iPM.value = nP + (currentP - oldBaseP); } iPM.dataset.base = nP; const inptPeAtual = document.getElementById('pe-atual'); if (nP > oldBaseP && oldBaseP > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldBaseP); } } else if (oldBaseP === 0 && nP > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = nP; } } }
         if (fH) { document.getElementById('vida-atual').value = parseInt(iVM.value); document.getElementById('san-atual').value = parseInt(iSM.value); document.getElementById('pe-atual').value = parseInt(iPM.value); }
         
         const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
@@ -1316,9 +1318,10 @@
 
             let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
             if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vA ?? 12; if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sA ?? 50; if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pA ?? 2;
-            if (document.activeElement !== document.getElementById('vida-max') && d_raw.vidaMax !== undefined) document.getElementById('vida-max').value = d_raw.vidaMax;
-            if (document.activeElement !== document.getElementById('san-max') && d_raw.sanMax !== undefined) document.getElementById('san-max').value = d_raw.sanMax;
-            if (document.activeElement !== document.getElementById('pe-max') && d_raw.peMax !== undefined) document.getElementById('pe-max').value = d_raw.peMax;
+            
+            if (document.activeElement !== document.getElementById('vida-max') && d.vidaMax !== undefined) document.getElementById('vida-max').value = d.vidaMax;
+            if (document.activeElement !== document.getElementById('san-max') && d.sanMax !== undefined) document.getElementById('san-max').value = d.sanMax;
+            if (document.activeElement !== document.getElementById('pe-max') && d.peMax !== undefined) document.getElementById('pe-max').value = d.peMax;
             
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
@@ -1403,7 +1406,11 @@
         let pl = {
             nomeJogador: nj, nome: document.getElementById('nome-personagem').value, origem: document.getElementById('origem-personagem').value, classe: document.getElementById('classe-personagem').value, idade: parseInt(document.getElementById('idade-personagem').value) || 0,
             agi: parseInt(document.getElementById('attr-agi').value) || 0, for: parseInt(document.getElementById('attr-for').value) || 0, sag: parseInt(document.getElementById('attr-sag').value) || 0, von: parseInt(document.getElementById('attr-von').value) || 0, vig: parseInt(document.getElementById('attr-vig').value) || 0,
-            vidaMax: !isNaN(parseInt(document.getElementById('vida-max').value)) ? parseInt(document.getElementById('vida-max').value) : 12, sanMax: !isNaN(parseInt(document.getElementById('san-max').value)) ? parseInt(document.getElementById('san-max').value) : 12, peMax: !isNaN(parseInt(document.getElementById('pe-max').value)) ? parseInt(document.getElementById('pe-max').value) : 2,
+            
+            vidaMax: !isNaN(parseInt(document.getElementById('vida-max').value)) ? parseInt(document.getElementById('vida-max').value) : 12, 
+            sanMax: !isNaN(parseInt(document.getElementById('san-max').value)) ? parseInt(document.getElementById('san-max').value) : 12, 
+            peMax: !isNaN(parseInt(document.getElementById('pe-max').value)) ? parseInt(document.getElementById('pe-max').value) : 2,
+            
             nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             statusPersonagem: document.getElementById('status-personagem').value, membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
@@ -1416,10 +1423,11 @@
         let bgData = { bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value };
 
         let rU = { hexatombe: isHexatombe, restricao: isRestricao, ...bgData, campanhaId: pl.campanhaId };
+        
         let iV = parseInt(document.getElementById('vida-atual').value); iV = isNaN(iV) ? 0 : iV;
         let iS = parseInt(document.getElementById('san-atual').value); iS = isNaN(iS) ? 0 : iS;
         let iP = parseInt(document.getElementById('pe-atual').value); iP = isNaN(iP) ? 0 : iP;
-        
+
         if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.limiteGastos = pl.limiteGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
         db.collection("fichas").doc(atual).update(rU); recalcularBases();
@@ -1456,7 +1464,7 @@
         }); 
     }
     
-    function carregarHabilidades() { 
+   function carregarHabilidades() { 
         if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const c = document.getElementById('lista-habilidades'); c.innerHTML = ""; 
@@ -1467,7 +1475,7 @@
         }); 
     }
     
-   function carregarAtaques() { 
+    function carregarAtaques() { 
         if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
         unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; 
