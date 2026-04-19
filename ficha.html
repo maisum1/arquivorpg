@@ -1604,7 +1604,64 @@
 
     function toggleMiniCond(t) { if (t === 'sequela') document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
 
-    async function aplicarTemplate(c, ch) { const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; let d = {}; if (c === 'ataques') d = templatesAtaques[ch]; if (c === 'habilidades') d = templatesTracos[ch]; if (c === 'poderes') d = templatesEspecializacoes[ch]; if (c === 'rituais') d = templatesAnomalias[ch]; if (c === 'inventario') d = templatesInventario[ch]; if (d) await db.collection("fichas").doc(atual).collection(p).add(d); }
+    async function novoRitual() { 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
+        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
+        menusAbertos.add('rit-' + ref.id);
+    }
+    
+    async function novoPoder() { 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; 
+        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); 
+        menusAbertos.add('pod-' + ref.id);
+    }
+    
+    async function novaHabilidade() { 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
+        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Traço", descricao: "" }); 
+        menusAbertos.add('hab-' + ref.id);
+    }
+    
+    async function novoItem() { 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; 
+        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); 
+        menusAbertos.add('inv-' + ref.id);
+        const btnTodos = document.querySelector('#filtros-inventario .btn-filtro');
+        if(btnTodos) setFiltroInventario('Todos', btnTodos);
+    }
+    
+    async function novoAtaque() { 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
+        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" }); 
+        menusAbertos.add('atq-' + ref.id);
+        const btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
+        if(btnTodos) setFiltroAtaques('Todos', btnTodos);
+    }
+
+    async function aplicarTemplate(c, ch) { 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; 
+        let d = {}; 
+        let prefix = "";
+        if (c === 'ataques') { d = templatesAtaques[ch]; prefix = 'atq-'; }
+        if (c === 'habilidades') { d = templatesTracos[ch]; prefix = 'hab-'; }
+        if (c === 'poderes') { d = templatesEspecializacoes[ch]; prefix = 'pod-'; }
+        if (c === 'rituais') { d = templatesAnomalias[ch]; prefix = 'rit-'; }
+        if (c === 'inventario') { d = templatesInventario[ch]; prefix = 'inv-'; }
+        
+        if (d) { 
+            let ref = await db.collection("fichas").doc(atual).collection(p).add(d); 
+            menusAbertos.add(prefix + ref.id);
+            
+            if (c === 'inventario') {
+                const btnTodos = document.querySelector('#filtros-inventario .btn-filtro');
+                if(btnTodos) setFiltroInventario('Todos', btnTodos);
+            }
+            if (c === 'ataques') {
+                const btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
+                if(btnTodos) setFiltroAtaques('Todos', btnTodos);
+            }
+        }
+    }
     
     async function aplicarOrigemTemplate() { 
         const v = document.getElementById('select-tpl-origem').value; 
