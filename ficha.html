@@ -1606,52 +1606,63 @@
 
     async function novoRitual() { 
         const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
-        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
-        menusAbertos.add('rit-' + ref.id);
+        let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
+        menusAbertos.add('rit-' + novaRef.id);
+        await novaRef.set({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
+        setTimeout(() => { let el = document.getElementById('rit-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
     async function novoPoder() { 
         const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; 
-        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); 
-        menusAbertos.add('pod-' + ref.id);
+        let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
+        menusAbertos.add('pod-' + novaRef.id);
+        await novaRef.set({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); 
+        setTimeout(() => { let el = document.getElementById('pod-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
     async function novaHabilidade() { 
         const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
-        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Traço", descricao: "" }); 
-        menusAbertos.add('hab-' + ref.id);
+        let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
+        menusAbertos.add('hab-' + novaRef.id);
+        await novaRef.set({ nome: "Novo Traço", descricao: "" }); 
+        setTimeout(() => { let el = document.getElementById('hab-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
     async function novoItem() { 
         const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; 
-        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); 
-        menusAbertos.add('inv-' + ref.id);
+        let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
+        menusAbertos.add('inv-' + novaRef.id);
         const btnTodos = document.querySelector('#filtros-inventario .btn-filtro');
         if(btnTodos) setFiltroInventario('Todos', btnTodos);
+        await novaRef.set({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); 
+        setTimeout(() => { let el = document.getElementById('inv-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
     async function novoAtaque() { 
         const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
-        let ref = await db.collection("fichas").doc(atual).collection(p).add({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" }); 
-        menusAbertos.add('atq-' + ref.id);
+        let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
+        menusAbertos.add('atq-' + novaRef.id);
         const btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
         if(btnTodos) setFiltroAtaques('Todos', btnTodos);
+        await novaRef.set({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" }); 
+        setTimeout(() => { let el = document.getElementById('atq-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
 
     async function aplicarTemplate(c, ch) { 
         const p = (isHexatombe || globalHexatombe) ? "hexa_" + c : c; 
         let d = {}; 
         let prefix = "";
-        if (c === 'ataques') { d = templatesAtaques[ch]; prefix = 'atq-'; }
-        if (c === 'habilidades') { d = templatesTracos[ch]; prefix = 'hab-'; }
-        if (c === 'poderes') { d = templatesEspecializacoes[ch]; prefix = 'pod-'; }
-        if (c === 'rituais') { d = templatesAnomalias[ch]; prefix = 'rit-'; }
-        if (c === 'inventario') { d = templatesInventario[ch]; prefix = 'inv-'; }
+        if (c === 'ataques') { d = Object.assign({}, templatesAtaques[ch]); prefix = 'atq-'; }
+        if (c === 'habilidades') { d = Object.assign({}, templatesTracos[ch]); prefix = 'hab-'; }
+        if (c === 'poderes') { d = Object.assign({}, templatesEspecializacoes[ch]); prefix = 'pod-'; }
+        if (c === 'rituais') { d = Object.assign({}, templatesAnomalias[ch]); prefix = 'rit-'; }
+        if (c === 'inventario') { d = Object.assign({}, templatesInventario[ch]); prefix = 'inv-'; }
         
-        if (d) { 
-            let ref = await db.collection("fichas").doc(atual).collection(p).add(d); 
-            menusAbertos.add(prefix + ref.id);
+        if (d && Object.keys(d).length > 0) { 
+            let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
+            menusAbertos.add(prefix + novaRef.id);
             
+            // Garante que o filtro volte para "TODOS" para o item novo não nascer escondido
             if (c === 'inventario') {
                 const btnTodos = document.querySelector('#filtros-inventario .btn-filtro');
                 if(btnTodos) setFiltroInventario('Todos', btnTodos);
@@ -1660,6 +1671,14 @@
                 const btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
                 if(btnTodos) setFiltroAtaques('Todos', btnTodos);
             }
+            
+            await novaRef.set(d); 
+            
+            // Dá tempo do Firebase desenhar na tela e rola o site direto pra ele
+            setTimeout(() => { 
+                let el = document.getElementById(prefix + novaRef.id); 
+                if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); 
+            }, 300);
         }
     }
     
