@@ -118,7 +118,7 @@
         .status-header-container { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 4px; padding: 0;}
         .status-header { font-size: 11px; font-weight: bold; color: var(--hp-red); letter-spacing: 2px; font-family: 'Crimson Text', serif; text-align: center; text-transform: uppercase;}
         .btn-status-action { position: absolute; right: 0; background: transparent; color: var(--cor-geral); border: 1px solid var(--card-border); border-radius: 2px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-family: 'Inter'; font-weight: bold; transition: 0.2s; }
-        .btn-status-action:hover { background: var(--card-hover); color: var(--op-ink); border-color: var(--op-ink); }
+        .btn-status-action:hover, .btn-status-action.btn-active { background: var(--card-hover); color: var(--op-ink); border-color: var(--op-ink); }
         .bar-bg { width: 100%; background: var(--card-bg); position: relative; border: 1px solid var(--card-border); overflow: hidden; display: flex; align-items: center; border-radius: 2px; height: auto; min-height: 28px; align-items: stretch; box-sizing: border-box; }
         .bar-fill { height: 100%; transition: width 0.4s ease-out, filter 0.4s ease-out; position: absolute; top: 0; bottom: 0; left: 0; opacity: 0.8; z-index: 1; }
         .bar-content { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; font-weight: bold; align-items: center; transition: opacity 0.3s; color: var(--op-ink);}
@@ -651,7 +651,7 @@
                     <div class="ex-round" id="ex-2" onclick="marcarExaustao(2)"></div>
                     <div class="ex-round" id="ex-3" onclick="marcarExaustao(3)"></div>
                 </div>
-                <button class="btn-status-action" onclick="toggleExaustao()" title="Níveis de Exaustão">EXAUSTÃO</button>
+                <button id="btn-exaustao" class="btn-status-action" onclick="toggleExaustao()" title="Níveis de Exaustão">EXAUSTÃO</button>
             </div>
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
@@ -1397,9 +1397,11 @@
             if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if(e) { if(i <= (d.itRounds || 0)) e.classList.add('active'); else e.classList.remove('active'); } } } else { it.classList.remove('active'); if(parseInt(d.sanAtual) > 0) cs.style.opacity = '1'; }
             
             isExaustaoActive = d.exaustaoAtiva || false; const exDots = document.getElementById('exaustao-dots');
+            const btnEx = document.getElementById('btn-exaustao');
             if (exDots) {
                 if (isExaustaoActive) {
                     exDots.style.display = 'flex';
+                    if(btnEx) btnEx.classList.add('btn-active');
                     for(let i=1; i<=3; i++) {
                         const e = document.getElementById(`ex-${i}`);
                         if (e) {
@@ -1409,6 +1411,7 @@
                     }
                 } else {
                     exDots.style.display = 'none';
+                    if(btnEx) btnEx.classList.remove('btn-active');
                     for(let i=1; i<=3; i++) {
                         const e = document.getElementById(`ex-${i}`);
                         if(e) e.classList.remove('active');
@@ -1520,10 +1523,13 @@
     function toggleExaustao() { 
         window.isExaustaoActive = !window.isExaustaoActive; 
         const exDots = document.getElementById('exaustao-dots'); 
+        const btnEx = document.getElementById('btn-exaustao');
         if (window.isExaustaoActive) { 
             exDots.style.display = 'flex'; 
+            if(btnEx) btnEx.classList.add('btn-active');
         } else { 
             exDots.style.display = 'none'; 
+            if(btnEx) btnEx.classList.remove('btn-active');
             for(let i=1; i<=3; i++) { 
                 const e = document.getElementById(`ex-${i}`); 
                 if(e) e.classList.remove('active'); 
@@ -1639,7 +1645,7 @@
                 .cris-textarea { pointer-events: auto !important; } /* Permite scroll no textarea */
                 .btn-criar, .btn-add, .btn-del, .bar-btn, .btn-status-action, .btn-config, #btn-assumir-posse, .btn-curar, .val-btn, .it-round, .ex-round { display: none !important; }
                 .portrait-box, .rit-symbol-box { pointer-events: none !important; }
-                #label-portrait { display: none !important; }
+                #label-portrait { display: none !important; }f
                 #status-tags span { display: none !important; } /* Remove o [X] de apagar as condicoes */
             `;
             document.head.appendChild(lockStyle);
