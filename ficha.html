@@ -1440,7 +1440,21 @@
         db.collection("fichas").doc(atual).update(rU); recalcularBases();
     }
 
-    function ajustar(t, v) { const i = document.getElementById(`${t}-atual`); const m = document.getElementById(`${t}-max`); if(i && m) { let nV = (parseInt(i.value) || 0) + v; document.getElementById(`${t}-atual`).value = nV; atualizarStatusVisual(t); salvarFicha(); } }
+    let delaySalvarFicha;
+    function ajustar(t, v) { 
+        const i = document.getElementById(`${t}-atual`); 
+        const m = document.getElementById(`${t}-max`); 
+        if(i && m) { 
+            let nV = (parseInt(i.value) || 0) + v; 
+            document.getElementById(`${t}-atual`).value = nV; 
+            atualizarStatusVisual(t); 
+            
+            // Cancela o salvamento anterior se o utilizador clicar rápido várias vezes
+            clearTimeout(delaySalvarFicha);
+            // Aguarda a barra deslizar (600ms) antes de travar o telemóvel para salvar no banco
+            delaySalvarFicha = setTimeout(() => { salvarFicha(); }, 600);
+        } 
+    }
     function estabilizarStatus(t) { document.getElementById(`${t}-atual`).value = 1; atualizarStatusVisual(t); if(t === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; } if(t === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; } salvarFicha(); }
     function instakill() { document.getElementById(`vida-atual`).value = 0; atualizarStatusVisual('vida'); salvarFicha(); }
     function toggleInsanoTemporario() { isITActive = !isITActive; const it = document.getElementById('it-san'); const cs = document.getElementById('content-san'); const zs = document.getElementById('zero-san'); if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; zs.classList.remove('active'); } else { it.classList.remove('active'); for(let i=1; i<=4; i++) { document.getElementById(`it-${i}`).classList.remove('active'); } const sA = parseInt(document.getElementById('san-atual').value) || 0; if (sA <= 0) zs.classList.add('active'); else cs.style.opacity = '1'; } salvarFicha(); }
