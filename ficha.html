@@ -806,7 +806,7 @@
             <div class="inv-stats-grid">
                 <div><label>NÍVEL DE CRÉDITO</label><input type="number" id="nivel-credito" onchange="atualizarCredito(); salvarFicha();" value="-1"></div>
                 <div><label>DINHEIRO ATUAL</label><input type="text" id="dinheiro-especie" onchange="salvarFicha();" value="R$ 0"></div>
-                <div><label>LIMITE DE GASTOS</label><input type="text" id="limite-gastos" onchange="salvarFicha();" value="R$ 0"></div>
+                <div><label>FUNDO DE GASTOS</label><input type="text" id="fundo-gastos" onchange="salvarFicha();" value="R$ 0"></div>
                 <div style="display: none;"><input type="text" id="patrimonio-recursos" onchange="salvarFicha();" value="R$ 0"></div>
             </div>
 
@@ -1108,7 +1108,7 @@
         let nc = parseInt(document.getElementById('nivel-credito').value); if (isNaN(nc)) nc = -1;
         let gastos = "R$ 0", dinheiro = "R$ 0", patrimonio = "R$ 0";
         if (nc <= -2) { gastos = "R$ 0"; dinheiro = "R$ 0"; patrimonio = "R$ 0"; } else if (nc === -1) { gastos = "R$ 50"; dinheiro = "R$ 100"; patrimonio = "R$ 500"; } else if (nc === 0) { gastos = "R$ 300"; dinheiro = "R$ 800"; patrimonio = "R$ 15.000"; } else if (nc === 1) { gastos = "R$ 2.000"; dinheiro = "R$ 5.000"; patrimonio = "R$ 150.000"; } else if (nc >= 2) { gastos = "R$ 15.000"; dinheiro = "R$ 50.000"; patrimonio = "R$ 2.000.000+"; }
-        document.getElementById('limite-gastos').value = gastos; document.getElementById('dinheiro-especie').value = dinheiro; document.getElementById('patrimonio-recursos').value = patrimonio;
+        document.getElementById('fundo-gastos').value = gastos; document.getElementById('dinheiro-especie').value = dinheiro; document.getElementById('patrimonio-recursos').value = patrimonio;
     }
 
     function previewTemplate(tipo) {
@@ -1320,7 +1320,7 @@
             const dD = d_raw.dono; if (auth.currentUser && dD !== auth.currentUser.uid) document.getElementById('btn-assumir-posse').style.display = 'block'; else document.getElementById('btn-assumir-posse').style.display = 'none';
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false; isRestricao = d_raw.restricao || false;
             const hF = isHexatombe || globalHexatombe; let d = d_raw;
-            if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; d.origem = d_raw.origem; d.nivelCredito = d_raw.nivelCredito; d.limiteGastos = d_raw.limiteGastos; d.dinheiroEspecie = d_raw.dinheiroEspecie; d.patrimonioRecursos = d_raw.patrimonioRecursos; }
+            if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; d.origem = d_raw.origem; d.nivelCredito = d_raw.nivelCredito; d.fundoGastos = d_raw.fundoGastos; d.dinheiroEspecie = d_raw.dinheiroEspecie; d.patrimonioRecursos = d_raw.patrimonioRecursos; }
 
             if (prevHexatombeFinal !== hF) {
                 let vN = parseInt(d_raw.vig) || 0; let vnN = parseInt(d_raw.von) || 0; let sN = parseInt(d_raw.sag) || 0; let nv = parseInt(d_raw.nivel) || 0; let nx = parseInt(d_raw.nex) || 0; let cl = d_raw.classe || "";
@@ -1352,7 +1352,7 @@
             else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             if (typeof forcarAtualizacaoRessonancia === 'function') forcarAtualizacaoRessonancia();
             document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
-            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('limite-gastos').value = d.limiteGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
+            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('fundo-gastos').value = d.fundoGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
 
             let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
             nomesPericias.forEach(p => {
@@ -1482,7 +1482,7 @@
             exaustaoAtiva: window.isExaustaoActive, exaustaoNivel: exR,
             
             revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao,
-            nivelCredito: valNC, limiteGastos: document.getElementById('limite-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value, patrimonioRecursos: document.getElementById('patrimonio-recursos').value,
+            nivelCredito: valNC, fundoGastos: document.getElementById('fundo-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value, patrimonioRecursos: document.getElementById('patrimonio-recursos').value,
             campanhaId: document.getElementById('campanhaId-config').value
         };
 
@@ -1494,7 +1494,7 @@
         let iS = parseInt(document.getElementById('san-atual').value); iS = isNaN(iS) ? 0 : iS;
         let iP = parseInt(document.getElementById('pe-atual').value); iP = isNaN(iP) ? 0 : iP;
 
-        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.limiteGastos = pl.limiteGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
+        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.fundoGastos = pl.fundoGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
         db.collection("fichas").doc(atual).update(rU); recalcularBases();
     }
