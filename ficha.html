@@ -1756,17 +1756,35 @@
             const origem = templatesOrigens[v];
             document.getElementById('origem-personagem').value = origem.nome; 
             
-            const p1Input = document.getElementById('treino-' + origem.p1);
-            if(p1Input) { p1Input.value = "3"; atualizarCorPericia(origem.p1, "3"); }
+            // Função inteligente para aplicar o treino dependendo do tipo da perícia
+            const aplicarTreino = (nomePericia, valorBonus) => {
+                const inputNormal = document.getElementById('treino-' + nomePericia);
+                if (inputNormal) {
+                    // Se for perícia normal, aplica o bônus (+3 ou +1) e pinta de verde/laranja
+                    inputNormal.value = valorBonus; 
+                    atualizarCorPericia(nomePericia, valorBonus);
+                } else {
+                    // Se for perícia com subperícia, muda apenas a "Base" para Treinado (Verde/Vermelho)
+                    const inputBase = document.getElementById('base-treino-' + nomePericia);
+                    if (inputBase) {
+                        inputBase.value = "true";
+                        atualizarTreinoBase(nomePericia, true);
+                    }
+                }
+            };
 
-            const p2Input = document.getElementById('treino-' + origem.p2);
-            if(p2Input) { p2Input.value = "1"; atualizarCorPericia(origem.p2, "1"); }
+            // Aplica a perícia primária e secundária
+            aplicarTreino(origem.p1, "3");
+            aplicarTreino(origem.p2, "1");
 
             let ncAtualInput = document.getElementById('nivel-credito');
             let ncBase = -1; 
             let novoNC = ncBase + (origem.bonusNC || 0);
             if (novoNC > 2) novoNC = 2; if (novoNC < -2) novoNC = -2;
-            ncAtualInput.value = novoNC; atualizarCredito(); salvarFicha(); 
+            ncAtualInput.value = novoNC; 
+            
+            atualizarCredito(); 
+            salvarFicha(); 
         } 
         toggleElem('modal-tpl-origem'); 
     }
