@@ -1806,15 +1806,15 @@
             const origem = templatesOrigens[v];
             document.getElementById('origem-personagem').value = origem.nome; 
             
-            // Função inteligente para aplicar o treino dependendo do tipo da perícia
+            // Função inteligente que detecta se a perícia tem subcategorias
             const aplicarTreino = (nomePericia, valorBonus) => {
                 const inputNormal = document.getElementById('treino-' + nomePericia);
                 if (inputNormal) {
-                    // Se for perícia normal, aplica o bônus (+3 ou +1) e pinta de verde/laranja
+                    // Perícia comum: aplica o valor (+1 ou +3) e a cor
                     inputNormal.value = valorBonus; 
                     atualizarCorPericia(nomePericia, valorBonus);
                 } else {
-                    // Se for perícia com subperícia, muda apenas a "Base" para Treinado (Verde/Vermelho)
+                    // Perícia com subperícia: marca apenas a Base como Treinada (vermelho)
                     const inputBase = document.getElementById('base-treino-' + nomePericia);
                     if (inputBase) {
                         inputBase.value = "true";
@@ -1823,10 +1823,11 @@
                 }
             };
 
-            // Aplica a perícia primária e secundária
-            aplicarTreino(origem.p1, "3");
-            aplicarTreino(origem.p2, "1");
+            // Aplica nas duas perícias da origem
+            if (origem.p1) aplicarTreino(origem.p1, "3");
+            if (origem.p2) aplicarTreino(origem.p2, "1");
 
+            // Atualiza a nova base financeira realista
             let ncAtualInput = document.getElementById('nivel-credito');
             ncAtualInput.value = origem.ncBase !== undefined ? origem.ncBase : -2; 
             
