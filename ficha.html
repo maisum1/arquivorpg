@@ -1250,6 +1250,7 @@
     }
     
     function atualizarCorSub(p, i, v) { 
+        // 1. Atualiza as cores da subperícia (Marrom, Azul, Vermelho)
         const row = document.getElementById(`row-sub-${p}-${i}`); 
         if(row) { 
             row.classList.remove('p-marrom', 'p-azul', 'p-vermelho'); 
@@ -1257,6 +1258,28 @@
             else if(v == "3" || v == "4") row.classList.add('p-azul'); 
             else if(v == "5") row.classList.add('p-vermelho'); 
         } 
+        
+        // 2. Rastreador automático: verifica se alguma subperícia tem valor maior que 0
+        let temTreino = false;
+        for (let j = 0; j <= 3; j++) {
+            let subSelect = document.getElementById(`sub-treino-${p}-${j}`);
+            if (subSelect && parseInt(subSelect.value) > 0) {
+                temTreino = true;
+                break; // Se achar pelo menos uma treinada, já marca a base como true
+            }
+        }
+        
+        // 3. Aplica a regra de sobreposição na Perícia Base
+        let baseTreino = document.getElementById(`base-treino-${p}`);
+        if (baseTreino) {
+            let novoStatus = temTreino ? "true" : "false";
+            
+            // Altera o select principal automaticamente
+            baseTreino.value = novoStatus;
+            
+            // Pinta ou despinta o nome da perícia principal
+            atualizarTreinoBase(p, novoStatus);
+        }
     }
     
     function atualizarOpcoesRessonancia(nx) { const r = document.getElementById('grau-ressonancia'); if (!r) return; const v = r.value; let o = ''; const ef = isExtremos || globalExtremos; if (nx === 0 && (isRestricao || globalRestricao)) o += `<option value="Nulo">Nulo</option>`; else { o += `<option value="1º Grau">1º Grau</option><option value="2º Grau">2º Grau</option><option value="3º Grau">3º Grau</option><option value="4º Grau">4º Grau</option><option value="5º Grau">5º Grau</option>`; if (nx >= 100 && ef) o += `<option value="I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡" style="font-family:'Special Elite', monospace;">I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡</option>`; } r.innerHTML = o; if (o.includes(`value="${v}"`)) r.value = v; else r.value = (nx === 0 && (isRestricao || globalRestricao)) ? 'Nulo' : '5º Grau'; }
