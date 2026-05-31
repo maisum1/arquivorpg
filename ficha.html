@@ -1259,26 +1259,28 @@
             else if(v == "5") row.classList.add('p-vermelho'); 
         } 
         
-        // 2. Rastreador automático: verifica se alguma subperícia tem valor maior que 0
+        // --- TRAVA DE SEGURANÇA ---
+        // Se a ficha estiver apenas carregando os dados, ignora o resto!
+        if (window.isCarregandoFicha) return;
+
+        // 2. Rastreador automático
         let temTreino = false;
         for (let j = 0; j <= 3; j++) {
             let subSelect = document.getElementById(`sub-treino-${p}-${j}`);
             if (subSelect && parseInt(subSelect.value) > 0) {
                 temTreino = true;
-                break; // Se achar pelo menos uma treinada, já marca a base como true
+                break; 
             }
         }
         
-        // 3. Aplica a regra de sobreposição na Perícia Base
+        // 3. Aplica a regra na Base
         let baseTreino = document.getElementById(`base-treino-${p}`);
         if (baseTreino) {
             let novoStatus = temTreino ? "true" : "false";
-            
-            // Altera o select principal automaticamente
-            baseTreino.value = novoStatus;
-            
-            // Pinta ou despinta o nome da perícia principal
-            atualizarTreinoBase(p, novoStatus);
+            if (baseTreino.value !== novoStatus) {
+                baseTreino.value = novoStatus;
+                atualizarTreinoBase(p, novoStatus);
+            }
         }
     }
     
@@ -1368,7 +1370,11 @@
 
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
-            const d_raw = doc.data(); if(!d_raw) return;
+            window.isCarregandoFicha = true; // <--- TRAVA O RASTREADOR
+            
+            const d_raw = doc.data(); 
+            if(!d_raw) { window.isCarregandoFicha = false; return; }
+            
             const dD = d_raw.dono; if (auth.currentUser && dD !== auth.currentUser.uid) document.getElementById('btn-assumir-posse').style.display = 'block'; else document.getElementById('btn-assumir-posse').style.display = 'none';
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false; isRestricao = d_raw.restricao || false;
             const hF = isHexatombe || globalHexatombe; let d = d_raw;
@@ -1430,12 +1436,9 @@
             
             if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false; if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false; if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false; if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false; if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false; if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
             
-            // CARREGAMENTO DOS ESTADOS E TAGS
             statusAcumulados = d.statusAcumulados || [];
             if (!Array.isArray(statusAcumulados)) statusAcumulados = [];
-            if (statusAcumulados.length === 0 && d.statusPersonagem && d.statusPersonagem !== 'Normal') {
-                statusAcumulados = [d.statusPersonagem];
-            }
+            if (statusAcumulados.length === 0 && d.statusPersonagem && d.statusPersonagem !== 'Normal') { statusAcumulados = [d.statusPersonagem]; }
             document.getElementById('status-personagem').value = d.statusPersonagem || 'Normal';
             renderStatusTags();
             
@@ -1476,6 +1479,8 @@
             document.getElementById('bgDescricao').value = d_raw.bgDescricao || ""; document.getElementById('bgIdeologia').value = d_raw.bgIdeologia || ""; document.getElementById('bgPessoas').value = d_raw.bgPessoas || ""; document.getElementById('bgLocais').value = d_raw.bgLocais || ""; document.getElementById('bgPosses').value = d_raw.bgPosses || ""; document.getElementById('bgTracos').value = d_raw.bgTracos || ""; document.getElementById('bgCicatrizes').value = d_raw.bgCicatrizes || ""; document.getElementById('bgFobias').value = d_raw.bgFobias || ""; document.getElementById('bgEncontros').value = d_raw.bgEncontros || ""; document.getElementById('campanhaId-config').value = d_raw.campanhaId || "";
 
             recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); 
+            
+            window.isCarregandoFicha = false; // <--- LIBERA O RASTREADOR
         });
     }
 
