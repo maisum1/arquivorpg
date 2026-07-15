@@ -186,7 +186,7 @@
     <button id="btn-engrenagem" class="btn-config" style="display: none;" onclick="toggleModal('modal-config')" title="Configurações do Jogador">⚙️</button>
     <button id="btn-admin" class="btn-admin" onclick="abrirGerenciadorMestres()" title="Painel do Super Admin">🛡️</button>
     <button id="btn-admin-manutencao" class="btn-admin" style="display: none; margin-left: 5px;" onclick="abrirGerenciadorMestres()" title="Setar Admins (Manutenção)">🔰</button>
-
+    
     <div id="login-screen">
         <div>
             <h1>A.R.Q.U.I.V.O.</h1>
@@ -323,10 +323,8 @@
                         <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
                         <p style="font-size: 11px; color: var(--cor-geral); margin: 0; font-family: 'Inter', sans-serif;">Alterações globais nas fichas.</p>
                     </div>
-                    <div style="display: flex; gap: 10px; width: 100%;">
-                <button id="btn-manutencao" class="btn-google" style="border-color: #f39c12; color: #f39c12; flex: 1;" onclick="toggleManutencao()">[ 🛠️ ] MANUTENÇÃO</button>
-                <button id="btn-raio-x" class="btn-google" style="border-color: var(--op-ink); color: var(--op-ink); flex: 1;" onclick="toggleRaioX()">[ 🩻 ] MODO RAIO-X</button>
-            </div>
+                    <button id="btn-manutencao" class="btn-google" style="border-color: #f39c12; color: #f39c12; display: inline-block; width: calc(50% - 5px); margin-right: 5px; box-sizing: border-box; vertical-align: middle;" onclick="toggleManutencao()">[ 🛠️ ] MANUTENÇÃO</button>
+                    <button id="btn-raio-x" class="btn-google" style="border-color: var(--op-ink); color: var(--op-ink); display: inline-block; width: calc(50% - 5px); margin-left: 5px; box-sizing: border-box; vertical-align: middle;" onclick="toggleRaioX()">[ 🩻 ] MODO RAIO-X</button>
                 </div>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
@@ -969,7 +967,7 @@
         }
 
         // ==========================================
-        // MOTOR GLOBAL DE MANUTENÇÃO
+        // MOTOR GLOBAL DE MANUTENÇÃO (RESTAURADO)
         // ==========================================
         (function() {
             const blocker = document.createElement('div');
@@ -988,8 +986,12 @@
 
             firebase.auth().onAuthStateChanged(async (user) => {
                 if (user && user.email) {
-                    const doc = await db.collection("mestres").doc(user.email).get();
-                    isAdminCollection = doc.exists;
+                    try {
+                        const doc = await db.collection("mestres").doc(user.email).get();
+                        isAdminCollection = doc.exists;
+                    } catch(e) {
+                        isAdminCollection = false;
+                    }
                 } else {
                     isAdminCollection = false;
                 }
@@ -999,11 +1001,12 @@
             db.collection("configuracoes").doc("sistema").onSnapshot(doc => {
                 emManutencao = doc.exists && doc.data().manutencao === true;
                 atualizarTelaManutencao();
-            });
+            }, err => console.log("Manutencao offline"));
 
             function atualizarTelaManutencao() {
                 let checarSuperAdmin = false;
                 if (typeof isSuperAdmin !== 'undefined' && isSuperAdmin === true) checarSuperAdmin = true;
+                if (typeof window.isSuperAdmin !== 'undefined' && window.isSuperAdmin === true) checarSuperAdmin = true;
                 
                 const mestreIdentificado = isAdminCollection || checarSuperAdmin;
 
