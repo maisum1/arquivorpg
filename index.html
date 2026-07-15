@@ -967,7 +967,7 @@
         }
 
         // ==========================================
-        // MOTOR GLOBAL DE MANUTENÇÃO
+        // MOTOR GLOBAL DE MANUTENÇÃO (CORRIGIDO ADMIN)
         // ==========================================
         (function() {
             // Cria a tela preta bloqueadora dinamicamente para não quebrar layouts originais
@@ -1004,8 +1004,16 @@
             });
 
             function atualizarTelaManutencao() {
+                // CAPTURA A SUA VARIÁVEL HARDCODED DE SUPER ADMIN DO SEU CÓDIGO
+                let checarSuperAdmin = false;
+                if (typeof isSuperAdmin !== 'undefined' && isSuperAdmin === true) checarSuperAdmin = true;
+                if (typeof window.isSuperAdmin !== 'undefined' && window.isSuperAdmin === true) checarSuperAdmin = true;
+
+                // SE FOR ADMIN NO BANCO OU SUPER ADMIN NO CÓDIGO, LIBERA OPÇÕES
+                const mestreIdentificado = isAdmin || checarSuperAdmin;
+
                 if (emManutencao) {
-                    if (isAdmin) {
+                    if (mestreIdentificado) {
                         blocker.style.display = "none";
                         contour.style.display = "block"; // Ativa o contorno verde na tela do admin
                     } else {
