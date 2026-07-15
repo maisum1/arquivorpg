@@ -293,8 +293,17 @@
 
         /* Modal customizado acompanhando claro/escuro */
         .modal-padrao { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-paper); border: 1px solid var(--op-ink); padding: 25px; z-index: 1000; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border-radius: 2px; max-height: 90vh; overflow-y: auto; color: var(--op-ink); font-family: 'Inter', sans-serif;}
-        .modal-padrao h3 { font-family: 'Crimson Text', serif !important; color: var(--op-ink) !important; margin-top: 0; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;}
-        body.tema-escuro .modal-padrao h3 { color: var(--accent-gold) !important; }
+        .modal-padrao h3 {
+            background: var(--op-ink);
+            color: var(--bg-paper) !important; /* Garante o contraste perfeito em qualquer tema */
+            padding: 10px;
+            margin: -25px -25px 20px -25px;
+            font-family: 'Crimson Text', serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--card-border);
+        }        body.tema-escuro .modal-padrao h3 { color: var(--accent-gold) !important; }
         
         .rit-input { background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 16px; outline: none; padding: 3px 0; transition: 0.2s; width:100%; box-sizing:border-box; margin-bottom: 10px;}
         .rit-input:focus { border-bottom: 1px solid var(--op-red); }
@@ -381,33 +390,34 @@
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações">⚙️</button>
 
 <div id="modal-config" class="modal-padrao">
-    <h3 class="section-header" style="width: 100%; display: block; box-sizing: border-box;">CONFIGURAÇÕES</h3>
-    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; margin-top: 15px;">
-
-         </div>
-    
-        <!-- Botão que revela os links do Livro do Sistema -->
-        <button onclick="toggleElem('botoes-livro')" class="cris-btn" style="border-color: var(--op-ink); color: var(--op-ink); width: 100%; border-width: 2px;">[ 📚 ] CONSULTAR LIVRO DO SISTEMA</button>
-        
-        <!-- Div oculta com os links diretos para os livros -->
-        <div id="botoes-livro" style="display: none; flex-direction: column; gap: 12px; padding: 12px; border: 1px dashed var(--card-border); background: var(--card-bg); border-radius: 2px;">
-            <button onclick="window.open('https://online.fliphtml5.com/zhbar/dpbd/', '_blank')" class="cris-btn" style="width: 100%;">[ 📖 ] LIVRO DIGITAL (FLIP5)</button>
-            <button onclick="window.open('https://drive.google.com/file/d/1XiXhwX3fcWlz-r7_aBUv-rurL4peaORT/view?usp=drive_link', '_blank')" class="cris-btn" style="border-style: dotted; color: var(--cor-geral); width: 100%;">[ 📄 ] ARQUIVO PDF (ONLINE)</button>
+            <h3>CONFIGURAÇÕES</h3>
+            <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 20px; font-family: 'Inter', sans-serif;">Configurações exclusivas deste terminal de visualização.</p>
+            
+            <button onclick="toggleElem('modal-config'); toggleElem('modal-livro')" class="cris-btn" style="border-color: var(--op-ink); color: var(--op-ink); width: 100%; margin-bottom: 10px; border-width: 2px;">[ 📚 ] CONSULTAR LIVRO DO SISTEMA</button>
+            
+            <button onclick="toggleElem('modal-config'); toggleElem('modal-transmissao')" class="cris-btn" style="border-color: var(--op-ink); color: var(--op-ink); width: 100%; border-width: 2px; margin-bottom: 10px;">[ 📡 ] AJUSTES DE TRANSMISSÃO</button>
+            
+            <div style="border-top: 1px dotted var(--card-border); margin-top: 20px; padding-top: 20px;">
+                <div style="text-align:left; font-size:9px; color:var(--cor-geral); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Comandos (Mobile)</div>
+                <input type="password" id="input-cheat" class="rit-input" placeholder="Comando...">
+                <button class="cris-btn" onclick="verificarCheat()" style="width: 100%; margin-top: 5px;">EXECUTAR COMANDO</button>
+            </div>
+            <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
         </div>
-    
-    <div style="border-top: 1px dotted var(--card-border); margin-top: 20px; padding-top: 20px;">
-        <div style="text-align:left; font-size:9px; color:var(--san-purple); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-weight: bold;">Vincular à Campanha</div>
-        <input type="text" id="campanhaId-config" class="rit-input" placeholder="Código..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box;" onchange="salvarFicha()">
-    </div>
 
-    <div style="border-top: 1px dotted var(--card-border); margin-top: 10px; padding-top: 20px;">
-        <div style="text-align:left; font-size:9px; color:var(--cor-geral); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Painel de Comandos (Mobile)</div>
-        <input type="password" id="input-cheat" class="rit-input" placeholder="Comando..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box;">
-        <button class="cris-btn" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
-    </div>
+        <div id="modal-livro" class="modal-padrao">
+            <h3>LIVRO DO SISTEMA</h3>
+            <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 20px; font-family: 'Inter', sans-serif;">Selecione o formato de leitura desejado:</p>
+            
+            <button class="cris-btn" onclick="window.open('SUA_URL_DO_FLIP5_AQUI', '_blank')" style="width: 100%; border-color: var(--san-purple); color: var(--san-purple); margin-bottom: 10px; font-size: 12px;">[ 📖 ] ABRIR NO FLIP5</button>
+            
+            <button class="cris-btn" onclick="window.open('SUA_URL_DO_PDF_AQUI', '_blank')" style="width: 100%; border-color: var(--op-red); color: var(--op-red); font-size: 12px;">[ 📄 ] ABRIR EM PDF</button>
+            
+            <button onclick="toggleElem('modal-livro'); toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px;">VOLTAR</button>
+        </div>
 
-    <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
-</div>
+            <button onclick="toggleElem('crop-modal'); toggleElem('modal-transmissao')" style="width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px;">VOLTAR</button>
+        </div>
 
 <a href="index.html" class="voltar-btn">FECHAR ARQUIVO</a>
 
