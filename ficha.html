@@ -413,7 +413,7 @@
     
     <div style="border-top: 1px dotted var(--card-border); margin-top: 20px; padding-top: 20px;">
         <div style="text-align:left; font-size:9px; color:var(--san-purple); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-weight: bold;">Vincular à Campanha</div>
-        <input type="text" id="campanhaId-config" class="rit-input" placeholder="Código..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box;" onchange="salvarFicha()">
+        <input type="text" id="campanhaId-config" class="rit-input" placeholder="Cole o código aqui..." style="width:100%; text-align:center; font-size: 14px; margin-bottom: 10px; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box;" onchange="vincularCampanhaPelaFicha(this.value)">
     </div>
 
     <div style="border-top: 1px dotted var(--card-border); margin-top: 10px; padding-top: 20px;">
@@ -1868,6 +1868,49 @@
     async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este registro?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
     
     auth.onAuthStateChanged(user => { if (user) init(); else { alert("Sessão expirada."); window.location.href = "index.html"; } });
+
+    async function vincularCampanhaPelaFicha(codigoBruto) {
+    const codigo = codigoBruto.trim().toUpperCase();
+    
+    // Se o jogador apagou o código, desvincula a ficha limpando os campos
+    if (!codigo) {
+        await db.collection("fichas").doc(atual).update({
+            campanhaId: null,
+            campanhaNome: null,
+            campanhaOculta: null
+        });
+        alert("Ficha desvinculada da campanha!");
+        return;
+    }
+
+    try {
+        // Busca a campanha correspondente ao código no Firebase
+        const snap = await db.collection("campanhas").where("codigo", "==", codigo).get();
+        
+        if (snap.empty) {
+            alert("Código Inválido: Nenhuma campanha encontrada com este código.");
+            document.getElementById('campanhaId-config').value = "";
+            return;
+        }
+
+        // Recupera os dados reais da campanha encontrados
+        const dadosCampanha = snap.docs[0].data();
+        const nomeCampanha = dadosCampanha.nome || "Campanha Sem Nome";
+        const oculta = dadosCampanha.ocultarNome || false;
+
+        // Salva a ficha com todos os parâmetros corretos idêntico ao processo do Hub
+        await db.collection("fichas").doc(atual).update({
+            campanhaId: codigo,
+            campanhaNome: nomeCampanha,
+            campanhaOculta: oculta
+        });
+
+        alert(`Sintonizado com sucesso na campanha: ${oculta ? '[ CONFIDENCIAL ]' : nomeCampanha}`);
+    } catch (error) {
+        console.error("Erro ao vincular campanha:", error);
+        alert("Erro ao conectar com o servidor de arquivos.");
+    }
+}
 </script>
     
 <script>
