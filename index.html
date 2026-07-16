@@ -336,25 +336,27 @@
 
         <div id="hub-mestre" class="conteudo-hub" style="display:none;">
             <div class="mestre-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
-    <div>
-        <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
-        <p style="font-size: 11px; color: var(--cor-geral); margin: 0; font-family: 'Inter', sans-serif;">Alterações globais nas fichas.</p>
+                <div id="painel-diretor-global" style="display: none; margin-bottom: 25px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <h3 style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; margin-top: 0; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">⚙️ Controle Diretor</h3>
+            <p style="font-size: 11px; color: var(--cor-geral); margin: 0; font-family: 'Inter', sans-serif;">Alterações globais nas fichas.</p>
+        </div>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="btn-manutencao" class="mestre-btn" style="border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleManutencao()">[ 🛠️ MANUTENÇÃO ]</button>
+            <button id="btn-raiox" class="mestre-btn" style="border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleRaioX()">[ 👁️‍🗨️ MODO RAIO-X ]</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <button id="btn-global-revelado" onclick="toggleGlobal('revelado')" class="mestre-btn">[ 👁️ ERGUER O VÉU ]</button>
+        <button id="btn-global-extremos" onclick="toggleGlobal('extremos')" class="mestre-btn red">[ 🩸 ATIVAR 100% NEX ]</button>
+        <button id="btn-global-hexatombe" onclick="toggleGlobal('hexatombe')" class="mestre-btn red" style="border-style: solid;">[ 💀 PROTOCOLO HEXATOMBE ]</button>
     </div>
     
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <button id="btn-manutencao" class="mestre-btn" style="display:none; border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleManutencao()">[🛠️] MANUTENÇÃO</button>
-        
-        <button id="btn-raiox" class="mestre-btn" style="display:none; border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleRaioX()">[👁️‍🗨️] MODO RAIOX</button>
-    </div>
 </div>
-                
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-    <button id="btn-global-revelado" onclick="toggleGlobal('revelado')" class="mestre-btn">[ 👁️ ERGUER O VÉU ]</button>
-    <button id="btn-global-extremos" onclick="toggleGlobal('extremos')" class="mestre-btn red">[ 🩸 ATIVAR 100% NEX ]</button>
-    <button id="btn-global-hexatombe" onclick="toggleGlobal('hexatombe')" class="mestre-btn red" style="border-style: solid;">[ 💀 PROTOCOLO HEXATOMBE ]</button>
-</div>
-            </div>
             
             <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral); text-align: left; margin-bottom: 5px;">MONITOR GERAL</h4>
             <div id="monitor-fichas" class="grid" style="margin-top: 0; margin-bottom: 20px;"></div>
@@ -525,6 +527,9 @@
                 
                 if(isSuperAdmin) {
                     document.getElementById('btn-admin').style.display = 'block';
+                    // Revela a caixa inteira de Controle Diretor APENAS para você
+                    const painelDiretor = document.getElementById('painel-diretor-global');
+                    if(painelDiretor) painelDiretor.style.display = 'block';
                     document.getElementById('btn-raiox').style.display = 'inline-block';
                     document.getElementById('btn-manutencao').style.display = 'inline-block';
                     isMestre = true;
