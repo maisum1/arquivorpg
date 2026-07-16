@@ -1913,50 +1913,61 @@
 }
 
     // ==========================================
-        // MOTOR GLOBAL DE MANUTENÇÃO (CORRIGIDO ADMIN)
+        // MOTOR GLOBAL DE MANUTENÇÃO (ATUALIZADO)
         // ==========================================
         (function() {
-            // Cria a tela preta bloqueadora dinamicamente para não quebrar layouts originais
             const blocker = document.createElement('div');
             blocker.id = 'global-manutencao-blocker';
             blocker.style.cssText = "position: fixed; inset: 0; background: #0c0c0c; color: #fff; z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; font-family: 'Courier New', monospace; pointer-events: auto;";
             blocker.innerHTML = "<h1 style='color: #9e0b0f; font-size: 28px; letter-spacing: 3px; text-align: center; margin: 0;'>[ EM MANUTENÇÃO... ]</h1><p style='color: #666; font-size: 12px; margin-top: 10px; font-family: sans-serif; text-align: center;'>O terminal está temporariamente isolado para ajustes.</p>";
             document.body.appendChild(blocker);
 
-            // Cria o contorno verde de aviso para os Admins
             const contour = document.createElement('div');
             contour.id = 'global-manutencao-contour';
             contour.style.cssText = "position: fixed; inset: 0; border: 4px solid #2ecc71; pointer-events: none; z-index: 9999998; display: none; box-sizing: border-box;";
             document.body.appendChild(contour);
 
-            let isAdmin = false;
+            let isAdminCollection = false;
             let emManutencao = false;
+            let listaAdminsManutencao = [];
+            let meuEmailAtual = "";
 
-            // Vigia o login do usuário para checar se ele está na lista de mestres
+            // Vigia o login do usuário para capturar o email real
             firebase.auth().onAuthStateChanged(async (user) => {
+                meuEmailAtual = user ? user.email.toLowerCase() : "";
                 if (user && user.email) {
-                    const doc = await db.collection("mestres").doc(user.email).get();
-                    isAdmin = doc.exists;
+                    try {
+                        const doc = await db.collection("mestres").doc(user.email).get();
+                        isAdminCollection = doc.exists;
+                    } catch(e) { isAdminCollection = false; }
                 } else {
-                    isAdmin = false;
+                    isAdminCollection = false;
                 }
                 atualizarTelaManutencao();
             });
 
-            // Escuta em tempo real o estado de manutenção armazenado no Firebase
+            // Escuta em tempo real o estado de manutenção e a lista de admins
             db.collection("configuracoes").doc("sistema").onSnapshot(doc => {
-                emManutencao = doc.exists && doc.data().manutencao === true;
+                if (doc.exists) {
+                    const dados = doc.data();
+                    emManutencao = dados.manutencao === true;
+                    listaAdminsManutencao = dados.listaAdmins || [];
+                } else {
+                    emManutencao = false;
+                    listaAdminsManutencao = [];
+                }
                 atualizarTelaManutencao();
             });
 
             function atualizarTelaManutencao() {
-                // CAPTURA A SUA VARIÁVEL HARDCODED DE SUPER ADMIN DO SEU CÓDIGO
-                let checarSuperAdmin = false;
-                if (typeof isSuperAdmin !== 'undefined' && isSuperAdmin === true) checarSuperAdmin = true;
-                if (typeof window.isSuperAdmin !== 'undefined' && window.isSuperAdmin === true) checarSuperAdmin = true;
+                // Checa o email fixo do super admin
+                const isSuperAdminEmail = meuEmailAtual === "pedroacpr@gmail.com";
+                
+                // Checa se o email atual foi adicionado pelo painel do Hub
+                const isNaListaManutencao = meuEmailAtual && listaAdminsManutencao.includes(meuEmailAtual);
 
-                // SE FOR ADMIN NO BANCO OU SUPER ADMIN NO CÓDIGO, LIBERA OPÇÕES
-                const mestreIdentificado = isAdmin || checarSuperAdmin;
+                // Libera se o usuário for Mestre no banco, Super Admin ou estiver na lista de manutenção
+                const mestreIdentificado = isAdminCollection || isSuperAdminEmail || isNaListaManutencao;
 
                 if (emManutencao) {
                     if (mestreIdentificado) {
@@ -1970,71 +1981,9 @@
                     blocker.style.display = "none";
                     contour.style.display = "none";
                 }
-
-                // Atualiza o comportamento dos botões (só roda se existirem na página atual, no caso, o Hub)
-                const btnManu = document.getElementById('btn-manutencao');
-                const btnSetAdmin = document.getElementById('btn-admin-manutencao');
-                if (btnManu) {
-                    if (emManutencao) {
-                        btnManu.innerText = "[ 🛠️ ] DESATIVAR MODO MANUTENÇÃO";
-                        btnManu.style.borderColor = "#9e0b0f";
-                        btnManu.style.color = "#9e0b0f";
-                        if (btnSetAdmin) btnSetAdmin.style.display = "inline-block"; // Botão extra aparece
-                    } else {
-                        btnManu.innerText = "[ 🛠️ ] ATIVAR MODO MANUTENÇÃO";
-                        btnManu.style.borderColor = "#f39c12";
-                        btnManu.style.color = "#f39c12";
-                        if (btnSetAdmin) btnSetAdmin.style.display = "none";         // Botão extra some
-                    }
-                }
-            }
-
-            // Função de clique com as caixas de confirmação nativas do navegador
-            window.toggleManutencao = async function() {
-                if (emManutencao) {
-                    if (confirm("ATENÇÃO: Deseja DESATIVAR o modo manutenção? O sistema voltará a ficar aberto para todos os jogadores normais.")) {
-                        await db.collection("configuracoes").doc("sistema").set({ manutencao: false }, { merge: true });
-                    }
-                } else {
-                    if (confirm("ATENÇÃO: Deseja ATIVAR o modo manutenção? Todos os jogadores conectados em qualquer ficha ou página serão bloqueados IMEDIATAMENTE.")) {
-                        await db.collection("configuracoes").doc("sistema").set({ manutencao: true }, { merge: true });
-                    }
-                }
             }
         })();
         // ==========================================
-    
-</script>
-    
-<script>
-    // TRAVA DE MODO VISUALIZAÇÃO
-    window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('view') === 'true') {
-            
-            // 1. Desliga o motor de salvamento e os comandos secretos
-            window.ativarSegredo = function() { console.log('Bloqueado'); return false; };
-            window.verificarCheat = function() { console.log('Bloqueado'); return false; };
-            window.salvarFicha = function() { return false; };
-            
-            // 2. Cria um estilo bloqueador visual
-            const lockStyle = document.createElement('style');
-            lockStyle.innerHTML = `
-                input, textarea, select { pointer-events: none !important; }
-                .cris-textarea { pointer-events: auto !important; } /* Permite scroll no textarea */
-                .btn-criar, .btn-add, .btn-del, .bar-btn, .btn-status-action, .btn-config, #btn-assumir-posse, .btn-curar, .val-btn, .it-round, .ex-round { display: none !important; }
-                .portrait-box, .rit-symbol-box { pointer-events: none !important; }
-                #label-portrait { display: none !important; }f
-                #status-tags span { display: none !important; } /* Remove o [X] de apagar as condicoes */
-            `;
-            document.head.appendChild(lockStyle);
-            
-            // 3. Congela os textos grandes
-            setTimeout(() => {
-                document.querySelectorAll('.cris-textarea').forEach(el => { el.readOnly = true; el.style.outline = 'none'; });
-            }, 500);
-        }
-    });
 </script>
 </body>
 </html>
