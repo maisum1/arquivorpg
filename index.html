@@ -990,7 +990,7 @@
         }
 
         // ==========================================
-        // MOTOR GLOBAL DE MANUTENÇÃO (HUB VISUAL)
+        // MOTOR GLOBAL DE MANUTENÇÃO (VERSÃO DEFINITIVA)
         // ==========================================
         (function() {
             const blocker = document.createElement('div');
@@ -1001,20 +1001,27 @@
 
             const contour = document.createElement('div');
             contour.id = 'global-manutencao-contour';
-            contour.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: 4px solid #2ecc71; pointer-events: none; z-index: 9999998; display: none; box-sizing: border-box;";
+            contour.style.cssText = "position: fixed; inset: 0; border: 4px solid #2ecc71; pointer-events: none; z-index: 9999998; display: none; box-sizing: border-box;";
             document.body.appendChild(contour);
 
+            // Variáveis agora corretamente declaradas no escopo global do motor
             let isAdminCollection = false;
             let emManutencao = false;
+            let listaAdminsManutencao = [];
+            let meuEmailAtual = "";
 
+            // Vigia o login do usuário para capturar o email real e checar se é Mestre ATIVO
             firebase.auth().onAuthStateChanged(async (user) => {
                 meuEmailAtual = user ? user.email.toLowerCase() : "";
                 if (user && user.email) {
                     try {
                         const doc = await db.collection("mestres").doc(user.email).get();
-                        isAdminCollection = doc.exists;
+                        // CORREÇÃO: Confere se o doc existe E se o mestre não foi revogado
+                        isAdminCollection = doc.exists && doc.data().ativo === true;
                     } catch(e) { isAdminCollection = false; }
-                } else { isAdminCollection = false; }
+                } else { 
+                    isAdminCollection = false; 
+                }
                 atualizarTelaManutencao();
             });
 
@@ -1028,22 +1035,26 @@
                     listaAdminsManutencao = [];
                 }
                 atualizarTelaManutencao();
-                renderizarListaAdminsHub();
+                
+                // Atualiza a lista visual apenas se a função existir (evita erros na ficha/ameaça)
+                if (typeof renderizarListaAdminsHub === 'function') {
+                    renderizarListaAdminsHub();
+                }
             });
 
             function atualizarTelaManutencao() {
-                let checarSuperAdmin = false;
-                if (typeof isSuperAdmin !== 'undefined' && isSuperAdmin === true) checarSuperAdmin = true;
-                if (typeof window.isSuperAdmin !== 'undefined' && window.isSuperAdmin === true) checarSuperAdmin = true;
-                
-                const mestreIdentificado = isAdminCollection || checarSuperAdmin || (meuEmailAtual && listaAdminsManutencao.includes(meuEmailAtual));
+                const isSuperAdminEmail = meuEmailAtual === "pedroacpr@gmail.com";
+                const isNaListaManutencao = meuEmailAtual && listaAdminsManutencao.includes(meuEmailAtual);
+
+                // Libera apenas se for Mestre Ativo, Super Admin, ou estiver na lista branca
+                const mestreIdentificado = isAdminCollection || isSuperAdminEmail || isNaListaManutencao;
 
                 if (emManutencao) {
                     if (mestreIdentificado) {
                         blocker.style.display = "none";
-                        contour.style.display = "block";
+                        contour.style.display = "block"; // Contorno verde
                     } else {
-                        blocker.style.display = "flex";
+                        blocker.style.display = "flex";  // Tela preta de bloqueio
                         contour.style.display = "none";
                     }
                 } else {
@@ -1051,83 +1062,22 @@
                     contour.style.display = "none";
                 }
 
+                // Ajusta as cores do botão no Hub (se o botão existir na página)
                 const btnManu = document.getElementById('btn-manutencao');
-                const btnSetAdmin = document.getElementById('btn-admin-manutencao');
                 if (btnManu) {
                     if (emManutencao) {
-                        btnManu.innerText = "[🛠️] DESATIVAR";
+                        btnManu.innerText = "[ 🛠️ MANUTENÇÃO ATIVA ]";
                         btnManu.style.borderColor = "#9e0b0f";
                         btnManu.style.color = "#9e0b0f";
-                        if (btnSetAdmin) btnSetAdmin.style.display = "inline-block";
                     } else {
-                        btnManu.innerText = "[🛠️] MANUTENÇÃO";
-                        btnManu.style.borderColor = "#f39c12";
-                        btnManu.style.color = "#f39c12";
-                        if (btnSetAdmin) btnSetAdmin.style.display = "none";
+                        btnManu.innerText = "[ 🛠️ MANUTENÇÃO ]";
+                        btnManu.style.borderColor = "#fff";
+                        btnManu.style.color = "#fff";
                     }
                 }
             }
 
-            // FUNÇÕES DE CONTROLE DO NOVO HUB VISUAL
-            window.abrirHubAdmins = function() {
-                document.getElementById('modal-admins-sistema').style.display = 'block';
-                renderizarListaAdminsHub();
-            };
-
-            window.fecharHubAdmins = function() {
-                document.getElementById('modal-admins-sistema').style.display = 'none';
-            };
-
-            function renderizarListaAdminsHub() {
-                const container = document.getElementById('lista-admins-manutencao-container');
-                if (!container) return;
-                container.innerHTML = "";
-
-                if (listaAdminsManutencao.length === 0) {
-                    container.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:20px; font-family:sans-serif;'>Nenhum administrador cadastrado para manutenção.</div>";
-                    return;
-                }
-
-                listaAdminsManutencao.forEach(email => {
-                    const row = document.createElement('div');
-                    // Estilo de Card idêntico ao do banco de dados/mestres do seu site
-                    row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px dotted var(--card-border); background: var(--card-bg); margin-bottom: 8px; border-radius: 2px;";
-                    row.innerHTML = `
-                        <span style="font-family: 'Courier New', monospace; font-size: 13px; color: var(--cor-geral); word-break: break-all; padding-right: 10px;">${email}</span>
-                        <span class="material-icons" style="color: var(--op-red); cursor: pointer; font-size: 18px; select-layout: none;" onclick="removerAdminPeloHub('${email}')" title="Revogar permissões de Admin">delete</span>
-                    `;
-                    container.appendChild(row);
-                });
-            }
-
-            window.adicionarAdminPeloHub = async function() {
-                const input = document.getElementById('input-novo-admin-email');
-                const email = input.value.trim().toLowerCase();
-                if (!email) return;
-
-                if (listaAdminsManutencao.includes(email)) {
-                    alert("Este e-mail já possui credenciais de administrador.");
-                    return;
-                }
-
-                try {
-                    await db.collection("configuracoes").doc("sistema").update({
-                        listaAdmins: firebase.firestore.FieldValue.arrayUnion(email)
-                    });
-                    input.value = "";
-                } catch (e) { alert("Falha ao salvar permissão."); }
-            };
-
-            window.removerAdminPeloHub = async function(email) {
-                if (confirm(`Deseja revogar permanentemente o acesso do admin: ${email}?`)) {
-                    try {
-                        await db.collection("configuracoes").doc("sistema").update({
-                            listaAdmins: firebase.firestore.FieldValue.arrayRemove(email)
-                        });
-                    } catch (e) { alert("Falha ao remover permissão."); }
-                }
-            };
-
+            // Atrela a função de ligar/desligar ao escopo global (usada no botão do Hub)
             window.toggleManutencao = async function() {
                 if (emManutencao) {
                     if (confirm("ATENÇÃO: Deseja DESATIVAR o modo manutenção? O sistema voltará a ficar aberto para todos os jogadores normais.")) {
