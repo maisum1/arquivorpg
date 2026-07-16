@@ -350,10 +350,10 @@
 </div>
                 
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <button onclick="toggleGlobal('revelado')" class="mestre-btn">[ 👁️ ERGUER O VÉU ]</button>
-                    <button onclick="toggleGlobal('extremos')" class="mestre-btn red">[ 🩸 ATIVAR 100% NEX ]</button>
-                    <button onclick="toggleGlobal('hexatombe')" class="mestre-btn red" style="border-style: solid;">[ 💀 PROTOCOLO HEXATOMBE ]</button>
-                </div>
+    <button id="btn-global-revelado" onclick="toggleGlobal('revelado')" class="mestre-btn">[ 👁️ ERGUER O VÉU ]</button>
+    <button id="btn-global-extremos" onclick="toggleGlobal('extremos')" class="mestre-btn red">[ 🩸 ATIVAR 100% NEX ]</button>
+    <button id="btn-global-hexatombe" onclick="toggleGlobal('hexatombe')" class="mestre-btn red" style="border-style: solid;">[ 💀 PROTOCOLO HEXATOMBE ]</button>
+</div>
             </div>
             
             <h4 style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral); text-align: left; margin-bottom: 5px;">MONITOR GERAL</h4>
@@ -552,14 +552,60 @@
                 }
 
                 db.collection("configuracoes").doc("globais").onSnapshot(doc => { 
-                    if(doc.exists) { 
-                        globalRevelado = doc.data().revelado || false; 
-                        if (document.getElementById('lista-fichas')) {
-                            carregarFichasJogador(user.uid);
-                            if (isMestre) carregarMonitorMestre();
-                        }
-                    } 
-                });
+    if(doc.exists) { 
+        const dados = doc.data();
+        globalRevelado = dados.revelado || false; 
+        
+        // === ATUALIZAÇÃO VISUAL DOS BOTÕES GLOBAIS ===
+        const btnRev = document.getElementById('btn-global-revelado');
+        const btnExt = document.getElementById('btn-global-extremos');
+        const btnHex = document.getElementById('btn-global-hexatombe');
+
+        if (btnRev) {
+            if (dados.revelado) {
+                btnRev.innerText = "[ 👁️ VÉU ERGUIDO ]";
+                btnRev.style.background = "var(--op-ink)";
+                btnRev.style.color = "var(--bg-paper)";
+            } else {
+                btnRev.innerText = "[ 👁️ ERGUER O VÉU ]";
+                btnRev.style.background = ""; 
+                btnRev.style.color = "";
+            }
+        }
+
+        if (btnExt) {
+            if (dados.extremos) {
+                btnExt.innerText = "[ 🩸 100% ATIVADO ]";
+                btnExt.style.background = "var(--op-red)";
+                btnExt.style.color = "#fff";
+            } else {
+                btnExt.innerText = "[ 🩸 ATIVAR 100% NEX ]";
+                btnExt.style.background = "";
+                btnExt.style.color = "";
+            }
+        }
+
+        if (btnHex) {
+            if (dados.hexatombe) {
+                btnHex.innerText = "[ 💀 HEXATOMBE ATIVO ]";
+                btnHex.style.background = "var(--op-dark-red)";
+                btnHex.style.color = "#fff";
+                btnHex.style.borderColor = "var(--op-dark-red)";
+            } else {
+                btnHex.innerText = "[ 💀 PROTOCOLO HEXATOMBE ]";
+                btnHex.style.background = "";
+                btnHex.style.color = "";
+                btnHex.style.borderColor = "";
+            }
+        }
+        // =============================================
+
+        if (document.getElementById('lista-fichas')) {
+            carregarFichasJogador(user.uid);
+            if (isMestre) carregarMonitorMestre();
+        }
+    } 
+});
                 
             } else {
                 localStorage.setItem('cris_logado', 'false');
