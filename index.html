@@ -345,8 +345,8 @@
     </div>
     
     <div style="display: flex; gap: 10px; align-items: center;">
-        <button id="btn-manutencao" class="mestre-btn" style="border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleManutencao()">[ 🛠️ MANUTENÇÃO ]</button>
-        <button id="btn-raiox" class="mestre-btn" style="border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleRaioX()">[ 👁️‍🗨️ MODO RAIO-X ]</button>
+        <button id="btn-manutencao" class="mestre-btn" style="border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleManutencao()">[🛠️] MANUTENÇÃO</button>
+        <button id="btn-raiox" class="mestre-btn" style="border-color:#fff; color:#fff; background:#000; max-width: 200px;" onclick="toggleRaioX()">[👁️‍🗨️] MODO RAIOX</button>
     </div>
 </div>
 
@@ -1055,10 +1055,10 @@
             contour.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: 4px solid #2ecc71; pointer-events: none; z-index: 9999998; display: none; box-sizing: border-box;";
             document.body.appendChild(contour);
 
-            // Variáveis globais restauradas para impedir erros de carregamento do botão
+            // Variáveis declaradas de forma segura para não travar o script
             let isAdminCollection = false;
             let emManutencao = false;
-            let listaAdminsManutencao = []; 
+            let listaAdminsManutencao = [];
             let meuEmailAtual = "";
 
             firebase.auth().onAuthStateChanged(async (user) => {
@@ -1082,14 +1082,14 @@
                     listaAdminsManutencao = [];
                 }
                 atualizarTelaManutencao();
-                
-                if (typeof window.renderizarListaAdminsHub === 'function') {
-                    window.renderizarListaAdminsHub();
-                }
+                renderizarListaAdminsHub();
             });
 
             function atualizarTelaManutencao() {
-                let checarSuperAdmin = (meuEmailAtual === "pedroacpr@gmail.com");
+                // Validação de super-admin por e-mail específico (Você)
+                const checarSuperAdmin = (meuEmailAtual === "pedroacpr@gmail.com");
+                
+                // Mestres comuns e admins autorizados a entrar durante a manutenção
                 const mestreIdentificado = isAdminCollection || checarSuperAdmin || (meuEmailAtual && listaAdminsManutencao.includes(meuEmailAtual));
 
                 if (emManutencao) {
@@ -1105,25 +1105,28 @@
                     contour.style.display = "none";
                 }
 
-                // === ATUALIZAÇÃO VISUAL DOS BOTÕES DO HUB ===
+                // Ajusta o botão de liga/desliga manutenção no Hub
                 const btnManu = document.getElementById('btn-manutencao');
-                const btnSetAdmin = document.getElementById('btn-admin-manutencao'); // Captura o 🔰 que fica fixo no topo
-
                 if (btnManu) {
                     if (emManutencao) {
-                        btnManu.innerText = "[ 🛠️ MANUTENÇÃO ATIVA ]";
+                        btnManu.innerText = "[🛠️] MANUTENÇÃO ATIVA";
                         btnManu.style.borderColor = "#9e0b0f";
                         btnManu.style.color = "#9e0b0f";
-                        
-                        // Faz o botão 🔰 aparecer (ele usa display block)
-                        if (btnSetAdmin) btnSetAdmin.style.display = "block"; 
                     } else {
-                        btnManu.innerText = "[ 🛠️ MANUTENÇÃO ]";
+                        btnManu.innerText = "[🛠️] MANUTENÇÃO";
                         btnManu.style.borderColor = "#fff";
                         btnManu.style.color = "#fff";
-                        
-                        // Esconde o botão 🔰
-                        if (btnSetAdmin) btnSetAdmin.style.display = "none"; 
+                    }
+                }
+
+                // Lógica exclusiva para o botão de setar admins (🔰) que fica fixado no topo da tela
+                const btnSetAdmin = document.getElementById('btn-admin-manutencao');
+                if (btnSetAdmin) {
+                    // EXCLUSIVIDADE: Só aparece se a manutenção estiver ativa E se o usuário for pedroacpr@gmail.com
+                    if (emManutencao && checarSuperAdmin) {
+                        btnSetAdmin.style.display = "block";
+                    } else {
+                        btnSetAdmin.style.display = "none";
                     }
                 }
             }
@@ -1131,14 +1134,14 @@
             // FUNÇÕES DE CONTROLE DO HUB
             window.abrirHubAdmins = function() {
                 document.getElementById('modal-admins-sistema').style.display = 'block';
-                window.renderizarListaAdminsHub();
+                renderizarListaAdminsHub();
             };
 
             window.fecharHubAdmins = function() {
                 document.getElementById('modal-admins-sistema').style.display = 'none';
             };
 
-            window.renderizarListaAdminsHub = function() {
+            function renderizarListaAdminsHub() {
                 const container = document.getElementById('lista-admins-manutencao-container');
                 if (!container) return;
                 container.innerHTML = "";
