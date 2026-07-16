@@ -230,13 +230,14 @@
             <h3>GERENCIAR ADMINS</h3>
             <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Usuários autorizados a inspecionar o terminal durante o isolamento de manutenção.</p>
             
-            <div id="lista-admins-manutencao-container" style="max-height: 160px; overflow-y: auto; border: 1px dotted var(--card-border); padding: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.02); border-radius: 2px;">
+            <div id="lista-admins-manutencao-container" style="max-height: 200px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px;">
                 </div>
 
             <div style="border-top: 1px dotted var(--card-border); padding-top: 15px;">
-                <div style="text-align:left; font-size:9px; color:var(--op-red); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-weight: bold;">Conceder Novo Acesso de Admin</div>
-                <input type="email" id="input-novo-admin-email" class="rit-input" placeholder="Digite o e-mail do admin..." style="width:100%; text-align:center; font-size: 13px; margin-bottom: 10px; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box;">
-                <button class="btn-google" onclick="adicionarAdminPeloHub()" style="width: 100%; border-color: #2ecc71; color: #2ecc71; font-weight: bold;">[ ➕ ] ADICIONAR ADMINISTRADOR</button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="email" id="input-novo-admin-email" class="rit-input" placeholder="E-mail do novo administrador..." style="flex: 1; border: 1px dotted var(--card-border); padding: 8px; box-sizing: border-box; font-size: 13px;">
+                    <button class="cris-btn" onclick="adicionarAdminPeloHub()" style="padding: 8px 15px; font-size: 12px; font-weight: bold; background: var(--op-ink); color: var(--bg-paper); border: none; cursor: pointer; letter-spacing: 1px;">ADICIONAR</button>
+                </div>
             </div>
             
             <button onclick="fecharHubAdmins()" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; text-transform: uppercase; font-size: 11px;">FECHAR PAINEL</button>
@@ -1078,16 +1079,17 @@
                 container.innerHTML = "";
 
                 if (listaAdminsManutencao.length === 0) {
-                    container.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:12px; font-family:sans-serif;'>Nenhum admin cadastrado no sistema.</div>";
+                    container.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:20px; font-family:sans-serif;'>Nenhum administrador cadastrado para manutenção.</div>";
                     return;
                 }
 
                 listaAdminsManutencao.forEach(email => {
                     const row = document.createElement('div');
-                    row.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding: 6px 0; border-bottom: 1px dashed var(--card-border); font-size:12px; font-family: 'Courier New', monospace; color: var(--cor-geral);";
+                    // Estilo de Card idêntico ao do banco de dados/mestres do seu site
+                    row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px dotted var(--card-border); background: var(--card-bg); margin-bottom: 8px; border-radius: 2px;";
                     row.innerHTML = `
-                        <span>${email}</span>
-                        <span style="color:var(--op-red); cursor:pointer; font-weight:bold; font-size:10px; font-family:sans-serif;" onclick="removerAdminPeloHub('${email}')">[ ❌ REVOGAR ]</span>
+                        <span style="font-family: 'Courier New', monospace; font-size: 13px; color: var(--cor-geral); word-break: break-all; padding-right: 10px;">${email}</span>
+                        <span class="material-icons" style="color: var(--op-red); cursor: pointer; font-size: 18px; select-layout: none;" onclick="removerAdminPeloHub('${email}')" title="Revogar permissões de Admin">delete</span>
                     `;
                     container.appendChild(row);
                 });
