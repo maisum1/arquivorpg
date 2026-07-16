@@ -850,7 +850,7 @@
     function ajustarFoto() { const z = document.getElementById('pZ').value; const x = document.getElementById('pX').value; const y = document.getElementById('pY').value; const img = document.getElementById('img-preview'); img.style.objectPosition = `${x}% ${y}%`; img.style.transform = `scale(${z})`; }
 
     // ==========================================
-        // MOTOR GLOBAL DE MANUTENÇÃO (VERSÃO DEFINITIVA)
+        // MOTOR GLOBAL DE MANUTENÇÃO (VERSÃO CORRIGIDA E SEGURA)
         // ==========================================
         (function() {
             const blocker = document.createElement('div');
@@ -864,27 +864,17 @@
             contour.style.cssText = "position: fixed; inset: 0; border: 4px solid #2ecc71; pointer-events: none; z-index: 9999998; display: none; box-sizing: border-box;";
             document.body.appendChild(contour);
 
-            // Variáveis agora corretamente declaradas no escopo global do motor
-            let isAdminCollection = false;
             let emManutencao = false;
             let listaAdminsManutencao = [];
             let meuEmailAtual = "";
 
-            // Vigia o login do usuário para capturar o email real e checar se é Mestre ATIVO
-            firebase.auth().onAuthStateChanged(async (user) => {
+            // Vigia o login do usuário para capturar o email logado
+            firebase.auth().onAuthStateChanged((user) => {
                 meuEmailAtual = user ? user.email.toLowerCase() : "";
-                if (user && user.email) {
-                    try {
-                        const doc = await db.collection("mestres").doc(user.email).get();
-                        // CORREÇÃO: Confere se o doc existe E se o mestre não foi revogado
-                        isAdminCollection = doc.exists && doc.data().ativo === true;
-                    } catch(e) { isAdminCollection = false; }
-                } else { 
-                    isAdminCollection = false; 
-                }
                 atualizarTelaManutencao();
             });
 
+            // Escuta as configurações de manutenção e administradores autorizados
             db.collection("configuracoes").doc("sistema").onSnapshot(doc => {
                 if (doc.exists) {
                     const dados = doc.data();
@@ -896,7 +886,7 @@
                 }
                 atualizarTelaManutencao();
                 
-                // Atualiza a lista visual apenas se a função existir (evita erros na ficha/ameaça)
+                // Atualiza a lista visual do Hub apenas se a função existir
                 if (typeof renderizarListaAdminsHub === 'function') {
                     renderizarListaAdminsHub();
                 }
@@ -906,15 +896,16 @@
                 const isSuperAdminEmail = meuEmailAtual === "pedroacpr@gmail.com";
                 const isNaListaManutencao = meuEmailAtual && listaAdminsManutencao.includes(meuEmailAtual);
 
-                // Libera apenas se for Mestre Ativo, Super Admin, ou estiver na lista branca
-                const mestreIdentificado = isAdminCollection || isSuperAdminEmail || isNaListaManutencao;
+                // CORREÇÃO: Apenas o Super Admin e os e-mails adicionados nas configurações do Hub ignoram a manutenção!
+                // Mestres de campanha comuns que não estejam na lista de admins serão bloqueados normalmente.
+                const bypassManutencao = isSuperAdminEmail || isNaListaManutencao;
 
                 if (emManutencao) {
-                    if (mestreIdentificado) {
+                    if (bypassManutencao) {
                         blocker.style.display = "none";
-                        contour.style.display = "block"; // Contorno verde
+                        contour.style.display = "block"; // Borda verde indicando modo manutenção de admin
                     } else {
-                        blocker.style.display = "flex";  // Tela preta de bloqueio
+                        blocker.style.display = "flex";  // Tela preta de bloqueio ativa
                         contour.style.display = "none";
                     }
                 } else {
@@ -922,7 +913,7 @@
                     contour.style.display = "none";
                 }
 
-                // Ajusta as cores do botão no Hub (se o botão existir na página)
+                // Ajusta os botões no Hub se eles existirem na página
                 const btnManu = document.getElementById('btn-manutencao');
                 if (btnManu) {
                     if (emManutencao) {
@@ -937,7 +928,7 @@
                 }
             }
 
-            // Atrela a função de ligar/desligar ao escopo global (usada no botão do Hub)
+            // Função global de toggle usada no Hub
             window.toggleManutencao = async function() {
                 if (emManutencao) {
                     if (confirm("ATENÇÃO: Deseja DESATIVAR o modo manutenção? O sistema voltará a ficar aberto para todos os jogadores normais.")) {
