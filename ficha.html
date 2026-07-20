@@ -2019,12 +2019,20 @@
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (CAMPANHA)
+        // MOTOR COOPERATIVO DE INICIATIVA (V2.0)
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
         let opcoesDeCombatentes = [];
         let escutaCombateRealtime = null;
+
+        // Injeta a animação de piscar vermelho na página
+        if (!document.getElementById('pulse-anim')) {
+            const style = document.createElement('style');
+            style.id = 'pulse-anim';
+            style.innerHTML = `@keyframes pulseRed { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(158, 11, 15, 0.7); } 50% { transform: scale(1.05); box-shadow: 0 0 10px 10px rgba(158, 11, 15, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(158, 11, 15, 0); } }`;
+            document.head.appendChild(style);
+        }
 
         function togglePainelIniciativa() {
             const painel = document.getElementById('painel-iniciativa-combate');
@@ -2033,12 +2041,10 @@
 
         async function inicializarSistemaIniciativa(campanhaId, usuarioLogado) {
             if (!campanhaId || !usuarioLogado) return;
-            idDaCampanhaAtiva = campanhaId; // <--- CORRIGIDO PARA campanhaId
+            idDaCampanhaAtiva = campanhaId; 
 
-            // 1. Mostrar o botão de Combate agora que sabemos que a ficha pertence a uma campanha
             document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
-            // 2. Verificar se o usuário atual é o dono legítimo da campanha ou Super Admin
             try {
                 const campSnap = await db.collection("campanhas").where("codigo", "==", campanhaId).get();
                 if (!campSnap.empty) {
@@ -2051,40 +2057,85 @@
                         carregarCombatentesDisponiveis();
                     }
                 }
-            } catch (e) { console.log("Erro ao validar mestre da iniciativa:", e); }
+            } catch (e) { console.log("Erro ao validar mestre da iniciativa."); }
 
-            // 3. Ligar escuta em tempo real do combate associado a essa campanha
             if (escutaCombateRealtime) escutaCombateRealtime();
             escutaCombateRealtime = db.collection("combates").doc(campanhaId).onSnapshot(doc => {
                 const listaContainer = document.getElementById('container-lista-iniciativa');
                 if (!listaContainer) return;
                 listaContainer.innerHTML = "";
 
+                let isMinhaVez = false;
+                const myUrlParams = new URLSearchParams(window.location.search);
+                const minhaFichaId = myUrlParams.get('id'); // Pega o ID da ficha/ameaça que estou lendo agora
+
                 if (doc.exists && doc.data().ordem && doc.data().ordem.length > 0) {
                     const ordem = doc.data().ordem;
+                    const turnoAtual = doc.data().turnoAtual || 0;
+                    const rodadaAtual = doc.data().rodadaAtual || 1;
+
+                    document.getElementById('display-rodada').innerText = `RODADA ${rodadaAtual}`;
+
                     ordem.forEach((combatente, index) => {
-                        const item = document.createElement('div');
-                        item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border: 1px dotted var(--card-border); background: var(--card-bg); font-size: 12px; border-radius: 2px;";
+                        const isCurrentTurn = (index === turnoAtual);
                         
-                        // Iconografia estilizada com base no tipo
-                        const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
-                        
-                        let botaoRemover = '';
-                        if (souMestreDestaCampanha) {
-                            botaoRemover = `<span style="color: var(--op-red); cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 10px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
+                        // Verifica se é a vez do jogador atual para acionar o alerta
+                        if (isCurrentTurn && combatente.id === minhaFichaId) {
+                            isMinhaVez = true;
                         }
 
+                        // Cores visuais de quem é a vez
+                        const bgCor = isCurrentTurn ? "var(--op-red)" : "var(--card-bg)";
+                        const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
+                        const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
+
+                        const item = document.createElement('div');
+                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: 0.3s;`;
+                        
+                        const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
+                        
+                        // Controles do Mestre (Desempate Manual e Remover)
+                        let botoesMestre = '';
+                        if (souMestreDestaCampanha) {
+                            // Se estiver empatado em Iniciativa E Agilidade com o cara de baixo, mostra botão de Inverter
+                            if (index < ordem.length - 1 && combatente.valor === ordem[index+1].valor && combatente.agi === ordem[index+1].agi) {
+                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 8px;" onclick="desempatarIniciativa(${index})" title="Empate de Agilidade! Clique para descer este e subir o de baixo">🔃</span>`;
+                            }
+                            botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
+                        }
+
+                        // O valor da iniciativa ganha fundo branco se estiver na vez para dar leitura
+                        const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
+                        const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
+
                         item.innerHTML = `
-                            <span style="word-break: break-all; font-weight: bold; color: var(--op-ink);">${index + 1}° ${icone} ${combatente.nome}</span>
+                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${combatente.nome}</span>
                             <div style="display: flex; align-items: center;">
-                                <span style="font-family: 'Special Elite', monospace; background: var(--op-ink); color: var(--bg-paper); padding: 2px 6px; font-size: 11px; border-radius: 2px;">${combatente.valor}</span>
-                                ${botaoRemover}
+                                ${botoesMestre}
+                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 6px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${combatente.agi}">${combatente.valor}</span>
                             </div>
                         `;
                         listaContainer.appendChild(item);
                     });
                 } else {
+                    document.getElementById('display-rodada').innerText = `RODADA 0`;
                     listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px; font-family:sans-serif;'>Nenhum combate ativo nesta campanha.</div>";
+                }
+
+                // Dispara o alerta nervoso para o Jogador se for a vez dele
+                const btnToggle = document.getElementById('btn-toggle-iniciativa');
+                if (isMinhaVez) {
+                    btnToggle.style.background = "var(--op-red)";
+                    btnToggle.style.color = "#fff";
+                    btnToggle.style.borderColor = "var(--op-dark-red)";
+                    btnToggle.style.animation = "pulseRed 1s infinite";
+                    btnToggle.innerText = "🚨 SUA VEZ! AJA!";
+                } else {
+                    btnToggle.style.background = "var(--op-ink)";
+                    btnToggle.style.color = "var(--bg-paper)";
+                    btnToggle.style.borderColor = "var(--card-border)";
+                    btnToggle.style.animation = "none";
+                    btnToggle.innerText = "⚔️ Iniciativa";
                 }
             });
         }
@@ -2095,25 +2146,26 @@
             opcoesDeCombatentes = [];
 
             try {
-                // Puxar Personas vinculadas à campanha
+                // Puxa as fichas e já salva a Agilidade para desempate automático
                 const fichasSnap = await db.collection("fichas").where("campanhaId", "==", idDaCampanhaAtiva).get();
                 fichasSnap.forEach(doc => {
-                    opcoesDeCombatentes.push({ id: doc.id, nome: doc.data().nome || "Persona", tipo: "ficha" });
+                    const d = doc.data();
+                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Persona", tipo: "ficha", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
                 });
 
-                // Puxar Entidades vinculadas à campanha
+                // Puxa as ameaças e salva a Agilidade
                 const ameacasSnap = await db.collection("ameacas").where("campanhasIds", "array-contains", idDaCampanhaAtiva).get();
                 ameacasSnap.forEach(doc => {
-                    opcoesDeCombatentes.push({ id: doc.id, nome: doc.data().nome || "Entidade", tipo: "ameaca" });
+                    const d = doc.data();
+                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
                 });
 
-                // Popular o select do Mestre
                 select.innerHTML = '<option value="">Selecionar Combatente...</option>';
                 opcoesDeCombatentes.forEach(opt => {
                     const tag = opt.tipo === 'ameaca' ? '[AMEAÇA] ' : '[PLAYER] ';
-                    select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome}</option>`;
+                    select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome} (AGI ${opt.agi})</option>`;
                 });
-            } catch (e) { console.log("Erro ao carregar opções de combate:", e); }
+            } catch (e) { console.log("Erro ao carregar opções."); }
         }
 
         async function adicionarCombatenteIniciativa() {
@@ -2135,29 +2187,75 @@
             try {
                 const doc = await docRef.get();
                 let ordemAtual = [];
+                let turnoSalvo = 0;
+                let rodadaSalva = 1;
+
                 if (doc.exists && doc.data().ordem) {
                     ordemAtual = doc.data().ordem;
+                    turnoSalvo = doc.data().turnoAtual || 0;
+                    rodadaSalva = doc.data().rodadaAtual || 1;
                 }
 
-                // Filtrar caso o combatente já esteja na lista (evita duplicados ao atualizar valor)
                 ordemAtual = ordemAtual.filter(c => c.id !== idEscolhido);
 
-                // Adicionar novo dado
                 ordemAtual.push({
                     id: idEscolhido,
                     nome: combatenteInfo.nome,
                     tipo: combatenteInfo.tipo,
-                    valor: valorInic
+                    valor: valorInic,
+                    agi: combatenteInfo.agi // Adiciona a AGI no banco para calcular!
                 });
 
-                // Ordenar decrescente (Maior iniciativa primeiro)
-                ordemAtual.sort((a, b) => b.valor - a.valor);
+                // ORDENAÇÃO: 1º Quem tem mais Iniciativa. 2º Quem tem mais Agilidade.
+                ordemAtual.sort((a, b) => {
+                    if (b.valor !== a.valor) return b.valor - a.valor;
+                    return b.agi - a.agi;
+                });
 
-                await docRef.set({ ordem: ordemAtual }, { merge: true });
+                await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
                 inputVal.value = "";
                 select.value = "";
             } catch (e) { alert("Erro ao incluir na iniciativa."); }
         }
+
+        window.passarTurnoIniciativa = async function() {
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            try {
+                const doc = await docRef.get();
+                if (doc.exists && doc.data().ordem) {
+                    let ordem = doc.data().ordem;
+                    let turno = doc.data().turnoAtual || 0;
+                    let rodada = doc.data().rodadaAtual || 1;
+                    
+                    turno++; // Pula pro próximo
+                    
+                    // Se o turno passou do último da lista, reseta pra 0 e sobe a rodada
+                    if (turno >= ordem.length) {
+                        turno = 0;
+                        rodada++;
+                    }
+                    
+                    await docRef.update({ turnoAtual: turno, rodadaAtual: rodada });
+                }
+            } catch(e) {}
+        };
+
+        window.desempatarIniciativa = async function(index) {
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            try {
+                const doc = await docRef.get();
+                if (doc.exists && doc.data().ordem) {
+                    let ordemAtual = doc.data().ordem;
+                    
+                    // Inverte a posição exata da array com o cara logo abaixo dele
+                    let temp = ordemAtual[index];
+                    ordemAtual[index] = ordemAtual[index+1];
+                    ordemAtual[index+1] = temp;
+                    
+                    await docRef.update({ ordem: ordemAtual });
+                }
+            } catch (e) { console.log(e); }
+        };
 
         async function removerCombatenteIniciativa(idCombatente) {
             const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
@@ -2166,7 +2264,8 @@
                 if (doc.exists && doc.data().ordem) {
                     let ordemAtual = doc.data().ordem;
                     ordemAtual = ordemAtual.filter(c => c.id !== idCombatente);
-                    await docRef.set({ ordem: ordemAtual }, { merge: true });
+                    // Retorna o turno pra 0 pra não quebrar a contagem se apagar quem tava na vez
+                    await docRef.set({ ordem: ordemAtual, turnoAtual: 0 }, { merge: true }); 
                 }
             } catch (e) { console.log(e); }
         }
