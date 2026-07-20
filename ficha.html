@@ -2019,14 +2019,14 @@
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (V4.0)
+        // MOTOR COOPERATIVO DE INICIATIVA (V5.0)
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
         let opcoesDeCombatentes = [];
         let escutaCombateRealtime = null;
-        let dragSourceIndex = null; // Guarda a linha que o mestre começou a arrastar
 
+        // Injeta a animação de piscar vermelho na página
         if (!document.getElementById('pulse-anim')) {
             const style = document.createElement('style');
             style.id = 'pulse-anim';
@@ -2045,11 +2045,12 @@
 
             document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
-            // Por padrão, libera o painel para o Jogador colocar o valor dele
+            // Libera a caixa "SUA INICIATIVA" se a pessoa estiver em uma ficha
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
             if (minhaFichaId) {
-                document.getElementById('controles-jogador-iniciativa').style.display = 'block';
+                const painelJog = document.getElementById('controles-jogador-iniciativa');
+                if (painelJog) painelJog.style.display = 'block';
             }
 
             try {
@@ -2061,16 +2062,34 @@
                     if (dadosCamp.dono === usuarioLogado.uid || checarSuperAdmin) {
                         souMestreDestaCampanha = true;
                         document.getElementById('controles-mestre-iniciativa').style.display = 'block';
-                        // REGRA: Esconde os botões de player se você for o Mestre/Admin legítimo
-                        document.getElementById('controles-jogador-iniciativa').style.display = 'none';
+                        const painelJog = document.getElementById('controles-jogador-iniciativa');
+                        if (painelJog) painelJog.style.display = 'none'; // Mestre não precisa do painel de player
                         carregarCombatentesDisponiveis();
                     }
                 }
             } catch (e) { console.log("Erro ao validar mestre."); }
 
+            // Configura o evento de arrastar dinâmico para a lista (apenas uma vez)
+            const listaContainer = document.getElementById('container-lista-iniciativa');
+            if (listaContainer && !listaContainer.dataset.dragAttached) {
+                listaContainer.dataset.dragAttached = "true";
+                listaContainer.addEventListener('dragover', e => {
+                    if (!souMestreDestaCampanha) return;
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(listaContainer, e.clientY);
+                    const draggable = document.querySelector('.dragging');
+                    if (draggable) {
+                        if (afterElement == null) {
+                            listaContainer.appendChild(draggable);
+                        } else {
+                            listaContainer.insertBefore(draggable, afterElement);
+                        }
+                    }
+                });
+            }
+
             if (escutaCombateRealtime) escutaCombateRealtime();
             escutaCombateRealtime = db.collection("combates").doc(campanhaId).onSnapshot(doc => {
-                const listaContainer = document.getElementById('container-lista-iniciativa');
                 if (!listaContainer) return;
                 listaContainer.innerHTML = "";
 
@@ -2095,19 +2114,35 @@
                         const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
 
                         const item = document.createElement('div');
-                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: 0.2s; user-select: none;`;
+                        item.className = 'draggable-item';
+                        item.dataset.index = index; // Salva a posição original no banco
+                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
                         
-                        // Habilita propriedades Drag and Drop exclusivamente para o Mestre
+                        // Habilita o Arrastar e Soltar (Visual Real-Time) Exclusivo do Mestre
                         if (souMestreDestaCampanha) {
                             item.draggable = true;
                             item.style.cursor = "grab";
-                            item.addEventListener('dragstart', (e) => { dragSourceIndex = index; item.style.opacity = "0.5"; });
-                            item.addEventListener('dragend', () => { item.style.opacity = "1"; });
-                            item.addEventListener('dragover', (e) => e.preventDefault());
-                            item.addEventListener('drop', (e) => {
-                                e.preventDefault();
-                                if (dragSourceIndex !== null && dragSourceIndex !== index) {
-                                    executarReordenacaoMestre(dragSourceIndex, index);
+                            
+                            item.addEventListener('dragstart', (e) => { 
+                                item.classList.add('dragging'); 
+                                item.style.opacity = "0.4"; 
+                                item.style.border = "1px dashed var(--op-red)";
+                            });
+                            
+                            item.addEventListener('dragend', () => { 
+                                item.classList.remove('dragging'); 
+                                item.style.opacity = "1"; 
+                                
+                                // Calcula onde a caixinha foi solta visualmente
+                                const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
+                                const newIndex = currentList.indexOf(item);
+                                const oldIndex = parseInt(item.dataset.index);
+
+                                if (oldIndex !== newIndex && newIndex !== -1) {
+                                    executarReordenacaoMestre(oldIndex, newIndex);
+                                } else {
+                                    // Se soltou no mesmo lugar, volta a borda normal
+                                    item.style.border = `1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}`;
                                 }
                             });
                         }
@@ -2150,7 +2185,6 @@
                     btnToggle.style.animation = "pulseRed 1s infinite";
                     btnToggle.innerText = "🚨 SUA VEZ! AJA!";
                     
-                    // Libera e destaca o botão ⏳ se for o turno real do jogador
                     if (btnAtrasar) {
                         btnAtrasar.style.borderColor = "var(--op-red)";
                         btnAtrasar.style.opacity = "1";
@@ -2163,7 +2197,6 @@
                     btnToggle.style.animation = "none";
                     btnToggle.innerText = "⚔️ Iniciativa";
                     
-                    // Apaga e congela o botão ⏳ se não for a vez dele
                     if (btnAtrasar) {
                         btnAtrasar.style.borderColor = "var(--card-border)";
                         btnAtrasar.style.opacity = "0.3";
@@ -2173,7 +2206,36 @@
             });
         }
 
-        // LÓGICA DE ATRASAR A VEZ (EXCLUSIVA DE PLAYERS)
+        // Função utilitária para o Drag and Drop visual
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else { return closest; }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // DRAG AND DROP MANUAL DO MESTRE (REORDENAR LIVREMENTE)
+        window.executarReordenacaoMestre = async function(origem, destino) {
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            try {
+                const doc = await docRef.get();
+                if (doc.exists && doc.data().ordem) {
+                    let ordem = doc.data().ordem;
+                    // Tira o combatente da velha posição e insere na nova
+                    const [combatenteMovido] = ordem.splice(origem, 1);
+                    ordem.splice(destino, 0, combatenteMovido);
+                    
+                    // Zera o turno por segurança quando o mestre muda tudo à força
+                    await docRef.update({ ordem: ordem, turnoAtual: 0 });
+                }
+            } catch (e) { console.log(e); }
+        };
+
+        // LÓGICA DE ATRASAR A VEZ (COM AVISO VISUAL PARA O JOGADOR)
         window.atrasarMinhaVez = async function() {
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
@@ -2186,43 +2248,27 @@
                     let ordem = doc.data().ordem;
                     let turno = doc.data().turnoAtual || 0;
 
-                    // Validação extra: Só funciona se ele for o primeiro da vez
                     if (ordem[turno] && ordem[turno].id === minhaFichaId) {
-                        // Se ele for o último da rodada inteira, não dá pra atrasar (já é o último)
                         if (turno >= ordem.length - 1) {
-                            alert("Você já é o último desta rodada. Apenas passe a vez.");
+                            alert("Você já é o último desta rodada. Apenas passe a vez normalmente.");
                             return;
                         }
 
-                        // Mecânica: Troca de lugar com o combatente imediatamente seguinte (X vira X+1)
+                        // Troca mecânica com o próximo
                         let temp = ordem[turno];
                         ordem[turno] = ordem[turno + 1];
                         ordem[turno + 1] = temp;
 
-                        // Como ele trocou com o da frente, o combate avança na visão de todos sem pular ninguém!
                         await docRef.update({ ordem: ordem });
+                        
+                        // ESSE AVISO RESOLVE A CONFUSÃO:
+                        alert("Sua vez foi atrasada com sucesso! O próximo combatente assumiu a linha de frente.");
+                    } else {
+                        alert("Não é possível. Seu turno já passou ou a ordem foi alterada pelo mestre.");
                     }
                 }
             } catch (e) { console.log(e); }
         };
-
-        // DRAG AND DROP MANUAL DO MESTRE (REORDENAR LIVREMENTE)
-        async function executarReordenacaoMestre(origem, destino) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    
-                    // Remove o elemento da posição antiga e injeta na nova posição
-                    const [combatenteMovido] = ordem.splice(origem, 1);
-                    ordem.splice(destino, 0, combatenteMovido);
-                    
-                    // Seta o combate de volta para o primeiro da lista por segurança para não perder o índice
-                    await docRef.update({ ordem: ordem, turnoAtual: 0 });
-                }
-            } catch (e) { console.log(e); }
-        }
 
         window.enviarMinhaIniciativa = async function() {
             const inputVal = document.getElementById('input-minha-iniciativa');
