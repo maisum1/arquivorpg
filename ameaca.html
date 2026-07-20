@@ -951,14 +951,14 @@ if (campanhaParam) {
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (V3.0)
+        // MOTOR COOPERATIVO DE INICIATIVA (V4.0)
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
         let opcoesDeCombatentes = [];
         let escutaCombateRealtime = null;
+        let dragSourceIndex = null; // Guarda a linha que o mestre começou a arrastar
 
-        // Injeta a animação de piscar vermelho na página
         if (!document.getElementById('pulse-anim')) {
             const style = document.createElement('style');
             style.id = 'pulse-anim';
@@ -977,12 +977,11 @@ if (campanhaParam) {
 
             document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
-            // Libera a caixa "SUA INICIATIVA" se a pessoa estiver em uma ficha ou ameaça específica
+            // Por padrão, libera o painel para o Jogador colocar o valor dele
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
             if (minhaFichaId) {
-                const painelJog = document.getElementById('controles-jogador-iniciativa');
-                if (painelJog) painelJog.style.display = 'block';
+                document.getElementById('controles-jogador-iniciativa').style.display = 'block';
             }
 
             try {
@@ -994,10 +993,12 @@ if (campanhaParam) {
                     if (dadosCamp.dono === usuarioLogado.uid || checarSuperAdmin) {
                         souMestreDestaCampanha = true;
                         document.getElementById('controles-mestre-iniciativa').style.display = 'block';
+                        // REGRA: Esconde os botões de player se você for o Mestre/Admin legítimo
+                        document.getElementById('controles-jogador-iniciativa').style.display = 'none';
                         carregarCombatentesDisponiveis();
                     }
                 }
-            } catch (e) { console.log("Erro ao validar mestre da iniciativa."); }
+            } catch (e) { console.log("Erro ao validar mestre."); }
 
             if (escutaCombateRealtime) escutaCombateRealtime();
             escutaCombateRealtime = db.collection("combates").doc(campanhaId).onSnapshot(doc => {
@@ -1017,32 +1018,42 @@ if (campanhaParam) {
                     ordem.forEach((combatente, index) => {
                         const isCurrentTurn = (index === turnoAtual);
                         
-                        // Verifica se é a vez do jogador atual para acionar o alerta
                         if (isCurrentTurn && combatente.id === minhaFichaId) {
                             isMinhaVez = true;
                         }
 
-                        // Cores visuais de quem é a vez
                         const bgCor = isCurrentTurn ? "var(--op-red)" : "var(--card-bg)";
                         const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
                         const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
 
                         const item = document.createElement('div');
-                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: 0.3s;`;
+                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: 0.2s; user-select: none;`;
                         
+                        // Habilita propriedades Drag and Drop exclusivamente para o Mestre
+                        if (souMestreDestaCampanha) {
+                            item.draggable = true;
+                            item.style.cursor = "grab";
+                            item.addEventListener('dragstart', (e) => { dragSourceIndex = index; item.style.opacity = "0.5"; });
+                            item.addEventListener('dragend', () => { item.style.opacity = "1"; });
+                            item.addEventListener('dragover', (e) => e.preventDefault());
+                            item.addEventListener('drop', (e) => {
+                                e.preventDefault();
+                                if (dragSourceIndex !== null && dragSourceIndex !== index) {
+                                    executarReordenacaoMestre(dragSourceIndex, index);
+                                }
+                            });
+                        }
+
                         const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
                         
-                        // Controles do Mestre (Desempate Manual e Remover)
                         let botoesMestre = '';
                         if (souMestreDestaCampanha) {
-                            // Se estiver empatado em Iniciativa E Agilidade com o cara de baixo, mostra botão de Inverter
                             if (index < ordem.length - 1 && combatente.valor === ordem[index+1].valor && combatente.agi === ordem[index+1].agi) {
-                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 8px;" onclick="desempatarIniciativa(${index})" title="Empate de Agilidade! Clique para descer este e subir o de baixo">🔃</span>`;
+                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de Agilidade! Clique para inverter">🔃</span>`;
                             }
                             botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
                         }
 
-                        // O valor da iniciativa ganha fundo branco se estiver na vez para dar leitura
                         const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
                         const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
 
@@ -1050,32 +1061,99 @@ if (campanhaParam) {
                             <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${combatente.nome}</span>
                             <div style="display: flex; align-items: center;">
                                 ${botoesMestre}
-                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 6px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${combatente.agi}">${combatente.valor}</span>
+                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${combatente.agi}">${combatente.valor}</span>
                             </div>
                         `;
                         listaContainer.appendChild(item);
                     });
                 } else {
                     document.getElementById('display-rodada').innerText = `RODADA 0`;
-                    listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px; font-family:sans-serif;'>Nenhum combate ativo nesta campanha.</div>";
+                    listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px;'>Nenhum combate ativo.</div>";
                 }
 
-                // Dispara o alerta nervoso para o Jogador se for a vez dele
+                // Ajusta o botão com alertas
                 const btnToggle = document.getElementById('btn-toggle-iniciativa');
+                const btnAtrasar = document.getElementById('btn-atrasar-vez-jog');
+                
                 if (isMinhaVez) {
                     btnToggle.style.background = "var(--op-red)";
                     btnToggle.style.color = "#fff";
                     btnToggle.style.borderColor = "var(--op-dark-red)";
                     btnToggle.style.animation = "pulseRed 1s infinite";
                     btnToggle.innerText = "🚨 SUA VEZ! AJA!";
+                    
+                    // Libera e destaca o botão ⏳ se for o turno real do jogador
+                    if (btnAtrasar) {
+                        btnAtrasar.style.borderColor = "var(--op-red)";
+                        btnAtrasar.style.opacity = "1";
+                        btnAtrasar.style.pointerEvents = "auto";
+                    }
                 } else {
                     btnToggle.style.background = "var(--op-ink)";
                     btnToggle.style.color = "var(--bg-paper)";
                     btnToggle.style.borderColor = "var(--card-border)";
                     btnToggle.style.animation = "none";
                     btnToggle.innerText = "⚔️ Iniciativa";
+                    
+                    // Apaga e congela o botão ⏳ se não for a vez dele
+                    if (btnAtrasar) {
+                        btnAtrasar.style.borderColor = "var(--card-border)";
+                        btnAtrasar.style.opacity = "0.3";
+                        btnAtrasar.style.pointerEvents = "none";
+                    }
                 }
             });
+        }
+
+        // LÓGICA DE ATRASAR A VEZ (EXCLUSIVA DE PLAYERS)
+        window.atrasarMinhaVez = async function() {
+            const myUrlParams = new URLSearchParams(window.location.search);
+            const minhaFichaId = myUrlParams.get('id');
+            if (!minhaFichaId || !idDaCampanhaAtiva) return;
+
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            try {
+                const doc = await docRef.get();
+                if (doc.exists && doc.data().ordem) {
+                    let ordem = doc.data().ordem;
+                    let turno = doc.data().turnoAtual || 0;
+
+                    // Validação extra: Só funciona se ele for o primeiro da vez
+                    if (ordem[turno] && ordem[turno].id === minhaFichaId) {
+                        // Se ele for o último da rodada inteira, não dá pra atrasar (já é o último)
+                        if (turno >= ordem.length - 1) {
+                            alert("Você já é o último desta rodada. Apenas passe a vez.");
+                            return;
+                        }
+
+                        // Mecânica: Troca de lugar com o combatente imediatamente seguinte (X vira X+1)
+                        let temp = ordem[turno];
+                        ordem[turno] = ordem[turno + 1];
+                        ordem[turno + 1] = temp;
+
+                        // Como ele trocou com o da frente, o combate avança na visão de todos sem pular ninguém!
+                        await docRef.update({ ordem: ordem });
+                    }
+                }
+            } catch (e) { console.log(e); }
+        };
+
+        // DRAG AND DROP MANUAL DO MESTRE (REORDENAR LIVREMENTE)
+        async function executarReordenacaoMestre(origem, destino) {
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            try {
+                const doc = await docRef.get();
+                if (doc.exists && doc.data().ordem) {
+                    let ordem = doc.data().ordem;
+                    
+                    // Remove o elemento da posição antiga e injeta na nova posição
+                    const [combatenteMovido] = ordem.splice(origem, 1);
+                    ordem.splice(destino, 0, combatenteMovido);
+                    
+                    // Seta o combate de volta para o primeiro da lista por segurança para não perder o índice
+                    await docRef.update({ ordem: ordem, turnoAtual: 0 });
+                }
+            } catch (e) { console.log(e); }
         }
 
         window.enviarMinhaIniciativa = async function() {
@@ -1085,42 +1163,30 @@ if (campanhaParam) {
             const minhaFichaId = myUrlParams.get('id');
 
             if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) {
-                alert("Insira um valor válido de iniciativa.");
+                alert("Insira um valor.");
                 return;
             }
 
             try {
-                inputVal.placeholder = "Enviando...";
-                
-                // Primeiro tenta achar na coleção de fichas
-                let meuNome = "Desconhecido";
-                let minhaAgi = 0;
-                let meuTipo = "ficha";
+                inputVal.placeholder = "...";
+                let meuNome = "Desconhecido", minhaAgi = 0, meuTipo = "ficha";
 
                 let snap = await db.collection("fichas").doc(minhaFichaId).get();
                 if (snap.exists) {
                     meuNome = snap.data().nome || "Persona";
                     minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
                 } else {
-                    // Se não for ficha, deve ser Ameaça
                     snap = await db.collection("ameacas").doc(minhaFichaId).get();
                     if (snap.exists) {
                         meuNome = snap.data().nome || "Entidade";
                         minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
                         meuTipo = "ameaca";
-                    } else {
-                        alert("Arquivo de combate não localizado no banco de dados.");
-                        inputVal.placeholder = "Valor...";
-                        return;
-                    }
+                    } else { return; }
                 }
 
                 const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
                 const doc = await docRef.get();
-                
-                let ordemAtual = [];
-                let turnoSalvo = 0;
-                let rodadaSalva = 1;
+                let ordemAtual = [], turnoSalvo = 0, rodadaSalva = 1;
 
                 if (doc.exists && doc.data().ordem) {
                     ordemAtual = doc.data().ordem;
@@ -1129,16 +1195,8 @@ if (campanhaParam) {
                 }
 
                 ordemAtual = ordemAtual.filter(c => c.id !== minhaFichaId);
+                ordemAtual.push({ id: minhaFichaId, nome: meuNome, tipo: meuTipo, valor: valorInic, agi: minhaAgi });
 
-                ordemAtual.push({
-                    id: minhaFichaId,
-                    nome: meuNome,
-                    tipo: meuTipo,
-                    valor: valorInic,
-                    agi: minhaAgi
-                });
-
-                // ORDENAÇÃO (Iniciativa -> Agilidade)
                 ordemAtual.sort((a, b) => {
                     if (b.valor !== a.valor) return b.valor - a.valor;
                     return b.agi - a.agi;
@@ -1146,42 +1204,32 @@ if (campanhaParam) {
 
                 await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
                 inputVal.value = "";
-                inputVal.placeholder = "Enviado!";
-                setTimeout(() => inputVal.placeholder = "Valor...", 2000);
-                
-            } catch (e) {
-                console.log(e);
-                alert("Erro ao enviar iniciativa.");
-                inputVal.placeholder = "Valor...";
-            }
+                inputVal.placeholder = "Ok!";
+                setTimeout(() => inputVal.placeholder = "Valor...", 1500);
+            } catch (e) { inputVal.placeholder = "Valor..."; }
         };
 
         async function carregarCombatentesDisponiveis() {
             const select = document.getElementById('select-ficha-combate');
             if (!select) return;
             opcoesDeCombatentes = [];
-
             try {
-                // Puxa as fichas e já salva a Agilidade para desempate automático
                 const fichasSnap = await db.collection("fichas").where("campanhaId", "==", idDaCampanhaAtiva).get();
                 fichasSnap.forEach(doc => {
                     const d = doc.data();
                     opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Persona", tipo: "ficha", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
                 });
-
-                // Puxa as ameaças e salva a Agilidade
                 const ameacasSnap = await db.collection("ameacas").where("campanhasIds", "array-contains", idDaCampanhaAtiva).get();
                 ameacasSnap.forEach(doc => {
                     const d = doc.data();
                     opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
                 });
-
                 select.innerHTML = '<option value="">Selecionar Combatente...</option>';
                 opcoesDeCombatentes.forEach(opt => {
-                    const tag = opt.tipo === 'ameaca' ? '[AMEAÇA] ' : '[PLAYER] ';
+                    const tag = opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] ';
                     select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome} (AGI ${opt.agi})</option>`;
                 });
-            } catch (e) { console.log("Erro ao carregar opções."); }
+            } catch (e) {}
         }
 
         window.adicionarCombatenteIniciativa = async function() {
@@ -1190,48 +1238,30 @@ if (campanhaParam) {
             const idEscolhido = select.value;
             const valorInic = parseInt(inputVal.value);
 
-            if (!idEscolhido || isNaN(valorInic)) {
-                alert("Selecione um combatente e insira um valor válido de iniciativa.");
-                return;
-            }
-
+            if (!idEscolhido || isNaN(valorInic)) return;
             const combatenteInfo = opcoesDeCombatentes.find(o => o.id === idEscolhido);
             if (!combatenteInfo) return;
 
             const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            
             try {
                 const doc = await docRef.get();
-                let ordemAtual = [];
-                let turnoSalvo = 0;
-                let rodadaSalva = 1;
-
+                let ordemAtual = [], turnoSalvo = 0, rodadaSalva = 1;
                 if (doc.exists && doc.data().ordem) {
                     ordemAtual = doc.data().ordem;
                     turnoSalvo = doc.data().turnoAtual || 0;
                     rodadaSalva = doc.data().rodadaAtual || 1;
                 }
-
                 ordemAtual = ordemAtual.filter(c => c.id !== idEscolhido);
-
-                ordemAtual.push({
-                    id: idEscolhido,
-                    nome: combatenteInfo.nome,
-                    tipo: combatenteInfo.tipo,
-                    valor: valorInic,
-                    agi: combatenteInfo.agi 
-                });
-
-                // ORDENAÇÃO: 1º Quem tem mais Iniciativa. 2º Quem tem mais Agilidade.
+                ordemAtual.push({ id: idEscolhido, nome: combatenteInfo.nome, tipo: combatenteInfo.tipo, valor: valorInic, agi: combatenteInfo.agi });
+                
                 ordemAtual.sort((a, b) => {
                     if (b.valor !== a.valor) return b.valor - a.valor;
                     return b.agi - a.agi;
                 });
 
                 await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
-                inputVal.value = "";
-                select.value = "";
-            } catch (e) { alert("Erro ao incluir na iniciativa."); }
+                inputVal.value = ""; select.value = "";
+            } catch (e) {}
         };
 
         window.passarTurnoIniciativa = async function() {
@@ -1242,15 +1272,8 @@ if (campanhaParam) {
                     let ordem = doc.data().ordem;
                     let turno = doc.data().turnoAtual || 0;
                     let rodada = doc.data().rodadaAtual || 1;
-                    
-                    turno++; // Pula pro próximo
-                    
-                    // Se o turno passou do último da lista, reseta pra 0 e sobe a rodada
-                    if (turno >= ordem.length) {
-                        turno = 0;
-                        rodada++;
-                    }
-                    
+                    turno++;
+                    if (turno >= ordem.length) { turno = 0; rodada++; }
                     await docRef.update({ turnoAtual: turno, rodadaAtual: rodada });
                 }
             } catch(e) {}
@@ -1262,12 +1285,9 @@ if (campanhaParam) {
                 const doc = await docRef.get();
                 if (doc.exists && doc.data().ordem) {
                     let ordemAtual = doc.data().ordem;
-                    
-                    // Inverte a posição exata da array com o cara logo abaixo dele
                     let temp = ordemAtual[index];
                     ordemAtual[index] = ordemAtual[index+1];
                     ordemAtual[index+1] = temp;
-                    
                     await docRef.update({ ordem: ordemAtual });
                 }
             } catch (e) { console.log(e); }
@@ -1280,17 +1300,14 @@ if (campanhaParam) {
                 if (doc.exists && doc.data().ordem) {
                     let ordemAtual = doc.data().ordem;
                     ordemAtual = ordemAtual.filter(c => c.id !== idCombatente);
-                    // Retorna o turno pra 0 pra não quebrar a contagem se apagar quem tava na vez
                     await docRef.set({ ordem: ordemAtual, turnoAtual: 0 }, { merge: true }); 
                 }
             } catch (e) { console.log(e); }
         };
 
         window.limparTodaIniciativa = async function() {
-            if (confirm("Deseja expurgar todos os combatentes e encerrar o combate atual?")) {
-                try {
-                    await db.collection("combates").doc(idDaCampanhaAtiva).delete();
-                } catch (e) { alert("Falha ao resetar."); }
+            if (confirm("Deseja encerrar o combate atual?")) {
+                try { await db.collection("combates").doc(idDaCampanhaAtiva).delete(); } catch (e) {}
             }
         };
         // ==========================================
@@ -1299,42 +1316,37 @@ if (campanhaParam) {
     ⚔️ Iniciativa
 </button>
 
-<div id="painel-iniciativa-combate" style="display: none; position: fixed; bottom: 80px; right: 20px; width: 310px; max-height: 60vh; background: var(--bg-paper); border: 1px solid var(--op-ink); box-shadow: var(--paper-shadow); z-index: 9999; padding: 15px; box-sizing: border-box; overflow-y: auto; font-family: 'Courier Prime', monospace; border-radius: 2px; text-align: left;">
+<div id="painel-iniciativa-combate" style="display: none; position: fixed; bottom: 80px; right: 20px; width: 310px; max-height: 60vh; background: var(--bg-paper); border: 1px solid var(--op-ink); box-shadow: var(--paper-shadow); z-index: 9999; padding: 12px; box-sizing: border-box; overflow-y: auto; font-family: 'Courier Prime', monospace; border-radius: 2px; text-align: left;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted var(--card-border); padding-bottom: 8px; margin-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted var(--card-border); padding-bottom: 6px; margin-bottom: 10px;">
         <strong style="font-size: 13px; color: var(--op-ink); font-family: 'Crimson Text', serif; letter-spacing: 1px;">⚔️ COMBATE</strong>
         <span id="display-rodada" style="font-size: 11px; font-weight: bold; color: var(--san-purple); background: var(--card-bg); padding: 2px 6px; border-radius: 2px;">RODADA 1</span>
-        <span style="cursor: pointer; font-size: 11px; color: var(--cor-geral); font-weight: bold;" onclick="togglePainelIniciativa()">[ FECHAR ]</span>
+        <span style="cursor: pointer; font-size: 11px; color: var(--cor-geral); font-weight: bold;" onclick="togglePainelIniciativa()">[ X ]</span>
     </div>
 
-    <div id="container-lista-iniciativa" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px;">
-        </div>
+    <div id="container-lista-iniciativa" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px;"></div>
 
-    <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 12px; margin-top: 10px;">
-        <p style="font-size: 10px; margin: 0 0 8px 0; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 0.5px;">SUA INICIATIVA</p>
-        <div style="display: flex; gap: 8px;">
-            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 70px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 6px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none;">
-            <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">Enviar</button>
+    <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
+        <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
+            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">Enviar</button>
+            <button id="btn-atrasar-vez-jog" onclick="atrasarMinhaVez()" style="background: transparent; border: 1px solid var(--cor-geral); color: var(--op-ink); font-size: 12px; cursor: pointer; border-radius: 2px; width: 35px; height: 28px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;" title="Atrasar a Vez (Passar um combatente na frente)">⏳</button>
         </div>
     </div>
 
-    <div id="controles-mestre-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 12px; margin-top: 10px;">
-        <p style="font-size: 10px; margin: 0 0 8px 0; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 0.5px;">PAINEL DO DIRETOR</p>
-        
-        <select id="select-ficha-combate" style="width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 6px; font-family: 'Courier Prime', monospace; font-size: 11px; margin-bottom: 8px; outline: none; border-radius: 2px;">
-            <option value="">Selecionar Combatente...</option>
-        </select>
+    <div id="controles-mestre-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
+        <select id="select-ficha-combate" style="width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 11px; margin-bottom: 6px; outline: none; border-radius: 2px; height: 28px;"></select>
 
-        <div style="display: flex; gap: 8px;">
-            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." style="width: 70px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 6px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none;">
-            <button onclick="adicionarCombatenteIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">+ Incluir</button>
+        <div style="display: flex; gap: 6px;">
+            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button onclick="adicionarCombatenteIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
         </div>
 
-        <button onclick="passarTurnoIniciativa()" style="width: 100%; margin-top: 15px; background: var(--san-purple); color: #fff; border: none; padding: 8px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
+        <button onclick="passarTurnoIniciativa()" style="width: 100%; margin-top: 10px; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
             ⏩ PASSAR A VEZ
         </button>
 
-        <button onclick="limparTodaIniciativa()" style="width: 100%; margin-top: 10px; background: transparent; border: 1px dashed var(--op-red); color: var(--op-red); padding: 6px; font-size: 10px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
+        <button onclick="limparTodaIniciativa()" style="width: 100%; margin-top: 6px; background: transparent; border: 1px dashed var(--op-red); color: var(--op-red); padding: 4px; font-size: 10px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
             🗑️ Encerrar Combate
         </button>
     </div>
