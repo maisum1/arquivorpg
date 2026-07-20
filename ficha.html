@@ -1506,8 +1506,16 @@
             recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); 
             
             window.isCarregandoFicha = false; // <--- LIBERA O RASTREADOR
-        });
-    }
+        
+        // === GATILHO DA INICIATIVA ===
+            // Se a ficha pertencer a uma campanha, inicializa o motor de combate
+            if (d_raw.campanhaId) {
+                inicializarSistemaIniciativa(d_raw.campanhaId, firebase.auth().currentUser);
+            }
+            // =============================
+
+        }); // Fecha o onSnapshot
+    } // Fecha a function carregarFicha()
 
     function salvarFicha() {
         const hF = isHexatombe || globalHexatombe; const cu = auth.currentUser; const nj = cu ? (cu.displayName || cu.email) : "Desconhecido";
