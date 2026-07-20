@@ -942,7 +942,168 @@
             };
         })();
         // ==========================================
-    
+
+    // ==========================================
+        // MOTOR COOPERATIVO DE INICIATIVA (CAMPANHA)
+        // ==========================================
+        let idDaCampanhaAtiva = null;
+        let souMestreDestaCampanha = false;
+        let opcoesDeCombatentes = [];
+        let escutaCombateRealtime = null;
+
+        function togglePainelIniciativa() {
+            const painel = document.getElementById('painel-iniciativa-combate');
+            if (painel) painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function inicializarSistemaIniciativa(campanhaId, usuarioLogado) {
+            if (!campanhaId || !usuarioLogado) return;
+            idDaCampanhaAtiva = campaignId;
+
+            // 1. Mostrar o botão de Combate agora que sabemos que a ficha pertence a uma campanha
+            document.getElementById('btn-toggle-iniciativa').style.display = 'block';
+
+            // 2. Verificar se o usuário atual é o dono legítimo da campanha ou Super Admin
+            try {
+                const campSnap = await db.collection("campanhas").where("codigo", "==", campanhaId).get();
+                if (!campSnap.empty) {
+                    const dadosCamp = campSnap.docs[0].data();
+                    const checarSuperAdmin = (usuarioLogado.email && usuarioLogado.email.toLowerCase() === "pedroacpr@gmail.com");
+                    
+                    if (dadosCamp.dono === usuarioLogado.uid || checarSuperAdmin) {
+                        souMestreDestaCampanha = true;
+                        document.getElementById('controles-mestre-iniciativa').style.display = 'block';
+                        carregarCombatentesDisponiveis();
+                    }
+                }
+            } catch (e) { console.log("Erro ao validar mestre da iniciativa:", e); }
+
+            // 3. Ligar escuta em tempo real do combate associado a essa campanha
+            if (escutaCombateRealtime) escutaCombateRealtime();
+            escutaCombateRealtime = db.collection("combates").doc(campanhaId).onSnapshot(doc => {
+                const listaContainer = document.getElementById('container-lista-iniciativa');
+                if (!listaContainer) return;
+                listaContainer.innerHTML = "";
+
+                if (doc.exists && doc.data().ordem && doc.data().ordem.length > 0) {
+                    const ordem = doc.data().ordem;
+                    ordem.forEach((combatente, index) => {
+                        const item = document.createElement('div');
+                        item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border: 1px dotted var(--card-border); background: var(--card-bg); font-size: 12px; border-radius: 2px;";
+                        
+                        // Iconografia estilizada com base no tipo
+                        const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
+                        
+                        let botaoRemover = '';
+                        if (souMestreDestaCampanha) {
+                            botaoRemover = `<span style="color: var(--op-red); cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 10px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
+                        }
+
+                        item.innerHTML = `
+                            <span style="word-break: break-all; font-weight: bold; color: var(--op-ink);">${index + 1}° ${icone} ${combatente.nome}</span>
+                            <div style="display: flex; align-items: center;">
+                                <span style="font-family: 'Special Elite', monospace; background: var(--op-ink); color: var(--bg-paper); padding: 2px 6px; font-size: 11px; border-radius: 2px;">${combatente.valor}</span>
+                                ${botaoRemover}
+                            </div>
+                        `;
+                        listaContainer.appendChild(item);
+                    });
+                } else {
+                    listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px; font-family:sans-serif;'>Nenhum combate ativo nesta campanha.</div>";
+                }
+            });
+        }
+
+        async function carregarCombatentesDisponiveis() {
+            const select = document.getElementById('select-ficha-combate');
+            if (!select) return;
+            opcoesDeCombatentes = [];
+
+            try {
+                // Puxar Personas vinculadas à campanha
+                const fichasSnap = await db.collection("fichas").where("campanhaId", "==", idDaCampanhaAtiva).get();
+                fichasSnap.forEach(doc => {
+                    opcoesDeCombatentes.push({ id: doc.id, nome: doc.data().nome || "Persona", tipo: "ficha" });
+                });
+
+                // Puxar Entidades vinculadas à campanha
+                const ameacasSnap = await db.collection("ameacas").where("campanhasIds", "array-contains", idDaCampanhaAtiva).get();
+                ameacasSnap.forEach(doc => {
+                    opcoesDeCombatentes.push({ id: doc.id, nome: doc.data().nome || "Entidade", tipo: "ameaca" });
+                });
+
+                // Popular o select do Mestre
+                select.innerHTML = '<option value="">Selecionar Combatente...</option>';
+                opcoesDeCombatentes.forEach(opt => {
+                    const tag = opt.tipo === 'ameaca' ? '[AMEAÇA] ' : '[PLAYER] ';
+                    select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome}</option>`;
+                });
+            } catch (e) { console.log("Erro ao carregar opções de combate:", e); }
+        }
+
+        async function adicionarCombatenteIniciativa() {
+            const select = document.getElementById('select-ficha-combate');
+            const inputVal = document.getElementById('input-valor-iniciativa');
+            const idEscolhido = select.value;
+            const valorInic = parseInt(inputVal.value);
+
+            if (!idEscolhido || isNaN(valorInic)) {
+                alert("Selecione um combatente e insira um valor válido de iniciativa.");
+                return;
+            }
+
+            const combatenteInfo = opcoesDeCombatentes.find(o => o.id === idEscolhido);
+            if (!combatenteInfo) return;
+
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            
+            try {
+                const doc = await docRef.get();
+                let ordemAtual = [];
+                if (doc.exists && doc.data().ordem) {
+                    ordemAtual = doc.data().ordem;
+                }
+
+                // Filtrar caso o combatente já esteja na lista (evita duplicados ao atualizar valor)
+                ordemAtual = ordemAtual.filter(c => c.id !== idEscolhido);
+
+                // Adicionar novo dado
+                ordemAtual.push({
+                    id: idEscolhido,
+                    nome: combatenteInfo.nome,
+                    tipo: combatenteInfo.tipo,
+                    valor: valorInic
+                });
+
+                // Ordenar decrescente (Maior iniciativa primeiro)
+                ordemAtual.sort((a, b) => b.valor - a.valor);
+
+                await docRef.set({ ordem: ordemAtual }, { merge: true });
+                inputVal.value = "";
+                select.value = "";
+            } catch (e) { alert("Erro ao incluir na iniciativa."); }
+        }
+
+        async function removerCombatenteIniciativa(idCombatente) {
+            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+            try {
+                const doc = await docRef.get();
+                if (doc.exists && doc.data().ordem) {
+                    let ordemAtual = doc.data().ordem;
+                    ordemAtual = ordemAtual.filter(c => c.id !== idCombatente);
+                    await docRef.set({ ordem: ordemAtual }, { merge: true });
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        async function limparTodaIniciativa() {
+            if (confirm("Deseja expurgar todos os combatentes e encerrar o combate atual?")) {
+                try {
+                    await db.collection("combates").doc(idDaCampanhaAtiva).delete();
+                } catch (e) { alert("Falha ao resetar."); }
+            }
+        }
+        // ==========================================
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase;" onclick="togglePainelIniciativa()">
     ⚔️ Iniciativa
