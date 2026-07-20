@@ -951,7 +951,7 @@ if (campanhaParam) {
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (V2.0)
+        // MOTOR COOPERATIVO DE INICIATIVA (V3.0)
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
@@ -977,6 +977,14 @@ if (campanhaParam) {
 
             document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
+            // Libera a caixa "SUA INICIATIVA" se a pessoa estiver em uma ficha ou ameaça específica
+            const myUrlParams = new URLSearchParams(window.location.search);
+            const minhaFichaId = myUrlParams.get('id');
+            if (minhaFichaId) {
+                const painelJog = document.getElementById('controles-jogador-iniciativa');
+                if (painelJog) painelJog.style.display = 'block';
+            }
+
             try {
                 const campSnap = await db.collection("campanhas").where("codigo", "==", campanhaId).get();
                 if (!campSnap.empty) {
@@ -998,8 +1006,6 @@ if (campanhaParam) {
                 listaContainer.innerHTML = "";
 
                 let isMinhaVez = false;
-                const myUrlParams = new URLSearchParams(window.location.search);
-                const minhaFichaId = myUrlParams.get('id'); // Pega o ID da ficha/ameaça que estou lendo agora
 
                 if (doc.exists && doc.data().ordem && doc.data().ordem.length > 0) {
                     const ordem = doc.data().ordem;
@@ -1072,6 +1078,84 @@ if (campanhaParam) {
             });
         }
 
+        window.enviarMinhaIniciativa = async function() {
+            const inputVal = document.getElementById('input-minha-iniciativa');
+            const valorInic = parseInt(inputVal.value);
+            const myUrlParams = new URLSearchParams(window.location.search);
+            const minhaFichaId = myUrlParams.get('id');
+
+            if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) {
+                alert("Insira um valor válido de iniciativa.");
+                return;
+            }
+
+            try {
+                inputVal.placeholder = "Enviando...";
+                
+                // Primeiro tenta achar na coleção de fichas
+                let meuNome = "Desconhecido";
+                let minhaAgi = 0;
+                let meuTipo = "ficha";
+
+                let snap = await db.collection("fichas").doc(minhaFichaId).get();
+                if (snap.exists) {
+                    meuNome = snap.data().nome || "Persona";
+                    minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
+                } else {
+                    // Se não for ficha, deve ser Ameaça
+                    snap = await db.collection("ameacas").doc(minhaFichaId).get();
+                    if (snap.exists) {
+                        meuNome = snap.data().nome || "Entidade";
+                        minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
+                        meuTipo = "ameaca";
+                    } else {
+                        alert("Arquivo de combate não localizado no banco de dados.");
+                        inputVal.placeholder = "Valor...";
+                        return;
+                    }
+                }
+
+                const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
+                const doc = await docRef.get();
+                
+                let ordemAtual = [];
+                let turnoSalvo = 0;
+                let rodadaSalva = 1;
+
+                if (doc.exists && doc.data().ordem) {
+                    ordemAtual = doc.data().ordem;
+                    turnoSalvo = doc.data().turnoAtual || 0;
+                    rodadaSalva = doc.data().rodadaAtual || 1;
+                }
+
+                ordemAtual = ordemAtual.filter(c => c.id !== minhaFichaId);
+
+                ordemAtual.push({
+                    id: minhaFichaId,
+                    nome: meuNome,
+                    tipo: meuTipo,
+                    valor: valorInic,
+                    agi: minhaAgi
+                });
+
+                // ORDENAÇÃO (Iniciativa -> Agilidade)
+                ordemAtual.sort((a, b) => {
+                    if (b.valor !== a.valor) return b.valor - a.valor;
+                    return b.agi - a.agi;
+                });
+
+                await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
+                inputVal.value = "";
+                inputVal.placeholder = "Enviado!";
+                setTimeout(() => inputVal.placeholder = "Valor...", 2000);
+                
+            } catch (e) {
+                console.log(e);
+                alert("Erro ao enviar iniciativa.");
+                inputVal.placeholder = "Valor...";
+            }
+        };
+
         async function carregarCombatentesDisponiveis() {
             const select = document.getElementById('select-ficha-combate');
             if (!select) return;
@@ -1100,7 +1184,7 @@ if (campanhaParam) {
             } catch (e) { console.log("Erro ao carregar opções."); }
         }
 
-        async function adicionarCombatenteIniciativa() {
+        window.adicionarCombatenteIniciativa = async function() {
             const select = document.getElementById('select-ficha-combate');
             const inputVal = document.getElementById('input-valor-iniciativa');
             const idEscolhido = select.value;
@@ -1135,7 +1219,7 @@ if (campanhaParam) {
                     nome: combatenteInfo.nome,
                     tipo: combatenteInfo.tipo,
                     valor: valorInic,
-                    agi: combatenteInfo.agi // Adiciona a AGI no banco para calcular!
+                    agi: combatenteInfo.agi 
                 });
 
                 // ORDENAÇÃO: 1º Quem tem mais Iniciativa. 2º Quem tem mais Agilidade.
@@ -1148,7 +1232,7 @@ if (campanhaParam) {
                 inputVal.value = "";
                 select.value = "";
             } catch (e) { alert("Erro ao incluir na iniciativa."); }
-        }
+        };
 
         window.passarTurnoIniciativa = async function() {
             const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
@@ -1189,7 +1273,7 @@ if (campanhaParam) {
             } catch (e) { console.log(e); }
         };
 
-        async function removerCombatenteIniciativa(idCombatente) {
+        window.removerCombatenteIniciativa = async function(idCombatente) {
             const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
             try {
                 const doc = await docRef.get();
@@ -1200,15 +1284,15 @@ if (campanhaParam) {
                     await docRef.set({ ordem: ordemAtual, turnoAtual: 0 }, { merge: true }); 
                 }
             } catch (e) { console.log(e); }
-        }
+        };
 
-        async function limparTodaIniciativa() {
+        window.limparTodaIniciativa = async function() {
             if (confirm("Deseja expurgar todos os combatentes e encerrar o combate atual?")) {
                 try {
                     await db.collection("combates").doc(idDaCampanhaAtiva).delete();
                 } catch (e) { alert("Falha ao resetar."); }
             }
-        }
+        };
         // ==========================================
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
@@ -1225,6 +1309,14 @@ if (campanhaParam) {
 
     <div id="container-lista-iniciativa" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px;">
         </div>
+
+    <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 12px; margin-top: 10px;">
+        <p style="font-size: 10px; margin: 0 0 8px 0; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 0.5px;">SUA INICIATIVA</p>
+        <div style="display: flex; gap: 8px;">
+            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 70px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 6px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none;">
+            <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">Enviar</button>
+        </div>
+    </div>
 
     <div id="controles-mestre-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 12px; margin-top: 10px;">
         <p style="font-size: 10px; margin: 0 0 8px 0; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-weight: bold; letter-spacing: 0.5px;">PAINEL DO DIRETOR</p>
