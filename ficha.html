@@ -2019,14 +2019,14 @@
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (V5.0)
+        // MOTOR COOPERATIVO DE INICIATIVA (V5.1)
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
         let opcoesDeCombatentes = [];
         let escutaCombateRealtime = null;
+        let dragSourceIndex = null;
 
-        // Injeta a animação de piscar vermelho na página
         if (!document.getElementById('pulse-anim')) {
             const style = document.createElement('style');
             style.id = 'pulse-anim';
@@ -2045,7 +2045,6 @@
 
             document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
-            // Libera a caixa "SUA INICIATIVA" se a pessoa estiver em uma ficha
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
             if (minhaFichaId) {
@@ -2063,13 +2062,12 @@
                         souMestreDestaCampanha = true;
                         document.getElementById('controles-mestre-iniciativa').style.display = 'block';
                         const painelJog = document.getElementById('controles-jogador-iniciativa');
-                        if (painelJog) painelJog.style.display = 'none'; // Mestre não precisa do painel de player
+                        if (painelJog) painelJog.style.display = 'none';
                         carregarCombatentesDisponiveis();
                     }
                 }
             } catch (e) { console.log("Erro ao validar mestre."); }
 
-            // Configura o evento de arrastar dinâmico para a lista (apenas uma vez)
             const listaContainer = document.getElementById('container-lista-iniciativa');
             if (listaContainer && !listaContainer.dataset.dragAttached) {
                 listaContainer.dataset.dragAttached = "true";
@@ -2094,6 +2092,7 @@
                 listaContainer.innerHTML = "";
 
                 let isMinhaVez = false;
+                let meuIndexNaOrdem = -1;
 
                 if (doc.exists && doc.data().ordem && doc.data().ordem.length > 0) {
                     const ordem = doc.data().ordem;
@@ -2105,8 +2104,9 @@
                     ordem.forEach((combatente, index) => {
                         const isCurrentTurn = (index === turnoAtual);
                         
-                        if (isCurrentTurn && combatente.id === minhaFichaId) {
-                            isMinhaVez = true;
+                        if (combatente.id === minhaFichaId) {
+                            meuIndexNaOrdem = index;
+                            if (isCurrentTurn) isMinhaVez = true;
                         }
 
                         const bgCor = isCurrentTurn ? "var(--op-red)" : "var(--card-bg)";
@@ -2115,10 +2115,9 @@
 
                         const item = document.createElement('div');
                         item.className = 'draggable-item';
-                        item.dataset.index = index; // Salva a posição original no banco
+                        item.dataset.index = index;
                         item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
                         
-                        // Habilita o Arrastar e Soltar (Visual Real-Time) Exclusivo do Mestre
                         if (souMestreDestaCampanha) {
                             item.draggable = true;
                             item.style.cursor = "grab";
@@ -2133,7 +2132,6 @@
                                 item.classList.remove('dragging'); 
                                 item.style.opacity = "1"; 
                                 
-                                // Calcula onde a caixinha foi solta visualmente
                                 const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
                                 const newIndex = currentList.indexOf(item);
                                 const oldIndex = parseInt(item.dataset.index);
@@ -2141,7 +2139,6 @@
                                 if (oldIndex !== newIndex && newIndex !== -1) {
                                     executarReordenacaoMestre(oldIndex, newIndex);
                                 } else {
-                                    // Se soltou no mesmo lugar, volta a borda normal
                                     item.style.border = `1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}`;
                                 }
                             });
@@ -2174,7 +2171,6 @@
                     listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px;'>Nenhum combate ativo.</div>";
                 }
 
-                // Ajusta o botão com alertas
                 const btnToggle = document.getElementById('btn-toggle-iniciativa');
                 const btnAtrasar = document.getElementById('btn-atrasar-vez-jog');
                 
@@ -2184,20 +2180,22 @@
                     btnToggle.style.borderColor = "var(--op-dark-red)";
                     btnToggle.style.animation = "pulseRed 1s infinite";
                     btnToggle.innerText = "🚨 SUA VEZ! AJA!";
-                    
-                    if (btnAtrasar) {
-                        btnAtrasar.style.borderColor = "var(--op-red)";
-                        btnAtrasar.style.opacity = "1";
-                        btnAtrasar.style.pointerEvents = "auto";
-                    }
                 } else {
                     btnToggle.style.background = "var(--op-ink)";
                     btnToggle.style.color = "var(--bg-paper)";
                     btnToggle.style.borderColor = "var(--card-border)";
                     btnToggle.style.animation = "none";
                     btnToggle.innerText = "⚔️ Iniciativa";
-                    
-                    if (btnAtrasar) {
+                }
+
+                // LIBERA A AMPULHETA PARA O JOGADOR A QUALQUER MOMENTO (desde que não seja o último)
+                if (btnAtrasar) {
+                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < (doc.data()?.ordem?.length || 0) - 1);
+                    if (podeAtrasar) {
+                        btnAtrasar.style.borderColor = "var(--op-red)";
+                        btnAtrasar.style.opacity = "1";
+                        btnAtrasar.style.pointerEvents = "auto";
+                    } else {
                         btnAtrasar.style.borderColor = "var(--card-border)";
                         btnAtrasar.style.opacity = "0.3";
                         btnAtrasar.style.pointerEvents = "none";
@@ -2206,7 +2204,6 @@
             });
         }
 
-        // Função utilitária para o Drag and Drop visual
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
             return draggableElements.reduce((closest, child) => {
@@ -2218,24 +2215,19 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // DRAG AND DROP MANUAL DO MESTRE (REORDENAR LIVREMENTE)
         window.executarReordenacaoMestre = async function(origem, destino) {
             const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
             try {
                 const doc = await docRef.get();
                 if (doc.exists && doc.data().ordem) {
                     let ordem = doc.data().ordem;
-                    // Tira o combatente da velha posição e insere na nova
                     const [combatenteMovido] = ordem.splice(origem, 1);
                     ordem.splice(destino, 0, combatenteMovido);
-                    
-                    // Zera o turno por segurança quando o mestre muda tudo à força
                     await docRef.update({ ordem: ordem, turnoAtual: 0 });
                 }
             } catch (e) { console.log(e); }
         };
 
-        // LÓGICA DE ATRASAR A VEZ (COM AVISO VISUAL PARA O JOGADOR)
         window.atrasarMinhaVez = async function() {
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
@@ -2248,23 +2240,27 @@
                     let ordem = doc.data().ordem;
                     let turno = doc.data().turnoAtual || 0;
 
-                    if (ordem[turno] && ordem[turno].id === minhaFichaId) {
-                        if (turno >= ordem.length - 1) {
-                            alert("Você já é o último desta rodada. Apenas passe a vez normalmente.");
+                    const meuIndex = ordem.findIndex(c => c.id === minhaFichaId);
+
+                    if (meuIndex !== -1) {
+                        if (meuIndex >= ordem.length - 1) {
+                            alert("Você já é o último da ordem.");
                             return;
                         }
 
-                        // Troca mecânica com o próximo
-                        let temp = ordem[turno];
-                        ordem[turno] = ordem[turno + 1];
-                        ordem[turno + 1] = temp;
+                        let idDoTurnoAtual = ordem[turno] ? ordem[turno].id : null;
 
-                        await docRef.update({ ordem: ordem });
-                        
-                        // ESSE AVISO RESOLVE A CONFUSÃO:
-                        alert("Sua vez foi atrasada com sucesso! O próximo combatente assumiu a linha de frente.");
-                    } else {
-                        alert("Não é possível. Seu turno já passou ou a ordem foi alterada pelo mestre.");
+                        // Troca de lugar com o cara logo abaixo na lista
+                        let temp = ordem[meuIndex];
+                        ordem[meuIndex] = ordem[meuIndex + 1];
+                        ordem[meuIndex + 1] = temp;
+
+                        // Garante que o turno não pule quem já estava jogando
+                        if (meuIndex !== turno && idDoTurnoAtual) {
+                            turno = ordem.findIndex(c => c.id === idDoTurnoAtual);
+                        }
+
+                        await docRef.update({ ordem: ordem, turnoAtual: turno });
                     }
                 }
             } catch (e) { console.log(e); }
