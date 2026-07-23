@@ -2423,59 +2423,208 @@
         // ==========================================
 
     // ==========================================
-        // SISTEMA INTELIGENTE: CRIAÇÃO DE PERÍCIAS E UX (V2 - RADAR ATIVO)
+        // SISTEMA DE CRIAÇÃO DE PERÍCIAS + PERSISTÊNCIA + TUTORIAL
         // ==========================================
         (function() {
-            // 1. Esbater os valores de "Bônus" para limpar visualmente
+            // 1. CSS para Bônus Esmaecidos e Estilo do Banner de Criação / Modal de Tutorial
             const style = document.createElement('style');
             style.innerHTML = `
+                /* Cor apagada para os inputs de bônus */
                 input[id^="bonus-"], input[id^="sub-bonus-"] {
                     color: var(--cor-geral) !important;
                     font-weight: normal !important;
-                    opacity: 0.8;
+                    opacity: 0.6 !important;
                 }
                 
-                #box-criacao-pericias {
-                    display: flex; justify-content: space-between; align-items: center;
-                    background: rgba(0,0,0,0.03); border: 1px dashed var(--card-border);
-                    padding: 8px 12px; margin-bottom: 15px; border-radius: 2px;
-                    flex-wrap: wrap; gap: 10px;
+                #banner-criacao-pericias {
+                    display: none;
+                    background: var(--card-bg);
+                    border: 1px dashed var(--op-ink);
+                    padding: 10px 15px;
+                    margin-bottom: 15px;
+                    border-radius: 2px;
+                    font-family: 'Courier Prime', monospace;
                 }
-                body.tema-escuro #box-criacao-pericias { background: rgba(255,255,255,0.02); }
+
+                .btn-banner-criacao {
+                    background: transparent;
+                    border: 1px solid var(--op-ink);
+                    color: var(--op-ink);
+                    font-size: 11px;
+                    font-family: 'Inter', sans-serif;
+                    font-weight: bold;
+                    padding: 6px 10px;
+                    cursor: pointer;
+                    border-radius: 2px;
+                    transition: 0.2s;
+                    text-transform: uppercase;
+                }
+                .btn-banner-criacao:hover {
+                    background: var(--card-hover);
+                }
+
+                .guia-step {
+                    text-align: left;
+                    margin-bottom: 12px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px dotted var(--card-border);
+                }
+                .guia-step strong {
+                    color: var(--op-ink);
+                    font-size: 13px;
+                    font-family: 'Crimson Text', serif;
+                    display: block;
+                    margin-bottom: 3px;
+                }
+                body.tema-escuro .guia-step strong { color: var(--accent-gold); }
+                .guia-step p {
+                    margin: 0;
+                    font-size: 11px;
+                    color: var(--cor-geral);
+                    font-family: 'Inter', sans-serif;
+                    line-height: 1.4;
+                }
             `;
             document.head.appendChild(style);
 
-            window.isModoCriacaoPericias = false;
+            // Injeta o HTML do Modal do Guia de Criação
+            const modalGuia = document.createElement('div');
+            modalGuia.id = 'modal-guia-criacao';
+            modalGuia.className = 'modal-padrao';
+            modalGuia.innerHTML = `
+                <h3>📜 GUIA DE CRIAÇÃO DE PERSONA</h3>
+                <div style="max-height: 320px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;">
+                    <div class="guia-step">
+                        <strong>1. ATRIBUTOS BASE</strong>
+                        <p>Distribua seus atributos nos campos no topo da ficha. Atributos afetam diretamente suas perícias e testes.</p>
+                    </div>
+                    <div class="guia-step">
+                        <strong>2. PONTOS DE PERÍCIA</strong>
+                        <p>Sua reserva total de pontos é calculada como: <code>6 + (2 × SAG) + (2 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong> (especialização inicial).</p>
+                    </div>
+                    <div class="guia-step">
+                        <strong>3. ORIGEM E CLASSE</strong>
+                        <p>Escolha sua Origem profissional e sua Classe. Elas concedem perícias treinadas automáticas e capacidades únicas.</p>
+                    </div>
+                    <div class="guia-step">
+                        <strong>4. STATUS & RECURSOS</strong>
+                        <p>Sua Vitalidade, Lucidez e Fôlego são calculados e gerenciados automaticamente conforme seus atributos.</p>
+                    </div>
+                    <div class="guia-step">
+                        <strong>5. FINALIZAÇÃO</strong>
+                        <p>Quando o saldo de pontos zerar e a persona estiver pronta, clique em <strong>[ ✔️ CONCLUIR CRIAÇÃO ]</strong> para trancar a distribuição inicial.</p>
+                    </div>
+                </div>
+                <button onclick="toggleModal('modal-guia-criacao')" class="btn-google" style="width:100%;">ENTENDIDO</button>
+            `;
+            document.body.appendChild(modalGuia);
 
-            // Função para ligar e desligar o contador visual
-            window.toggleModoCriacao = function() {
-                window.isModoCriacaoPericias = !window.isModoCriacaoPericias;
-                const btn = document.getElementById('btn-toggle-criacao');
-                const cont = document.getElementById('contador-pts-pericias');
-                const aviso = document.getElementById('aviso-criacao');
+            window.isModoCriacaoAtivo = false;
 
-                if (window.isModoCriacaoPericias) {
-                    btn.innerText = "[ ✔️ CONCLUIR CRIAÇÃO ]";
-                    btn.style.background = "var(--op-ink)";
-                    btn.style.color = "var(--bg-paper)";
-                    cont.style.display = "inline-block";
-                    aviso.style.display = "inline-block";
-                    window.calcularPontosPericias();
-                } else {
-                    btn.innerText = "[ LIGAR MODO CRIAÇÃO ]";
-                    btn.style.background = "transparent";
-                    btn.style.color = "var(--op-ink)";
-                    cont.style.display = "none";
-                    aviso.style.display = "none";
+            // RADAR: Espera a página e os dados do Firebase carregarem
+            const radarCriacao = setInterval(() => {
+                const primeiroTreino = document.querySelector('input[id^="treino-"]');
+                
+                if (primeiroTreino && !document.getElementById('banner-criacao-pericias')) {
+                    clearInterval(radarCriacao);
+
+                    // Acha a div pai das perícias
+                    const containerPericias = primeiroTreino.closest('.grid, table, div[style*="display: grid"]') || primeiroTreino.parentNode;
+                    
+                    if (containerPericias) {
+                        const banner = document.createElement('div');
+                        banner.id = 'banner-criacao-pericias';
+                        banner.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                    <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">CRIAÇÃO DE PERSONA:</span>
+                                    <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">PTS: <span id="pts-restantes">0</span> / <span id="pts-total">0</span></span>
+                                    <span style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">(+1 = 1pt | +2 = 3pts)</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn-banner-criacao" onclick="toggleModal('modal-guia-criacao')">📜 Guia</button>
+                                    <button class="btn-banner-criacao" onclick="concluirCriacaoFicha()" style="border-color: var(--op-red); color: var(--op-red);">✔️ Concluir Criação</button>
+                                </div>
+                            </div>
+                        `;
+                        containerPericias.parentNode.insertBefore(banner, containerPericias);
+                    }
+
+                    // Injeta também o botão de Reabrir Criação dentro do modal de Configurações (⚙️)
+                    const modalConfig = document.getElementById('modal-config');
+                    if (modalConfig && !document.getElementById('btn-reabrir-criacao-config')) {
+                        const btnReabrir = document.createElement('button');
+                        btnReabrir.id = 'btn-reabrir-criacao-config';
+                        btnReabrir.className = 'btn-google';
+                        btnReabrir.style.cssText = 'width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;';
+                        btnReabrir.innerText = '[ 🛠️ REABRIR MODO DE CRIAÇÃO ]';
+                        btnReabrir.onclick = function() {
+                            toggleModal('modal-config');
+                            ativarModoCriacao(true);
+                        };
+                        
+                        // Insere antes do botão de fechar painel
+                        const btnFechar = modalConfig.querySelector('button[onclick*="modal-config"]');
+                        if (btnFechar) modalConfig.insertBefore(btnReabrir, btnFechar);
+                        else modalConfig.appendChild(btnReabrir);
+                    }
+
+                    // Escutadores de evento para recalcular ao digitar
+                    document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]').forEach(inp => {
+                        inp.addEventListener('input', window.calcularPontosPericias);
+                    });
+
+                    const attrSag = document.getElementById('attr-sag') || document.getElementById('attr-int');
+                    const attrVon = document.getElementById('attr-von') || document.getElementById('attr-pre');
+                    if (attrSag) attrSag.addEventListener('input', window.calcularPontosPericias);
+                    if (attrVon) attrVon.addEventListener('input', window.calcularPontosPericias);
+
+                    // Checa o estado vindo do Firebase
+                    verificarEstadoCriacaoFirebase();
+                }
+            }, 400);
+
+            // Verifica se a ficha já teve a criação concluída no banco de dados
+            function verificarEstadoCriacaoFirebase() {
+                if (!window.atual) return;
+                
+                db.collection("fichas").doc(window.atual).get().then(doc => {
+                    if (doc.exists) {
+                        const dados = doc.data();
+                        // Se criacaoConcluida NÃO for true, liga o modo de criação de primeira!
+                        if (dados.criacaoConcluida !== true) {
+                            ativarModoCriacao(true);
+                        } else {
+                            ativarModoCriacao(false);
+                        }
+                    }
+                }).catch(() => { ativarModoCriacao(true); });
+            }
+
+            window.ativarModoCriacao = function(status) {
+                window.isModoCriacaoAtivo = status;
+                const banner = document.getElementById('banner-criacao-pericias');
+                if (banner) {
+                    banner.style.display = status ? 'block' : 'none';
+                }
+                if (status) window.calcularPontosPericias();
+            };
+
+            window.concluirCriacaoFicha = async function() {
+                if (confirm("Deseja concluir a criação da persona?\n\nO contador de pontos será ocultado. Você ainda poderá alterar os valores no futuro se necessário através das configurações.")) {
+                    window.ativarModoCriacao(false);
+                    if (window.atual) {
+                        try {
+                            await db.collection("fichas").doc(window.atual).update({ criacaoConcluida: true });
+                            alert("Criação de Persona Concluída com Sucesso!");
+                        } catch(e) { console.log(e); }
+                    }
                 }
             };
 
-            // O Motor Matemático
             window.calcularPontosPericias = function() {
-                if (!window.isModoCriacaoPericias) return;
+                if (!window.isModoCriacaoAtivo) return;
 
-                // 1. Calcula o limite total: 6 + 2xSAG + 2xVON
-                // Cobre a possibilidade de usar id "attr-sag" ou o antigo "attr-int"
                 const sagNode = document.getElementById('attr-sag') || document.getElementById('attr-int');
                 const vonNode = document.getElementById('attr-von') || document.getElementById('attr-pre');
                 
@@ -2483,7 +2632,6 @@
                 const von = parseInt(vonNode?.value || 0);
                 const totalDisponivel = 6 + (2 * sag) + (2 * von);
 
-                // 2. Verifica todos os treinos e aplica a regra de custo
                 let totalGasto = 0;
                 const inputsTreino = document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]');
                 
@@ -2492,13 +2640,12 @@
                     if (val === 1) {
                         totalGasto += 1;
                     } else if (val === 2) {
-                        totalGasto += 3; // Nível 2 custa 3 pontos na criação
+                        totalGasto += 3; // +1 = 1pt, +2 = 3pts
                     } else if (val > 2) {
                         totalGasto += 3 + (val - 2); 
                     }
                 });
 
-                // 3. Imprime os valores no ecrã
                 const txtRestantes = document.getElementById('pts-restantes');
                 const txtTotal = document.getElementById('pts-total');
                 
@@ -2507,7 +2654,6 @@
                     txtRestantes.innerText = restantes;
                     txtTotal.innerText = totalDisponivel;
                     
-                    // Alerta a vermelho se o jogador tiver gasto demais
                     if (restantes < 0) {
                         txtRestantes.style.color = "var(--op-red)";
                     } else {
@@ -2515,46 +2661,6 @@
                     }
                 }
             };
-
-            // 2. RADAR: Espera ativamente até que as perícias sejam carregadas no DOM
-            const radarPericias = setInterval(() => {
-                // Procura pelo primeiro input de treino para garantir que as perícias existem
-                const primeiroTreino = document.querySelector('input[id^="treino-"]');
-                
-                if (primeiroTreino && !document.getElementById('box-criacao-pericias')) {
-                    clearInterval(radarPericias); // Para o radar, já encontrámos!
-
-                    // Tenta encontrar o contentor pai de todas as perícias
-                    const containerPericias = primeiroTreino.closest('.grid, table, div[style*="display: grid"]') || primeiroTreino.parentNode;
-                    
-                    if (containerPericias) {
-                        const box = document.createElement('div');
-                        box.id = 'box-criacao-pericias';
-                        box.innerHTML = `
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <button id="btn-toggle-criacao" onclick="toggleModoCriacao()" style="background: transparent; border: 1px solid var(--op-ink); color: var(--op-ink); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: bold; padding: 6px 12px; cursor: pointer; border-radius: 2px; transition: 0.3s;">[ LIGAR MODO CRIAÇÃO ]</button>
-                                <span id="contador-pts-pericias" style="display: none; font-family: 'Courier Prime', monospace; font-size: 14px; font-weight: bold; color: var(--op-ink);">PTS: <span id="pts-restantes">0</span> / <span id="pts-total">0</span></span>
-                            </div>
-                            <span id="aviso-criacao" style="display: none; font-family: 'Inter', sans-serif; font-size: 11px; color: var(--cor-geral);">Custo: Nível 1 (1pt) | Nível 2 (3pts)</span>
-                        `;
-                        
-                        // Insere o painel de criação imediatamente ANTES da grelha de perícias
-                        containerPericias.parentNode.insertBefore(box, containerPericias);
-                    }
-                    
-                    // Adiciona o "escutador" para recalcular sempre que se digitar algo
-                    document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]').forEach(inp => {
-                        inp.addEventListener('input', window.calcularPontosPericias);
-                    });
-
-                    // Adiciona o "escutador" para quando a SAG ou VON mudarem
-                    const attrSag = document.getElementById('attr-sag') || document.getElementById('attr-int');
-                    const attrVon = document.getElementById('attr-von') || document.getElementById('attr-pre');
-                    if (attrSag) attrSag.addEventListener('input', window.calcularPontosPericias);
-                    if (attrVon) attrVon.addEventListener('input', window.calcularPontosPericias);
-                }
-            }, 500); // O radar escaneia a página a cada meio segundo até encontrar as perícias
-
         })();
         // ==========================================
 </script>
