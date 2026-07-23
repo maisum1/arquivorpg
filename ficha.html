@@ -384,6 +384,29 @@
 <button class="btn-theme" onclick="alternarTema()" title="Alternar Modo Escuro/Claro">🌗</button>
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações e Comandos">⚙️</button>
 
+    <div id="modal-guia-criacao" class="modal-padrao">
+    <h3>📜 GUIA DE CRIAÇÃO DA PERSONA</h3>
+    <div style="max-height: 320px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px; text-align: left;">
+        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border);">
+            <strong style="color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block;">1. ATRIBUTOS BASE</strong>
+            <p style="margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">Distribua seus atributos nos campos no topo da ficha. Atributos afetam diretamente suas perícias e testes.</p>
+        </div>
+        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border);">
+            <strong style="color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block;">2. PONTOS DE PERÍCIA</strong>
+            <p style="margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">Sua reserva total de pontos é: <code>6 + (2 × SAG) + (2 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong> (especialização inicial).</p>
+        </div>
+        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border);">
+            <strong style="color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block;">3. ORIGEM E CLASSE</strong>
+            <p style="margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">Escolha sua Origem profissional e sua Classe para receber capacidades e perícias.</p>
+        </div>
+        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border);">
+            <strong style="color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block;">4. FINALIZAÇÃO</strong>
+            <p style="margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">Ao terminar de gastar os pontos, clique em <strong>[ ✔️ CONCLUIR ]</strong> no banner do topo para travar a criação.</p>
+        </div>
+    </div>
+    <button onclick="toggleModal('modal-guia-criacao')" class="btn-google" style="width:100%;">ENTENDIDO</button>
+</div>
+    
 <div id="modal-config" class="modal-padrao">
     <h3 class="section-header" style="width: 100%; display: block; box-sizing: border-box;">CONFIGURAÇÕES</h3>
     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; margin-top: 15px;">
@@ -724,7 +747,7 @@
             <div style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;">
                 <span style="color:var(--hp-red); font-size: 11px;">❖</span> POSSUI SUBPERÍCIAS
             </div>
-             <div style="font-size: 6px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;">
+             <div style="font-size: 6px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px;">
                 <span style="color:var(--hp-red); font-size: 11px;"> </span> (clique na perícia)
             </div>
 
@@ -2445,39 +2468,37 @@
         // SISTEMA DE CRIAÇÃO DE PERÍCIAS (LÓGICA DIRETA)
         // ==========================================
         (function() {
-            // 1. CSS para Bônus Esmaecidos e Guia
+            // CSS dos Bônus Esmaecidos
             const style = document.createElement('style');
             style.innerHTML = `
-                input[id^="bonus-"], input[id^="sub-bonus-"] { color: var(--cor-geral) !important; font-weight: normal !important; opacity: 0.6 !important; }
-                .guia-step { text-align: left; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border); }
-                .guia-step strong { color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block; margin-bottom: 3px; }
-                body.tema-escuro .guia-step strong { color: var(--accent-gold); }
-                .guia-step p { margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif; line-height: 1.4; }
+                input[id^="bonus-"], input[id^="sub-bonus-"] {
+                    color: var(--cor-geral) !important;
+                    font-weight: normal !important;
+                    opacity: 0.6 !important;
+                }
             `;
             document.head.appendChild(style);
 
-            // 2. Injeta o Modal do Guia (Fica escondido no Body)
-            const modalGuia = document.createElement('div');
-            modalGuia.id = 'modal-guia-criacao';
-            modalGuia.className = 'modal-padrao';
-            modalGuia.innerHTML = `
-                <h3>📜 GUIA DE CRIAÇÃO</h3>
-                <div style="max-height: 320px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;">
-                    <div class="guia-step"><strong>1. ATRIBUTOS BASE</strong><p>Distribua seus atributos. Eles afetam perícias e testes diretamente.</p></div>
-                    <div class="guia-step"><strong>2. PONTOS DE PERÍCIA</strong><p>Sua reserva é: <code>6 + (2 × SAG) + (2 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong>.</p></div>
-                    <div class="guia-step"><strong>3. ORIGEM E CLASSE</strong><p>Elas concedem perícias treinadas automáticas.</p></div>
-                    <div class="guia-step"><strong>4. FINALIZAÇÃO</strong><p>Quando a persona estiver pronta, clique em <strong>[ ✔️ CONCLUIR CRIAÇÃO ]</strong>.</p></div>
-                </div>
-                <button onclick="toggleModal('modal-guia-criacao')" class="btn-google" style="width:100%;">ENTENDIDO</button>
-            `;
-            document.body.appendChild(modalGuia);
-
             window.isModoCriacaoAtivo = false;
 
-            // 3. Puxa os dados do Firebase para ver se a ficha é nova
-            setTimeout(() => {
+            function obterFichaId() {
                 const params = new URLSearchParams(window.location.search);
-                const fichaId = params.get('id');
+                return params.get('id');
+            }
+
+            // Escuta qualquer mudança de digitação ou clique em setas de número
+            document.addEventListener('input', recalculadoGeral);
+            document.addEventListener('change', recalculadoGeral);
+
+            function recalculadoGeral() {
+                if (window.isModoCriacaoAtivo) {
+                    window.calcularPontosPericias();
+                }
+            }
+
+            // Checa no Firebase se a ficha já foi concluída
+            setTimeout(() => {
+                const fichaId = obterFichaId();
                 if (!fichaId) return;
 
                 db.collection("fichas").doc(fichaId).get().then(doc => {
@@ -2485,17 +2506,14 @@
                         const dados = doc.data();
                         if (dados.criacaoConcluida !== true) {
                             window.ativarModoCriacao(true);
+                        } else {
+                            window.ativarModoCriacao(false);
                         }
+                    } else {
+                        window.ativarModoCriacao(true);
                     }
                 }).catch(() => { window.ativarModoCriacao(true); });
-
-                // Ativa a matemática em qualquer clique
-                document.body.addEventListener('input', (e) => {
-                    if (e.target.id && (e.target.id.startsWith('treino-') || e.target.id.startsWith('sub-treino-') || e.target.id === 'attr-sag' || e.target.id === 'attr-int' || e.target.id === 'attr-von' || e.target.id === 'attr-pre')) {
-                        window.calcularPontosPericias();
-                    }
-                });
-            }, 1500);
+            }, 1000);
 
             window.ativarModoCriacao = function(status) {
                 window.isModoCriacaoAtivo = status;
@@ -2505,13 +2523,13 @@
             };
 
             window.concluirCriacaoFicha = async function() {
-                if (confirm("Deseja concluir a criação da persona?")) {
+                if (confirm("Deseja concluir a criação da persona?\n\nO contador será ocultado, mas você pode reabri-lo nas configurações.")) {
                     window.ativarModoCriacao(false);
-                    const params = new URLSearchParams(window.location.search);
-                    const fichaId = params.get('id');
+                    const fichaId = obterFichaId();
                     if (fichaId) {
-                        try { await db.collection("fichas").doc(fichaId).update({ criacaoConcluida: true }); } 
-                        catch(e) { console.log(e); }
+                        try {
+                            await db.collection("fichas").doc(fichaId).update({ criacaoConcluida: true });
+                        } catch(e) { console.log(e); }
                     }
                 }
             };
@@ -2532,7 +2550,7 @@
                 inputsTreino.forEach(inp => {
                     const val = parseInt(inp.value || 0);
                     if (val === 1) totalGasto += 1;
-                    else if (val === 2) totalGasto += 3;
+                    else if (val === 2) totalGasto += 3; // Nível 2 custa 3 pontos na criação
                     else if (val > 2) totalGasto += 3 + (val - 2); 
                 });
 
@@ -2543,7 +2561,13 @@
                     const restantes = totalDisponivel - totalGasto;
                     txtRestantes.innerText = restantes;
                     txtTotal.innerText = totalDisponivel;
-                    txtRestantes.style.color = restantes < 0 ? "var(--op-red)" : "inherit";
+                    
+                    if (restantes < 0) {
+                        txtRestantes.style.color = "var(--op-red)";
+                        txtRestantes.style.fontWeight = "bold";
+                    } else {
+                        txtRestantes.style.color = "inherit"; 
+                    }
                 }
             };
         })();
