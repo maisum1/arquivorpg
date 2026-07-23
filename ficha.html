@@ -2423,10 +2423,10 @@
         // ==========================================
 
     // ==========================================
-        // SISTEMA DE CRIAÇÃO DE PERÍCIAS + PERSISTÊNCIA + TUTORIAL (V_FINAL)
+        // SISTEMA DE CRIAÇÃO DE PERÍCIAS + PERSISTÊNCIA + TUTORIAL (INFALÍVEL)
         // ==========================================
         (function() {
-            // 1. CSS para Bônus Esmaecidos e Estilo do Banner / Modal
+            // 1. CSS
             const style = document.createElement('style');
             style.innerHTML = `
                 input[id^="bonus-"], input[id^="sub-bonus-"] {
@@ -2487,7 +2487,7 @@
             `;
             document.head.appendChild(style);
 
-            // Injeta o HTML do Modal do Guia de Criação
+            // Modal Guia
             const modalGuia = document.createElement('div');
             modalGuia.id = 'modal-guia-criacao';
             modalGuia.className = 'modal-padrao';
@@ -2521,27 +2521,13 @@
 
             window.isModoCriacaoAtivo = false;
 
-            function obterFichaId() {
-                const params = new URLSearchParams(window.location.search);
-                return params.get('id');
-            }
-
-            // RADAR BLINDADO: Acha a seção de perícias de qualquer jeito
+            // RADAR INFALÍVEL
             const radarCriacao = setInterval(() => {
                 const primeiroTreino = document.querySelector('input[id^="treino-"]');
                 
                 if (primeiroTreino && !document.getElementById('banner-criacao-pericias')) {
-                    clearInterval(radarCriacao); // Achou as perícias! Desliga o radar.
+                    clearInterval(radarCriacao);
 
-                    // Plano A: Procurar título com texto similar a "Pericias" ignorando acentos e espaços
-                    const headers = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, .section-header, span, div, strong, b'));
-                    const tituloPericias = headers.find(h => {
-                        if (!h.innerText) return false;
-                        const txt = h.innerText.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-                        return txt.includes('PERICIAS');
-                    });
-
-                    // Monta o banner
                     const banner = document.createElement('div');
                     banner.id = 'banner-criacao-pericias';
                     banner.innerHTML = `
@@ -2558,16 +2544,13 @@
                         </div>
                     `;
 
-                    // Injeta na tela
-                    if (tituloPericias) {
-                        tituloPericias.parentNode.insertBefore(banner, tituloPericias.nextSibling);
-                    } else {
-                        // Plano B: Se não achar o título, cola o banner na "cara" da primeira perícia
-                        const caixaPai = primeiroTreino.closest('.grid, table') || primeiroTreino.parentNode;
-                        if(caixaPai.parentNode) caixaPai.parentNode.insertBefore(banner, caixaPai);
+                    // Pega a caixa da perícia e cola o banner em cima dela
+                    const caixaPai = primeiroTreino.closest('.grid, table, div[style*="display: grid"]') || primeiroTreino.parentNode;
+                    if (caixaPai && caixaPai.parentNode) {
+                        caixaPai.parentNode.insertBefore(banner, caixaPai);
                     }
 
-                    // Injeta o botão de Reabrir Criação dentro do modal de Configurações (⚙️)
+                    // Botão nas config
                     const modalConfig = document.getElementById('modal-config');
                     if (modalConfig && !document.getElementById('btn-reabrir-criacao-config')) {
                         const btnReabrir = document.createElement('button');
@@ -2577,7 +2560,7 @@
                         btnReabrir.innerText = '[ 🛠️ REABRIR MODO DE CRIAÇÃO ]';
                         btnReabrir.onclick = function() {
                             toggleModal('modal-config');
-                            ativarModoCriacao(true);
+                            window.ativarModoCriacao(true);
                         };
                         
                         const btnFechar = modalConfig.querySelector('button[onclick*="modal-config"]');
@@ -2585,37 +2568,34 @@
                         else modalConfig.appendChild(btnReabrir);
                     }
 
-                    // Liga a matemática em tempo real nos botões de treino
                     document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]').forEach(inp => {
                         inp.addEventListener('input', window.calcularPontosPericias);
                     });
 
-                    // Liga a matemática nos atributos
                     const attrSag = document.getElementById('attr-sag') || document.getElementById('attr-int');
                     const attrVon = document.getElementById('attr-von') || document.getElementById('attr-pre');
                     if (attrSag) attrSag.addEventListener('input', window.calcularPontosPericias);
                     if (attrVon) attrVon.addEventListener('input', window.calcularPontosPericias);
 
-                    // Analisa se a ficha já foi concluída antes
                     verificarEstadoCriacaoFirebase();
                 }
             }, 500);
 
             function verificarEstadoCriacaoFirebase() {
-                const fichaId = obterFichaId();
+                const params = new URLSearchParams(window.location.search);
+                const fichaId = params.get('id');
                 if (!fichaId) return;
                 
                 db.collection("fichas").doc(fichaId).get().then(doc => {
                     if (doc.exists) {
                         const dados = doc.data();
-                        // O segredo está aqui: Se a flag for falsa OU não existir (ficha nova), ativa o modo!
                         if (dados.criacaoConcluida !== true) {
-                            ativarModoCriacao(true);
+                            window.ativarModoCriacao(true);
                         } else {
-                            ativarModoCriacao(false);
+                            window.ativarModoCriacao(false);
                         }
                     }
-                }).catch(() => { ativarModoCriacao(true); });
+                }).catch(() => { window.ativarModoCriacao(true); });
             }
 
             window.ativarModoCriacao = function(status) {
@@ -2628,9 +2608,10 @@
             };
 
             window.concluirCriacaoFicha = async function() {
-                if (confirm("Deseja concluir a criação da persona?\\n\\nO contador de pontos será ocultado. Você ainda poderá alterar os valores no futuro se necessário através das configurações.")) {
+                if (confirm("Deseja concluir a criação da persona?\\n\\nO contador de pontos será ocultado. Você ainda poderá alterar os valores no futuro através das configurações.")) {
                     window.ativarModoCriacao(false);
-                    const fichaId = obterFichaId();
+                    const params = new URLSearchParams(window.location.search);
+                    const fichaId = params.get('id');
                     if (fichaId) {
                         try {
                             await db.collection("fichas").doc(fichaId).update({ criacaoConcluida: true });
@@ -2657,7 +2638,7 @@
                     if (val === 1) {
                         totalGasto += 1;
                     } else if (val === 2) {
-                        totalGasto += 3; // +1 custa 1pt, +2 custa 3pts
+                        totalGasto += 3;
                     } else if (val > 2) {
                         totalGasto += 3 + (val - 2); 
                     }
