@@ -2567,17 +2567,45 @@
                 
                 const sag = parseInt(sagNode?.value || 0);
                 const von = parseInt(vonNode?.value || 0);
-                const totalDisponivel = 8 + (3 * sag) + (3 * von);
+                const totalDisponivel = 6 + (2 * sag) + (2 * von);
+
+                // --- SISTEMA DE DESCONTO DA ORIGEM ---
+                const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
+                let periciaOrigem3 = null; // Perícia que a origem upa pra +3 (custa 4 pts)
+                let periciaOrigem1 = null; // Perícia que a origem upa pra +1 (custa 1 pt)
+
+                // Procura na biblioteca de origens quais são as perícias base do jogador
+                if (typeof templatesOrigens !== 'undefined') {
+                    for (let key in templatesOrigens) {
+                        if (templatesOrigens[key].nome === nomeOrigem) {
+                            periciaOrigem3 = templatesOrigens[key].p1;
+                            periciaOrigem1 = templatesOrigens[key].p2;
+                            break;
+                        }
+                    }
+                }
+                // -------------------------------------
 
                 let totalGasto = 0;
-                // Busca tanto os selects (menus suspensos) quanto os inputs
                 const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
                 
                 elementosTreino.forEach(inp => {
                     const val = parseInt(inp.value || 0);
-                    if (val === 1) totalGasto += 1;
-                    else if (val === 2) totalGasto += 3; // Nível 2 custa 3 pontos na criação
-                    else if (val > 2) totalGasto += 3 + (val - 2); 
+                    let custo = 0;
+                    
+                    if (val === 1) custo = 1;
+                    else if (val === 2) custo = 3;
+                    else if (val > 2) custo = 3 + (val - 2); 
+                    
+                    // Aplica a isenção de pontos se a perícia for gratuita da Origem!
+                    if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
+                        custo = Math.max(0, custo - 4); // Desconta 4 pontos de custo
+                    }
+                    if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
+                        custo = Math.max(0, custo - 1); // Desconta 1 ponto de custo
+                    }
+
+                    totalGasto += custo;
                 });
 
                 const txtRestantes = document.getElementById('pts-restantes');
@@ -2596,7 +2624,6 @@
                     }
                 }
             };
-        })();
         // ==========================================
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
