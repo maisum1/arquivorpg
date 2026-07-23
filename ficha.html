@@ -2567,14 +2567,13 @@
                 
                 const sag = parseInt(sagNode?.value || 0);
                 const von = parseInt(vonNode?.value || 0);
-                const totalDisponivel = 8 + (3 * sag) + (3 * von);
+                const totalDisponivel = 6 + (2 * sag) + (2 * von);
 
                 // --- SISTEMA DE DESCONTO DA ORIGEM ---
                 const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
-                let periciaOrigem3 = null; // Perícia que a origem upa pra +3 (custa 4 pts)
-                let periciaOrigem1 = null; // Perícia que a origem upa pra +1 (custa 1 pt)
+                let periciaOrigem3 = null; // Perícia que a origem upa pra +3
+                let periciaOrigem1 = null; // Perícia que a origem upa pra +1
 
-                // Procura na biblioteca de origens quais são as perícias base do jogador
                 if (typeof templatesOrigens !== 'undefined') {
                     for (let key in templatesOrigens) {
                         if (templatesOrigens[key].nome === nomeOrigem) {
@@ -2589,6 +2588,10 @@
                 let totalGasto = 0;
                 const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
                 
+                // Cria um "orçamento" invisível para perícias com subcategorias (como Balística)
+                let orcamentoOrigem3 = 4; // 4 pontos de custo equivalem a upar +3
+                let orcamentoOrigem1 = 1; // 1 ponto de custo equivale a upar +1
+
                 elementosTreino.forEach(inp => {
                     const val = parseInt(inp.value || 0);
                     let custo = 0;
@@ -2597,12 +2600,23 @@
                     else if (val === 2) custo = 3;
                     else if (val > 2) custo = 3 + (val - 2); 
                     
-                    // Aplica a isenção de pontos se a perícia for gratuita da Origem!
+                    // 1. Aplica desconto se for perícia NORMAL (sem subcategorias)
                     if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
-                        custo = Math.max(0, custo - 4); // Desconta 4 pontos de custo
+                        custo = Math.max(0, custo - 4); 
                     }
-                    if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
-                        custo = Math.max(0, custo - 1); // Desconta 1 ponto de custo
+                    else if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
+                        custo = Math.max(0, custo - 1); 
+                    }
+                    // 2. Aplica desconto diluído se for SUB-PERÍCIA (como Balística)
+                    else if (periciaOrigem3 && inp.id.startsWith('sub-treino-' + periciaOrigem3)) {
+                        let desconto = Math.min(custo, orcamentoOrigem3);
+                        custo -= desconto; // Abate do custo real
+                        orcamentoOrigem3 -= desconto; // Consome o orçamento gratuito
+                    }
+                    else if (periciaOrigem1 && inp.id.startsWith('sub-treino-' + periciaOrigem1)) {
+                        let desconto = Math.min(custo, orcamentoOrigem1);
+                        custo -= desconto;
+                        orcamentoOrigem1 -= desconto;
                     }
 
                     totalGasto += custo;
