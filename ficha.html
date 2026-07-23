@@ -2423,13 +2423,12 @@
         // ==========================================
 
     // ==========================================
-        // SISTEMA DE CRIAÇÃO DE PERÍCIAS + PERSISTÊNCIA + TUTORIAL
+        // SISTEMA DE CRIAÇÃO DE PERÍCIAS + PERSISTÊNCIA + TUTORIAL (CORRIGIDO)
         // ==========================================
         (function() {
-            // 1. CSS para Bônus Esmaecidos e Estilo do Banner de Criação / Modal de Tutorial
+            // 1. CSS para Bônus Esmaecidos e Estilo do Banner / Modal
             const style = document.createElement('style');
             style.innerHTML = `
-                /* Cor apagada para os inputs de bônus */
                 input[id^="bonus-"], input[id^="sub-bonus-"] {
                     color: var(--cor-geral) !important;
                     font-weight: normal !important;
@@ -2442,6 +2441,7 @@
                     border: 1px dashed var(--op-ink);
                     padding: 10px 15px;
                     margin-bottom: 15px;
+                    margin-top: 10px;
                     border-radius: 2px;
                     font-family: 'Courier Prime', monospace;
                 }
@@ -2521,74 +2521,84 @@
 
             window.isModoCriacaoAtivo = false;
 
-            // RADAR: Espera a página e os dados do Firebase carregarem
-            const radarCriacao = setInterval(() => {
-                const primeiroTreino = document.querySelector('input[id^="treino-"]');
-                
-                if (primeiroTreino && !document.getElementById('banner-criacao-pericias')) {
-                    clearInterval(radarCriacao);
+            // Função robusta para pegar o ID da ficha direto da URL
+            function obterFichaId() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id');
+            }
 
-                    // Acha a div pai das perícias
-                    const containerPericias = primeiroTreino.closest('.grid, table, div[style*="display: grid"]') || primeiroTreino.parentNode;
+            // RADAR: Caça o título "PERÍCIAS" na página para colar o banner lá
+            const radarCriacao = setInterval(() => {
+                const inputsTreino = document.querySelector('input[id^="treino-"]');
+                
+                if (inputsTreino && !document.getElementById('banner-criacao-pericias')) {
                     
-                    if (containerPericias) {
+                    const headers = Array.from(document.querySelectorAll('h2, h3, h4, .section-header, span'));
+                    const tituloPericias = headers.find(h => {
+                        const txt = h.innerText.toUpperCase();
+                        return txt === 'PERÍCIAS' || txt === 'PERICIAS';
+                    });
+
+                    if (tituloPericias) {
+                        clearInterval(radarCriacao);
+
                         const banner = document.createElement('div');
                         banner.id = 'banner-criacao-pericias';
                         banner.innerHTML = `
                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                    <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">CRIAÇÃO DE PERSONA:</span>
+                                    <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">CRIAÇÃO:</span>
                                     <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">PTS: <span id="pts-restantes">0</span> / <span id="pts-total">0</span></span>
                                     <span style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">(+1 = 1pt | +2 = 3pts)</span>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
                                     <button class="btn-banner-criacao" onclick="toggleModal('modal-guia-criacao')">📜 Guia</button>
-                                    <button class="btn-banner-criacao" onclick="concluirCriacaoFicha()" style="border-color: var(--op-red); color: var(--op-red);">✔️ Concluir Criação</button>
+                                    <button class="btn-banner-criacao" onclick="concluirCriacaoFicha()" style="border-color: var(--op-red); color: var(--op-red);">✔️ Concluir</button>
                                 </div>
                             </div>
                         `;
-                        containerPericias.parentNode.insertBefore(banner, containerPericias);
+                        // Cola logo abaixo do título "Perícias"
+                        tituloPericias.parentNode.insertBefore(banner, tituloPericias.nextSibling);
+
+                        // Injeta também o botão de Reabrir Criação dentro do modal de Configurações (⚙️)
+                        const modalConfig = document.getElementById('modal-config');
+                        if (modalConfig && !document.getElementById('btn-reabrir-criacao-config')) {
+                            const btnReabrir = document.createElement('button');
+                            btnReabrir.id = 'btn-reabrir-criacao-config';
+                            btnReabrir.className = 'btn-google';
+                            btnReabrir.style.cssText = 'width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;';
+                            btnReabrir.innerText = '[ 🛠️ REABRIR MODO DE CRIAÇÃO ]';
+                            btnReabrir.onclick = function() {
+                                toggleModal('modal-config');
+                                ativarModoCriacao(true);
+                            };
+                            
+                            const btnFechar = modalConfig.querySelector('button[onclick*="modal-config"]');
+                            if (btnFechar) modalConfig.insertBefore(btnReabrir, btnFechar);
+                            else modalConfig.appendChild(btnReabrir);
+                        }
+
+                        // Liga os gatilhos matemáticos nos atributos e nas perícias
+                        document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]').forEach(inp => {
+                            inp.addEventListener('input', window.calcularPontosPericias);
+                        });
+
+                        const attrSag = document.getElementById('attr-sag') || document.getElementById('attr-int');
+                        const attrVon = document.getElementById('attr-von') || document.getElementById('attr-pre');
+                        if (attrSag) attrSag.addEventListener('input', window.calcularPontosPericias);
+                        if (attrVon) attrVon.addEventListener('input', window.calcularPontosPericias);
+
+                        verificarEstadoCriacaoFirebase();
                     }
-
-                    // Injeta também o botão de Reabrir Criação dentro do modal de Configurações (⚙️)
-                    const modalConfig = document.getElementById('modal-config');
-                    if (modalConfig && !document.getElementById('btn-reabrir-criacao-config')) {
-                        const btnReabrir = document.createElement('button');
-                        btnReabrir.id = 'btn-reabrir-criacao-config';
-                        btnReabrir.className = 'btn-google';
-                        btnReabrir.style.cssText = 'width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;';
-                        btnReabrir.innerText = '[ 🛠️ REABRIR MODO DE CRIAÇÃO ]';
-                        btnReabrir.onclick = function() {
-                            toggleModal('modal-config');
-                            ativarModoCriacao(true);
-                        };
-                        
-                        // Insere antes do botão de fechar painel
-                        const btnFechar = modalConfig.querySelector('button[onclick*="modal-config"]');
-                        if (btnFechar) modalConfig.insertBefore(btnReabrir, btnFechar);
-                        else modalConfig.appendChild(btnReabrir);
-                    }
-
-                    // Escutadores de evento para recalcular ao digitar
-                    document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]').forEach(inp => {
-                        inp.addEventListener('input', window.calcularPontosPericias);
-                    });
-
-                    const attrSag = document.getElementById('attr-sag') || document.getElementById('attr-int');
-                    const attrVon = document.getElementById('attr-von') || document.getElementById('attr-pre');
-                    if (attrSag) attrSag.addEventListener('input', window.calcularPontosPericias);
-                    if (attrVon) attrVon.addEventListener('input', window.calcularPontosPericias);
-
-                    // Checa o estado vindo do Firebase
-                    verificarEstadoCriacaoFirebase();
                 }
-            }, 400);
+            }, 500);
 
-            // Verifica se a ficha já teve a criação concluída no banco de dados
+            // Verifica se a ficha já teve a criação concluída no banco de dados (Corrigido com a URL)
             function verificarEstadoCriacaoFirebase() {
-                if (!window.atual) return;
+                const fichaId = obterFichaId();
+                if (!fichaId) return;
                 
-                db.collection("fichas").doc(window.atual).get().then(doc => {
+                db.collection("fichas").doc(fichaId).get().then(doc => {
                     if (doc.exists) {
                         const dados = doc.data();
                         // Se criacaoConcluida NÃO for true, liga o modo de criação de primeira!
@@ -2611,12 +2621,12 @@
             };
 
             window.concluirCriacaoFicha = async function() {
-                if (confirm("Deseja concluir a criação da persona?\n\nO contador de pontos será ocultado. Você ainda poderá alterar os valores no futuro se necessário através das configurações.")) {
+                if (confirm("Deseja concluir a criação da persona?\\n\\nO contador de pontos será ocultado. Você ainda poderá alterar os valores no futuro através das configurações.")) {
                     window.ativarModoCriacao(false);
-                    if (window.atual) {
+                    const fichaId = obterFichaId();
+                    if (fichaId) {
                         try {
-                            await db.collection("fichas").doc(window.atual).update({ criacaoConcluida: true });
-                            alert("Criação de Persona Concluída com Sucesso!");
+                            await db.collection("fichas").doc(fichaId).update({ criacaoConcluida: true });
                         } catch(e) { console.log(e); }
                     }
                 }
