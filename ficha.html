@@ -764,6 +764,7 @@
         </div>
         <div style="display: flex; gap: 8px;">
             <button onclick="toggleElem('modal-guia-criacao')" style="background: transparent; border: 1px solid var(--op-ink); color: var(--op-ink); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: bold; padding: 6px 10px; cursor: pointer; border-radius: 2px; text-transform: uppercase;">📜 Guia</button>
+            <button onclick="resetarPericias()" style="background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: bold; padding: 6px 10px; cursor: pointer; border-radius: 2px; text-transform: uppercase; margin-left: 8px;">🔄 Zerar</button>
             <button onclick="concluirCriacaoFicha()" style="background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: bold; padding: 6px 10px; cursor: pointer; border-radius: 2px; text-transform: uppercase;">✔️ Concluir</button>
         </div>
     </div>
@@ -2538,6 +2539,26 @@
                 }
             };
 
+            // COLOQUE O BOTAO DE ZERAR AQUI ANTES:
+            window.resetarPericias = function() {
+                if (confirm("🚨 ATENÇÃO!\n\nTem certeza que deseja ZERAR todos os pontos de perícia gastos? Isso vai reverter todos os treinos para o nível básico.")) {
+                    
+                    document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"]').forEach(el => {
+                        el.value = "0";
+                    });
+                    
+                    document.querySelectorAll('select[id^="base-treino-"]').forEach(el => {
+                        el.value = "false";
+                    });
+
+                    window.calcularPontosPericias();
+                    
+                    if (typeof salvarFicha === 'function') {
+                        salvarFicha();
+                    }
+                }
+            };
+            
             window.calcularPontosPericias = function() {
                 if (!window.isModoCriacaoAtivo) return;
 
