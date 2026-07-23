@@ -445,7 +445,7 @@
         <button class="cris-btn" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
     </div>
 
-    <button class="cris-btn" style="width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;" onclick="toggleModal('modal-config'); ativarModoCriacao(true);">[ 🛠️ ] REABRIR MODO DE CRIAÇÃO</button>
+    <button class="cris-btn" style="width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;" onclick="toggleElem('modal-config'); window.ativarModoCriacao(true);">[ 🛠️ ] REABRIR MODO DE CRIAÇÃO</button>
     <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
     
@@ -2465,7 +2465,7 @@
         // ==========================================
 
     // ==========================================
-        // SISTEMA DE CRIAÇÃO DE PERÍCIAS (LÓGICA DIRETA)
+        // SISTEMA DE CRIAÇÃO DE PERÍCIAS (CORRIGIDO)
         // ==========================================
         (function() {
             // CSS dos Bônus Esmaecidos
@@ -2486,13 +2486,13 @@
                 return params.get('id');
             }
 
-            // Escuta qualquer mudança de digitação ou clique em setas de número
+            // Escuta qualquer mudança de digitação, seleção ou clique
             document.addEventListener('input', recalculadoGeral);
             document.addEventListener('change', recalculadoGeral);
 
             function recalculadoGeral() {
                 if (window.isModoCriacaoAtivo) {
-                    setTimeout(() => { window.calcularPontosPericias(); }, 50); // Dá um tempo pro DOM atualizar
+                    setTimeout(() => { window.calcularPontosPericias(); }, 50);
                 }
             }
 
@@ -2545,9 +2545,10 @@
                 const totalDisponivel = 6 + (2 * sag) + (2 * von);
 
                 let totalGasto = 0;
-                const inputsTreino = document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]');
+                // Busca tanto os selects (menus suspensos) quanto os inputs
+                const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
                 
-                inputsTreino.forEach(inp => {
+                elementosTreino.forEach(inp => {
                     const val = parseInt(inp.value || 0);
                     if (val === 1) totalGasto += 1;
                     else if (val === 2) totalGasto += 3; // Nível 2 custa 3 pontos na criação
