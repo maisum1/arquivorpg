@@ -422,6 +422,7 @@
         <button class="cris-btn" onclick="verificarCheat()" style="width: 100%;">EXECUTAR COMANDO</button>
     </div>
 
+    <button class="btn-google" style="width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;" onclick="toggleModal('modal-config'); ativarModoCriacao(true);">[ 🛠️ REABRIR MODO DE CRIAÇÃO ]</button>
     <button onclick="toggleElem('modal-config')" style="margin-top:20px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-family:'Inter', sans-serif; font-weight:bold; letter-spacing: 1px;">FECHAR PAINEL</button>
 </div>
     
@@ -728,6 +729,20 @@
                 <div class="pericias-box"><h3 class="section-header" style="margin-top:0; margin-bottom: 25px; display: block; text-align: center;">CONHECIMENTOS TÉCNICOS</h3><div class="pericia-header"><span>Nome</span><span title="Atributo Base">Atrib.</span><span>Bônus</span><span>Treino</span><span>Soma</span></div><div id="lista-pericias-profissao"></div></div>
             </div>
         </div>
+
+        <div id="banner-criacao-pericias" style="display: none; background: var(--card-bg); border: 1px dashed var(--op-ink); padding: 10px 15px; margin-bottom: 15px; margin-top: 10px; border-radius: 2px; font-family: 'Courier Prime', monospace;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">CRIAÇÃO:</span>
+            <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">PTS: <span id="pts-restantes">0</span> / <span id="pts-total">0</span></span>
+            <span style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">(+1 = 1pt | +2 = 3pts)</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="toggleModal('modal-guia-criacao')" style="background: transparent; border: 1px solid var(--op-ink); color: var(--op-ink); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: bold; padding: 6px 10px; cursor: pointer; border-radius: 2px; text-transform: uppercase;">📜 Guia</button>
+            <button onclick="concluirCriacaoFicha()" style="background: transparent; border: 1px solid var(--op-red); color: var(--op-red); font-size: 11px; font-family: 'Inter', sans-serif; font-weight: bold; padding: 6px 10px; cursor: pointer; border-radius: 2px; text-transform: uppercase;">✔️ Concluir</button>
+        </div>
+    </div>
+</div>
         
         <div id="aba-combate" class="tab-content">
             <div class="combat-stats-grid">
@@ -2423,97 +2438,31 @@
         // ==========================================
 
     // ==========================================
-        // SISTEMA DE CRIAÇÃO DE PERÍCIAS + PERSISTÊNCIA + TUTORIAL (INFALÍVEL)
+        // SISTEMA DE CRIAÇÃO DE PERÍCIAS (LÓGICA DIRETA)
         // ==========================================
         (function() {
-            // 1. CSS
+            // 1. CSS para Bônus Esmaecidos e Guia
             const style = document.createElement('style');
             style.innerHTML = `
-                input[id^="bonus-"], input[id^="sub-bonus-"] {
-                    color: var(--cor-geral) !important;
-                    font-weight: normal !important;
-                    opacity: 0.6 !important;
-                }
-                
-                #banner-criacao-pericias {
-                    display: none;
-                    background: var(--card-bg);
-                    border: 1px dashed var(--op-ink);
-                    padding: 10px 15px;
-                    margin-bottom: 15px;
-                    margin-top: 10px;
-                    border-radius: 2px;
-                    font-family: 'Courier Prime', monospace;
-                }
-
-                .btn-banner-criacao {
-                    background: transparent;
-                    border: 1px solid var(--op-ink);
-                    color: var(--op-ink);
-                    font-size: 11px;
-                    font-family: 'Inter', sans-serif;
-                    font-weight: bold;
-                    padding: 6px 10px;
-                    cursor: pointer;
-                    border-radius: 2px;
-                    transition: 0.2s;
-                    text-transform: uppercase;
-                }
-                .btn-banner-criacao:hover {
-                    background: var(--card-hover);
-                }
-
-                .guia-step {
-                    text-align: left;
-                    margin-bottom: 12px;
-                    padding-bottom: 8px;
-                    border-bottom: 1px dotted var(--card-border);
-                }
-                .guia-step strong {
-                    color: var(--op-ink);
-                    font-size: 13px;
-                    font-family: 'Crimson Text', serif;
-                    display: block;
-                    margin-bottom: 3px;
-                }
+                input[id^="bonus-"], input[id^="sub-bonus-"] { color: var(--cor-geral) !important; font-weight: normal !important; opacity: 0.6 !important; }
+                .guia-step { text-align: left; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border); }
+                .guia-step strong { color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block; margin-bottom: 3px; }
                 body.tema-escuro .guia-step strong { color: var(--accent-gold); }
-                .guia-step p {
-                    margin: 0;
-                    font-size: 11px;
-                    color: var(--cor-geral);
-                    font-family: 'Inter', sans-serif;
-                    line-height: 1.4;
-                }
+                .guia-step p { margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif; line-height: 1.4; }
             `;
             document.head.appendChild(style);
 
-            // Modal Guia
+            // 2. Injeta o Modal do Guia (Fica escondido no Body)
             const modalGuia = document.createElement('div');
             modalGuia.id = 'modal-guia-criacao';
             modalGuia.className = 'modal-padrao';
             modalGuia.innerHTML = `
-                <h3>📜 GUIA DE CRIAÇÃO DA PERSONA</h3>
+                <h3>📜 GUIA DE CRIAÇÃO</h3>
                 <div style="max-height: 320px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;">
-                    <div class="guia-step">
-                        <strong>1. ATRIBUTOS BASE</strong>
-                        <p>Distribua seus atributos nos campos no topo da ficha. Atributos afetam diretamente suas perícias e testes.</p>
-                    </div>
-                    <div class="guia-step">
-                        <strong>2. PONTOS DE PERÍCIA</strong>
-                        <p>Sua reserva total de pontos é calculada como: <code>6 + (2 × SAG) + (2 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong> (especialização inicial).</p>
-                    </div>
-                    <div class="guia-step">
-                        <strong>3. ORIGEM E CLASSE</strong>
-                        <p>Escolha sua Origem profissional e sua Classe. Elas concedem perícias treinadas automáticas e capacidades únicas.</p>
-                    </div>
-                    <div class="guia-step">
-                        <strong>4. STATUS & RECURSOS</strong>
-                        <p>Sua Vitalidade, Lucidez e Fôlego são calculados e gerenciados automaticamente conforme seus atributos.</p>
-                    </div>
-                    <div class="guia-step">
-                        <strong>5. FINALIZAÇÃO</strong>
-                        <p>Quando o saldo de pontos zerar e a persona estiver pronta, clique em <strong>[ ✔️ CONCLUIR CRIAÇÃO ]</strong> para trancar a distribuição inicial.</p>
-                    </div>
+                    <div class="guia-step"><strong>1. ATRIBUTOS BASE</strong><p>Distribua seus atributos. Eles afetam perícias e testes diretamente.</p></div>
+                    <div class="guia-step"><strong>2. PONTOS DE PERÍCIA</strong><p>Sua reserva é: <code>6 + (2 × SAG) + (2 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong>.</p></div>
+                    <div class="guia-step"><strong>3. ORIGEM E CLASSE</strong><p>Elas concedem perícias treinadas automáticas.</p></div>
+                    <div class="guia-step"><strong>4. FINALIZAÇÃO</strong><p>Quando a persona estiver pronta, clique em <strong>[ ✔️ CONCLUIR CRIAÇÃO ]</strong>.</p></div>
                 </div>
                 <button onclick="toggleModal('modal-guia-criacao')" class="btn-google" style="width:100%;">ENTENDIDO</button>
             `;
@@ -2521,101 +2470,44 @@
 
             window.isModoCriacaoAtivo = false;
 
-            // RADAR INFALÍVEL
-            const radarCriacao = setInterval(() => {
-                const primeiroTreino = document.querySelector('input[id^="treino-"]');
-                
-                if (primeiroTreino && !document.getElementById('banner-criacao-pericias')) {
-                    clearInterval(radarCriacao);
-
-                    const banner = document.createElement('div');
-                    banner.id = 'banner-criacao-pericias';
-                    banner.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">CRIAÇÃO:</span>
-                                <span style="font-size: 13px; font-weight: bold; color: var(--op-ink);">PTS: <span id="pts-restantes">0</span> / <span id="pts-total">0</span></span>
-                                <span style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">(+1 = 1pt | +2 = 3pts)</span>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn-banner-criacao" onclick="toggleModal('modal-guia-criacao')">📜 Guia</button>
-                                <button class="btn-banner-criacao" onclick="concluirCriacaoFicha()" style="border-color: var(--op-red); color: var(--op-red);">✔️ Concluir</button>
-                            </div>
-                        </div>
-                    `;
-
-                    // Pega a caixa da perícia e cola o banner em cima dela
-                    const caixaPai = primeiroTreino.closest('.grid, table, div[style*="display: grid"]') || primeiroTreino.parentNode;
-                    if (caixaPai && caixaPai.parentNode) {
-                        caixaPai.parentNode.insertBefore(banner, caixaPai);
-                    }
-
-                    // Botão nas config
-                    const modalConfig = document.getElementById('modal-config');
-                    if (modalConfig && !document.getElementById('btn-reabrir-criacao-config')) {
-                        const btnReabrir = document.createElement('button');
-                        btnReabrir.id = 'btn-reabrir-criacao-config';
-                        btnReabrir.className = 'btn-google';
-                        btnReabrir.style.cssText = 'width: 100%; margin-top: 10px; border-color: var(--san-purple); color: var(--san-purple); font-size: 11px;';
-                        btnReabrir.innerText = '[ 🛠️ REABRIR MODO DE CRIAÇÃO ]';
-                        btnReabrir.onclick = function() {
-                            toggleModal('modal-config');
-                            window.ativarModoCriacao(true);
-                        };
-                        
-                        const btnFechar = modalConfig.querySelector('button[onclick*="modal-config"]');
-                        if (btnFechar) modalConfig.insertBefore(btnReabrir, btnFechar);
-                        else modalConfig.appendChild(btnReabrir);
-                    }
-
-                    document.querySelectorAll('input[id^="treino-"], input[id^="sub-treino-"]').forEach(inp => {
-                        inp.addEventListener('input', window.calcularPontosPericias);
-                    });
-
-                    const attrSag = document.getElementById('attr-sag') || document.getElementById('attr-int');
-                    const attrVon = document.getElementById('attr-von') || document.getElementById('attr-pre');
-                    if (attrSag) attrSag.addEventListener('input', window.calcularPontosPericias);
-                    if (attrVon) attrVon.addEventListener('input', window.calcularPontosPericias);
-
-                    verificarEstadoCriacaoFirebase();
-                }
-            }, 500);
-
-            function verificarEstadoCriacaoFirebase() {
+            // 3. Puxa os dados do Firebase para ver se a ficha é nova
+            setTimeout(() => {
                 const params = new URLSearchParams(window.location.search);
                 const fichaId = params.get('id');
                 if (!fichaId) return;
-                
+
                 db.collection("fichas").doc(fichaId).get().then(doc => {
                     if (doc.exists) {
                         const dados = doc.data();
                         if (dados.criacaoConcluida !== true) {
                             window.ativarModoCriacao(true);
-                        } else {
-                            window.ativarModoCriacao(false);
                         }
                     }
                 }).catch(() => { window.ativarModoCriacao(true); });
-            }
+
+                // Ativa a matemática em qualquer clique
+                document.body.addEventListener('input', (e) => {
+                    if (e.target.id && (e.target.id.startsWith('treino-') || e.target.id.startsWith('sub-treino-') || e.target.id === 'attr-sag' || e.target.id === 'attr-int' || e.target.id === 'attr-von' || e.target.id === 'attr-pre')) {
+                        window.calcularPontosPericias();
+                    }
+                });
+            }, 1500);
 
             window.ativarModoCriacao = function(status) {
                 window.isModoCriacaoAtivo = status;
                 const banner = document.getElementById('banner-criacao-pericias');
-                if (banner) {
-                    banner.style.display = status ? 'block' : 'none';
-                }
+                if (banner) banner.style.display = status ? 'block' : 'none';
                 if (status) window.calcularPontosPericias();
             };
 
             window.concluirCriacaoFicha = async function() {
-                if (confirm("Deseja concluir a criação da persona?\\n\\nO contador de pontos será ocultado. Você ainda poderá alterar os valores no futuro através das configurações.")) {
+                if (confirm("Deseja concluir a criação da persona?")) {
                     window.ativarModoCriacao(false);
                     const params = new URLSearchParams(window.location.search);
                     const fichaId = params.get('id');
                     if (fichaId) {
-                        try {
-                            await db.collection("fichas").doc(fichaId).update({ criacaoConcluida: true });
-                        } catch(e) { console.log(e); }
+                        try { await db.collection("fichas").doc(fichaId).update({ criacaoConcluida: true }); } 
+                        catch(e) { console.log(e); }
                     }
                 }
             };
@@ -2635,13 +2527,9 @@
                 
                 inputsTreino.forEach(inp => {
                     const val = parseInt(inp.value || 0);
-                    if (val === 1) {
-                        totalGasto += 1;
-                    } else if (val === 2) {
-                        totalGasto += 3;
-                    } else if (val > 2) {
-                        totalGasto += 3 + (val - 2); 
-                    }
+                    if (val === 1) totalGasto += 1;
+                    else if (val === 2) totalGasto += 3;
+                    else if (val > 2) totalGasto += 3 + (val - 2); 
                 });
 
                 const txtRestantes = document.getElementById('pts-restantes');
@@ -2651,12 +2539,7 @@
                     const restantes = totalDisponivel - totalGasto;
                     txtRestantes.innerText = restantes;
                     txtTotal.innerText = totalDisponivel;
-                    
-                    if (restantes < 0) {
-                        txtRestantes.style.color = "var(--op-red)";
-                    } else {
-                        txtRestantes.style.color = "inherit"; 
-                    }
+                    txtRestantes.style.color = restantes < 0 ? "var(--op-red)" : "inherit";
                 }
             };
         })();
