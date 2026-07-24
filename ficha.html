@@ -1850,6 +1850,11 @@
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--op-ink)", "Nenhum": "var(--op-ink)" }; 
             const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
 
+            // Lê o nível de Exposição (NEX) atual da ficha
+            const nexAtual = parseInt(document.getElementById('nex-personagem')?.value) || 0;
+            // Define se a caixa de Afinidade vai aparecer (block) ou sumir (none)
+            const displayAfinidade = nexAtual >= 50 ? 'block' : 'none';
+
             snap.forEach(doc => { 
                 const po = doc.data(); const id = doc.id; const iO = menusAbertos.has('pod-' + id); const cor = cE[po.elemento] || "var(--op-ink)"; 
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarEspecializacaoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
@@ -1881,10 +1886,12 @@
                             <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea>
                         </div>
-                        <div style="margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
+                        
+                        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
                             <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
                             <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea>
                         </div>
+                        
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button>
