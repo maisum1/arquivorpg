@@ -963,9 +963,7 @@
         "EuConhecoUmCara": { nome: "Eu Conheço Um Cara (Nível 1 a 3)", descricao: "Você tem um contato que lhe deve um favor. . . . . . . . . . . . Nível 1: Feirante, porteiro; . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . Nível 2: policial, gerente;. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . Nível 3: diretor de hospital, chefe do crime organizado." }
     };
     const templatesEspecializacoes = {};
-    const templatesAnomalias = {
-            "amaldicoar_arma_(morte)": { nome: "Amaldiçoar Arma (Morte)", elemento: "Nenhum", tempoAprendizado: "2 semanas", primeiraConjuracao: false, tempoConjuracao: "1 rodada", alcance: "Toque", alvo: "1 Arma", duracao: "1d4 rodadas", custoPe: "1PF", custoSanidade: "1d6", descricao: "[Descrição Narrativa]. \n--Confere +1 em ataques com a arma e +1 de dano.\n[Afinidade: Diminui tempo de execução em 1 e aumenta duração em 1)", buffed: { nome: "Amaldiçoar Arma (Morte)", tempoAprendizado: "5 semanas", primeiraConjuracao: false, tempoConjuracao: "1 rodada", alcance: "Toque", alvo: "1 Arma", duracao: "Cena", custoPe: "1PF", custoSanidade: "1d4", descricao: "[Descrição Narrativa]. \n--Confere +1 em ataques com a arma e +1d4+VIG (do conjurador) de dano." } }
-    };
+    const templatesAnomalias = {};
     
 
     const templatesInventario = { 
@@ -2039,14 +2037,15 @@
                 
                 const ritId = r.nome ? r.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_anomalia';
 
+                // Trata as descrições para trocar "Enters" físicos por "\n" e escapar aspas, garantindo a linha única
                 const descBase = (r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
                 const descBuffed = (r.buffed?.descricao || r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
 
-                // Força 'primeiraConjuracao: false' no código gerado
-                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}" } },`;
+                // Template compactado (Base + Buffed) na mesma string
+                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: ${r.primeiraConjuracao ? 'true' : 'false'}, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: ${r.buffed?.primeiraConjuracao ? 'true' : 'false'}, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.buffed?.duracao || r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}" } },`;
 
                 await navigator.clipboard.writeText(template);
-                alert("✅ CÓDIGO EXPORTADO!\n\nO ritual foi copiado desmarcado por padrão para que qualquer novo jogador precise estudá-lo antes de usar.");
+                alert("✅ CÓDIGO COMPACTO EXPORTADO!\n\nEle foi copiado em formato de linha única para a sua Área de Transferência.\n\nBasta ir no seu arquivo do site, colar o texto dentro do bloco 'templatesAnomalias' e a nova anomalia já estará disponível para todos sem poluir o código!");
             }
         } catch(e) {
             alert("Erro ao copiar o código do ritual: " + e);
