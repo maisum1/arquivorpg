@@ -675,12 +675,22 @@
             const d = doc.data(); const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
             const isOwner = d.dono === auth.currentUser.uid;
             
+            // Verifica se o usuário atual é Mestre/Super Admin
+            const isMestre = (typeof isSuperAdmin !== 'undefined' && isSuperAdmin) || 
+                             (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao) || 
+                             isOwner;
+            
             let botoesAcao = '';
             botoesAcao += `<button class="btn-action-node btn-copy" onclick="abrirModalCopiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
             
             if (context === 'hub-proprio') { botoesAcao += `<button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>`; }
             if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
             
+            // Duplicar: Aparece apenas para o Dono ou Mestre
+            if (isMestre) {
+                botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="event.stopPropagation(); window.clonarFicha('${doc.id}')" title="Duplicar Ficha">[ 📋 ]</button>`;
+            }
+
             // Excluir: Dono OU Super Admin no modo Raio-X
             if (isOwner || (isSuperAdmin && isXRayMode)) { 
                 botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`; 
@@ -1203,6 +1213,78 @@
             };
         })();
         // ==========================================
+
+        // ==========================================
+// FUNÇÃO DE CLONAR/DUPLICAR FICHA (MESTRES)
+// ==========================================
+window.clonarFicha = async function(fichaId) {
+    if (!confirm("Deseja criar uma cópia desta ficha?")) return;
+
+    try {
+        // 1. Busca os dados da ficha original
+        const docRef = db.collection("fichas").doc(fichaId);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+            alert("Ficha original não encontrada.");
+            return;
+        }
+
+        const dadosOriginais = docSnap.data();
+        const nomeOriginal = dadosOriginais.nome || "Persona";
+
+        // 2. Extrai o nome base (remove sufixo '(N)' se já for uma cópia)
+        const baseNome = nomeOriginal.replace(/\s*\(\d+\)$/, '').trim();
+
+        // 3. Busca todas as fichas existentes para determinar a numeração correta
+        const allSnap = await db.collection("fichas").get();
+        const nomesExistentes = new Set();
+        allSnap.forEach(d => {
+            if (d.data().nome) nomesExistentes.add(d.data().nome);
+        });
+
+        let contador = 1;
+        let novoNome = `${baseNome} (${contador})`;
+        while (nomesExistentes.has(novoNome)) {
+            contador++;
+            novoNome = `${baseNome} (${contador})`;
+        }
+
+        // 4. Prepara o documento da nova ficha com o novo nome
+        const currentUser = firebase.auth().currentUser;
+        const dadosClonados = {
+            ...dadosOriginais,
+            nome: novoNome,
+            dono: currentUser ? currentUser.uid : dadosOriginais.dono,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // Cria o registro principal da nova ficha no Firebase
+        const novaFichaRef = await db.collection("fichas").add(dadosClonados);
+
+        // 5. Copia todas as subcoleções (Rituais, Poderes, Habilidades, Ataques, Inventário + Versões Hexa)
+        const subColecoes = [
+            "rituais", "poderes", "habilidades", "ataques", "inventario",
+            "hexa_rituais", "hexa_poderes", "hexa_habilidades", "hexa_ataques", "hexa_inventario"
+        ];
+
+        for (const subCol of subColecoes) {
+            const subSnap = await docRef.collection(subCol).get();
+            if (!subSnap.empty) {
+                const batch = db.batch();
+                subSnap.forEach(subDoc => {
+                    const novaSubRef = novaFichaRef.collection(subCol).doc();
+                    batch.set(novaSubRef, subDoc.data());
+                });
+                await batch.commit();
+            }
+        }
+
+        alert(`✅ FICHA DUPLICADA COM SUCESSO!\n\nNova ficha gerada: ${novoNome}`);
+    } catch (error) {
+        console.error("Erro ao clonar ficha:", error);
+        alert("Ocorreu um erro ao duplicar a ficha. Consulte o console.");
+    }
+};
         
     </script>
 </body>
