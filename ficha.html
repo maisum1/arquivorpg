@@ -2567,21 +2567,32 @@
                 
                 const sag = parseInt(sagNode?.value || 0);
                 const von = parseInt(vonNode?.value || 0);
-                const totalDisponivel = 8 + (3 * sag) + (3 * von);
+                
+                // Mudei para 'let' para podermos adicionar os pontos da origem customizada
+                let totalDisponivel = 6 + (2 * sag) + (2 * von); 
 
                 // --- SISTEMA DE DESCONTO DA ORIGEM ---
                 const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
                 let periciaOrigem3 = null; // Perícia que a origem upa pra +3
                 let periciaOrigem1 = null; // Perícia que a origem upa pra +1
+                let origemEncontrada = false;
 
                 if (typeof templatesOrigens !== 'undefined') {
                     for (let key in templatesOrigens) {
                         if (templatesOrigens[key].nome === nomeOrigem) {
                             periciaOrigem3 = templatesOrigens[key].p1;
                             periciaOrigem1 = templatesOrigens[key].p2;
+                            origemEncontrada = true;
                             break;
                         }
                     }
+                }
+
+                // A MÁGICA ACONTECE AQUI:
+                // Se o campo estiver vazio ou o jogador digitar uma origem inventada,
+                // ele ganha 5 pontos livres no contador (equivalente a uma perícia +3 e uma +1)
+                if (!origemEncontrada) {
+                    totalDisponivel += 5; 
                 }
                 // -------------------------------------
 
