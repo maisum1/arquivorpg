@@ -2162,6 +2162,7 @@
     };
 
     // Função Exclusiva de Desenvolvedor (Super Mestre) - VERSÃO COMPACTA
+    // Função Exclusiva de Desenvolvedor (Super Mestre) - VERSÃO COMPACTA
     window.copiarRitualParaSite = async function(id) {
         const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
         try {
@@ -2171,14 +2172,15 @@
                 
                 const ritId = r.nome ? r.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_anomalia';
 
+                // Trata as descrições para trocar "Enters" físicos por "\n" e escapar aspas, garantindo a linha única
                 const descBase = (r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
                 const descBuffed = (r.buffed?.descricao || r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
 
-                // Força 'primeiraConjuracao: false' no código gerado
-                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}" } },`;
+                // Template compactado (Base + Buffed) na mesma string, agora com o campo 'simbolo' preparado
+                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}" } },`;
 
                 await navigator.clipboard.writeText(template);
-                alert("✅ CÓDIGO EXPORTADO!\n\nO ritual foi copiado desmarcado por padrão para que qualquer novo jogador precise estudá-lo antes de usar.");
+                alert("✅ CÓDIGO COMPACTO EXPORTADO!\n\nEle foi copiado em formato de linha única para a sua Área de Transferência.\n\nLembre-se de salvar a imagem do símbolo separadamente e adicionar o link na propriedade 'simbolo'!");
             }
         } catch(e) {
             alert("Erro ao copiar o código do ritual: " + e);
