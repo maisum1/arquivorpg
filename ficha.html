@@ -1848,9 +1848,49 @@
         unsubPod = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const c = document.getElementById('lista-poderes'); c.innerHTML = ""; 
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--op-ink)", "Nenhum": "var(--op-ink)" }; 
+            const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
+
             snap.forEach(doc => { 
                 const po = doc.data(); const id = doc.id; const iO = menusAbertos.has('pod-' + id); const cor = cE[po.elemento] || "var(--op-ink)"; 
-                c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('pod-${id}')"><span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(po.elemento || 'Geral').toUpperCase()}</span></div><div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field" style="grid-column: span 2;"><span class="rit-label" style="color:${cor}">Identificação</span><input type="text" class="rit-input" value="${po.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)"></div><div class="rit-field" style="display:none;"><span class="rit-label" style="color:${cor}">Vínculo Oculto</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)"><option value="Nenhum" ${po.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${po.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${po.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${po.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${po.elemento=='Conhecimento'?'selected':''}>Conhecimento</option><option value="Geral" ${po.elemento=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Descrição do Arquivo</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea></div><div style="margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;"><span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button></div></div></div>`; 
+                const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarEspecializacaoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+
+                c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
+                    <div class="card-header" onclick="toggleElem('pod-${id}')">
+                        <span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span>
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(po.elemento || 'Geral').toUpperCase()}</span>
+                    </div>
+                    <div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}">
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field" style="grid-column: span 2;">
+                                <span class="rit-label" style="color:${cor}">Identificação</span>
+                                <input type="text" class="rit-input" value="${po.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)">
+                            </div>
+                            <div class="rit-field" style="display:none;">
+                                <span class="rit-label" style="color:${cor}">Vínculo Oculto</span>
+                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
+                                    <option value="Nenhum" ${po.elemento=='Nenhum'?'selected':''}>Nenhum</option>
+                                    <option value="Morte" ${po.elemento=='Morte'?'selected':''}>Morte</option>
+                                    <option value="Sangue" ${po.elemento=='Sangue'?'selected':''}>Sangue</option>
+                                    <option value="Energia" ${po.elemento=='Energia'?'selected':''}>Energia</option>
+                                    <option value="Conhecimento" ${po.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                                    <option value="Geral" ${po.elemento=='Geral'?'selected':''}>Geral</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="rit-field">
+                            <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
+                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea>
+                        </div>
+                        <div style="margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
+                            <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
+                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea>
+                        </div>
+                        <div style="text-align:right; margin-top:10px;">
+                            ${btnAdminCopy}
+                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button>
+                        </div>
+                    </div>
+                </div>`; 
             }); 
         }); 
     }
@@ -1859,9 +1899,25 @@
         if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const c = document.getElementById('lista-habilidades'); c.innerHTML = ""; 
+            const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
+
             snap.forEach(doc => { 
                 const h = doc.data(); const id = doc.id; const iO = menusAbertos.has('hab-' + id); 
-                c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);"><div class="card-header" onclick="toggleElem('hab-${id}')"><span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span></div><div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}"><input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold;"><textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button></div></div></div>`; 
+                const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarTracoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+
+                c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);">
+                    <div class="card-header" onclick="toggleElem('hab-${id}')">
+                        <span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span>
+                    </div>
+                    <div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}">
+                        <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold;">
+                        <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
+                        <div style="text-align:right; margin-top:10px;">
+                            ${btnAdminCopy}
+                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button>
+                        </div>
+                    </div>
+                </div>`; 
             }); 
         }); 
     }
@@ -1870,10 +1926,45 @@
         if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
         unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; 
+            const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
+
             snap.forEach(doc => { 
                 const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); 
                 let cat = getAtaqueCat(a);
-                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" style="border-left-color: var(--op-ink);"><div class="card-header" onclick="toggleElem('atq-${id}')"><span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span></div><div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div><div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div><div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div><div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div></div><div class="rit-field" style="margin-bottom:10px;"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button></div></div></div>`; 
+                const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+
+                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" style="border-left-color: var(--op-ink);">
+                    <div class="card-header" onclick="toggleElem('atq-${id}')">
+                        <span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span>
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span>
+                    </div>
+                    <div class="card-body" id="atq-${id}" style="display:${iO ? 'block' : 'none'}">
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Nome da Arma / Ataque</span><input type="text" class="rit-input" value="${a.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'nome', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Dano Base</span><input type="text" class="rit-input" value="${a.dano || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'dano', this.value)"></div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>
+                        </div>
+                        <div class="rit-field" style="margin-bottom:10px;">
+                            <span class="rit-label">Pressão</span>
+                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
+                        </div>
+                        <div style="text-align:right; margin-top:10px;">
+                            ${btnAdminCopy}
+                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
+                        </div>
+                    </div>
+                </div>`; 
             }); 
             window.valPressaoAtaques = pA; syncPressaoVisuais(); aplicarFiltrosAtaques(); 
         }); 
@@ -1883,16 +1974,52 @@
         if(unsubInv) unsubInv(); const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; 
         unsubInv = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const c = document.getElementById('lista-inventario'); c.innerHTML = ""; let pI = 0; 
+            const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
+
             snap.forEach(doc => { 
                 const i = doc.data(); const id = doc.id; const iO = menusAbertos.has('inv-' + id); 
                 const pr = parseInt(i.pressao) || 0; const q = parseInt(i.quantidade) || 1; pI += (pr * q); 
                 let cat = i.categoria || 'Geral'; 
-                c.innerHTML += `<div class="ritual-card item-card" data-categoria="${cat}" style="border-left-color: var(--cor-geral);"><div class="card-header" onclick="toggleElem('inv-${id}')"><span style="color:var(--op-ink); font-weight:900">${i.nome || 'Item Não Identificado'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${cat} | Qtd: ${q} | Pressão: ${pr*q}</span></div><div class="card-body" id="inv-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${i.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div><div class="rit-field"><span class="rit-label">Categoria</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)"><option value="Arma" ${cat=='Arma'?'selected':''}>Arma</option><option value="Equipamento" ${cat=='Equipamento'?'selected':''}>Equipamento</option><option value="Consumível" ${cat=='Consumível'?'selected':''}>Consumível</option><option value="Artefato" ${cat=='Artefato'?'selected':''}>Artefato</option>${(isRevelado || globalRevelado) ? `<option value="Anômalo" ${cat=='Anômalo'?'selected':''}>Anômalo</option>` : ''}<option value="Geral" ${cat=='Geral'?'selected':''}>Geral</option></select></div></div><div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${i.pressao !== undefined ? i.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div><div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${i.quantidade !== undefined ? i.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div></div><div class="rit-field"><span class="rit-label">Anotações</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button></div></div></div>`; 
+                const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarItemParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+
+                c.innerHTML += `<div class="ritual-card item-card" data-categoria="${cat}" style="border-left-color: var(--cor-geral);">
+                    <div class="card-header" onclick="toggleElem('inv-${id}')">
+                        <span style="color:var(--op-ink); font-weight:900">${i.nome || 'Item Não Identificado'}</span>
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${cat} | Qtd: ${q} | Pressão: ${pr*q}</span>
+                    </div>
+                    <div class="card-body" id="inv-${id}" style="display:${iO ? 'block' : 'none'}">
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Nome do Item</span><input type="text" class="rit-input" value="${i.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'nome', this.value)"></div>
+                            <div class="rit-field">
+                                <span class="rit-label">Categoria</span>
+                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'categoria', this.value)">
+                                    <option value="Arma" ${cat=='Arma'?'selected':''}>Arma</option>
+                                    <option value="Equipamento" ${cat=='Equipamento'?'selected':''}>Equipamento</option>
+                                    <option value="Consumível" ${cat=='Consumível'?'selected':''}>Consumível</option>
+                                    <option value="Artefato" ${cat=='Artefato'?'selected':''}>Artefato</option>
+                                    ${(isRevelado || globalRevelado) ? `<option value="Anômalo" ${cat=='Anômalo'?'selected':''}>Anômalo</option>` : ''}
+                                    <option value="Geral" ${cat=='Geral'?'selected':''}>Geral</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Pressão (Por unidade)</span><input type="number" class="rit-input" value="${i.pressao !== undefined ? i.pressao : 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'pressao', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Quantidade</span><input type="number" class="rit-input" value="${i.quantidade !== undefined ? i.quantidade : 1}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'quantidade', this.value)"></div>
+                        </div>
+                        <div class="rit-field">
+                            <span class="rit-label">Anotações</span>
+                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea>
+                        </div>
+                        <div style="text-align:right; margin-top:10px;">
+                            ${btnAdminCopy}
+                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button>
+                        </div>
+                    </div>
+                </div>`; 
             }); 
             window.valPressaoInventario = pI; syncPressaoVisuais(); aplicarFiltrosInventario(); 
         }); 
     }
-
     // === BOTÕES DE CRIAÇÃO E ROLAGEM DE TELA ===
 
     async function novoRitual() { 
@@ -2049,6 +2176,71 @@
         } catch(e) {
             alert("Erro ao copiar o código do ritual: " + e);
         }
+    };
+
+    // 1. Exportador de Traços / Habilidades
+    window.copiarTracoParaSite = async function(id) {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades";
+        try {
+            const doc = await db.collection("fichas").doc(atual).collection(path).doc(id).get();
+            if (doc.exists) {
+                const h = doc.data();
+                const tracoId = h.nome ? h.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "") : 'NovoTraco';
+                const desc = (h.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const template = `    "${tracoId}": { nome: "${h.nome || ''}", descricao: "${desc}" },`;
+                await navigator.clipboard.writeText(template);
+                alert("✅ TRAÇO EXPORTADO!\n\nCopiado em formato compacto de linha única para colar em 'templatesTracos'.");
+            }
+        } catch(e) { alert("Erro ao copiar traço: " + e); }
+    };
+
+    // 2. Exportador de Especializações / Poderes
+    window.copiarEspecializacaoParaSite = async function(id) {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes";
+        try {
+            const doc = await db.collection("fichas").doc(atual).collection(path).doc(id).get();
+            if (doc.exists) {
+                const po = doc.data();
+                const podId = po.nome ? po.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_especializacao';
+                const desc = (po.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const afin = (po.afinidade || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const template = `    "${podId}": { nome: "${po.nome || ''}", elemento: "${po.elemento || 'Geral'}", descricao: "${desc}", afinidade: "${afin}" },`;
+                await navigator.clipboard.writeText(template);
+                alert("✅ ESPECIALIZAÇÃO EXPORTADA!\n\nCopiada em formato compacto de linha única para colar em 'templatesEspecializacoes'.");
+            }
+        } catch(e) { alert("Erro ao copiar especialização: " + e); }
+    };
+
+    // 3. Exportador de Armas de Combate / Ataques
+    window.copiarAtaqueParaSite = async function(id) {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques";
+        try {
+            const doc = await db.collection("fichas").doc(atual).collection(path).doc(id).get();
+            if (doc.exists) {
+                const a = doc.data();
+                const atqId = a.nome ? a.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_arma';
+                const cat = getAtaqueCat(a);
+                const template = `    "${atqId}": { nome: "${a.nome || ''}", dano: "${a.dano || ''}", tipo: "${a.tipo || ''}", alcance: "${a.alcance || ''}", pericia: "${a.pericia || ''}", atributo: "${a.atributo || ''}", bonus: ${parseInt(a.bonus)||0}, municao: "${a.municao || ''}", pressao: ${parseInt(a.pressao)||0}, categoria: "${cat}" },`;
+                await navigator.clipboard.writeText(template);
+                alert("✅ ARMA EXPORTADA!\n\nCopiada em formato compacto de linha única para colar em 'templatesAtaques'.");
+            }
+        } catch(e) { alert("Erro ao copiar arma: " + e); }
+    };
+
+    // 4. Exportador de Pertences / Inventário
+    window.copiarItemParaSite = async function(id) {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario";
+        try {
+            const doc = await db.collection("fichas").doc(atual).collection(path).doc(id).get();
+            if (doc.exists) {
+                const i = doc.data();
+                const invId = i.nome ? i.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'novo_item';
+                const desc = (i.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const template = `    "${invId}": { nome: "${i.nome || ''}", categoria: "${i.categoria || 'Geral'}", pressao: ${parseInt(i.pressao)||0}, quantidade: ${parseInt(i.quantidade)||1}, descricao: "${desc}" },`;
+                await navigator.clipboard.writeText(template);
+                alert("✅ ITEM EXPORTADO!\n\nCopiado em formato compacto de linha única para colar em 'templatesInventario'.");
+            }
+        } catch(e) { alert("Erro ao copiar item: " + e); }
     };
     
     auth.onAuthStateChanged(user => { if (user) init(); else { alert("Sessão expirada."); window.location.href = "index.html"; } });
