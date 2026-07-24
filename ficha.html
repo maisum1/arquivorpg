@@ -1751,9 +1751,89 @@
         unsubRit = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const c = document.getElementById('lista-rituais'); c.innerHTML = ""; 
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; 
+            
+            // Checa se é você (Super Admin) para mostrar o botão de copiar o código
+            const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
+
             snap.forEach(doc => { 
-                const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); const iA = r.aprendido ? 'checked' : ''; const iP = r.primeiraConjuracao ? 'checked' : ''; const cor = cE[r.elemento] || "var(--op-ink)"; 
-                c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}"><div class="card-header" onclick="toggleElem('rit-${id}')"><span style="color:${cor}; font-weight:900">${r.nome || 'Nova Anomalia'}</span><span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(r.elemento || 'Morte').toUpperCase()}</span></div><div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}"><div class="rit-layout-top"><div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">${r.simbolo ? `<img src="${r.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${r.sX || 50}% ${r.sY || 50}%; transform: scale(${r.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter', sans-serif; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}</div><div class="rit-grid-2"><div class="rit-field" style="grid-column: span 2;"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" value="${r.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'nome', this.value)"></div><div class="rit-field" style="display:none;"><span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'elemento', this.value)"><option value="Nenhum" ${r.elemento=='Nenhum'?'selected':''}>Nenhum</option><option value="Morte" ${r.elemento=='Morte'?'selected':''}>Morte</option><option value="Sangue" ${r.elemento=='Sangue'?'selected':''}>Sangue</option><option value="Energia" ${r.elemento=='Energia'?'selected':''}>Energia</option><option value="Conhecimento" ${r.elemento=='Conhecimento'?'selected':''}>Conhecimento</option></select></div></div></div><div class="rit-checkbox-row"><label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label><label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label></div><div class="rit-field ${r.aprendido ? 'hidden' : ''}" style="margin-bottom: 12px;"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)"></div><div class="rit-grid-2"><div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${r.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoConjuracao', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${r.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alcance', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${r.alvo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'alvo', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${r.duracao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'duracao', this.value)"></div></div><div class="rit-grid-2" style="margin-top: 10px;"><div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${r.custoPe || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoPe', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${r.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'custoSanidade', this.value)"></div></div><div class="rit-field" style="margin-top: 15px;"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'descricao', this.value)">${r.descricao || ""}</textarea></div><div style="text-align:right; margin-top:10px;"><button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button></div></div></div>`; 
+                const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); 
+                const iA = r.aprendido ? 'checked' : ''; const iP = r.primeiraConjuracao ? 'checked' : ''; 
+                const cor = cE[r.elemento] || "var(--op-ink)"; 
+                
+                // LÓGICA DE DUALIDADE (NORMAL vs BUFFADA)
+                const isBuffado = r.aprendido;
+                // Se for buffado, tenta ler da gaveta "buffed". O que não achar lá, pega da versão normal.
+                const rView = (isBuffado && r.buffed) ? { ...r, ...r.buffed } : r;
+
+                // Oculta o aprendizado se for aprendido OU se já manifestou pela primeira vez (Correção do Bug)
+                const hideAprendizado = (r.aprendido || r.primeiraConjuracao) ? 'none' : 'block';
+
+                // Botão exclusivo de Desenvolvedor (só aparece para você)
+                const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+
+                c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
+                    <div class="card-header" onclick="toggleElem('rit-${id}')">
+                        <span style="color:${cor}; font-weight:900">${rView.nome || 'Nova Anomalia'} ${isBuffado ? '<span style="color:var(--op-red); font-size:10px;">[VERDADEIRO]</span>' : ''}</span>
+                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(rView.elemento || 'Morte').toUpperCase()}</span>
+                    </div>
+                    <div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}">
+                        
+                        <div class="rit-layout-top">
+                            <div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">
+                                ${rView.simbolo ? `<img src="${rView.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${rView.sX || 50}% ${rView.sY || 50}%; transform: scale(${rView.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter', sans-serif; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}
+                            </div>
+                            <div class="rit-grid-2">
+                                <div class="rit-field" style="grid-column: span 2;">
+                                    <span class="rit-label" style="color:${cor}">Identificação da Anomalia</span>
+                                    <input type="text" class="rit-input" value="${rView.nome || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'nome', this.value, ${isBuffado})">
+                                </div>
+                                <div class="rit-field" style="display:none;">
+                                    <span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span>
+                                    <select class="rit-input" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'elemento', this.value, ${isBuffado})">
+                                        <option value="Nenhum" ${rView.elemento=='Nenhum'?'selected':''}>Nenhum</option>
+                                        <option value="Morte" ${rView.elemento=='Morte'?'selected':''}>Morte</option>
+                                        <option value="Sangue" ${rView.elemento=='Sangue'?'selected':''}>Sangue</option>
+                                        <option value="Energia" ${rView.elemento=='Energia'?'selected':''}>Energia</option>
+                                        <option value="Conhecimento" ${rView.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="rit-checkbox-row">
+                            <label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label>
+                            <label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'primeiraConjuracao', this.checked)"> Manifestação Inédita</label>
+                        </div>
+                        
+                        <div class="rit-field" style="margin-bottom: 12px; display: ${hideAprendizado};">
+                            <span class="rit-label" style="color:${cor}">Projeção de Estudo</span>
+                            <input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${r.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'tempoAprendizado', this.value)">
+                        </div>
+                        
+                        <div class="rit-grid-2">
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${rView.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'tempoConjuracao', this.value, ${isBuffado})"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${rView.alcance || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alcance', this.value, ${isBuffado})"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${rView.alvo || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alvo', this.value, ${isBuffado})"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${rView.duracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'duracao', this.value, ${isBuffado})"></div>
+                        </div>
+                        
+                        <div class="rit-grid-2" style="margin-top: 10px;">
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${rView.custoPe || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'custoPe', this.value, ${isBuffado})"></div>
+                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${rView.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'custoSanidade', this.value, ${isBuffado})"></div>
+                        </div>
+                        
+                        <div class="rit-field" style="margin-top: 15px;">
+                            <span class="rit-label" style="color:${cor}">Registro Detalhado</span>
+                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'descricao', this.value, ${isBuffado})">${rView.descricao || ""}</textarea>
+                        </div>
+                        
+                        <div style="text-align:right; margin-top:10px;">
+                            ${btnAdminCopy}
+                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
+                        </div>
+                        
+                    </div>
+                </div>`; 
             }); 
         }); 
     }
@@ -1925,6 +2005,65 @@
     
     async function updateSub(id, col, campo, valor) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; let o = {}; o[campo] = valor; if (col === 'rituais') menusAbertos.add('rit-' + id); if (col === 'poderes') menusAbertos.add('pod-' + id); if (col === 'habilidades') menusAbertos.add('hab-' + id); if (col === 'inventario') menusAbertos.add('inv-' + id); if (col === 'ataques') menusAbertos.add('atq-' + id); await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); }
     async function removerSub(id, col) { const path = (isHexatombe || globalHexatombe) ? "hexa_" + col : col; if(confirm("Remover este registro?")) await db.collection("fichas").doc(atual).collection(path).doc(id).delete(); }
+
+    // Função inteligente que decide onde salvar os dados digitados (Normal vs Buffado)
+    window.updateRitualField = async function(id, campo, valor, isBuffado) { 
+        menusAbertos.add('rit-' + id); 
+        const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
+        
+        let o = {}; 
+        if (isBuffado) {
+            // Se "Compreensão Total" estiver marcada, salva num anexo secreto "buffed"
+            o[`buffed.${campo}`] = valor; 
+        } else {
+            // Se estiver desmarcada, salva no campo tradicional
+            o[campo] = valor; 
+        }
+        await db.collection("fichas").doc(atual).collection(path).doc(id).update(o); 
+    };
+
+    // Função Exclusiva de Desenvolvedor (Super Mestre)
+    window.copiarRitualParaSite = async function(id) {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
+        try {
+            const doc = await db.collection("fichas").doc(atual).collection(path).doc(id).get();
+            if (doc.exists) {
+                const r = doc.data();
+                
+                // Formata o ID do ritual tirando acentos e espaços para o banco (ex: ritual_das_sombras)
+                const ritId = r.nome ? r.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_anomalia';
+
+                // Molda o código 100% idêntico ao exigido pelo seu "templatesAnomalias"
+                const template = `    "${ritId}": {
+        nome: "${r.nome || ''}",
+        elemento: "${r.elemento || 'Nenhum'}",
+        tempoConjuracao: "${r.tempoConjuracao || ''}",
+        alcance: "${r.alcance || ''}",
+        alvo: "${r.alvo || ''}",
+        duracao: "${r.duracao || ''}",
+        custoPe: "${r.custoPe || ''}",
+        custoSanidade: "${r.custoSanidade || ''}",
+        descricao: \`${r.descricao || ''}\`,
+        buffed: {
+            nome: "${r.buffed?.nome || r.nome || ''}",
+            tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}",
+            alcance: "${r.buffed?.alcance || r.alcance || ''}",
+            alvo: "${r.buffed?.alvo || r.alvo || ''}",
+            duracao: "${r.buffed?.duracao || r.duracao || ''}",
+            custoPe: "${r.buffed?.custoPe || r.custoPe || ''}",
+            custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}",
+            descricao: \`${r.buffed?.descricao || r.descricao || ''}\`
+        }
+    },`;
+
+                // Joga pro Ctrl+C do seu computador
+                await navigator.clipboard.writeText(template);
+                alert("✅ CÓDIGO DO RITUAL EXPORTADO!\n\nEle foi copiado com a sintaxe correta para a sua Área de Transferência.\n\nBasta ir no seu arquivo do site (no GitHub), colar o texto dentro do bloco 'templatesAnomalias' e a nova anomalia já estará disponível para todos os jogadores!");
+            }
+        } catch(e) {
+            alert("Erro ao copiar o código do ritual: " + e);
+        }
+    };
     
     auth.onAuthStateChanged(user => { if (user) init(); else { alert("Sessão expirada."); window.location.href = "index.html"; } });
 
