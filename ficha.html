@@ -1916,6 +1916,8 @@ let filtroSubAtualAtaques = 'Todos';
             snap.forEach(doc => { 
                 const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); 
                 const isBuffado = !!r.aprendido;
+                let expAtual = parseInt(document.getElementById('input-exp') ? document.getElementById('input-exp').value : (document.getElementById('valor-exp') ? document.getElementById('valor-exp').textContent : 0)) || 0;
+                let displayAfinidade = expAtual >= 50 ? 'block' : 'none';
 
                 // Constrói a visão atual (Normal vs Buffada) com total independência da Manifestação Inédita e do Tempo de Estudo
                 const rView = isBuffado ? {
@@ -1989,7 +1991,12 @@ let filtroSubAtualAtaques = 'Todos';
                             <span class="rit-label" style="color:${cor}">Registro Detalhado</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'descricao', this.value, ${isBuffado})">${rView.descricao || ""}</textarea>
                         </div>
-                        
+
+                        <div class="rit-field" style="margin-top:10px; display:${displayAfinidade};">
+                            <span class="rit-label">Efeito com Afinidade (50%+)</span>
+                            <textarea class="rit-input" style="min-height: 50px; resize: vertical; font-family: 'Inter', sans-serif;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'afinidade', this.value)">${a.afinidade || ''}</textarea>
+                       </div>
+
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
