@@ -495,6 +495,14 @@
     <option value="Balística (Artilharia)"></option>
 </datalist>
 
+<datalist id="lista-alcances-combate">
+    <option value="Corpo a Corpo"></option>
+    <option value="Curto"></option>
+    <option value="Médio"></option>
+    <option value="Longo"></option>
+    <option value="Extremo"></option>
+</datalist>
+    
 <div id="modal-tpl-ataque" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
     <div class="filtros-container" style="justify-content: center; margin-bottom: 8px;">
@@ -2105,9 +2113,11 @@ let filtroSubAtualAtaques = 'Todos';
                             <div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div>
                              <div class="rit-field">
     <span class="rit-label">Alcance Operacional</span>
-    <select class="rit-input" onclick="event.stopPropagation()" onchange="
-        updateSub('${id}', 'ataques', 'alcance', this.value); 
-        updateSub('${id}', 'ataques', 'categoria', this.value === 'Corpo a Corpo' ? 'Corpo a Corpo' : 'À Distância');
+    <input type="text" list="lista-alcances-combate" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="
+        const val = this.value;
+        const cat = val.toLowerCase().includes('corpo a corpo') ? 'Corpo a Corpo' : 'À Distância';
+        updateSub('${id}', 'ataques', 'alcance', val);
+        updateSub('${id}', 'ataques', 'categoria', cat);
     ">
         <option value="Corpo a Corpo" ${a.alcance === 'Corpo a Corpo' ? 'selected' : ''}>Corpo a Corpo</option>
         <option value="Curto" ${a.alcance === 'Curto' ? 'selected' : ''}>Curto</option>
