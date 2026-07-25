@@ -401,7 +401,7 @@
         </div>
         <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border);">
             <strong style="color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block;">4. PONTOS DE PERÍCIA</strong>
-            <p style="margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">Sua reserva total de pontos é: <code>9 + (3 × SAG) + (3 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong> (especialização inicial).</p>
+            <p style="margin: 0; font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif;">Sua reserva total de pontos é: <code>8 + (3 × SAG) + (3 × VON)</code>.<br>• Treino +1 custa <strong>1 Ponto</strong>.<br>• Treino +2 custa <strong>3 Pontos</strong> (especialização inicial).</p>
         </div>
          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dotted var(--card-border);">
             <strong style="color: var(--op-ink); font-size: 13px; font-family: 'Crimson Text', serif; display: block;">5. FINALIZAÇÃO</strong>
@@ -836,26 +836,12 @@
                 <div style="display:flex; gap:10px;"><button class="cris-btn" onclick="toggleElem('modal-tpl-ataque')">+ LISTA</button><button class="cris-btn btn-criar" onclick="novoAtaque()">+ CRIAR NOVA ARMA</button></div>
             </div>
             
-            <div id="filtros-ataques" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
-    <button class="btn-filtro active" onclick="filtrarCategoriaAtaque('Todos', this)">Todos</button>
-    <button class="btn-filtro" onclick="filtrarCategoriaAtaque('Corpo a Corpo', this)">Corpo a Corpo</button>
-    <button class="btn-filtro" onclick="filtrarCategoriaAtaque('À Distância', this)">À Distância</button>
-    <button class="btn-filtro" onclick="filtrarCategoriaAtaque('Anômalo', this)">Anômalo</button>
-</div>
-
-<div id="subfiltros-corpo-a-corpo" style="display: none; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; padding-left: 8px; border-left: 2px solid var(--op-ink);">
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Artes Marciais', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Artes Marciais</button>
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Leve', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Leves</button>
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Pesada', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Pesadas</button>
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Exótica', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Exóticas</button>
-</div>
-
-<div id="subfiltros-distancia" style="display: none; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; padding-left: 8px; border-left: 2px solid var(--op-ink);">
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Curto', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Curto Alcance</button>
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Médio', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Médio Alcance</button>
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Longo', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Longo Alcance</button>
-    <button class="btn-subfiltro" onclick="filtrarSubAtaque('Extremo', this)" style="font-size: 10px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Extremo Alcance</button>
-</div>
+            <div class="filtros-container" id="filtros-ataques">
+                <button class="btn-filtro active" onclick="setFiltroAtaques('Todos', this)">TODOS</button>
+                <button class="btn-filtro" onclick="setFiltroAtaques('Corpo a Corpo', this)">CORPO A CORPO</button>
+                <button class="btn-filtro" onclick="setFiltroAtaques('À Distância', this)">FOGO/À DISTÂNCIA</button>
+                <button class="btn-filtro" id="btn-filtro-anomalo-ataque" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroAtaques('Anômalo', this)">ANÔMALOS</button>
+            </div>
             <div id="lista-ataques"></div>
 
             </div>
@@ -2895,7 +2881,8 @@
                     
                     if (typeof salvarFicha === 'function') {
                         salvarFicha();
-                    }
+         
+           }
                 }
             };
             
@@ -2991,66 +2978,6 @@
             };
         })(); // <--- É SÓ ADICIONAR ESSA LINHA AQUI!
         // ==========================================
-
-    // Funcoes subcategorias
-    let filtroCatAtual = 'Todos';
-    let filtroSubAtual = 'Todos';
-
-    function filtrarCategoriaAtaque(cat, btn) {
-        filtroCatAtual = cat;
-        filtroSubAtual = 'Todos';
-
-        // Atualiza a cor/destaque do botão principal
-        document.querySelectorAll('#filtros-ataques .btn-filtro').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-
-        // Controla exibição das barras de subfiltros
-        const subCorpo = document.getElementById('subfiltros-corpo-a-corpo');
-        const subDist = document.getElementById('subfiltros-distancia');
-
-        if (subCorpo) subCorpo.style.display = (cat === 'Corpo a Corpo') ? 'flex' : 'none';
-        if (subDist) subDist.style.display = (cat === 'À Distância') ? 'flex' : 'none';
-
-        // Reseta destaque dos subbotoes
-        document.querySelectorAll('.btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
-
-        aplicarFiltrosAtaques();
-    }
-
-    function filtrarSubAtaque(sub, btn) {
-        // Se clicar na mesma subcategoria de novo, desmarca e volta a mostrar todas daquela categoria
-        if (filtroSubAtual === sub) {
-            filtroSubAtual = 'Todos';
-            if (btn) btn.style.fontWeight = 'normal';
-        } else {
-            filtroSubAtual = sub;
-            document.querySelectorAll('.btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
-            if (btn) btn.style.fontWeight = 'bold';
-        }
-
-        aplicarFiltrosAtaques();
-    }
-
-    function aplicarFiltrosAtaques() {
-        const cards = document.querySelectorAll('.ataque-card');
-        
-        cards.forEach(card => {
-            const catCard = card.getAttribute('data-categoria') || '';
-            const textCard = card.innerText.toLowerCase();
-            const subTerm = filtroSubAtual.toLowerCase();
-
-            let exibeCategoria = (filtroCatAtual === 'Todos' || catCard.includes(filtroCatAtual));
-            let exibeSub = (filtroSubAtual === 'Todos' || textCard.includes(subTerm));
-
-            if (exibeCategoria && exibeSub) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-      // ==========================================
-    
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
     ⚔️ Iniciativa
