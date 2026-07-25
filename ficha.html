@@ -1911,20 +1911,21 @@ let filtroSubAtualAtaques = 'Todos';
             const c = document.getElementById('lista-rituais'); c.innerHTML = ""; 
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; 
             
-            const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
+            const isSuperAdmin = (typeof isSuperAdminEmail !== 'undefined' && isSuperAdminEmail);
+
+            // Lê o nível de Exposição (NEX) atual da ficha
+            const nexAtual = parseInt(document.getElementById('nex-personagem')?.value) || 0;
+            // Define se a caixa de Afinidade vai aparecer (block) ou sumir (none)
+            const displayAfinidade = nexAtual >= 50 ? 'block' : 'none';
 
             snap.forEach(doc => { 
                 const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); 
                 const isBuffado = !!r.aprendido;
-                let nexAtualStr = document.getElementById('nex-personagem') ? document.getElementById('nex-personagem').value : "0%";
-                let expAtual = parseInt(nexAtualStr) || 0;
-                let displayAfinidade = expAtual >= 50 ? 'block' : 'none';
 
-                // Constrói a visão atual (Normal vs Buffada) com total independência da Manifestação Inédita e do Tempo de Estudo
                 const rView = isBuffado ? {
                     ...r,
                     ...(r.buffed || {}),
-                    primeiraConjuracao: r.buffed?.primeiraConjuracao ?? false, // Inicia desmarcado na versão verdadeira
+                    primeiraConjuracao: r.buffed?.primeiraConjuracao ?? false, 
                     tempoAprendizado: r.buffed?.tempoAprendizado ?? r.tempoAprendizado ?? ''
                 } : r;
 
@@ -1932,7 +1933,6 @@ let filtroSubAtualAtaques = 'Todos';
                 const iP = rView.primeiraConjuracao ? 'checked' : ''; 
                 const cor = cE[rView.elemento] || "var(--op-ink)"; 
 
-                // Esconde a Projeção de Estudo APENAS se a Manifestação Inédita desta versão específica estiver marcada
                 const hideAprendizado = rView.primeiraConjuracao ? 'none' : 'block';
 
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
@@ -1992,11 +1992,11 @@ let filtroSubAtualAtaques = 'Todos';
                             <span class="rit-label" style="color:${cor}">Registro Detalhado</span>
                             <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'descricao', this.value, ${isBuffado})">${rView.descricao || ""}</textarea>
                         </div>
-
-                        <div style="margin-top: 12px; display: ${displayAfinidade}; width: 100%;">
-    <span class="rit-label" style="display: block; margin-bottom: 4px;">Efeito com Afinidade (50%+)</span>
-    <textarea class="rit-input" style="width: 100%; min-height: 60px; resize: vertical; font-family: 'Inter', sans-serif; box-sizing: border-box; padding: 8px; background: transparent;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'afinidade', this.value)">${rView.afinidade || ''}</textarea>
-</div>
+                        
+                        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
+                            <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
+                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'afinidade', this.value, ${isBuffado})" placeholder="Descreva os efeitos da afinidade com esta anomalia...">${rView.afinidade || ""}</textarea>
+                        </div>
 
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
@@ -2337,7 +2337,6 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     // Função Exclusiva de Desenvolvedor (Super Mestre) - VERSÃO COMPACTA
-    // Função Exclusiva de Desenvolvedor (Super Mestre) - VERSÃO COMPACTA
     window.copiarRitualParaSite = async function(id) {
         const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
         try {
@@ -2347,12 +2346,12 @@ let filtroSubAtualAtaques = 'Todos';
                 
                 const ritId = r.nome ? r.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_anomalia';
 
-                // Trata as descrições para trocar "Enters" físicos por "\n" e escapar aspas, garantindo a linha única
                 const descBase = (r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const afinBase = (r.afinidade || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
                 const descBuffed = (r.buffed?.descricao || r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const afinBuffed = (r.buffed?.afinidade || r.afinidade || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
 
-                // Template compactado (Base + Buffed) na mesma string, agora com o campo 'simbolo' preparado
-                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}" } },`;
+                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", afinidade: "${afinBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.buffed?.duracao || r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}", afinidade: "${afinBuffed}" } },`;
 
                 await navigator.clipboard.writeText(template);
                 alert("✅ CÓDIGO COMPACTO EXPORTADO!\n\nEle foi copiado em formato de linha única para a sua Área de Transferência.\n\nLembre-se de salvar a imagem do símbolo separadamente e adicionar o link na propriedade 'simbolo'!");
