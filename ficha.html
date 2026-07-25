@@ -482,14 +482,42 @@
     </div>
 </div>
 
+<datalist id="lista-pericias-combate">
+    <option value="Briga"></option>
+    <option value="Combate (Artes Marciais)"></option>
+    <option value="Combate (Armas Leves)"></option>
+    <option value="Combate (Armas Pesadas)"></option>
+    <option value="Combate (Armas Exóticas)"></option>
+    <option value="Pontaria"></option>
+    <option value="Balística (Pistolas)"></option>
+    <option value="Balística (Rifles)"></option>
+    <option value="Balística (Espingardas)"></option>
+    <option value="Balística (Artilharia)"></option>
+</datalist>
+
 <div id="modal-tpl-ataque" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
-    <div class="filtros-container" style="justify-content: center; margin-bottom: 10px;">
+    <div class="filtros-container" style="justify-content: center; margin-bottom: 8px;">
         <button class="btn-filtro active" onclick="setFiltroModal('select-tpl-ataque', 'Todos', this)">TODOS</button>
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-ataque', 'Corpo a Corpo', this)">CORPO A CORPO</button>
         <button class="btn-filtro" onclick="setFiltroModal('select-tpl-ataque', 'À Distância', this)">À DISTÂNCIA</button>
         <button class="btn-filtro" id="btn-modal-filtro-anomalo-ataque" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroModal('select-tpl-ataque', 'Anômalo', this)">ANÔMALOS</button>
     </div>
+    
+    <div id="subfiltros-modal-corpo" style="display: none; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center;">
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Artes Marciais', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Artes Marciais</button>
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Leve', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Leves</button>
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Pesada', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Pesadas</button>
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Exótica', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Exóticas</button>
+    </div>
+
+    <div id="subfiltros-modal-distancia" style="display: none; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center;">
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Curto', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Curto Alcance</button>
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Médio', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Médio Alcance</button>
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Longo', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Longo Alcance</button>
+        <button class="btn-subfiltro" onclick="setSubFiltroModal('select-tpl-ataque', 'Extremo', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Extremo Alcance</button>
+    </div>
+
     <input type="text" class="search-banco" placeholder="Pesquisar arma..." onkeyup="filtrarBanco(this, 'select-tpl-ataque')">
     <select id="select-tpl-ataque" class="lista-padronizada" size="6" onchange="previewTemplate('ataque')">
         <option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione uma Arma...</option>
@@ -937,26 +965,26 @@
     };
 
     const templatesAtaques = { 
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo" },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Escopeta": { nome: "Escopeta", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 1, categoria: "Anômalo" },
-        "Fuzil": { nome: "Fuzil de Assalto", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Glock": { nome: "Glock", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Katana": { nome: "Katana", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo" },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Soco": { nome: "Soco (Ataque)", dano: "1+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" },
-        "Submetralhadora": { nome: "Submetralhadora", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" },
-        "Taser": { nome: "Taser", dano: "1d4+Atordoado", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística", atributo: "AGI", pressao: 0, categoria: "À Distância" }
+        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Escopeta": { nome: "Escopeta", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Espingardas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
+        "Fuzil": { nome: "Fuzil de Assalto", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Longo" },
+        "Glock": { nome: "Glock", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Katana": { nome: "Katana", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Soco": { nome: "Soco (Ataque)", dano: "1+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "Submetralhadora": { nome: "Submetralhadora", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Taser": { nome: "Taser", dano: "1d4+Atordoado", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" }
     };
 
     const templatesTracos = {
@@ -1033,13 +1061,14 @@
                 const opt = document.createElement('option');
                 opt.value = k; opt.text = textFn(v);
                 if(v.categoria) opt.dataset.categoria = v.categoria;
+                if(v.classificacao) opt.dataset.classificacao = v.classificacao;
                 if(v.categoria === 'Anômalo' || v.anomalo) opt.dataset.anomalo = "true";
                 if(v.search) opt.dataset.search = v.search;
                 sel.appendChild(opt);
             });
         };
         add('select-tpl-origem', templatesOrigens, t => t.nome);
-        add('select-tpl-ataque', templatesAtaques, t => t.nome);
+        add('select-tpl-ataque', templatesAtaques, t => `${t.nome} [${t.classificacao || '-'}]`);
         add('select-tpl-traco', templatesTracos, t => t.nome);
         add('select-tpl-espec', templatesEspecializacoes, t => `${t.nome} (${t.elemento})`);
         add('select-tpl-anomalia', templatesAnomalias, t => `${t.nome} (${t.elemento})`);
@@ -1112,13 +1141,37 @@
     window.addEventListener('DOMContentLoaded', () => { if (localStorage.getItem('temaFichaAmeaca') === 'escuro') document.body.classList.add('tema-escuro'); });
 
     let modalFiltros = { 'select-tpl-ataque': 'Todos', 'select-tpl-item': 'Todos' };
+    let modalSubFiltros = { 'select-tpl-ataque': 'Todos' };
 
     function setFiltroModal(selectId, cat, btn) {
         modalFiltros[selectId] = cat;
+        modalSubFiltros[selectId] = 'Todos';
+
         if(btn) {
             let container = btn.parentElement;
             container.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+        }
+
+        if (selectId === 'select-tpl-ataque') {
+            document.getElementById('subfiltros-modal-corpo').style.display = (cat === 'Corpo a Corpo') ? 'flex' : 'none';
+            document.getElementById('subfiltros-modal-distancia').style.display = (cat === 'À Distância') ? 'flex' : 'none';
+            document.querySelectorAll('#modal-tpl-ataque .btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
+        }
+
+        let input = document.getElementById('search-' + selectId) || document.querySelector(`input[onkeyup*="${selectId}"]`);
+        let val = input ? input.value : '';
+        atualizarListaModal(selectId, val);
+    }
+
+    function setSubFiltroModal(selectId, sub, btn) {
+        if (modalSubFiltros[selectId] === sub) {
+            modalSubFiltros[selectId] = 'Todos';
+            if (btn) btn.style.fontWeight = 'normal';
+        } else {
+            modalSubFiltros[selectId] = sub;
+            document.querySelectorAll(`#modal-tpl-ataque .btn-subfiltro`).forEach(b => b.style.fontWeight = 'normal');
+            if (btn) btn.style.fontWeight = 'bold';
         }
         let input = document.getElementById('search-' + selectId) || document.querySelector(`input[onkeyup*="${selectId}"]`);
         let val = input ? input.value : '';
@@ -1131,6 +1184,7 @@
         if(!select) return;
         
         const cat = modalFiltros[selectId] || 'Todos';
+        const sub = modalSubFiltros[selectId] || 'Todos';
         const options = select.options;
         let despertado = isRevelado || globalRevelado;
 
@@ -1139,12 +1193,14 @@
 
             const isAnomalo = options[i].getAttribute('data-anomalo') === 'true' || options[i].getAttribute('data-categoria') === 'Anômalo';
             const optCat = options[i].getAttribute('data-categoria') || 'Outros';
+            const optClass = options[i].getAttribute('data-classificacao') || '';
             const txt = options[i].text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const searchData = (options[i].getAttribute('data-search') || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
             let show = true;
             if (isAnomalo && !despertado) show = false;
-            if (show && modalFiltros[selectId] && cat !== 'Todos' && optCat !== cat) show = false;
+            if (show && cat !== 'Todos' && optCat !== cat) show = false;
+            if (show && sub !== 'Todos' && optClass !== sub) show = false;
             if (show && filterText !== "" && !txt.includes(filterText) && !searchData.includes(filterText)) show = false;
 
             options[i].style.display = show ? "" : "none";
