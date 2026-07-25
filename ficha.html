@@ -1256,7 +1256,7 @@
         if (!val || !p) { if(p) p.innerHTML = ""; return; }
 
         let d;
-        if (tipo === 'ataque') { d = templatesAtaques[val]; if(d) p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}`; } 
+        if (tipo === 'ataque') { d = templatesAtaques[val]; if(d) p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance} | <strong>Classe:</strong> ${d.classificacao || '-'}`; }
         else if (tipo === 'traco') { d = templatesTracos[val]; if(d) p.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`; }
         else if (tipo === 'espec') { d = templatesEspecializacoes[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'anomalia') { d = templatesAnomalias[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
@@ -1993,10 +1993,10 @@
 
             snap.forEach(doc => { 
                 const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); 
-                let cat = getAtaqueCat(a);
+                let cat = a.categoria || getAtaqueCat(a);
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
-                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" style="border-left-color: var(--op-ink);">
+                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-classificacao="${a.classificacao || ''}" style="border-left-color: var(--op-ink);">
                     <div class="card-header" onclick="toggleElem('atq-${id}')">
                         <span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span>
                         <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span>
@@ -2011,16 +2011,33 @@
                             <div class="rit-field"><span class="rit-label">Alcance Operacional</span><input type="text" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'alcance', this.value)"></div>
                         </div>
                         <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div>
+                            <div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" list="lista-pericias-combate" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div>
                             <div class="rit-field"><span class="rit-label">Atributo Utilizado</span><input type="text" class="rit-input" value="${a.atributo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'atributo', this.value)"></div>
                         </div>
                         <div class="rit-grid-2" style="margin-bottom:10px;">
                             <div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div>
                             <div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>
                         </div>
-                        <div class="rit-field" style="margin-bottom:10px;">
-                            <span class="rit-label">Pressão</span>
-                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div>
+                            <div class="rit-field">
+                                <span class="rit-label">Classificação (Subcategoria)</span>
+                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'classificacao', this.value)">
+                                    <option value="" ${!a.classificacao ? 'selected' : ''}>Nenhuma</option>
+                                    <optgroup label="Corpo a Corpo">
+                                        <option value="Artes Marciais" ${a.classificacao=='Artes Marciais'?'selected':''}>Artes Marciais</option>
+                                        <option value="Leve" ${a.classificacao=='Leve'?'selected':''}>Armas Leves</option>
+                                        <option value="Pesada" ${a.classificacao=='Pesada'?'selected':''}>Armas Pesadas</option>
+                                        <option value="Exótica" ${a.classificacao=='Exótica'?'selected':''}>Armas Exóticas</option>
+                                    </optgroup>
+                                    <optgroup label="À Distância">
+                                        <option value="Curto" ${a.classificacao=='Curto'?'selected':''}>Curto Alcance</option>
+                                        <option value="Médio" ${a.classificacao=='Médio'?'selected':''}>Médio Alcance</option>
+                                        <option value="Longo" ${a.classificacao=='Longo'?'selected':''}>Longo Alcance</option>
+                                        <option value="Extremo" ${a.classificacao=='Extremo'?'selected':''}>Extremo Alcance</option>
+                                    </optgroup>
+                                </select>
+                            </div>
                         </div>
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
@@ -2125,7 +2142,7 @@
         menusAbertos.add('atq-' + novaRef.id);
         const btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
         if(btnTodos) setFiltroAtaques('Todos', btnTodos);
-        await novaRef.set({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo" }); 
+        await novaRef.set({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" }); 
         setTimeout(() => { let el = document.getElementById('atq-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
 
@@ -2284,8 +2301,9 @@
             if (doc.exists) {
                 const a = doc.data();
                 const atqId = a.nome ? a.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_arma';
-                const cat = getAtaqueCat(a);
-                const template = `    "${atqId}": { nome: "${a.nome || ''}", dano: "${a.dano || ''}", tipo: "${a.tipo || ''}", alcance: "${a.alcance || ''}", pericia: "${a.pericia || ''}", atributo: "${a.atributo || ''}", bonus: ${parseInt(a.bonus)||0}, municao: "${a.municao || ''}", pressao: ${parseInt(a.pressao)||0}, categoria: "${cat}" },`;
+                const cat = a.categoria || getAtaqueCat(a);
+                const classif = a.classificacao || '';
+                const template = `    "${atqId}": { nome: "${a.nome || ''}", dano: "${a.dano || ''}", tipo: "${a.tipo || ''}", alcance: "${a.alcance || ''}", pericia: "${a.pericia || ''}", atributo: "${a.atributo || ''}", bonus: ${parseInt(a.bonus)||0}, municao: "${a.municao || ''}", pressao: ${parseInt(a.pressao)||0}, categoria: "${cat}", classificacao: "${classif}" },`;
                 await navigator.clipboard.writeText(template);
                 alert("✅ ARMA EXPORTADA!\n\nCopiada em formato compacto de linha única para colar em 'templatesAtaques'.");
             }
