@@ -864,12 +864,27 @@
                 <div style="display:flex; gap:10px;"><button class="cris-btn" onclick="toggleElem('modal-tpl-ataque')">+ LISTA</button><button class="cris-btn btn-criar" onclick="novoAtaque()">+ CRIAR NOVA ARMA</button></div>
             </div>
             
-            <div class="filtros-container" id="filtros-ataques">
-                <button class="btn-filtro active" onclick="setFiltroAtaques('Todos', this)">TODOS</button>
-                <button class="btn-filtro" onclick="setFiltroAtaques('Corpo a Corpo', this)">CORPO A CORPO</button>
-                <button class="btn-filtro" onclick="setFiltroAtaques('À Distância', this)">FOGO/À DISTÂNCIA</button>
-                <button class="btn-filtro" id="btn-filtro-anomalo-ataque" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroAtaques('Anômalo', this)">ANÔMALOS</button>
-            </div>
+            <div class="filtros-container" id="filtros-ataques" style="justify-content: center; margin-bottom: 8px;">
+    <button class="btn-filtro active" onclick="setFiltroAtaques('Todos', this)">TODOS</button>
+    <button class="btn-filtro" onclick="setFiltroAtaques('Corpo a Corpo', this)">CORPO A CORPO</button>
+    <button class="btn-filtro" onclick="setFiltroAtaques('À Distância', this)">À DISTÂNCIA</button>
+    <button class="btn-filtro" id="btn-filtro-anomalo-ataques" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroAtaques('Anômalo', this)">ANÔMALOS</button>
+</div>
+
+            <div id="subfiltros-ataques-corpo" style="display: none; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center;">
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Artes Marciais', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Artes Marciais</button>
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Leve', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Leves</button>
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Pesada', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Pesadas</button>
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Exótica', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Armas Exóticas</button>
+</div>
+
+<div id="subfiltros-ataques-distancia" style="display: none; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center;">
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Curto', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Curto Alcance</button>
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Médio', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Médio Alcance</button>
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Longo', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Longo Alcance</button>
+    <button class="btn-subfiltro" onclick="setSubFiltroAtaques('Extremo', this)" style="font-size: 9px; padding: 2px 6px; background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink); cursor: pointer;">Extremo Alcance</button>
+</div>
+            
             <div id="lista-ataques"></div>
 
             </div>
@@ -1059,22 +1074,24 @@
             const sel = document.getElementById(id); if(!sel) return;
             Object.entries(dict).forEach(([k, v]) => {
                 const opt = document.createElement('option');
-                opt.value = k; opt.text = textFn(v);
+                opt.value = k; 
+                opt.text = textFn(v); // Nome limpo sem colchetes
                 if(v.categoria) opt.dataset.categoria = v.categoria;
                 if(v.classificacao) opt.dataset.classificacao = v.classificacao;
+                if(v.alcance) opt.dataset.alcance = v.alcance;
                 if(v.categoria === 'Anômalo' || v.anomalo) opt.dataset.anomalo = "true";
                 if(v.search) opt.dataset.search = v.search;
                 sel.appendChild(opt);
             });
         };
         add('select-tpl-origem', templatesOrigens, t => t.nome);
-        add('select-tpl-ataque', templatesAtaques, t => `${t.nome} [${t.classificacao || '-'}]`);
+        add('select-tpl-ataque', templatesAtaques, t => t.nome); // Nome limpo
         add('select-tpl-traco', templatesTracos, t => t.nome);
         add('select-tpl-espec', templatesEspecializacoes, t => `${t.nome} (${t.elemento})`);
         add('select-tpl-anomalia', templatesAnomalias, t => `${t.nome} (${t.elemento})`);
         add('select-tpl-item', templatesInventario, t => t.nome);
     }
-
+    
     function toggleElem(id) { 
         const b = document.getElementById(id); 
         if(!b) return; 
@@ -1194,13 +1211,22 @@
             const isAnomalo = options[i].getAttribute('data-anomalo') === 'true' || options[i].getAttribute('data-categoria') === 'Anômalo';
             const optCat = options[i].getAttribute('data-categoria') || 'Outros';
             const optClass = options[i].getAttribute('data-classificacao') || '';
+            const optAlcance = (options[i].getAttribute('data-alcance') || '').toLowerCase();
             const txt = options[i].text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const searchData = (options[i].getAttribute('data-search') || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
             let show = true;
             if (isAnomalo && !despertado) show = false;
             if (show && cat !== 'Todos' && optCat !== cat) show = false;
-            if (show && sub !== 'Todos' && optClass !== sub) show = false;
+
+            if (show && sub !== 'Todos') {
+                if (cat === 'Corpo a Corpo') {
+                    if (optClass !== sub) show = false;
+                } else if (cat === 'À Distância') {
+                    if (!optAlcance.includes(sub.toLowerCase())) show = false;
+                }
+            }
+
             if (show && filterText !== "" && !txt.includes(filterText) && !searchData.includes(filterText)) show = false;
 
             options[i].style.display = show ? "" : "none";
@@ -1223,17 +1249,73 @@
     }
 
     function getAtaqueCat(a) { if (!a) return 'Outros'; let alc = (a.alcance || '').toLowerCase(); if (alc.includes('corpo a corpo')) return 'Corpo a Corpo'; return 'À Distância'; }
-    function setFiltroAtaques(cat, btn) { filtroAtualAtaques = cat; if(btn) { document.querySelectorAll('#filtros-ataques .btn-filtro').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } aplicarFiltrosAtaques(); }
-    function aplicarFiltrosAtaques() {
-        let despertado = isRevelado || globalRevelado;
-        let btnAnomaloAtq = document.getElementById('btn-modal-filtro-anomalo-ataque');
-        if (btnAnomaloAtq) { btnAnomaloAtq.style.display = despertado ? 'inline-block' : 'none'; if (!despertado && filtroAtualAtaques === 'Anômalo') { setFiltroAtaques('Todos', document.querySelector('#filtros-ataques .btn-filtro')); return; } }
-        document.querySelectorAll('.ataque-card').forEach(card => {
-            let catItem = card.getAttribute('data-categoria'); let isAnomalo = (catItem === 'Anômalo');
-            if (!despertado && isAnomalo) { card.style.display = 'none'; } else if (filtroAtualAtaques === 'Todos' || filtroAtualAtaques === catItem) { card.style.display = 'block'; } else { card.style.display = 'none'; }
-        });
+    let filtroAtualAtaques = 'Todos';
+    let filtroSubAtualAtaques = 'Todos';
+
+    function setFiltroAtaques(cat, btn) {
+        filtroAtualAtaques = cat;
+        filtroSubAtualAtaques = 'Todos';
+
+        if (btn) {
+            let container = btn.parentElement;
+            container.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        const subCorpo = document.getElementById('subfiltros-ataques-corpo');
+        const subDist = document.getElementById('subfiltros-ataques-distancia');
+        if (subCorpo) subCorpo.style.display = (cat === 'Corpo a Corpo') ? 'flex' : 'none';
+        if (subDist) subDist.style.display = (cat === 'À Distância') ? 'flex' : 'none';
+
+        document.querySelectorAll('#subfiltros-ataques-corpo .btn-subfiltro, #subfiltros-ataques-distancia .btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
+
+        aplicarFiltrosAtaques();
     }
 
+    function setSubFiltroAtaques(sub, btn) {
+        if (filtroSubAtualAtaques === sub) {
+            filtroSubAtualAtaques = 'Todos';
+            if (btn) btn.style.fontWeight = 'normal';
+        } else {
+            filtroSubAtualAtaques = sub;
+            document.querySelectorAll('#subfiltros-ataques-corpo .btn-subfiltro, #subfiltros-ataques-distancia .btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
+            if (btn) btn.style.fontWeight = 'bold';
+        }
+        aplicarFiltrosAtaques();
+    }
+
+    function aplicarFiltrosAtaques() {
+        let despertado = isRevelado || globalRevelado;
+        let btnAnomaloAtq = document.getElementById('btn-filtro-anomalo-ataques');
+        if (btnAnomaloAtq) { 
+            btnAnomaloAtq.style.display = despertado ? 'inline-block' : 'none'; 
+            if (!despertado && filtroAtualAtaques === 'Anômalo') { 
+                setFiltroAtaques('Todos', document.querySelector('#filtros-ataques .btn-filtro')); 
+                return; 
+            } 
+        }
+
+        document.querySelectorAll('.ataque-card').forEach(card => {
+            let catItem = card.getAttribute('data-categoria') || ''; 
+            let classItem = card.getAttribute('data-classificacao') || '';
+            let alcanceItem = (card.getAttribute('data-alcance') || '').toLowerCase();
+            let isAnomalo = (catItem === 'Anômalo');
+            
+            let show = true;
+            if (!despertado && isAnomalo) show = false;
+            if (show && filtroAtualAtaques !== 'Todos' && catItem !== filtroAtualAtaques) show = false;
+
+            if (show && filtroSubAtualAtaques !== 'Todos') {
+                if (filtroAtualAtaques === 'Corpo a Corpo') {
+                    if (classItem !== filtroSubAtualAtaques) show = false;
+                } else if (filtroAtualAtaques === 'À Distância') {
+                    if (!alcanceItem.includes(filtroSubAtualAtaques.toLowerCase())) show = false;
+                }
+            }
+
+            card.style.display = show ? 'block' : 'none';
+        });
+    }
     function atualizarCredito() {
         let nc = parseInt(document.getElementById('nivel-credito').value); if (isNaN(nc)) nc = -2;
         let gastos = "R$ 0", dinheiro = "R$ 0", patrimonio = "R$ 0";
@@ -1256,8 +1338,13 @@
         if (!val || !p) { if(p) p.innerHTML = ""; return; }
 
         let d;
-        if (tipo === 'ataque') { d = templatesAtaques[val]; if(d) p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance} | <strong>Classe:</strong> ${d.classificacao || '-'}`; }
-        else if (tipo === 'traco') { d = templatesTracos[val]; if(d) p.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`; }
+        if (tipo === 'ataque') { 
+            d = templatesAtaques[val]; 
+            if(d) {
+                let txtClasse = (d.categoria === 'Corpo a Corpo' || !d.categoria) && d.classificacao ? ` | <strong>Classe:</strong> ${d.classificacao}` : '';
+                p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}${txtClasse}`; 
+            }
+        }        else if (tipo === 'traco') { d = templatesTracos[val]; if(d) p.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`; }
         else if (tipo === 'espec') { d = templatesEspecializacoes[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'anomalia') { d = templatesAnomalias[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'item') { d = templatesInventario[val]; if(d) p.innerHTML = `<strong>Categoria:</strong> ${d.categoria} | <strong>Efeito:</strong> ${d.descricao}`; }
@@ -1996,7 +2083,32 @@
                 let cat = a.categoria || getAtaqueCat(a);
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
-                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-classificacao="${a.classificacao || ''}" style="border-left-color: var(--op-ink);">
+                // O campo de Classificação só é exibido em armas de Corpo a Corpo
+                let blocoClassificacao = '';
+                if (cat !== 'À Distância') {
+                    blocoClassificacao = `
+                        <div class="rit-grid-2" style="margin-bottom:10px;">
+                            <div class="rit-field"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div>
+                            <div class="rit-field">
+                                <span class="rit-label">Classificação (Subcategoria)</span>
+                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'classificacao', this.value)">
+                                    <option value="" ${!a.classificacao ? 'selected' : ''}>Nenhuma</option>
+                                    <option value="Artes Marciais" ${a.classificacao=='Artes Marciais'?'selected':''}>Artes Marciais</option>
+                                    <option value="Leve" ${a.classificacao=='Leve'?'selected':''}>Armas Leves</option>
+                                    <option value="Pesada" ${a.classificacao=='Pesada'?'selected':''}>Armas Pesadas</option>
+                                    <option value="Exótica" ${a.classificacao=='Exótica'?'selected':''}>Armas Exóticas</option>
+                                </select>
+                            </div>
+                        </div>`;
+                } else {
+                    blocoClassificacao = `
+                        <div class="rit-field" style="margin-bottom:10px;">
+                            <span class="rit-label">Pressão</span>
+                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
+                        </div>`;
+                }
+
+                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-classificacao="${a.classificacao || ''}" data-alcance="${a.alcance || ''}" style="border-left-color: var(--op-ink);">
                     <div class="card-header" onclick="toggleElem('atq-${id}')">
                         <span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span>
                         <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span>
@@ -2018,27 +2130,7 @@
                             <div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div>
                             <div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>
                         </div>
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div>
-                            <div class="rit-field">
-                                <span class="rit-label">Classificação (Subcategoria)</span>
-                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'classificacao', this.value)">
-                                    <option value="" ${!a.classificacao ? 'selected' : ''}>Nenhuma</option>
-                                    <optgroup label="Corpo a Corpo">
-                                        <option value="Artes Marciais" ${a.classificacao=='Artes Marciais'?'selected':''}>Artes Marciais</option>
-                                        <option value="Leve" ${a.classificacao=='Leve'?'selected':''}>Armas Leves</option>
-                                        <option value="Pesada" ${a.classificacao=='Pesada'?'selected':''}>Armas Pesadas</option>
-                                        <option value="Exótica" ${a.classificacao=='Exótica'?'selected':''}>Armas Exóticas</option>
-                                    </optgroup>
-                                    <optgroup label="À Distância">
-                                        <option value="Curto" ${a.classificacao=='Curto'?'selected':''}>Curto Alcance</option>
-                                        <option value="Médio" ${a.classificacao=='Médio'?'selected':''}>Médio Alcance</option>
-                                        <option value="Longo" ${a.classificacao=='Longo'?'selected':''}>Longo Alcance</option>
-                                        <option value="Extremo" ${a.classificacao=='Extremo'?'selected':''}>Extremo Alcance</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
+                        ${blocoClassificacao}
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
