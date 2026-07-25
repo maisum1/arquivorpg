@@ -1297,8 +1297,8 @@ let filtroSubAtualAtaques = 'Todos';
 
         document.querySelectorAll('.ataque-card').forEach(card => {
             let catItem = card.getAttribute('data-categoria') || ''; 
-            let classItem = card.getAttribute('data-classificacao') || '';
             let alcanceItem = (card.getAttribute('data-alcance') || '').toLowerCase();
+            let periciaItem = (card.getAttribute('data-pericia') || '').toLowerCase(); // Pegamos a perícia aqui
             let isAnomalo = (catItem === 'Anômalo');
             
             let show = true;
@@ -1307,7 +1307,13 @@ let filtroSubAtualAtaques = 'Todos';
 
             if (show && filtroSubAtualAtaques !== 'Todos') {
                 if (filtroAtualAtaques === 'Corpo a Corpo') {
-                    if (classItem !== filtroSubAtualAtaques) show = false;
+                    // Aqui a mágica acontece: o filtro procura a palavra-chave dentro da string da perícia
+                    let sub = filtroSubAtualAtaques.toLowerCase();
+                    if (sub === 'artes marciais') {
+                        if (!periciaItem.includes('marciais') && !periciaItem.includes('briga')) show = false;
+                    } else {
+                        if (!periciaItem.includes(sub)) show = false;
+                    }
                 } else if (filtroAtualAtaques === 'À Distância') {
                     if (!alcanceItem.includes(filtroSubAtualAtaques.toLowerCase())) show = false;
                 }
@@ -1316,6 +1322,7 @@ let filtroSubAtualAtaques = 'Todos';
             card.style.display = show ? 'block' : 'none';
         });
     }
+    
     function atualizarCredito() {
         let nc = parseInt(document.getElementById('nivel-credito').value); if (isNaN(nc)) nc = -2;
         let gastos = "R$ 0", dinheiro = "R$ 0", patrimonio = "R$ 0";
@@ -2083,32 +2090,8 @@ let filtroSubAtualAtaques = 'Todos';
                 let cat = a.categoria || getAtaqueCat(a);
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
-                // O campo de Classificação só é exibido em armas de Corpo a Corpo
-                let blocoClassificacao = '';
-                if (cat !== 'À Distância') {
-                    blocoClassificacao = `
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div>
-                            <div class="rit-field">
-                                <span class="rit-label">Classificação (Subcategoria)</span>
-                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'classificacao', this.value)">
-                                    <option value="" ${!a.classificacao ? 'selected' : ''}>Nenhuma</option>
-                                    <option value="Artes Marciais" ${a.classificacao=='Artes Marciais'?'selected':''}>Artes Marciais</option>
-                                    <option value="Leve" ${a.classificacao=='Leve'?'selected':''}>Armas Leves</option>
-                                    <option value="Pesada" ${a.classificacao=='Pesada'?'selected':''}>Armas Pesadas</option>
-                                    <option value="Exótica" ${a.classificacao=='Exótica'?'selected':''}>Armas Exóticas</option>
-                                </select>
-                            </div>
-                        </div>`;
-                } else {
-                    blocoClassificacao = `
-                        <div class="rit-field" style="margin-bottom:10px;">
-                            <span class="rit-label">Pressão</span>
-                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
-                        </div>`;
-                }
-
-                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-classificacao="${a.classificacao || ''}" data-alcance="${a.alcance || ''}" style="border-left-color: var(--op-ink);">
+                // Passamos o data-pericia para o HTML para o filtro conseguir ler depois
+                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-alcance="${a.alcance || ''}" data-pericia="${a.pericia || ''}" style="border-left-color: var(--op-ink);">
                     <div class="card-header" onclick="toggleElem('atq-${id}')">
                         <span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span>
                         <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span>
@@ -2130,7 +2113,10 @@ let filtroSubAtualAtaques = 'Todos';
                             <div class="rit-field"><span class="rit-label">Bônus de Ataque</span><input type="number" class="rit-input" value="${a.bonus || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'bonus', this.value)"></div>
                             <div class="rit-field"><span class="rit-label">Munição (Atual/Max)</span><input type="text" class="rit-input" value="${a.municao || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>
                         </div>
-                        ${blocoClassificacao}
+                        <div class="rit-field" style="margin-bottom:10px;">
+                            <span class="rit-label">Pressão</span>
+                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
+                        </div>
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
@@ -2141,7 +2127,7 @@ let filtroSubAtualAtaques = 'Todos';
             window.valPressaoAtaques = pA; syncPressaoVisuais(); aplicarFiltrosAtaques(); 
         }); 
     }
-
+    
     function carregarInventario() { 
         if(unsubInv) unsubInv(); const p = (isHexatombe || globalHexatombe) ? "hexa_inventario" : "inventario"; 
         unsubInv = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
