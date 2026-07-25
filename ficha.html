@@ -495,19 +495,6 @@
     <option value="Balística (Artilharia)"></option>
 </datalist>
 
-<datalist id="lista-pericias-combate">
-    <option value="Briga"></option>
-    <option value="Combate (Artes Marciais)"></option>
-    <option value="Combate (Armas Leves)"></option>
-    <option value="Combate (Armas Pesadas)"></option>
-    <option value="Combate (Armas Exóticas)"></option>
-    <option value="Pontaria"></option>
-    <option value="Balística (Pistolas)"></option>
-    <option value="Balística (Rifles)"></option>
-    <option value="Balística (Espingardas)"></option>
-    <option value="Balística (Artilharia)"></option>
-</datalist>
-
 <div id="modal-tpl-ataque" class="modal-padrao">
     <h3 class="section-header" style="margin:0 0 15px 0; display: block;">BANCO DE ARMAS</h3>
     <div class="filtros-container" style="justify-content: center; margin-bottom: 8px;">
@@ -1082,24 +1069,13 @@
     
     const nomesPericias = Object.keys(bancoPericias);
 
-    // Garantia de inicialização sem re-declarar let (evita o erro SyntaxError)
-    if (typeof modalFiltros === 'undefined') window.modalFiltros = { 'select-tpl-ataque': 'Todos', 'select-tpl-item': 'Todos' };
-    else { window.modalFiltros['select-tpl-ataque'] = 'Todos'; }
-
-    if (typeof modalSubFiltros === 'undefined') window.modalSubFiltros = { 'select-tpl-ataque': 'Todos' };
-    else { window.modalSubFiltros['select-tpl-ataque'] = 'Todos'; }
-
-    if (typeof filtroAtualAtaques === 'undefined') window.filtroAtualAtaques = 'Todos';
-    if (typeof filtroSubAtualAtaques === 'undefined') window.filtroSubAtualAtaques = 'Todos';
-
     function popularModais() {
         const add = (id, dict, textFn) => {
             const sel = document.getElementById(id); if(!sel) return;
-            sel.innerHTML = '<option value="" style="color:var(--hp-red) !important; font-weight:bold;">Selecione...</option>';
             Object.entries(dict).forEach(([k, v]) => {
                 const opt = document.createElement('option');
                 opt.value = k; 
-                opt.text = textFn(v);
+                opt.text = textFn(v); // Nome limpo sem colchetes
                 if(v.categoria) opt.dataset.categoria = v.categoria;
                 if(v.classificacao) opt.dataset.classificacao = v.classificacao;
                 if(v.alcance) opt.dataset.alcance = v.alcance;
@@ -1108,12 +1084,12 @@
                 sel.appendChild(opt);
             });
         };
-        if(typeof templatesOrigens !== 'undefined') add('select-tpl-origem', templatesOrigens, t => t.nome);
-        if(typeof templatesAtaques !== 'undefined') add('select-tpl-ataque', templatesAtaques, t => t.nome);
-        if(typeof templatesTracos !== 'undefined') add('select-tpl-traco', templatesTracos, t => t.nome);
-        if(typeof templatesEspecializacoes !== 'undefined') add('select-tpl-espec', templatesEspecializacoes, t => `${t.nome} (${t.elemento})`);
-        if(typeof templatesAnomalias !== 'undefined') add('select-tpl-anomalia', templatesAnomalias, t => `${t.nome} (${t.elemento})`);
-        if(typeof templatesInventario !== 'undefined') add('select-tpl-item', templatesInventario, t => t.nome);
+        add('select-tpl-origem', templatesOrigens, t => t.nome);
+        add('select-tpl-ataque', templatesAtaques, t => t.nome); // Nome limpo
+        add('select-tpl-traco', templatesTracos, t => t.nome);
+        add('select-tpl-espec', templatesEspecializacoes, t => `${t.nome} (${t.elemento})`);
+        add('select-tpl-anomalia', templatesAnomalias, t => `${t.nome} (${t.elemento})`);
+        add('select-tpl-item', templatesInventario, t => t.nome);
     }
     
     function toggleElem(id) { 
@@ -1185,8 +1161,8 @@
     let modalSubFiltros = { 'select-tpl-ataque': 'Todos' };
 
     function setFiltroModal(selectId, cat, btn) {
-        window.modalFiltros[selectId] = cat;
-        window.modalSubFiltros[selectId] = 'Todos';
+        modalFiltros[selectId] = cat;
+        modalSubFiltros[selectId] = 'Todos';
 
         if(btn) {
             let container = btn.parentElement;
@@ -1195,10 +1171,8 @@
         }
 
         if (selectId === 'select-tpl-ataque') {
-            const subCorpo = document.getElementById('subfiltros-modal-corpo');
-            const subDist = document.getElementById('subfiltros-modal-distancia');
-            if (subCorpo) subCorpo.style.display = (cat === 'Corpo a Corpo') ? 'flex' : 'none';
-            if (subDist) subDist.style.display = (cat === 'À Distância') ? 'flex' : 'none';
+            document.getElementById('subfiltros-modal-corpo').style.display = (cat === 'Corpo a Corpo') ? 'flex' : 'none';
+            document.getElementById('subfiltros-modal-distancia').style.display = (cat === 'À Distância') ? 'flex' : 'none';
             document.querySelectorAll('#modal-tpl-ataque .btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
         }
 
@@ -1208,11 +1182,11 @@
     }
 
     function setSubFiltroModal(selectId, sub, btn) {
-        if (window.modalSubFiltros[selectId] === sub) {
-            window.modalSubFiltros[selectId] = 'Todos';
+        if (modalSubFiltros[selectId] === sub) {
+            modalSubFiltros[selectId] = 'Todos';
             if (btn) btn.style.fontWeight = 'normal';
         } else {
-            window.modalSubFiltros[selectId] = sub;
+            modalSubFiltros[selectId] = sub;
             document.querySelectorAll(`#modal-tpl-ataque .btn-subfiltro`).forEach(b => b.style.fontWeight = 'normal');
             if (btn) btn.style.fontWeight = 'bold';
         }
@@ -1226,10 +1200,10 @@
         const select = document.getElementById(selectId);
         if(!select) return;
         
-        const cat = window.modalFiltros[selectId] || 'Todos';
-        const sub = window.modalSubFiltros[selectId] || 'Todos';
+        const cat = modalFiltros[selectId] || 'Todos';
+        const sub = modalSubFiltros[selectId] || 'Todos';
         const options = select.options;
-        let despertado = (typeof isRevelado !== 'undefined' ? isRevelado : false) || (typeof globalRevelado !== 'undefined' ? globalRevelado : false);
+        let despertado = isRevelado || globalRevelado;
 
         for (let i = 0; i < options.length; i++) {
             if (options[i].value === "") continue; 
@@ -1258,7 +1232,7 @@
             options[i].style.display = show ? "" : "none";
         }
     }
-    
+
     function filtrarBanco(input, selectId) { atualizarListaModal(selectId, input.value); }
 
     let filtroAtualInventario = 'Todos'; let filtroAtualAtaques = 'Todos';
@@ -1275,12 +1249,12 @@
     }
 
     function getAtaqueCat(a) { if (!a) return 'Outros'; let alc = (a.alcance || '').toLowerCase(); if (alc.includes('corpo a corpo')) return 'Corpo a Corpo'; return 'À Distância'; }
-    let filtroAtualAtaques = 'Todos';
-    let filtroSubAtualAtaques = 'Todos';
+filtroAtualAtaques = 'Todos'; // Sem o "let", apenas reatribuindo o valor
+let filtroSubAtualAtaques = 'Todos';
 
     function setFiltroAtaques(cat, btn) {
-        window.filtroAtualAtaques = cat;
-        window.filtroSubAtualAtaques = 'Todos';
+        filtroAtualAtaques = cat;
+        filtroSubAtualAtaques = 'Todos';
 
         if (btn) {
             let container = btn.parentElement;
@@ -1299,25 +1273,24 @@
     }
 
     function setSubFiltroAtaques(sub, btn) {
-        if (window.filtroSubAtualAtaques === sub) {
-            window.filtroSubAtualAtaques = 'Todos';
+        if (filtroSubAtualAtaques === sub) {
+            filtroSubAtualAtaques = 'Todos';
             if (btn) btn.style.fontWeight = 'normal';
         } else {
-            window.filtroSubAtualAtaques = sub;
+            filtroSubAtualAtaques = sub;
             document.querySelectorAll('#subfiltros-ataques-corpo .btn-subfiltro, #subfiltros-ataques-distancia .btn-subfiltro').forEach(b => b.style.fontWeight = 'normal');
             if (btn) btn.style.fontWeight = 'bold';
         }
         aplicarFiltrosAtaques();
     }
 
-    unction aplicarFiltrosAtaques() {
-        let despertado = (typeof isRevelado !== 'undefined' ? isRevelado : false) || (typeof globalRevelado !== 'undefined' ? globalRevelado : false);
+    function aplicarFiltrosAtaques() {
+        let despertado = isRevelado || globalRevelado;
         let btnAnomaloAtq = document.getElementById('btn-filtro-anomalo-ataques');
         if (btnAnomaloAtq) { 
             btnAnomaloAtq.style.display = despertado ? 'inline-block' : 'none'; 
-            if (!despertado && window.filtroAtualAtaques === 'Anômalo') { 
-                let btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
-                if (btnTodos) setFiltroAtaques('Todos', btnTodos); 
+            if (!despertado && filtroAtualAtaques === 'Anômalo') { 
+                setFiltroAtaques('Todos', document.querySelector('#filtros-ataques .btn-filtro')); 
                 return; 
             } 
         }
@@ -1330,20 +1303,19 @@
             
             let show = true;
             if (!despertado && isAnomalo) show = false;
-            if (show && window.filtroAtualAtaques !== 'Todos' && catItem !== window.filtroAtualAtaques) show = false;
+            if (show && filtroAtualAtaques !== 'Todos' && catItem !== filtroAtualAtaques) show = false;
 
-            if (show && window.filtroSubAtualAtaques !== 'Todos') {
-                if (window.filtroAtualAtaques === 'Corpo a Corpo') {
-                    if (classItem !== window.filtroSubAtualAtaques) show = false;
-                } else if (window.filtroAtualAtaques === 'À Distância') {
-                    if (!alcanceItem.includes(window.filtroSubAtualAtaques.toLowerCase())) show = false;
+            if (show && filtroSubAtualAtaques !== 'Todos') {
+                if (filtroAtualAtaques === 'Corpo a Corpo') {
+                    if (classItem !== filtroSubAtualAtaques) show = false;
+                } else if (filtroAtualAtaques === 'À Distância') {
+                    if (!alcanceItem.includes(filtroSubAtualAtaques.toLowerCase())) show = false;
                 }
             }
 
             card.style.display = show ? 'block' : 'none';
         });
     }
-    
     function atualizarCredito() {
         let nc = parseInt(document.getElementById('nivel-credito').value); if (isNaN(nc)) nc = -2;
         let gastos = "R$ 0", dinheiro = "R$ 0", patrimonio = "R$ 0";
@@ -2101,24 +2073,17 @@
     }
 
     function carregarAtaques() { 
-        if(typeof unsubAtq !== 'undefined' && unsubAtq) unsubAtq(); 
-        const p = ((typeof isHexatombe !== 'undefined' && isHexatombe) || (typeof globalHexatombe !== 'undefined' && globalHexatombe)) ? "hexa_ataques" : "ataques"; 
-        
+        if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
         unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
-            const l = document.getElementById('lista-ataques'); 
-            if(!l) return;
-            l.innerHTML = ""; 
-            let pA = 0; 
+            const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; 
             const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
 
             snap.forEach(doc => { 
-                const a = doc.data(); 
-                const id = doc.id; 
-                const iO = menusAbertos.has('atq-' + id); 
-                pA += (parseInt(a.pressao) || 0); 
-                let cat = a.categoria || (typeof getAtaqueCat === 'function' ? getAtaqueCat(a) : 'Corpo a Corpo');
+                const a = doc.data(); const id = doc.id; const iO = menusAbertos.has('atq-' + id); pA += (parseInt(a.pressao) || 0); 
+                let cat = a.categoria || getAtaqueCat(a);
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
+                // O campo de Classificação só é exibido em armas de Corpo a Corpo
                 let blocoClassificacao = '';
                 if (cat !== 'À Distância') {
                     blocoClassificacao = `
@@ -2137,9 +2102,9 @@
                         </div>`;
                 } else {
                     blocoClassificacao = `
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field"><span class="rit-label">Pressão</span><input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)"></div>
-                            <div></div>
+                        <div class="rit-field" style="margin-bottom:10px;">
+                            <span class="rit-label">Pressão</span>
+                            <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
                         </div>`;
                 }
 
@@ -2173,9 +2138,7 @@
                     </div>
                 </div>`; 
             }); 
-            window.valPressaoAtaques = pA; 
-            if(typeof syncPressaoVisuais === 'function') syncPressaoVisuais(); 
-            aplicarFiltrosAtaques(); 
+            window.valPressaoAtaques = pA; syncPressaoVisuais(); aplicarFiltrosAtaques(); 
         }); 
     }
 
