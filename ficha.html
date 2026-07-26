@@ -1906,14 +1906,19 @@ let filtroSubAtualAtaques = 'Todos';
     // === FUNÇÕES DE CARREGAMENTO QUE HAVIAM SUMIDO ===
 
     function carregarRituais() { 
-        if(unsubRit) unsubRit(); const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
+        if(unsubRit) unsubRit(); 
+        const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
+        
         unsubRit = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
-            const c = document.getElementById('lista-rituais'); c.innerHTML = ""; 
+            const c = document.getElementById('lista-rituais'); 
+            if(!c) return;
+            c.innerHTML = ""; 
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; 
             
-            // Identifica se o usuário atual é Mestre ou Admin
-            const isMestre = (typeof isSuperAdminEmail !== 'undefined' && isSuperAdminEmail) || 
-                             (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao);
+            // CHECAGEM DIRETA E INFALÍVEL
+            const currentUser = firebase.auth().currentUser;
+            const isSuperAdmin = currentUser && (currentUser.email === "pedroacpr@gmail.com");
+            const isMestre = isSuperAdmin || (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao);
 
             // Lê o nível de Exposição (NEX) atual da ficha
             const nexAtual = parseInt(document.getElementById('nex-personagem')?.value) || 0;
@@ -1930,7 +1935,9 @@ let filtroSubAtualAtaques = 'Todos';
             }
 
             snap.forEach(doc => { 
-                const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); 
+                const r = doc.data(); 
+                const id = doc.id; 
+                const iO = menusAbertos.has('rit-' + id); 
                 const isBuffado = !!r.aprendido;
 
                 const rView = isBuffado ? {
@@ -1946,9 +1953,11 @@ let filtroSubAtualAtaques = 'Todos';
 
                 const hideAprendizado = rView.primeiraConjuracao ? 'none' : 'block';
 
-                // Botões exclusivos para Desenvolvedor e Mestre
-                const btnAdminCopy = isMestre ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualClipboard('${id}')" title="Copiar Ritual para colar em outra ficha">[ 📋 COPIAR ]</button>` : '';
-                const btnGithubCopy = (typeof isSuperAdminEmail !== 'undefined' && isSuperAdminEmail) ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : '';
+                // Botão de Copiar entre Fichas (Mestres)
+                const btnMestreCopy = isMestre ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualClipboard('${id}')" title="Copiar Ritual para colar em outra ficha">[ 📋 COPIAR ]</button>` : '';
+                
+                // Botão do GitHub (Exclusivo pedroacpr@gmail.com)
+                const btnGithubCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : '';
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
                     <div class="card-header" onclick="toggleElem('rit-${id}')">
@@ -2012,7 +2021,7 @@ let filtroSubAtualAtaques = 'Todos';
                         </div>
 
                         <div style="text-align:right; margin-top:10px;">
-                            ${btnAdminCopy}
+                            ${btnMestreCopy}
                             ${btnGithubCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
                         </div>
