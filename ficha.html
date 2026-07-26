@@ -1911,12 +1911,23 @@ let filtroSubAtualAtaques = 'Todos';
             const c = document.getElementById('lista-rituais'); c.innerHTML = ""; 
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" }; 
             
-            const isSuperAdmin = (typeof isSuperAdminEmail !== 'undefined' && isSuperAdminEmail);
+            // Identifica se o usuário atual é Mestre ou Admin
+            const isMestre = (typeof isSuperAdminEmail !== 'undefined' && isSuperAdminEmail) || 
+                             (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao);
 
             // Lê o nível de Exposição (NEX) atual da ficha
             const nexAtual = parseInt(document.getElementById('nex-personagem')?.value) || 0;
-            // Define se a caixa de Afinidade vai aparecer (block) ou sumir (none)
             const displayAfinidade = nexAtual >= 50 ? 'block' : 'none';
+
+            // Injeta o Botão "COLAR RITUAL" no topo da lista se for Mestre
+            if (isMestre) {
+                c.innerHTML += `
+                    <div style="margin-bottom: 12px; text-align: center;">
+                        <button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); font-weight:bold; width: 100%; padding: 8px;" onclick="window.colarRitualClipboard()">
+                            [ 📥 COLAR RITUAL DA ÁREA DE TRANSFERÊNCIA ]
+                        </button>
+                    </div>`;
+            }
 
             snap.forEach(doc => { 
                 const r = doc.data(); const id = doc.id; const iO = menusAbertos.has('rit-' + id); 
@@ -1935,7 +1946,9 @@ let filtroSubAtualAtaques = 'Todos';
 
                 const hideAprendizado = rView.primeiraConjuracao ? 'none' : 'block';
 
-                const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+                // Botões exclusivos para Desenvolvedor e Mestre
+                const btnAdminCopy = isMestre ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualClipboard('${id}')" title="Copiar Ritual para colar em outra ficha">[ 📋 COPIAR ]</button>` : '';
+                const btnGithubCopy = (typeof isSuperAdminEmail !== 'undefined' && isSuperAdminEmail) ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : '';
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
                     <div class="card-header" onclick="toggleElem('rit-${id}')">
@@ -2000,6 +2013,7 @@ let filtroSubAtualAtaques = 'Todos';
 
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
+                            ${btnGithubCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
                         </div>
                         
@@ -3153,6 +3167,74 @@ let filtroSubAtualAtaques = 'Todos';
             };
         })(); // <--- É SÓ ADICIONAR ESSA LINHA AQUI!
         // ==========================================
+
+    // ==========================================
+    // SISTEMA DE COPIAR E COLAR RITUAIS (MESTRES)
+    // ==========================================
+
+    // 1. Copia todos os dados do ritual para a Área de Transferência (Ctrl + C)
+    window.copiarRitualClipboard = async function(id) {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
+        try {
+            const doc = await db.collection("fichas").doc(atual).collection(path).doc(id).get();
+            if (doc.exists) {
+                const data = doc.data();
+                // Insere uma tag de verificação para garantir a segurança da importação
+                const payload = {
+                    __tipo: "RITUAL_ARQUIVO",
+                    ...data
+                };
+                await navigator.clipboard.writeText(JSON.stringify(payload));
+                alert(`✅ RITUAL COPIADO!\n\nO ritual "${data.nome || 'Anomalia'}" foi copiado para sua Área de Transferência.\n\nAgora vá na ficha do NPC/Vilão onde deseja colocá-lo e clique no botão [ 📥 COLAR RITUAL ]!`);
+            }
+        } catch(e) {
+            alert("Erro ao copiar ritual: " + e);
+        }
+    };
+
+    // 2. Lê a Área de Transferência e cola o ritual na ficha atual
+    window.colarRitualClipboard = async function() {
+        const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
+        try {
+            let texto = "";
+            try {
+                texto = await navigator.clipboard.readText();
+            } catch(err) {
+                // Caso o navegador exija permissão manual no celular/PC, abre a caixa de texto
+                texto = prompt("Cole aqui o código do ritual copiado:");
+            }
+
+            if (!texto || !texto.trim()) return;
+
+            let obj;
+            try {
+                obj = JSON.parse(texto.trim());
+            } catch(e) {
+                alert("❌ O conteúdo copiado não é um formato de ritual válido.");
+                return;
+            }
+
+            if (obj.__tipo !== "RITUAL_ARQUIVO" && !obj.nome) {
+                alert("❌ O texto copiado não pertence ao sistema de anomalias.");
+                return;
+            }
+
+            // Remove a tag de verificação antes de gravar no banco
+            delete obj.__tipo;
+
+            // Salva o novo documento na subcoleção de rituais da ficha aberta
+            const novaRef = await db.collection("fichas").doc(atual).collection(path).add(obj);
+            
+            // Abre o menu do card automaticamente para o mestre visualizar
+            menusAbertos.add('rit-' + novaRef.id);
+            
+            alert(`✅ RITUAL IMPORTADO COM SUCESSO!\n\nA anomalia "${obj.nome || 'Nova Anomalia'}" foi adicionada a esta ficha.`);
+        } catch(e) {
+            alert("Erro ao colar ritual: " + e);
+        }
+    };
+  // ==========================================
+    
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
     ⚔️ Iniciativa
