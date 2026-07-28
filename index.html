@@ -228,18 +228,26 @@
 }
         
         @media (max-width: 600px) {
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .base-card { padding: 12px 8px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
+            /* Espreme o dashboard contra as bordas da tela */
+            #dashboard { padding: 15px 4px !important; }
+            
+            /* Grid de 2 colunas com o espaço (gap) bem fininho */
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+
+            /* Diminui a "gordura" interna do card para aproveitar o máximo da tela */
+            .base-card { padding: 10px 6px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
+            
             .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 16px; padding-right: 0; width: 100%; height: auto; flex: 1;}
-            .portrait-mini { margin: 0 auto 8px auto; width: 60px; height: 75px; }
-            .ameaca-card .portrait-mini { width: 67px !important; height: 75px !important; }
+            
+            /* Aumentamos a foto nas duas colunas */
+            .portrait-mini { margin: 0 auto 8px auto; width: 75px; height: 95px; }
+            .ameaca-card .portrait-mini { width: 75px !important; height: 95px !important; }
             
             .card-actions { position: absolute; top: -1px; right: -1px; flex-direction: column; gap: 4px; z-index: 10;}
-            /* Ajuste de altura dos botões APENAS nas Ameaças (Telemóvel) */
             .ameaca-card .card-actions { top: 0px; right: -1px; }
             
             .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 4px;}
-            .card-info strong { font-size: 1rem; line-height: 1.2; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
+            .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
             
             .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
             
@@ -898,45 +906,37 @@ body.tema-escuro .dropdown-item {
                 div.innerHTML = "";
                 minhasFichasGlobais = [];
                 
-                // 1. Atualiza o contador de Personas na tela
                 const elemContador = document.getElementById('contador-personas');
-                if (elemContador) {
-                    elemContador.innerText = `Personas: ${snap.size}`;
-                }
+                if (elemContador) elemContador.innerText = `Personas: ${snap.size}`;
 
                 snap.forEach(doc => {
                     const docData = doc.data(); 
                     const docId = doc.id;
                     minhasFichasGlobais.push({ id: docId, nome: docData.nome || 'Persona Desconhecida' });
                     
-                    // 2. Formata a data em que a ficha foi gerada
                     const dataRegistroTexto = formatarDataRegistro(docData.createdAt);
 
-                    // 3. Monta o Card Otimizado
                     div.innerHTML += `
-                        <div class="persona-card base-card" style="border-left: 5px solid var(--op-ink);">
-                            <div style="display: flex; gap: 12px; align-items: center;">
-                                <div class="portrait-box-hub portrait-mini">
-                                    <img src="${docData.portrait || 'https://via.placeholder.com/100x130'}" class="card-portrait" style="object-position: ${docData.pX || 50}% ${docData.pY || 50}%; transform: scale(${docData.pZ || 1}); width: 100%; height: 100%; object-fit: cover;">
+                        <div class="ficha-card base-card" id="card-${docId}">
+                            <!-- A Engrenagem fica fixada no topo direito nativamente -->
+                            <div class="card-actions" style="top: 8px; right: 8px;">
+                                <button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}')" title="Configurações da Ficha">⚙️</button>
+                            </div>
+                            
+                            <!-- O card-content empilha automaticamente no celular -->
+                            <div class="card-content">
+                                <div class="portrait-mini">
+                                    <img src="${docData.portrait || 'https://via.placeholder.com/100x130'}" style="object-position: ${docData.pX || 50}% ${docData.pY || 50}%; transform: scale(${docData.pZ || 1}); width: 100%; height: 100%; object-fit: cover;">
                                 </div>
-                                <div style="flex: 1; min-width: 0; text-align: left;">
-                                    <div style="font-family: 'Crimson Text', serif; font-size: 20px; font-weight: 900; color: var(--op-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;">
-                                        ${docData.nome || 'Sem Nome'}
-                                    </div>
-                                    <div style="font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-transform: uppercase; font-weight: bold; margin-top: 4px;">
-                                        ${docData.classe || docData.origem || 'Persona'}
-                                    </div>
-                                    <div class="card-data-registro">
-                                        Registro: ${dataRegistroTexto}
-                                    </div>
+                                <div class="card-info">
+                                    <strong>${docData.nome || 'Sem Nome'}</strong>
+                                    <span class="player-tag" style="font-size: 11px;">${docData.classe || docData.origem || 'Persona'}</span>
+                                    <span class="card-data-registro" style="display:block; margin-top:4px;">Registro: ${dataRegistroTexto}</span>
                                 </div>
                             </div>
-
-                            <!-- BOTOES SIMPLIFICADOS (APENAS ACESSAR E ENGRENAGEM) -->
-                            <div class="card-actions-simplified">
-                                <a href="ficha.html?id=${docId}" class="btn-card-acessar">ACESSAR FICHA</a>
-                                <button class="btn-card-gear" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}')" title="Configurações da Ficha">⚙️</button>
-                            </div>
+                            
+                            <!-- Botão de acessar com o estilo transparente oficial do site -->
+                            <a href="ficha.html?id=${docId}" class="btn-open" style="width: 100%; box-sizing: border-box; display: block; margin-top: auto; text-align: center;">ACESSAR FICHA</a>
                         </div>
                     `;
                 });
