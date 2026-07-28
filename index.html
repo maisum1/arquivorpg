@@ -250,18 +250,28 @@
         }
 
         /* --- OTIMIZAÇÃO EXCLUSIVA PARA CELULAR (MOBILE) --- */
+/* --- OTIMIZAÇÃO EXCLUSIVA PARA CELULAR (MOBILE) --- */
 @media (max-width: 768px) {
-    /* Remove espaço sobrando nas bordas da tela */
+    /* Remove espaço sobrando e impede que a tela vaze pros lados */
+    body {
+        overflow-x: hidden !important;
+    }
+    
     .dashboard-container, #dashboard {
         padding: 10px 8px !important;
-        width: 100% !important;
+        width: 100vw !important;
+        max-width: 100% !important;
         box-sizing: border-box !important;
+        overflow-x: hidden !important;
     }
 
-    .fichas-grid {
+    /* Força a grade de fichas a ser APENAS 1 coluna no celular para não espremer */
+    #lista-fichas {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
         width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
     }
 
     /* Otimização do Card para preencher a tela */
@@ -787,7 +797,8 @@
         async function criarNovaFicha() {
             const user = auth.currentUser;
             const nomeJogador = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
-            const ref = await db.collection("fichas").add({ dono: user.uid, nomeJogador: nomeJogador, nome: "NOVA PERSONA", nex: "5%", forca: 0, agilidade: 0, sagacidade: 0, vigor: 0, vontade: 0, vidaAtual: 12, vidaMax: 12, sanAtual: 50, sanMax: 50, peAtual: 2, peMax: 2, pX: 50, pY: 50, pZ: 1 });
+            // Adicionamos o createdAt no final desta lista abaixo:
+            const ref = await db.collection("fichas").add({ dono: user.uid, nomeJogador: nomeJogador, nome: "NOVA PERSONA", nex: "5%", forca: 0, agilidade: 0, sagacidade: 0, vigor: 0, vontade: 0, vidaAtual: 12, vidaMax: 12, sanAtual: 50, sanMax: 50, peAtual: 2, peMax: 2, pX: 50, pY: 50, pZ: 1, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
             window.location.href = `ficha.html?id=${ref.id}`;
         }
 
@@ -935,29 +946,28 @@
 
             // Define o que cada botão do modal vai fazer com aquela ficha específica
             document.getElementById('btn-opt-obs').onclick = function() {
-                // Aqui podemos copiar o link para o OBS
                 const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
                 navigator.clipboard.writeText(url);
                 alert("Link do Portrait (OBS) copiado com sucesso!");
-                toggleElem('modal-card-options');
+                toggleModal('modal-card-options');
             };
             
             document.getElementById('btn-opt-duplicar').onclick = function() {
                 window.clonarFicha(id);
-                toggleElem('modal-card-options');
+                toggleModal('modal-card-options');
             };
 
             document.getElementById('btn-opt-compartilhar').onclick = function() {
                 abrirModalCopiarLink(id);
-                toggleElem('modal-card-options');
+                toggleModal('modal-card-options');
             };
 
             document.getElementById('btn-opt-deletar').onclick = function() {
                 deletarDocumento('fichas', id, nome);
-                toggleElem('modal-card-options');
+                toggleModal('modal-card-options');
             };
 
-            toggleElem('modal-card-options');
+            toggleModal('modal-card-options');
         }
 
 
