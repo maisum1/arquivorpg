@@ -380,6 +380,17 @@
         <button onclick="toggleModal('modal-copiar-link')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
+    <div id="modal-card-options" class="modal-padrao" style="display:none;">
+    <h3 id="modal-card-title" style="margin-top:0; font-family:'Crimson Text', serif; text-transform:uppercase;">Opções da Persona</h3>
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+        <button id="btn-opt-obs" class="cris-btn" style="width:100%; text-align:left;">🖼️ Copiar Link Portrait (OBS)</button>
+        <button id="btn-opt-duplicar" class="cris-btn" style="width:100%; text-align:left;">📋 Duplicar Ficha</button>
+        <button id="btn-opt-compartilhar" class="cris-btn" style="width:100%; text-align:left;">🔗 Compartilhar Ficha</button>
+        <button id="btn-opt-deletar" class="cris-btn" style="width:100%; text-align:left; color:var(--hp-red); border-color:var(--hp-red);">🗑️ Excluir Ficha</button>
+    </div>
+    <button onclick="toggleElem('modal-card-options')" class="cris-btn" style="width:100%; margin-top:20px; background:var(--card-bg);">FECHAR</button>
+</div>
+    
     <div id="dashboard">
         <h2 id="welcome" style="color: var(--op-ink); font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px dotted var(--op-ink); padding-bottom: 15px; margin-bottom: 30px;">JOGADOR: CONECTANDO...</h2>
         
@@ -391,6 +402,13 @@
         </div>
 
         <div id="hub-jogador" class="conteudo-hub">
+            
+            <!-- NOVA BARRINHA DE CONTAGEM AQUI -->
+            <div class="hub-header-row">
+                <div style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral);">ARQUIVOS PESSOAIS</div>
+                <div id="contador-personas" class="personas-contador">Personas: 0</div>
+            </div>
+
             <div class="grid" id="lista-fichas"></div>
             <button class="btn-google" onclick="criarNovaFicha()" style="margin-top: 30px;">[+] ANEXAR NOVA PERSONA</button>
         </div>
@@ -842,18 +860,108 @@
                 </div>`;
         }
 
+        function formatarDataRegistro(createdAt) {
+            if (!createdAt) return "—";
+            try {
+                // Firebase usa "toDate()", se for data normal usa o Date padrão
+                const d = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+                return d.toLocaleDateString('pt-BR');
+            } catch (e) {
+                return "—";
+            }
+        }
+
         function carregarFichasJogador(uid) {
             db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById('lista-fichas'); div.innerHTML = "";
+                const div = document.getElementById('lista-fichas'); 
+                div.innerHTML = "";
                 minhasFichasGlobais = [];
+                
+                // 1. Atualiza o contador de Personas na tela
+                const elemContador = document.getElementById('contador-personas');
+                if (elemContador) {
+                    elemContador.innerText = `Personas: ${snap.size}`;
+                }
+
                 snap.forEach(doc => {
-                    const d = doc.data(); 
-                    minhasFichasGlobais.push({ id: doc.id, nome: d.nome || 'Persona Desconhecida' });
-                    div.innerHTML += renderFichaMonitorCard(doc, 'hub-proprio');
+                    const docData = doc.data(); 
+                    const docId = doc.id;
+                    minhasFichasGlobais.push({ id: docId, nome: docData.nome || 'Persona Desconhecida' });
+                    
+                    // 2. Formata a data em que a ficha foi gerada
+                    const dataRegistroTexto = formatarDataRegistro(docData.createdAt);
+
+                    // 3. Monta o Card Otimizado
+                    div.innerHTML += `
+                        <div class="persona-card base-card" style="border-left: 5px solid var(--op-ink);">
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div class="portrait-box-hub portrait-mini">
+                                    <img src="${docData.portrait || 'https://via.placeholder.com/100x130'}" class="card-portrait" style="object-position: ${docData.pX || 50}% ${docData.pY || 50}%; transform: scale(${docData.pZ || 1}); width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                                <div style="flex: 1; min-width: 0; text-align: left;">
+                                    <div style="font-family: 'Crimson Text', serif; font-size: 20px; font-weight: 900; color: var(--op-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;">
+                                        ${docData.nome || 'Sem Nome'}
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-transform: uppercase; font-weight: bold; margin-top: 4px;">
+                                        ${docData.classe || docData.origem || 'Persona'} | NEX ${docData.nex || '5%'}
+                                    </div>
+                                    <div class="card-data-registro">
+                                        Registro: ${dataRegistroTexto}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- BOTOES SIMPLIFICADOS (APENAS ACESSAR E ENGRENAGEM) -->
+                            <div class="card-actions-simplified">
+                                <a href="ficha.html?id=${docId}" class="btn-card-acessar">ACESSAR FICHA</a>
+                                <button class="btn-card-gear" onclick="abrirOpcoesCard('${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}')" title="Configurações da Ficha">⚙️</button>
+                            </div>
+                        </div>
+                    `;
                 });
             });
         }
 
+
+        
+        let fichaSelecionadaId = null;
+
+        function abrirOpcoesCard(id, nome) {
+            fichaSelecionadaId = id;
+            
+            // Atualiza o título do modal
+            const elemTitulo = document.getElementById('modal-card-title');
+            if (elemTitulo) elemTitulo.innerText = nome;
+
+            // Define o que cada botão do modal vai fazer com aquela ficha específica
+            document.getElementById('btn-opt-obs').onclick = function() {
+                // Aqui podemos copiar o link para o OBS
+                const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
+                navigator.clipboard.writeText(url);
+                alert("Link do Portrait (OBS) copiado com sucesso!");
+                toggleElem('modal-card-options');
+            };
+            
+            document.getElementById('btn-opt-duplicar').onclick = function() {
+                window.clonarFicha(id);
+                toggleElem('modal-card-options');
+            };
+
+            document.getElementById('btn-opt-compartilhar').onclick = function() {
+                abrirModalCopiarLink(id);
+                toggleElem('modal-card-options');
+            };
+
+            document.getElementById('btn-opt-deletar').onclick = function() {
+                deletarDocumento('fichas', id, nome);
+                toggleElem('modal-card-options');
+            };
+
+            toggleElem('modal-card-options');
+        }
+
+
+        
         function abrirModalVincular(fichaId) {
             document.getElementById('vincular-ficha-id').value = fichaId;
             document.getElementById('input-link-campanha').value = "";
