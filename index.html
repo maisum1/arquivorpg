@@ -178,13 +178,12 @@
 }
 
 /* --- DATA DE REGISTRO SUTIL NO CARD --- */
-/* Tira o espaço acima da data de registro */
 .card-data-registro {
     font-size: 10px;
     font-family: 'Inter', sans-serif;
     color: var(--cor-geral);
     opacity: 0.6;
-    margin-top: 0px;
+    margin-top: 4px;
 }
 
 /* --- BOTÕES SIMPLIFICADOS DO CARD --- */
@@ -238,11 +237,10 @@
             /* Grid de 2 colunas com o espaço (gap) bem fininho */
             .grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
 
-            /* Diminui o espaçamento interno do topo e da base do card */
-.base-card { background: var(--card-bg); padding: 10px 15px; border-radius: 2px; border: 1px solid var(--card-border); display: flex; flex-direction: column; text-align: left; position: relative; transition: 0.3s; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.02); }
-
-/* Puxa o conteúdo (foto + texto) mais para cima */
-.card-content { display: flex; align-items: center; flex: 1; width: 100%; margin-bottom: 8px; margin-top: 4px; padding-right: 50px; box-sizing: border-box;}s: center; margin-bottom: 8px; margin-top: 16px; padding-right: 0; width: 100%; height: auto; flex: 1;}
+            /* Diminui a "gordura" interna do card para aproveitar o máximo da tela */
+            .base-card { padding: 10px 6px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
+            
+            .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 16px; padding-right: 0; width: 100%; height: auto; flex: 1;}
             
             /* Aumentamos a foto nas duas colunas (TESTE MAIOR) */
             .portrait-mini { margin: 0 auto 8px auto; width: 85px; height: 110px; }
@@ -251,9 +249,8 @@
             .card-actions { position: absolute; top: -1px; right: -1px; flex-direction: column; gap: 4px; z-index: 10;}
             .ameaca-card .card-actions { top: 0px; right: -1px; }
             
-            /* Tira o espaço abaixo da classe/origem */
-.card-info .player-tag { color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 9px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 0px;}
-        .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
+            .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 4px;}
+            .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
             
             .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
             
@@ -937,7 +934,7 @@ body.tema-escuro .dropdown-item {
                                 <div class="card-info">
                                     <strong>${docData.nome || 'Sem Nome'}</strong>
                                     <span class="player-tag" style="font-size: 11px;">${docData.classe || docData.origem || 'Persona'}</span>
-                                    <span class="card-data-registro" style="display:block; margin-top:0px;">Registro: ${dataRegistroTexto}</span>
+                                    <span class="card-data-registro" style="display:block; margin-top:4px;">Registro: ${dataRegistroTexto}</span>
                                 </div>
                             </div>
                             
@@ -959,7 +956,7 @@ body.tema-escuro .dropdown-item {
             const menu = document.getElementById('dropdown-opcoes');
 
             // SE CLICAR NA MESMA ENGRENAGEM, FECHA O MENU!
-            if (menu.style.display === 'flex' && fichaSelecionadaId === id) {
+            if (menu.style.display === 'block' && fichaSelecionadaId === id) {
                 menu.style.display = 'none';
                 fichaSelecionadaId = null;
                 return;
@@ -1001,7 +998,7 @@ body.tema-escuro .dropdown-item {
                 menu.style.left = (rect.right - menuWidth) + 'px';
             }
 
-            menu.style.display = 'flex';
+            menu.style.display = 'block';
         }
 
         // Se clicar fora, o menu some
