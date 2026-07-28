@@ -290,6 +290,88 @@
         flex-shrink: 0 !important;
     }
 }
+
+    /* --- MENU DROPDOWN DA ENGRENAGEM --- */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background: var(--bg-paper);
+    border: 1px solid var(--op-ink);
+    box-shadow: 2px 5px 15px rgba(0,0,0,0.4);
+    border-radius: 2px;
+    z-index: 10000;
+    min-width: 180px;
+    padding: 5px 0;
+}
+
+body.tema-escuro .dropdown-menu {
+    background: #111;
+    border-color: #333;
+    box-shadow: 2px 5px 15px rgba(0,0,0,0.8);
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--op-ink);
+    padding: 10px 15px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+body.tema-escuro .dropdown-item { color: #ccc; }
+
+.dropdown-item:hover { background: rgba(128,128,128,0.2); }
+
+.dropdown-item.danger { color: var(--op-red); border-top: 1px dotted var(--card-border); margin-top: 5px; padding-top: 10px;}
+
+
+        /* --- MENU DROPDOWN DA ENGRENAGEM --- */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background: var(--bg-paper);
+    border: 1px solid var(--op-ink);
+    box-shadow: 2px 5px 15px rgba(0,0,0,0.4);
+    border-radius: 2px;
+    z-index: 10000;
+    min-width: 180px;
+    padding: 5px 0;
+}
+
+body.tema-escuro .dropdown-menu {
+    background: #111;
+    border-color: #333;
+    box-shadow: 2px 5px 15px rgba(0,0,0,0.8);
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--op-ink);
+    padding: 10px 15px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+body.tema-escuro .dropdown-item { color: #ccc; }
+
+.dropdown-item:hover { background: rgba(128,128,128,0.2); }
+
+.dropdown-item.danger { color: var(--op-red); border-top: 1px dotted var(--card-border); margin-top: 5px; padding-top: 10px;}
+
         
     </style>
 </head>
@@ -390,14 +472,13 @@
         <button onclick="toggleModal('modal-copiar-link')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
-    <div id="modal-card-options" class="modal-padrao" style="display:none;">
-    <h3 id="modal-card-title" style="margin-top:0; font-family:'Crimson Text', serif; text-transform:uppercase;">Opções da Persona</h3>
-    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-        <button id="btn-opt-obs" class="cris-btn" style="width:100%; text-align:left;">🖼️ Copiar Link Portrait (OBS)</button>
-        <button id="btn-opt-duplicar" class="cris-btn" style="width:100%; text-align:left;">📋 Duplicar Ficha</button>
-        <button id="btn-opt-compartilhar" class="cris-btn" style="width:100%; text-align:left;">🔗 Compartilhar Ficha</button>
-        <button id="btn-opt-deletar" class="cris-btn" style="width:100%; text-align:left; color:var(--hp-red); border-color:var(--hp-red);">🗑️ Excluir Ficha</button>
-    </div>
+    <!-- NOVO MENU DROPDOWN DA FICHA -->
+<div id="dropdown-opcoes" class="dropdown-menu">
+    <button id="btn-drop-compartilhar" class="dropdown-item">🔗 Compartilhar</button>
+    <button id="btn-drop-duplicar" class="dropdown-item">📋 Duplicar Ficha</button>
+    <button id="btn-drop-obs" class="dropdown-item">🖼️ Portrait (OBS)</button>
+    <button id="btn-drop-deletar" class="dropdown-item danger">🗑️ Deletar Ficha</button>
+</div>
     <button onclick="toggleElem('modal-card-options')" class="cris-btn" style="width:100%; margin-top:20px; background:var(--card-bg);">FECHAR</button>
 </div>
     
@@ -914,7 +995,7 @@
                                         ${docData.nome || 'Sem Nome'}
                                     </div>
                                     <div style="font-size: 11px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-transform: uppercase; font-weight: bold; margin-top: 4px;">
-                                        ${docData.classe || docData.origem || 'Persona'} | NEX ${docData.nex || '5%'}
+                                        ${docData.classe || docData.origem || 'Persona'}
                                     </div>
                                     <div class="card-data-registro">
                                         Registro: ${dataRegistroTexto}
@@ -925,7 +1006,7 @@
                             <!-- BOTOES SIMPLIFICADOS (APENAS ACESSAR E ENGRENAGEM) -->
                             <div class="card-actions-simplified">
                                 <a href="ficha.html?id=${docId}" class="btn-card-acessar">ACESSAR FICHA</a>
-                                <button class="btn-card-gear" onclick="abrirOpcoesCard('${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}')" title="Configurações da Ficha">⚙️</button>
+                                <button class="btn-card-gear" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}')" title="Configurações da Ficha">⚙️</button>
                             </div>
                         </div>
                     `;
@@ -937,38 +1018,56 @@
         
         let fichaSelecionadaId = null;
 
-        function abrirOpcoesCard(id, nome) {
-            fichaSelecionadaId = id;
+        function abrirOpcoesCard(event, id, nome) {
+            event.stopPropagation(); // Impede que o clique feche o menu imediatamente
             
-            // Atualiza o título do modal
-            const elemTitulo = document.getElementById('modal-card-title');
-            if (elemTitulo) elemTitulo.innerText = nome;
+            const menu = document.getElementById('dropdown-opcoes');
 
-            // Define o que cada botão do modal vai fazer com aquela ficha específica
-            document.getElementById('btn-opt-obs').onclick = function() {
+            // Conecta as ações à ficha específica
+            document.getElementById('btn-drop-obs').onclick = function() {
                 const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
                 navigator.clipboard.writeText(url);
                 alert("Link do Portrait (OBS) copiado com sucesso!");
-                toggleModal('modal-card-options');
+                menu.style.display = 'none';
             };
             
-            document.getElementById('btn-opt-duplicar').onclick = function() {
+            document.getElementById('btn-drop-duplicar').onclick = function() {
                 window.clonarFicha(id);
-                toggleModal('modal-card-options');
+                menu.style.display = 'none';
             };
 
-            document.getElementById('btn-opt-compartilhar').onclick = function() {
+            document.getElementById('btn-drop-compartilhar').onclick = function() {
                 abrirModalCopiarLink(id);
-                toggleModal('modal-card-options');
+                menu.style.display = 'none';
             };
 
-            document.getElementById('btn-opt-deletar').onclick = function() {
+            document.getElementById('btn-drop-deletar').onclick = function() {
                 deletarDocumento('fichas', id, nome);
-                toggleModal('modal-card-options');
+                menu.style.display = 'none';
             };
 
-            toggleModal('modal-card-options');
+            // Calcula a posição da engrenagem para colar o menu nela
+            const rect = event.target.getBoundingClientRect();
+            menu.style.top = (rect.bottom + window.scrollY) + 'px';
+            
+            // Alinha o menu à direita da engrenagem para não vazar a tela
+            const menuWidth = 180;
+            if (rect.right - menuWidth < 0) {
+                menu.style.left = '10px';
+            } else {
+                menu.style.left = (rect.right - menuWidth) + 'px';
+            }
+
+            menu.style.display = 'block';
         }
+
+        // Adiciona um espião na tela: se clicar fora do menu, ele fecha sozinho!
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('dropdown-opcoes');
+            if (menu && menu.style.display === 'block') {
+                menu.style.display = 'none';
+            }
+        });
 
 
         
