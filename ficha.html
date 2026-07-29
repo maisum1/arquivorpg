@@ -3056,7 +3056,7 @@ let filtroSubAtualAtaques = 'Todos';
                 }
             }
 
-            // Checa no Firebase se a ficha já foi concluída
+            // Checa no Firebase se a ficha já foi concluída e auto-corrige data antiga
             setTimeout(() => {
                 const fichaId = obterFichaId();
                 if (!fichaId) return;
@@ -3064,6 +3064,17 @@ let filtroSubAtualAtaques = 'Todos';
                 db.collection("fichas").doc(fichaId).get().then(doc => {
                     if (doc.exists) {
                         const dados = doc.data();
+                        
+                        // --- AUTO-CORREÇÃO DE FICHAS ANTIGAS (DATA DE REGISTRO) ---
+                        if (!dados.createdAt) {
+                            db.collection("fichas").doc(fichaId).update({
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(() => {
+                                console.log("Ficha antiga detectada: Data de registro atualizada silenciosamente!");
+                            }).catch(e => console.log("Erro ao atualizar createdAt:", e));
+                        }
+                        // ----------------------------------------------------------
+
                         if (dados.criacaoConcluida !== true) {
                             window.ativarModoCriacao(true);
                         } else {
