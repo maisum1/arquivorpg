@@ -1102,34 +1102,35 @@
         }
 
         function renderAmeacaCard(doc, context = 'hub') {
-            const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
-            const isOwner = d.dono === auth.currentUser.uid;
-            
-           let nomeAmeaca = (d.nome || 'Ameaça').replace(/'/g, "\\'");
-let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomeAmeaca}', 'ameaca', '${context}')" title="Configurações">⚙️</button>`;
-            // ---------------------------------------
+    const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
+    const isOwner = d.dono === auth.currentUser.uid;
+    
+    let nomeAmeaca = (d.nome || 'Ameaça').replace(/'/g, "\\'");
+    let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomeAmeaca}', 'ameaca', '${context}')" title="Configurações">⚙️</button>`;
 
-            let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz}); width: 100%; height: 100%; object-fit: cover; display: block;">` : '';
-            
-            let campInfo = '';
-            if (context === 'raiox') {
-                campInfo = `<span class="camp-tag">Dono/Criador: ${d.mestreNome || 'Desconhecido'}</span>`;
-            }
+    // Correção do CSS da imagem apenas para a Ameaça:
+    let img = d.portrait ? `<img src="${d.portrait}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: ${px}% ${py}%; transform: scale(${pz}); display: block;">` : '';
+    
+    let campInfo = '';
+    if (context === 'raiox') {
+        campInfo = `<span class="camp-tag">Dono/Criador: ${d.mestreNome || 'Desconhecido'}</span>`;
+    }
 
-            return `
-                <div class="ameaca-card base-card">
-                    <div class="card-actions">${botoesAcao}</div>
-                    <div class="card-content">
-                        <div class="portrait-mini" style="border-color:var(--op-red);">${img}</div>
-                        <div class="card-info">
-                            <strong>${d.nome}</strong>
-                            <span class="stats-tag" style="color:var(--op-red);">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</span>
-                            ${campInfo}
-                        </div>
-                    </div>
-                    <a href="ameaca.html?id=${doc.id}${campanhaAtivaView ? '&campanha=' + campanhaAtivaView : ''}" class="btn-open">INSPECIONAR</a>
-                </div>`;
-        }
+    return `
+        <div class="ameaca-card base-card">
+            <div class="card-actions">${botoesAcao}</div>
+            <div class="card-content">
+                <!-- Adicionado o position: relative no container -->
+                <div class="portrait-mini" style="border-color:var(--op-red); position: relative;">${img}</div>
+                <div class="card-info">
+                    <strong>${d.nome}</strong>
+                    <span class="stats-tag" style="color:var(--op-red);">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</span>
+                    ${campInfo}
+                </div>
+            </div>
+            <a href="ameaca.html?id=${doc.id}${campanhaAtivaView ? '&campanha=' + campanhaAtivaView : ''}" class="btn-open">INSPECIONAR</a>
+        </div>`;
+}
 
         function listarAmeacas(uid) {
             db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
