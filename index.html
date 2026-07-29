@@ -952,8 +952,6 @@
             });
         }
         
-        let fichaSelecionadaId = null;
-
         // Função global para copiar o link do portrait
         window.copiarPortraitOBS = function(id) {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
@@ -971,7 +969,7 @@
                 return;
             }
 
-            fichaSelecionadaId = id;
+            fichaSelecionadaId = id; // Usa a variável global já existente
             menu.innerHTML = ""; // Limpa os botões antigos
 
             // Monta os botões dinamicamente dependendo de qual engrenagem foi clicada
@@ -984,7 +982,7 @@
                 `;
             } else if (tipo === 'ameaca') {
                 menu.innerHTML = `
-                    <button class="dropdown-item" onclick="copiarLinkAmeaca('${id}')">🔗 Copiar Link</button>
+                    <button class="dropdown-item" onclick="abrirModalCopiarLink('${id}')">🔗 Copiar Link</button>
                     ${extraContext === 'campanha' ? `<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${id}', '${nome}')">🔌 Desvincular da Campanha</button>` : ''}
                     <button class="dropdown-item danger" onclick="deletarDocumento('ameacas', '${id}', '${nome}')">🗑️ Excluir Ameaça</button>
                 `;
@@ -1077,7 +1075,7 @@
             const isOwner = d.dono === auth.currentUser.uid;
             
             // --- CÓDIGO NOVO (ENGRENAGEM AMEAÇA) ---
-            let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${d.nome.replace(/'/g, "\\'")}', 'ameaca', '${context}')" title="Configurações da Ameaça">⚙️</button>`;
+            let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${(d.nome || 'Ameaça').replace(/'/g, "\\'")}', 'ameaca', '${context}')" title="Configurações da Ameaça">⚙️</button>`;
             // ---------------------------------------
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
