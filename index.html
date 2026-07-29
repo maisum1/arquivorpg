@@ -115,7 +115,7 @@
         .card-info { min-width: 0; flex: 1; word-wrap: break-word; }
         .card-info strong { display: block; color: var(--op-ink); font-family: 'Crimson Text', serif; font-weight: 900; font-size: 1.2rem; line-height: 1.1; margin-bottom: 4px; }
         .card-info .exp-tag { color: var(--cor-geral); font-family: 'Special Elite', monospace; font-size: 11px; display: block; margin-bottom: 4px; }
-        .card-info .player-tag { color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 9px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;}
+        .card-info .player-tag { color: var(--op-ink); font-family: 'Inter', sans-serif; font-size: 9px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 0px;}
         .card-info .stats-tag { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1px; display: block; margin-top: 4px; }
         .card-info .camp-tag { color: var(--san-purple); opacity: 0.65; font-size: 9px; font-weight: 900; font-family: 'Inter', sans-serif; display: block; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
         body.tema-escuro .card-info .camp-tag { color: #8e9db0; opacity: 0.8; }
@@ -183,7 +183,7 @@
     font-family: 'Inter', sans-serif;
     color: var(--cor-geral);
     opacity: 0.6;
-    margin-top: 4px;
+    margin-top: 0px;
 }
 
 /* --- BOTÕES SIMPLIFICADOS DO CARD --- */
@@ -227,29 +227,60 @@
     border-color: var(--op-ink);
 }
         
-       @media (max-width: 600px) {
-            /* Espreme o dashboard contra as bordas da tela sem mexer no body */
-            #dashboard { padding: 10px 5px !important; width: 100% !important; margin: 0 !important; }
+        @media (max-width: 600px) {
+            /* Trava de segurança: impede o site de criar barra de rolagem horizontal */
+            html, body { 
+                overflow-x: hidden !important; 
+                width: 100%; 
+                margin: 0; 
+                padding: 0; 
+            }
             
-            /* Grid de 2 colunas com o espaço (gap) bem fininho */
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            /* Espreme o dashboard contra as bordas da tela com segurança */
+            #dashboard { 
+                padding: 10px 4px !important; 
+                width: 100% !important; 
+                max-width: 100vw !important; 
+                box-sizing: border-box !important; 
+                margin: 0 !important; 
+            }
+            
+            /* Grid de 2 colunas travado no box-sizing pra não expandir a tela */
+            .grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 6px; 
+                width: 100%; 
+                box-sizing: border-box; 
+                margin: 0; 
+            }
 
-            /* Diminui a "gordura" interna do card para aproveitar o máximo da tela */
-            .base-card { padding: 10px 6px; height: auto; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
+            /* Diminui a "gordura" interna do card e força ele a respeitar o limite */
+            .base-card { 
+                padding: 10px 6px; 
+                height: auto; 
+                min-height: 180px; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-between; 
+                align-items: center; 
+                text-align: center; 
+                box-sizing: border-box; 
+                width: 100%; 
+            }
             
-            .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 4px; padding-right: 0; width: 100%; height: auto; flex: 1;}
+            .card-content { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; margin-top: 16px; padding-right: 0; width: 100%; height: auto; flex: 1; box-sizing: border-box; }
             
-            /* Aumentamos a foto nas duas colunas (TESTE MAIOR) */
+            /* Mantive a foto grande que tínhamos testado */
             .portrait-mini { margin: 0 auto 8px auto; width: 85px; height: 110px; }
             .ameaca-card .portrait-mini { width: 85px !important; height: 110px !important; }
             
-            .card-actions { position: absolute; top: -1px; right: -1px; flex-direction: column; gap: 4px; z-index: 10;}
+            .card-actions { position: absolute; top: -1px; right: -1px; flex-direction: column; gap: 4px; z-index: 10; }
             .ameaca-card .card-actions { top: 0px; right: -1px; }
             
-            .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 2px;}
-            .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 2px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center;}
+            .card-info { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; margin-top: 4px; box-sizing: border-box; }
+            .card-info strong { font-size: 1.05rem; line-height: 1.1; margin-bottom: 4px; word-wrap: break-word; word-break: break-word; white-space: normal; text-align: center; width: 100%; }
             
-            .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; }
+            .btn-open { align-self: stretch; text-align: center; margin-top: auto; padding: 6px; font-size: 12px; box-sizing: border-box; }
             
             .campanha-card { flex-direction: column !important; align-items: flex-start !important; text-align: left !important; padding: 15px 12px !important; min-height: auto !important; justify-content: center !important; }
             .campanha-card > div:not(.card-actions) { padding-right: 75px !important; width: 100%; box-sizing: border-box; }
@@ -433,7 +464,6 @@ body.tema-escuro .dropdown-item {
             
             <!-- NOVA BARRINHA DE CONTAGEM AQUI -->
             <div class="hub-header-row">
-                <div style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; color: var(--cor-geral);">ARQUIVOS PESSOAIS</div>
                 <div id="contador-personas" class="personas-contador">Personas: 0</div>
             </div>
 
@@ -931,7 +961,7 @@ body.tema-escuro .dropdown-item {
                                 <div class="card-info">
                                     <strong>${docData.nome || 'Sem Nome'}</strong>
                                     <span class="player-tag" style="font-size: 11px;">${docData.classe || docData.origem || 'Persona'}</span>
-                                    <span class="card-data-registro" style="display:block; margin-top:4px;">Registro: ${dataRegistroTexto}</span>
+                                    <span class="card-data-registro" style="display:block; margin-top:0px;">Registro: ${dataRegistroTexto}</span>
                                 </div>
                             </div>
                             
