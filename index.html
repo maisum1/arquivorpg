@@ -951,8 +951,9 @@
                 });
             });
         }
-
+        
         let fichaSelecionadaId = null;
+
         // Função global para copiar o link do portrait
         window.copiarPortraitOBS = function(id) {
             const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
@@ -960,60 +961,73 @@
             alert("Link do Portrait (OBS) copiado com sucesso!");
         };
 
-        function abrirOpcoesCard(event, id, nome, tipo = 'ficha', extraContext = '') {
-            event.stopPropagation();
-            const menu = document.getElementById('dropdown-opcoes');
+        function abrirOpcoesCard(event, id, nome, tipo, extraContext) {
+    tipo = tipo || 'ficha';
+    extraContext = extraContext || '';
+    
+    if (event && event.stopPropagation) {
+        event.stopPropagation();
+    }
+    
+    const menu = document.getElementById('dropdown-opcoes');
+    if (!menu) return;
 
-            if (menu.style.display === 'block' && fichaSelecionadaId === id) {
-                menu.style.display = 'none';
-                fichaSelecionadaId = null;
-                return;
-            }
+    if (menu.style.display === 'block' && fichaSelecionadaId === id) {
+        menu.style.display = 'none';
+        fichaSelecionadaId = null;
+        return;
+    }
 
-            fichaSelecionadaId = id; // Usa a variável global já existente
-            menu.innerHTML = ""; // Limpa os botões antigos
+    fichaSelecionadaId = id;
+    
+    // Tratamento do nome para evitar que aspas simples quebrem os comandos
+    const nomeTratado = (nome || '').replace(/'/g, "\\'");
+    
+    let html = '';
 
-            // Monta os botões dinamicamente dependendo de qual engrenagem foi clicada
-            if (tipo === 'ficha') {
-                menu.innerHTML = `
-                    <button class="dropdown-item" onclick="abrirModalCopiarLink('${id}')">🔗 Compartilhar</button>
-                    <button class="dropdown-item" onclick="window.clonarFicha('${id}')">📋 Duplicar Ficha</button>
-                    <button class="dropdown-item" onclick="copiarPortraitOBS('${id}')">🖼️ Portrait (OBS)</button>
-                    <button class="dropdown-item danger" onclick="deletarDocumento('fichas', '${id}', '${nome}')">🗑️ Excluir Ficha</button>
-                `;
-            } else if (tipo === 'ameaca') {
-                menu.innerHTML = `
-                    <button class="dropdown-item" onclick="abrirModalCopiarLink('${id}')">🔗 Copiar Link</button>
-                    ${extraContext === 'campanha' ? `<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${id}', '${nome}')">🔌 Desvincular da Campanha</button>` : ''}
-                    <button class="dropdown-item danger" onclick="deletarDocumento('ameacas', '${id}', '${nome}')">🗑️ Excluir Ameaça</button>
-                `;
-            } else if (tipo === 'campanha') {
-                menu.innerHTML = `
-                    <button class="dropdown-item" onclick="editarCampanha('${id}', '${extraContext}', '${nome}')">✏️ Editar Nome</button>
-                    <button class="dropdown-item danger" onclick="deletarDocumento('campanhas', '${id}', '${nome}')">🗑️ Excluir Campanha</button>
-                `;
-            } else if (tipo === 'ficha-monitor') {
-                menu.innerHTML = `
-                    <button class="dropdown-item" onclick="abrirModalCopiarLink('${id}')">🔗 Compartilhar</button>
-                    ${extraContext === 'hub-proprio' ? `<button class="dropdown-item" onclick="abrirModalVincular('${id}')">📡 Vincular à Campanha</button>` : ''}
-                    ${extraContext === 'campanha' ? `<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${id}', '${nome}')">🔌 Desvincular da Campanha</button>` : ''}
-                    <button class="dropdown-item" onclick="window.clonarFicha('${id}')">📋 Duplicar Ficha</button>
-                    <button class="dropdown-item danger" onclick="deletarDocumento('fichas', '${id}', '${nome}')">🗑️ Excluir Ficha</button>
-                `;
-            }
-
-            const rect = event.target.getBoundingClientRect();
-            menu.style.top = (rect.bottom + window.scrollY) + 'px';
-            
-            const menuWidth = 180;
-            if (rect.right - menuWidth < 0) {
-                menu.style.left = '10px';
-            } else {
-                menu.style.left = (rect.right - menuWidth) + 'px';
-            }
-
-            menu.style.display = 'block';
+    if (tipo === 'ficha' || tipo === 'ficha-monitor') {
+        html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar</button>';
+        
+        if (extraContext === 'hub-proprio' && typeof abrirModalVincular === 'function') {
+            html += '<button class="dropdown-item" onclick="abrirModalVincular(\'' + id + '\')">📡 Vincular à Campanha</button>';
         }
+        if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
+            html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
+        }
+        
+        html += '<button class="dropdown-item" onclick="if(window.clonarFicha) window.clonarFicha(\'' + id + '\')">📋 Duplicar Ficha</button>';
+        html += '<button class="dropdown-item danger" onclick="if(window.deletarFicha) window.deletarFicha(\'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ficha</button>';
+        
+    } else if (tipo === 'ameaca') {
+        html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar Link</button>';
+        
+        if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
+            html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
+        }
+        
+        html += '<button class="dropdown-item danger" onclick="if(window.deletarFicha) window.deletarFicha(\'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
+        
+    } else if (tipo === 'campanha') {
+        if (typeof editarCampanha === 'function') {
+            html += '<button class="dropdown-item" onclick="editarCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">✏️ Editar Nome</button>';
+        }
+        html += '<button class="dropdown-item danger" onclick="if(window.deletarCampanha) window.deletarCampanha(\'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
+    }
+
+    menu.innerHTML = html;
+
+    const rect = event.target.getBoundingClientRect();
+    menu.style.top = (rect.bottom + window.scrollY) + 'px';
+    
+    const menuWidth = 180;
+    if (rect.right - menuWidth < 0) {
+        menu.style.left = '10px';
+    } else {
+        menu.style.left = (rect.right - menuWidth) + 'px';
+    }
+
+    menu.style.display = 'block';
+}
         
         function abrirModalVincular(fichaId) {
             document.getElementById('vincular-ficha-id').value = fichaId;
@@ -1076,7 +1090,7 @@
             const isOwner = d.dono === auth.currentUser.uid;
             
             // --- CÓDIGO NOVO (ENGRENAGEM AMEAÇA) ---
-            let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${(d.nome || 'Ameaça').replace(/'/g, "\\'")}', 'ameaca', '${context}')" title="Configurações da Ameaça">⚙️</button>`;
+            let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${d.nome.replace(/'/g, "\\'")}', 'ameaca', '${context}')" title="Configurações da Ameaça">⚙️</button>`;
             // ---------------------------------------
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
