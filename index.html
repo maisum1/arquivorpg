@@ -878,41 +878,9 @@
                              (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao) || 
                              isOwner;
             
-            let botoesAcao = '';
-            botoesAcao += `<button class="btn-action-node btn-copy" onclick="abrirModalCopiarLink('${doc.id}')" title="Copiar Link">[ 🔗 ]</button>`;
-            
-            if (context === 'hub-proprio') { botoesAcao += `<button class="btn-action-node btn-link" onclick="abrirModalVincular('${doc.id}')" title="Sincronizar a uma Campanha">[ 📡 ]</button>`; }
-            if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
-            
-            if (isMestre) {
-                botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="event.stopPropagation(); window.clonarFicha('${doc.id}')" title="Duplicar Ficha">[ 📋 ]</button>`;
-            }
-
-            if (isOwner || (isSuperAdmin && isXRayMode)) { 
-                botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('fichas', '${doc.id}', '${d.nome || 'Persona'}')" title="Apagar Permanentemente">[ X ]</button>`; 
-            }
-
-            let playerInfo = '';
-            let statsInfo = '';
-            let campanhaInfo = '';
-            let expInfo = '';
-
-            if (globalRevelado) { expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; }
-
-            if (context === 'monitor' || context === 'raiox' || context === 'campanha') {
-                playerInfo = `<span class="player-tag">Jogador: ${d.nomeJogador || 'Desconhecido'}</span>`;
-                expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`; 
-                statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">VIT ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
-            }
-            
-            if (d.campanhaId) {
-                if (context === 'hub-proprio') {
-                    let nomeVisual = d.campanhaOculta ? "[ CONFIDENCIAL ]" : (d.campanhaNome ? d.campanhaNome : d.campanhaId);
-                    campanhaInfo = `<span class="camp-tag">${nomeVisual}</span>`;
-                } else if (context === 'monitor' || context === 'raiox') {
-                    let nomeVisual = d.campanhaNome ? d.campanhaNome : d.campanhaId;
-                    campanhaInfo = `<span class="camp-tag">${nomeVisual}</span>`;
-                }
+            // --- CÓDIGO NOVO (ENGRENAGEM MESTRE) ---
+            let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${(d.nome || 'Persona').replace(/'/g, "\\'")}', 'ficha-monitor', '${context}')" title="Configurações da Ficha">⚙️</button>`;
+            // ---------------------------------------
             }
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
@@ -986,7 +954,14 @@
         
         let fichaSelecionadaId = null;
 
-        function abrirOpcoesCard(event, id, nome) {
+        // Função global para copiar o link do portrait
+        window.copiarPortraitOBS = function(id) {
+            const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
+            navigator.clipboard.writeText(url);
+            alert("Link do Portrait (OBS) copiado com sucesso!");
+        };
+
+        function abrirOpcoesCard(event, id, nome, tipo = 'ficha', extraContext = '') {
             event.stopPropagation();
             const menu = document.getElementById('dropdown-opcoes');
 
@@ -997,28 +972,36 @@
             }
 
             fichaSelecionadaId = id;
+            menu.innerHTML = ""; // Limpa os botões antigos
 
-            document.getElementById('btn-drop-obs').onclick = function() {
-                const url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'portrait.html?id=' + id;
-                navigator.clipboard.writeText(url);
-                alert("Link do Portrait (OBS) copiado com sucesso!");
-                menu.style.display = 'none';
-            };
-            
-            document.getElementById('btn-drop-duplicar').onclick = function() {
-                window.clonarFicha(id);
-                menu.style.display = 'none';
-            };
-
-            document.getElementById('btn-drop-compartilhar').onclick = function() {
-                abrirModalCopiarLink(id);
-                menu.style.display = 'none';
-            };
-
-            document.getElementById('btn-drop-deletar').onclick = function() {
-                deletarDocumento('fichas', id, nome);
-                menu.style.display = 'none';
-            };
+            // Monta os botões dinamicamente dependendo de qual engrenagem foi clicada
+            if (tipo === 'ficha') {
+                menu.innerHTML = `
+                    <button class="dropdown-item" onclick="abrirModalCopiarLink('${id}')">🔗 Compartilhar</button>
+                    <button class="dropdown-item" onclick="window.clonarFicha('${id}')">📋 Duplicar Ficha</button>
+                    <button class="dropdown-item" onclick="copiarPortraitOBS('${id}')">🖼️ Portrait (OBS)</button>
+                    <button class="dropdown-item danger" onclick="deletarDocumento('fichas', '${id}', '${nome}')">🗑️ Excluir Ficha</button>
+                `;
+            } else if (tipo === 'ameaca') {
+                menu.innerHTML = `
+                    <button class="dropdown-item" onclick="copiarLinkAmeaca('${id}')">🔗 Copiar Link</button>
+                    ${extraContext === 'campanha' ? `<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${id}', '${nome}')">🔌 Desvincular da Campanha</button>` : ''}
+                    <button class="dropdown-item danger" onclick="deletarDocumento('ameacas', '${id}', '${nome}')">🗑️ Excluir Ameaça</button>
+                `;
+            } else if (tipo === 'campanha') {
+                menu.innerHTML = `
+                    <button class="dropdown-item" onclick="editarCampanha('${id}', '${extraContext}', '${nome}')">✏️ Editar Nome</button>
+                    <button class="dropdown-item danger" onclick="deletarDocumento('campanhas', '${id}', '${nome}')">🗑️ Excluir Campanha</button>
+                `;
+            } else if (tipo === 'ficha-monitor') {
+                menu.innerHTML = `
+                    <button class="dropdown-item" onclick="abrirModalCopiarLink('${id}')">🔗 Compartilhar</button>
+                    ${extraContext === 'hub-proprio' ? `<button class="dropdown-item" onclick="abrirModalVincular('${id}')">📡 Vincular à Campanha</button>` : ''}
+                    ${extraContext === 'campanha' ? `<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento('fichas', '${id}', '${nome}')">🔌 Desvincular da Campanha</button>` : ''}
+                    <button class="dropdown-item" onclick="window.clonarFicha('${id}')">📋 Duplicar Ficha</button>
+                    <button class="dropdown-item danger" onclick="deletarDocumento('fichas', '${id}', '${nome}')">🗑️ Excluir Ficha</button>
+                `;
+            }
 
             const rect = event.target.getBoundingClientRect();
             menu.style.top = (rect.bottom + window.scrollY) + 'px';
@@ -1032,15 +1015,7 @@
 
             menu.style.display = 'block';
         }
-
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('dropdown-opcoes');
-            if (menu && menu.style.display === 'block') {
-                menu.style.display = 'none';
-                fichaSelecionadaId = null;
-            }
-        });
-
+        
         function abrirModalVincular(fichaId) {
             document.getElementById('vincular-ficha-id').value = fichaId;
             document.getElementById('input-link-campanha').value = "";
@@ -1101,13 +1076,9 @@
             const d = doc.data(); const px = d.pX || 50; const py = d.pY || 50; const pz = d.pZ || 1;
             const isOwner = d.dono === auth.currentUser.uid;
             
-            let botoesAcao = '';
-            botoesAcao += `<button class="btn-action-node btn-copy" onclick="copiarLinkAmeaca('${doc.id}')" title="Copiar Link">[ ⿻ ]</button>`;
-            if (context === 'campanha') { botoesAcao += `<button class="btn-action-node" style="color:var(--san-purple);" onclick="desvincularDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Desvincular da Campanha">[ 🔌 ]</button>`; }
-            
-            if (isOwner || (isSuperAdmin && isXRayMode)) { 
-                botoesAcao += `<button class="btn-action-node" style="color:var(--op-red);" onclick="deletarDocumento('ameacas', '${doc.id}', '${d.nome}')" title="Apagar Permanentemente">[ X ]</button>`; 
-            }
+            // --- CÓDIGO NOVO (ENGRENAGEM AMEAÇA) ---
+            let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${d.nome.replace(/'/g, "\\'")}', 'ameaca', '${context}')" title="Configurações da Ameaça">⚙️</button>`;
+            // ---------------------------------------
 
             let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
             
