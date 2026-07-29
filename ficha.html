@@ -1157,16 +1157,49 @@ body.tema-escuro #btn-toggle-iniciativa {
 
     function processarArquivo(i) { 
         if (i.files && i.files[0]) { 
-            const r = new FileReader(); r.onload = function(e) { 
-                const img = new Image(); img.src = e.target.result; img.onload = function() { 
-                    const c = document.createElement('canvas'); const ctx = c.getContext('2d'); const mW = 600; const sc = mW / img.width; c.width = mW; c.height = img.height * sc; ctx.drawImage(img, 0, 0, c.width, c.height); 
-                    document.getElementById('temp-img').src = c.toDataURL('image/webp', 0.6); document.getElementById('crop-zoom').value = 1; document.getElementById('crop-x').value = 50; document.getElementById('crop-y').value = 50; 
+            const r = new FileReader(); 
+            r.onload = function(e) { 
+                const img = new Image(); 
+                img.src = e.target.result; 
+                img.onload = function() { 
+                    const c = document.createElement('canvas'); 
+                    const ctx = c.getContext('2d'); 
+                    
+                    // Limita altura e largura para a imagem nunca estourar o limite de 1MB do banco
+                    let maxW = 500; 
+                    let maxH = 700; 
+                    let ratio = Math.min(maxW / img.width, maxH / img.height); 
+                    if (ratio > 1) ratio = 1; // Não estica imagens minúsculas
+
+                    c.width = img.width * ratio; 
+                    c.height = img.height * ratio; 
+
+                    // Força fundo branco caso seja um PNG transparente (evita fundo preto)
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.fillRect(0, 0, c.width, c.height);
+                    ctx.drawImage(img, 0, 0, c.width, c.height); 
+                    
+                    // Converte para JPEG 60% (Suportado por todos navegadores e extremamente leve)
+                    document.getElementById('temp-img').src = c.toDataURL('image/jpeg', 0.6); 
+                    
+                    document.getElementById('crop-zoom').value = 1; 
+                    document.getElementById('crop-x').value = 50; 
+                    document.getElementById('crop-y').value = 50; 
                     atualizarPreview(); 
+                    
                     const p = document.getElementById('crop-preview'); 
-                    if(modoCrop === 'ritual') { p.style.width = "80px"; p.style.height = "80px"; } else { p.style.width = "110px"; p.style.height = "140px"; } 
-                    document.getElementById('modal-config').style.display = 'none'; document.getElementById('crop-modal').style.display = 'block'; i.value = ""; 
+                    if(modoCrop === 'ritual') { 
+                        p.style.width = "80px"; p.style.height = "80px"; 
+                    } else { 
+                        p.style.width = "110px"; p.style.height = "140px"; 
+                    } 
+                    
+                    document.getElementById('modal-config').style.display = 'none'; 
+                    document.getElementById('crop-modal').style.display = 'block'; 
+                    i.value = ""; 
                 }; 
-            }; r.readAsDataURL(i.files[0]); 
+            }; 
+            r.readAsDataURL(i.files[0]); 
         } 
     }
 
@@ -1178,13 +1211,33 @@ body.tema-escuro #btn-toggle-iniciativa {
     function fecharModal() { document.getElementById('crop-modal').style.display = 'none'; }
 
     async function confirmarCrop() { 
-        const u = document.getElementById('temp-img').src; const z = document.getElementById('crop-zoom').value; const x = document.getElementById('crop-x').value; const y = document.getElementById('crop-y').value; 
+        const u = document.getElementById('temp-img').src; 
+        const z = document.getElementById('crop-zoom').value; 
+        const x = document.getElementById('crop-x').value; 
+        const y = document.getElementById('crop-y').value; 
+        
         try { 
-            if(modoCrop === 'portrait') { await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); alert("Registro fotográfico anexado!"); } 
-            else if (modoCrop === 'ritual') { await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); } 
-            else { const d = {}; d[`portrait${modoCrop}`] = u; d[`p${modoCrop}X`] = x; d[`p${modoCrop}Y`] = y; d[`p${modoCrop}Zoom`] = z; await db.collection("fichas").doc(atual).update(d); alert(`Evidência arquivada!`); } 
+            if (modoCrop === 'portrait') { 
+                await db.collection("fichas").doc(atual).update({ portrait: u, pX: x, pY: y, pZ: z }); 
+                alert("Registro fotográfico anexado!"); 
+            } 
+            else if (modoCrop === 'ritual') { 
+                await db.collection("fichas").doc(atual).collection("rituais").doc(ritualIdAtual).update({ simbolo: u, sX: x, sY: y, sZ: z }); 
+            } 
+            else { 
+                const d = {}; 
+                d[`portrait${modoCrop}`] = u; 
+                d[`p${modoCrop}X`] = x; 
+                d[`p${modoCrop}Y`] = y; 
+                d[`p${modoCrop}Zoom`] = z; 
+                await db.collection("fichas").doc(atual).update(d); 
+                alert(`Evidência arquivada!`); 
+            } 
             fecharModal(); 
-        } catch (e) {} 
+        } catch (e) {
+            alert("❌ Erro ao gravar imagem na nuvem do Firebase!\n\nDetalhe do erro: " + e.message);
+            console.error(e);
+        } 
     }
 
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
