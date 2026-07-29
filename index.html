@@ -871,37 +871,47 @@
         }
 
         function renderFichaMonitorCard(doc, context = 'monitor') {
-            const d = doc.data(); const px = d.pX ?? 50; const py = d.pY ?? 50; const pz = d.pZ ?? 1;
-            const isOwner = d.dono === auth.currentUser.uid;
-            
-            const isMestre = (typeof isSuperAdmin !== 'undefined' && isSuperAdmin) || 
-                             (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao) || 
-                             isOwner;
-            
-            // --- CÓDIGO NOVO (ENGRENAGEM MESTRE) ---
-            let nomePersona = (d.nome || 'Persona').replace(/'/g, "\\'");
-let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${context}')" title="Configurações">⚙️</button>`;
-            // ---------------------------------------
-            }
+    const d = doc.data(); 
+    const px = d.pX ?? 50; 
+    const py = d.pY ?? 50; 
+    const pz = d.pZ ?? 1;
+    const isOwner = d.dono === auth.currentUser.uid;
+    
+    const isMestre = (typeof isSuperAdmin !== 'undefined' && isSuperAdmin) || 
+                     (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao) || 
+                     isOwner;
+    
+    // --- CÓDIGO NOVO (ENGRENAGEM MESTRE) ---
+    let nomePersona = (d.nome || 'Persona').replace(/'/g, "\\'");
+    let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${context}')" title="Configurações">⚙️</button>`;
+    // ---------------------------------------
+    // (A chave "}" extra que estava aqui foi removida)
 
-            let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
+    let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz});">` : '';
 
-            return `
-                <div class="ficha-card base-card">
-                    <div class="card-actions">${botoesAcao}</div>
-                    <div class="card-content">
-                        <div class="portrait-mini">${img}</div>
-                        <div class="card-info">
-                            <strong>${d.nome || 'PERSONA'}</strong>
-                            ${expInfo}
-                            ${playerInfo}
-                            ${statsInfo}
-                            ${campanhaInfo}
-                        </div>
-                    </div>
-                    <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
-                </div>`;
-        }
+    // --- RE-CRIANDO AS VARIÁVEIS FALTANTES ---
+    let expInfo = d.nex ? `<span class="exp-tag">NEX ${d.nex}</span>` : '';
+    let playerInfo = `<span class="player-tag">${d.classe || d.origem || 'Jogador'}</span>`;
+    let statsInfo = `<span class="stats-tag">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0} | SAN: ${d.sanAtual || 0}/${d.sanMax || 0}</span>`;
+    let campanhaInfo = d.campanhaNome ? `<span class="camp-tag">${d.campanhaNome}</span>` : '';
+    // -----------------------------------------
+
+    return `
+        <div class="ficha-card base-card">
+            <div class="card-actions">${botoesAcao}</div>
+            <div class="card-content">
+                <div class="portrait-mini">${img}</div>
+                <div class="card-info">
+                    <strong>${d.nome || 'PERSONA'}</strong>
+                    ${expInfo}
+                    ${playerInfo}
+                    ${statsInfo}
+                    ${campanhaInfo}
+                </div>
+            </div>
+            <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
+        </div>`;
+}
 
         function formatarDataRegistro(createdAt) {
             if (!createdAt) return "—";
