@@ -1991,74 +1991,74 @@ let filtroSubAtualAtaques = 'Todos';
                 const btnGithubCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : '';
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
-                    <div class="card-header" onclick="toggleElem('rit-${id}')">
-                        <span style="color:${cor}; font-weight:900">${rView.nome || 'Nova Anomalia'} ${isBuffado ? '<span style="color:var(--op-red); font-size:10px;">[VERDADEIRO]</span>' : ''}</span>
-                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(rView.elemento || 'Morte').toUpperCase()}</span>
-                    </div>
-                    <div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}">
-                        
-                        <div class="rit-layout-top">
-                            <div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">
-                                ${rView.simbolo ? `<img src="${rView.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${rView.sX || 50}% ${rView.sY || 50}%; transform: scale(${rView.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter', sans-serif; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}
-                            </div>
-                            <div class="rit-grid-2">
-                                <div class="rit-field" style="grid-column: span 2;">
-                                    <span class="rit-label" style="color:${cor}">Identificação da Anomalia</span>
-                                    <input type="text" class="rit-input" value="${rView.nome || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'nome', this.value, ${isBuffado})">
-                                </div>
-                                <div class="rit-field" style="display:none;">
-                                    <span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span>
-                                    <select class="rit-input" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'elemento', this.value, ${isBuffado})">
-                                        <option value="Nenhum" ${rView.elemento=='Nenhum'?'selected':''}>Nenhum</option>
-                                        <option value="Morte" ${rView.elemento=='Morte'?'selected':''}>Morte</option>
-                                        <option value="Sangue" ${rView.elemento=='Sangue'?'selected':''}>Sangue</option>
-                                        <option value="Energia" ${rView.elemento=='Energia'?'selected':''}>Energia</option>
-                                        <option value="Conhecimento" ${rView.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="rit-checkbox-row">
-                            <label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label>
-                            <label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'primeiraConjuracao', this.checked, ${isBuffado})"> Manifestação Inédita</label>
-                        </div>
-                        
-                        <div class="rit-field" style="margin-bottom: 12px; display: ${hideAprendizado};">
-                            <span class="rit-label" style="color:${cor}">Projeção de Estudo</span>
-                            <input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${rView.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'tempoAprendizado', this.value, ${isBuffado})">
-                        </div>
-                        
-                        <div class="rit-grid-2">
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" value="${rView.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'tempoConjuracao', this.value, ${isBuffado})"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" value="${rView.alcance || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alcance', this.value, ${isBuffado})"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" value="${rView.alvo || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alvo', this.value, ${isBuffado})"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" value="${rView.duracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'duracao', this.value, ${isBuffado})"></div>
-                        </div>
-                        
-                        <div class="rit-grid-2" style="margin-top: 10px;">
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" value="${rView.custoPe || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'custoPe', this.value, ${isBuffado})"></div>
-                            <div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" value="${rView.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'custoSanidade', this.value, ${isBuffado})"></div>
-                        </div>
-                        
-                        <div class="rit-field" style="margin-top: 15px;">
-                            <span class="rit-label" style="color:${cor}">Registro Detalhado</span>
-                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'descricao', this.value, ${isBuffado})">${rView.descricao || ""}</textarea>
-                        </div>
-                        
-                        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
-                            <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
-                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'afinidade', this.value, ${isBuffado})" placeholder="Descreva os efeitos da afinidade com esta anomalia...">${rView.afinidade || ""}</textarea>
-                        </div>
+    <div class="card-header" onclick="toggleElem('rit-${id}')">
+        <span style="color:${cor}; font-weight:900">${rView.nome || 'Nova Anomalia'} ${isBuffado ? '<span style="color:var(--op-red); font-size:10px;">[VERDADEIRO]</span>' : ''}</span>
+        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(rView.elemento || 'Morte').toUpperCase()}</span>
+    </div>
+    <div class="card-body" id="rit-${id}" style="display:${iO ? 'block' : 'none'}">
+        
+        <div class="rit-layout-top">
+            <div class="rit-symbol-box" onclick="abrirUpload('ritual', '${id}')">
+                ${rView.simbolo ? `<img src="${rView.simbolo}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${rView.sX || 50}% ${rView.sY || 50}%; transform: scale(${rView.sZ || 1}); position: absolute; top: 0; left: 0; filter: grayscale(100%) contrast(150%); mix-blend-mode: multiply;">` : `<span style="text-align:center; font-family:'Inter', sans-serif; font-size:9px; color:var(--cor-geral); font-weight: bold;">REGISTRO<br>(Clique)</span>`}
+            </div>
+            <div class="rit-grid-2">
+                <div class="rit-field" style="grid-column: span 2;">
+                    <span class="rit-label" style="color:${cor}">Identificação da Anomalia</span>
+                    <input type="text" class="rit-input" placeholder="Nome do Ritual/Anomalia..." value="${rView.nome || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'nome', this.value, ${isBuffado})">
+                </div>
+                <div class="rit-field" style="display:none;">
+                    <span class="rit-label" style="color:${cor}">Assinatura (Elemento)</span>
+                    <select class="rit-input" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'elemento', this.value, ${isBuffado})">
+                        <option value="Nenhum" ${rView.elemento=='Nenhum'?'selected':''}>Nenhum</option>
+                        <option value="Morte" ${rView.elemento=='Morte'?'selected':''}>Morte</option>
+                        <option value="Sangue" ${rView.elemento=='Sangue'?'selected':''}>Sangue</option>
+                        <option value="Energia" ${rView.elemento=='Energia'?'selected':''}>Energia</option>
+                        <option value="Conhecimento" ${rView.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="rit-checkbox-row">
+            <label><input type="checkbox" ${iA} onclick="event.stopPropagation()" onchange="updateSub('${id}', 'rituais', 'aprendido', this.checked)"> Compreensão Total</label>
+            <label><input type="checkbox" ${iP} onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'primeiraConjuracao', this.checked, ${isBuffado})"> Manifestação Inédita</label>
+        </div>
+        
+        <div class="rit-field" style="margin-bottom: 12px; display: ${hideAprendizado};">
+            <span class="rit-label" style="color:${cor}">Projeção de Estudo</span>
+            <input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${rView.tempoAprendizado || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'tempoAprendizado', this.value, ${isBuffado})">
+        </div>
+        
+        <div class="rit-grid-2">
+            <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" placeholder="Ex: Ação Padrão" value="${rView.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'tempoConjuracao', this.value, ${isBuffado})"></div>
+            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" placeholder="Ex: Curto" value="${rView.alcance || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alcance', this.value, ${isBuffado})"></div>
+            <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" placeholder="Ex: 1 Ser" value="${rView.alvo || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alvo', this.value, ${isBuffado})"></div>
+            <div class="rit-field"><span class="rit-label" style="color:${cor}">Estabilidade (Duração)</span><input type="text" class="rit-input" placeholder="Ex: Cena" value="${rView.duracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'duracao', this.value, ${isBuffado})"></div>
+        </div>
+        
+        <div class="rit-grid-2" style="margin-top: 10px;">
+            <div class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego</span><input type="text" class="rit-input" placeholder="Ex: 1 PE" value="${rView.custoPe || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'custoPe', this.value, ${isBuffado})"></div>
+            <div class="rit-field"><span class="rit-label" style="color:${cor}">Dano Mental (Lucidez)</span><input type="text" class="rit-input" placeholder="Ex: 1d4" value="${rView.custoSanidade || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'custoSanidade', this.value, ${isBuffado})"></div>
+        </div>
+        
+        <div class="rit-field" style="margin-top: 15px;">
+            <span class="rit-label" style="color:${cor}">Registro Detalhado</span>
+            <textarea class="cris-textarea" placeholder="Descreva as regras, testes e mecânicas da anomalia..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'descricao', this.value, ${isBuffado})">${rView.descricao || ""}</textarea>
+        </div>
+        
+        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
+            <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
+            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'afinidade', this.value, ${isBuffado})" placeholder="Descreva os efeitos da afinidade com esta anomalia...">${rView.afinidade || ""}</textarea>
+        </div>
 
-                        <div style="text-align:right; margin-top:10px;">
-                            ${btnMestreCopy}
-                            ${btnGithubCopy}
-                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
-                        </div>
-                        
-                    </div>
-                </div>`; 
+        <div style="text-align:right; margin-top:10px;">
+            ${btnMestreCopy}
+            ${btnGithubCopy}
+            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>
+        </div>
+        
+    </div>
+</div>`;
             }); 
         }); 
     }
@@ -2080,44 +2080,44 @@ let filtroSubAtualAtaques = 'Todos';
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarEspecializacaoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
-                    <div class="card-header" onclick="toggleElem('pod-${id}')">
-                        <span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span>
-                        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(po.elemento || 'Geral').toUpperCase()}</span>
-                    </div>
-                    <div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}">
-                        <div class="rit-grid-2" style="margin-bottom:10px;">
-                            <div class="rit-field" style="grid-column: span 2;">
-                                <span class="rit-label" style="color:${cor}">Identificação</span>
-                                <input type="text" class="rit-input" value="${po.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)">
-                            </div>
-                            <div class="rit-field" style="display:none;">
-                                <span class="rit-label" style="color:${cor}">Vínculo Oculto</span>
-                                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
-                                    <option value="Nenhum" ${po.elemento=='Nenhum'?'selected':''}>Nenhum</option>
-                                    <option value="Morte" ${po.elemento=='Morte'?'selected':''}>Morte</option>
-                                    <option value="Sangue" ${po.elemento=='Sangue'?'selected':''}>Sangue</option>
-                                    <option value="Energia" ${po.elemento=='Energia'?'selected':''}>Energia</option>
-                                    <option value="Conhecimento" ${po.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
-                                    <option value="Geral" ${po.elemento=='Geral'?'selected':''}>Geral</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="rit-field">
-                            <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
-                            <textarea class="cris-textarea" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea>
-                        </div>
-                        
-                        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
-                            <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
-                            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea>
-                        </div>
-                        
-                        <div style="text-align:right; margin-top:10px;">
-                            ${btnAdminCopy}
-                            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button>
-                        </div>
-                    </div>
-                </div>`; 
+    <div class="card-header" onclick="toggleElem('pod-${id}')">
+        <span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span>
+        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(po.elemento || 'Geral').toUpperCase()}</span>
+    </div>
+    <div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}">
+        <div class="rit-grid-2" style="margin-bottom:10px;">
+            <div class="rit-field" style="grid-column: span 2;">
+                <span class="rit-label" style="color:${cor}">Identificação</span>
+                <input type="text" class="rit-input" placeholder="Nome da Especialização ou Vínculo..." value="${po.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'nome', this.value)">
+            </div>
+            <div class="rit-field" style="display:none;">
+                <span class="rit-label" style="color:${cor}">Vínculo Oculto</span>
+                <select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'elemento', this.value)">
+                    <option value="Nenhum" ${po.elemento=='Nenhum'?'selected':''}>Nenhum</option>
+                    <option value="Morte" ${po.elemento=='Morte'?'selected':''}>Morte</option>
+                    <option value="Sangue" ${po.elemento=='Sangue'?'selected':''}>Sangue</option>
+                    <option value="Energia" ${po.elemento=='Energia'?'selected':''}>Energia</option>
+                    <option value="Conhecimento" ${po.elemento=='Conhecimento'?'selected':''}>Conhecimento</option>
+                    <option value="Geral" ${po.elemento=='Geral'?'selected':''}>Geral</option>
+                </select>
+            </div>
+        </div>
+        <div class="rit-field">
+            <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
+            <textarea class="cris-textarea" placeholder="Descreva as regras, mecânicas e bônus..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea>
+        </div>
+        
+        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
+            <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
+            <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea>
+        </div>
+        
+        <div style="text-align:right; margin-top:10px;">
+            ${btnAdminCopy}
+            <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button>
+        </div>
+    </div>
+</div>`;
             }); 
         }); 
     }
