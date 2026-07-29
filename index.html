@@ -1007,7 +1007,9 @@
         }
         
         html += '<button class="dropdown-item" onclick="if(window.clonarFicha) window.clonarFicha(\'' + id + '\')">📋 Duplicar Ficha</button>';
-        html += '<button class="dropdown-item danger" onclick="if(window.deletarFicha) window.deletarFicha(\'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ficha</button>';
+        
+        // CORREÇÃO: Chamando deletarDocumento para fichas
+        html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ficha</button>';
         
     } else if (tipo === 'ameaca') {
         html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar Link</button>';
@@ -1016,13 +1018,16 @@
             html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
         }
         
-        html += '<button class="dropdown-item danger" onclick="if(window.deletarFicha) window.deletarFicha(\'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
+        // CORREÇÃO: Chamando deletarDocumento para ameaças
+        html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
         
     } else if (tipo === 'campanha') {
         if (typeof editarCampanha === 'function') {
             html += '<button class="dropdown-item" onclick="editarCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">✏️ Editar Nome</button>';
         }
-        html += '<button class="dropdown-item danger" onclick="if(window.deletarCampanha) window.deletarCampanha(\'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
+        
+        // CORREÇÃO: Chamando deletarDocumento para campanhas
+        html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'campanhas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
     }
 
     menu.innerHTML = html;
