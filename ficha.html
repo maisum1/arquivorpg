@@ -405,7 +405,7 @@ div[id^="preview-"] {
     white-space: pre-wrap;
 }
 
-        /* ==========================================
+       /* ==========================================
    TEMA ÚNICO ABSOLUTO - MODO SOBREVIVÊNCIA
    ========================================== */
 body.modo-sobrevivencia,
@@ -454,16 +454,16 @@ body.modo-sobrevivencia.tema-escuro button {
     border-color: rgba(92, 160, 94, 0.4) !important;
 }
 
-/* CONTAINER E ESTILO DOS ÍCONES DE STATUS (SOBREVIVÊNCIA) */
+/* CONTAINER DOS ÍCONES DE STATUS DA SOBREVIVÊNCIA */
 .status-icones-container {
     display: flex;
     gap: 4px;
     flex-wrap: wrap;
     align-items: center;
-    margin-top: 6px;
+    margin-top: 8px;
     padding: 6px 8px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(92, 160, 94, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(92, 160, 94, 0.35);
     border-radius: 3px;
 }
 
@@ -480,11 +480,11 @@ body.modo-sobrevivencia.tema-escuro button {
 
 .status-icon-item.ativo {
     opacity: 1;
-    filter: drop-shadow(0 0 3px rgba(92, 160, 94, 0.5));
+    filter: drop-shadow(0 0 3px rgba(92, 160, 94, 0.6));
 }
 
 .status-icon-item.apagado {
-    opacity: 0.25;
+    opacity: 0.22;
     filter: grayscale(100%);
 }
     </style>
@@ -1774,12 +1774,14 @@ let filtroSubAtualAtaques = 'Todos';
         let nV = 0;
         let nS = 0;
         
-        if (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia) {
-            // MODO SOBREVIVÊNCIA
+        const modoSobrev = (typeof window.isModoSobrevivencia !== 'undefined' && window.isModoSobrevivencia);
+
+        if (modoSobrev) {
+            // FÓRMULAS DO MODO SOBREVIVÊNCIA
             nV = 4 + vg;          // Vida: 4 + VIG
             nS = 10 + (2 * vn);   // Lucidez: 10 + 2xVON
         } else {
-            // MODO NORMAL DE JOGO
+            // FÓRMULAS NORMAIS
             nV = 12 + (2 * vg) + (2 * nv); 
             nS = 50 + (10 * vn + 10 * sg); 
         }
@@ -1801,10 +1803,19 @@ let filtroSubAtualAtaques = 'Todos';
         const iPM = document.getElementById('pe-max'); 
         if (iPM) { iPM.value = nP; iPM.dataset.base = nP; }
 
+        const iVA = document.getElementById('vida-atual');
+        if (iVA && parseInt(iVA.value) > nV) iVA.value = nV;
+
+        const iSA = document.getElementById('san-atual');
+        if (iSA && parseInt(iSA.value) > nS) iSA.value = nS;
+
+        const iPA = document.getElementById('pe-atual');
+        if (iPA && parseInt(iPA.value) > nP) iPA.value = nP;
+
         if (fH) { 
-            if (document.getElementById('vida-atual')) document.getElementById('vida-atual').value = nV; 
-            if (document.getElementById('san-atual')) document.getElementById('san-atual').value = nS; 
-            if (document.getElementById('pe-atual')) document.getElementById('pe-atual').value = nP; 
+            if (iVA) iVA.value = nV; 
+            if (iSA) iSA.value = nS; 
+            if (iPA) iPA.value = nP; 
         }
 
         const bL = parseInt(document.getElementById('bonus-limite-pe')?.value) || 0; 
@@ -1820,9 +1831,92 @@ let filtroSubAtualAtaques = 'Todos';
             atualizarStatusVisual('pe');
         }
 
-        // Renderiza as barras ou ícones
         renderizarStatusEspeciaisSobrevivencia(nV, nS, nP);
     }
+
+    function renderizarStatusEspeciaisSobrevivencia(vMax, sMax, pMax) {
+        function prepararContainer(inputId, containerId) {
+            let container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            if (!container && input) {
+                const parent = input.closest('.status-card, .box-status, .card, div');
+                if (parent) {
+                    container = document.createElement('div');
+                    container.id = containerId;
+                    container.className = 'status-icones-container';
+                    parent.appendChild(container);
+                }
+            }
+            return container;
+        }
+
+        const contVida = prepararContainer('vida-atual', 'status-icones-vida');
+        const contSan = prepararContainer('san-atual', 'status-icones-san');
+        const contPe = prepararContainer('pe-atual', 'status-icones-pe');
+
+        const modoSobrev = (typeof window.isModoSobrevivencia !== 'undefined' && window.isModoSobrevivencia);
+
+        if (!modoSobrev) {
+            if (contVida) contVida.style.display = 'none';
+            if (contSan) contSan.style.display = 'none';
+            if (contPe) contPe.style.display = 'none';
+            return;
+        }
+
+        let vAtual = parseInt(document.getElementById('vida-atual')?.value) || 0;
+        let sAtual = parseInt(document.getElementById('san-atual')?.value) || 0;
+        let pAtual = parseInt(document.getElementById('pe-atual')?.value) || 0;
+
+        // VIDA (❤️ Corações)
+        if (contVida) {
+            contVida.style.display = 'flex';
+            contVida.innerHTML = '';
+            for (let i = 1; i <= vMax; i++) {
+                const ativo = i <= vAtual;
+                contVida.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('vida-atual', ${i}, ${vMax})" title="Vida ${i}/${vMax}">❤️</span>`;
+            }
+        }
+
+        // LUCIDEZ (🧠 Cérebros)
+        if (contSan) {
+            contSan.style.display = 'flex';
+            contSan.innerHTML = '';
+            for (let i = 1; i <= sMax; i++) {
+                const ativo = i <= sAtual;
+                contSan.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('san-atual', ${i}, ${sMax})" title="Lucidez ${i}/${sMax}">🧠</span>`;
+            }
+        }
+
+        // FÔLEGO / PF (⚡ Raios)
+        if (contPe) {
+            contPe.style.display = 'flex';
+            contPe.innerHTML = '';
+            for (let i = 1; i <= pMax; i++) {
+                const ativo = i <= pAtual;
+                contPe.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('pe-atual', ${i}, ${pMax})" title="Fôlego ${i}/${pMax}">⚡</span>`;
+            }
+        }
+    }
+
+    window.alterarStatusSobrevivencia = function(inputId, valor, maxVal) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            let atualVal = parseInt(input.value) || 0;
+            let novoVal = (atualVal === valor) ? valor - 1 : valor;
+            novoVal = Math.max(0, Math.min(novoVal, maxVal));
+
+            input.value = novoVal;
+            input.dispatchEvent(new Event('change'));
+            input.dispatchEvent(new Event('input'));
+
+            if (typeof updateSub === 'function' && typeof atual !== 'undefined') {
+                const fieldName = inputId === 'vida-atual' ? 'vida' : (inputId === 'san-atual' ? 'san' : 'pe');
+                db.collection("fichas").doc(atual).update({ [fieldName]: novoVal }).catch(()=>{});
+            }
+
+            if (typeof recalcularBases === 'function') recalcularBases();
+        }
+    };
 
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
@@ -3330,13 +3424,12 @@ let filtroSubAtualAtaques = 'Todos';
         const von = parseInt(vonNode?.value || 0);
         
         let totalDisponivel = 0;
-        const modoSobrev = (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia);
+        const modoSobrev = (typeof window.isModoSobrevivencia !== 'undefined' && window.isModoSobrevivencia);
 
-        // Altera o rótulo do botão de criação sem apagar os outros botões da tela
         const btnCriacao = document.getElementById('btn-toggle-criacao') || document.querySelector('#banner-criacao-pericias button');
         
         if (modoSobrev) {
-            // MODO SOBREVIVÊNCIA: +8 iniciais + 2xSAG
+            // MODO SOBREVIVÊNCIA: +8 base + 2xSAG
             totalDisponivel = 8 + (2 * sag);
             if (btnCriacao && btnCriacao.innerText.includes('CRIAÇÃO')) {
                 btnCriacao.innerText = '[ 🛠️ CRIAÇÃO RÁPIDA ]';
@@ -3349,7 +3442,6 @@ let filtroSubAtualAtaques = 'Todos';
             }
         }
 
-        // --- CÁLCULO DE ORIGEM E CUSTOS ---
         const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
         let periciaOrigem3 = null; 
         let periciaOrigem1 = null; 
@@ -3366,25 +3458,31 @@ let filtroSubAtualAtaques = 'Todos';
             }
         }
 
-        if (!origemEncontrada) {
-            totalDisponivel += 5; 
+        if (!origemEncontrada && !modoSobrev) {
+            totalDisponivel += 5;
         }
 
         let totalGasto = 0;
         const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
-        let orcamentoOrigem3 = 4;
+        let orcamentoOrigem3 = modoSobrev ? 2 : 4;
         let orcamentoOrigem1 = 1;
 
         elementosTreino.forEach(inp => {
             const val = parseInt(inp.value || 0);
             let custo = 0;
-            
-            if (val === 1) custo = 1;
-            else if (val === 2) custo = 3;
-            else if (val > 2) custo = 3 + (val - 2); 
+
+            if (modoSobrev) {
+                // MODO SOBREVIVÊNCIA: 1 grau = 1 ponto (máximo +2)
+                custo = Math.min(val, 2); 
+            } else {
+                // MODO NORMAL: Grau 1 = 1pt, Grau 2 = 3pt, Grau 3 = 6pt
+                if (val === 1) custo = 1;
+                else if (val === 2) custo = 3;
+                else if (val > 2) custo = 3 + (val - 2); 
+            }
             
             if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
-                custo = Math.max(0, custo - 4); 
+                custo = Math.max(0, custo - (modoSobrev ? 2 : 4)); 
             }
             else if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
                 custo = Math.max(0, custo - 1); 
@@ -3490,13 +3588,13 @@ let filtroSubAtualAtaques = 'Todos';
     };
   // ==========================================
 
-    let isModoSobrevivencia = false;
+    window.isModoSobrevivencia = false;
 
     window.toggleModoSobrevivencia = async function() {
-        const novoEstado = !isModoSobrevivencia;
+        const novoEstado = !window.isModoSobrevivencia;
         const msg = novoEstado 
-            ? "Deseja ATIVAR o Modo Sobrevivência (Criação Rápida)?\n\n- Vida: 4 + VIG (em Corações)\n- Lucidez: 10 + 2xVON (em Blocos)\n- Perícias: +8 Pontos Iniciais + 2 por SAG\n- Visual: Paleta de Sobrevivência Única"
-            : "Deseja DESATIVAR o Modo Sobrevivência e retornar ao regime padrão de jogo?";
+            ? "Deseja ATIVAR o Modo Sobrevivência (Criação Rápida)?\n\n• Vida: 4 + VIG (em Corações ❤️)\n• Lucidez: 10 + 2xVON (em Cérebros 🧠)\n• Fôlego: Cálculo Normal (em Raios ⚡)\n• Perícias: +8 Pontos Iniciais + 2 por SAG (máx +2 por perícia)\n• Estética: Paleta Única Verde Militar"
+            : "Deseja DESATIVAR o Modo Sobrevivência e retornar às regras normais?";
 
         if (!confirm(msg)) return;
 
@@ -3504,12 +3602,13 @@ let filtroSubAtualAtaques = 'Todos';
             await db.collection("fichas").doc(atual).update({
                 modoSobrevivencia: novoEstado
             });
+            aplicarModoSobrevivenciaVisuais(novoEstado);
         } catch(e) {
             alert("Erro ao alterar regime de jogo: " + e);
         }
     };
 
-    function aplicarModoSobrevivenciaVisuais(ativo) {
+    window.aplicarModoSobrevivenciaVisuais = function(ativo) {
         window.isModoSobrevivencia = !!ativo;
         const btn = document.getElementById('btn-modo-sobrevivencia');
         
@@ -3529,92 +3628,52 @@ let filtroSubAtualAtaques = 'Todos';
             }
         }
 
-        // Atualiza a tela na hora para trocar textos e barras
+        // Atualiza o Guia de Criação
+        atualizarTextoGuiaCriacao();
+
+        // Força recálculos imediatos da tela
         if (typeof recalcularBases === 'function') recalcularBases();
         if (typeof calcularPontosPericias === 'function') calcularPontosPericias();
-    }
-
-    // ==========================================
-    // RENDERIZADOR DE STATUS DO MODO SOBREVIVÊNCIA
-    // ==========================================
-    function renderizarStatusEspeciaisSobrevivencia(vMax, sMax, pMax) {
-        // Busca os containers de ícones (ou cria caso não existam no HTML)
-        function obterContainer(idParent, idSelf) {
-            let el = document.getElementById(idSelf);
-            if (!el) {
-                const parent = document.getElementById(idParent) || document.querySelector('.' + idParent);
-                if (parent) {
-                    el = document.createElement('div');
-                    el.id = idSelf;
-                    el.className = 'status-icones-container';
-                    parent.appendChild(el);
-                }
-            }
-            return el;
-        }
-
-        const contVida = obterContainer('box-vida', 'status-icones-vida');
-        const contSan = obterContainer('box-san', 'status-icones-san');
-        const contPe = obterContainer('box-pe', 'status-icones-pe');
-
-        // Esconde ou mostra as barras normais
-        const barrasNormais = document.querySelectorAll('.bar-container, .status-bar-wrapper, .progress-bar-status');
-
-        if (typeof isModoSobrevivencia === 'undefined' || !isModoSobrevivencia) {
-            if (contVida) contVida.style.display = 'none';
-            if (contSan) contSan.style.display = 'none';
-            if (contPe) contPe.style.display = 'none';
-            barrasNormais.forEach(b => b.style.display = '');
-            return;
-        }
-
-        // MODO SOBREVIVÊNCIA ATIVO:
-        barrasNormais.forEach(b => b.style.display = 'none');
-
-        let vAtual = parseInt(document.getElementById('vida-atual')?.value) || 0;
-        let sAtual = parseInt(document.getElementById('san-atual')?.value) || 0;
-        let pAtual = parseInt(document.getElementById('pe-atual')?.value) || 0;
-
-        // VIDA (❤️ Corações)
-        if (contVida) {
-            contVida.style.display = 'flex';
-            contVida.innerHTML = '';
-            for (let i = 1; i <= vMax; i++) {
-                const ativo = i <= vAtual;
-                contVida.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('vida-atual', ${i})" title="Vida ${i}/${vMax}">❤️</span>`;
-            }
-        }
-
-        // LUCIDEZ (🧠 Cérebrozinhos)
-        if (contSan) {
-            contSan.style.display = 'flex';
-            contSan.innerHTML = '';
-            for (let i = 1; i <= sMax; i++) {
-                const ativo = i <= sAtual;
-                contSan.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('san-atual', ${i})" title="Lucidez ${i}/${sMax}">🧠</span>`;
-            }
-        }
-
-        // FÔLEGO / PF (⚡ Raiozinhos)
-        if (contPe) {
-            contPe.style.display = 'flex';
-            contPe.innerHTML = '';
-            for (let i = 1; i <= pMax; i++) {
-                const ativo = i <= pAtual;
-                contPe.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('pe-atual', ${i})" title="Fôlego ${i}/${pMax}">⚡</span>`;
-            }
-        }
-    }
-
-    window.alterarStatusSobrevivencia = function(inputId, valor) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.value = valor;
-            input.dispatchEvent(new Event('change'));
-            input.dispatchEvent(new Event('input'));
-            if (typeof recalcularBases === 'function') recalcularBases();
-        }
     };
+
+    function atualizarTextoGuiaCriacao() {
+        const guiaModal = document.getElementById('modal-guia-criacao');
+        if (!guiaModal) return;
+
+        const tituloGuia = guiaModal.querySelector('h3, .modal-header, .section-header');
+        const corpoGuia = guiaModal.querySelector('.guia-conteudo, .modal-body, div[style*="font-size"]');
+
+        if (window.isModoSobrevivencia) {
+            if (tituloGuia) tituloGuia.innerText = "🌲 GUIA DE CRIAÇÃO RÁPIDA (MODO SOBREVIVÊNCIA)";
+            if (corpoGuia) {
+                if (!corpoGuia.getAttribute('data-texto-original')) {
+                    corpoGuia.setAttribute('data-texto-original', corpoGuia.innerHTML);
+                }
+                corpoGuia.innerHTML = `
+                    <div style="font-family:'Courier Prime', monospace; font-size:12px; line-height:1.5; color:var(--cor-geral);">
+                        <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">1. ATRIBUTOS:</strong> Distribua seus pontos de atributo normalmente (Agilidade, Força, Sagacidade, Vontade, Vigor).</p>
+                        <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">2. RECURSOS VITAIS:</strong>
+                            <br>• <strong>Vitalidade (Vida ❤️):</strong> 4 + Vigor (ex: VIG 2 = 6 Corações).
+                            <br>• <strong>Lucidez (Sanidade 🧠):</strong> 10 + (2 × Vontade) (ex: VON 1 = 12 Cérebros).
+                            <br>• <strong>Fôlego (PF ⚡):</strong> Cálculo padrão do sistema (Raios).
+                        </p>
+                        <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">3. PERÍCIAS (CRIAÇÃO RÁPIDA):</strong>
+                            <br>• Você possui as 2 Perícias Treinadas da sua Origem.
+                            <br>• Reserva Inicial: <strong>+8 Pontos de Treinamento</strong>.
+                            <br>• Bônus de Atributo: Cada +1 de Sagacidade concede <strong>+2 Pontos</strong>.
+                            <br>• Custo: 1 Ponto = +1 Grau de Treinamento.
+                            <br>• Limite de Treinamento: Máximo de <strong>+2</strong> por perícia na criação.
+                        </p>
+                    </div>`;
+            }
+        } else {
+            if (tituloGuia) tituloGuia.innerText = "📖 GUIA DE CRIAÇÃO DE PERSONAGEM";
+            if (corpoGuia && corpoGuia.getAttribute('data-texto-original')) {
+                corpoGuia.innerHTML = corpoGuia.getAttribute('data-texto-original');
+            }
+        }
+    }
+};
     
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
