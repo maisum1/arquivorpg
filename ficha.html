@@ -408,11 +408,12 @@ div[id^="preview-"] {
       /* ==========================================
    TEMA ÚNICO ABSOLUTO - MODO SOBREVIVÊNCIA
    ========================================== */
-/* 1. FUNDO GERAL (MATA AS TEXTURAS DE PAPEL) */
+/* 1. FUNDO GERAL (MATA O TEMA ESCURO E AS TEXTURAS) */
 body.modo-sobrevivencia,
-body.modo-sobrevivencia.tema-escuro {
+body.modo-sobrevivencia.tema-escuro,
+body.modo-sobrevivencia.dark-mode {
     background-color: #121814 !important;
-    background-image: none !important; 
+    background-image: none !important; /* Remove a textura de papel (manchas) */
     color: #9fc19a !important;
     --bg-paper: #121814 !important;
     --card-bg: #1a231d !important;
@@ -423,44 +424,7 @@ body.modo-sobrevivencia.tema-escuro {
     --op-red: #c0392b !important;
 }
 
-body.modo-sobrevivencia::before,
-body.modo-sobrevivencia::after,
-body.modo-sobrevivencia.tema-escuro::before,
-body.modo-sobrevivencia.tema-escuro::after {
-    display: none !important;
-    background-image: none !important;
-}
-
-/* 2. FORÇA A COR EM TODOS OS TEXTOS E TÍTULOS DE PERÍCIA (BLINDAGEM DO MODO ESCURO) */
-body.modo-sobrevivencia span,
-body.modo-sobrevivencia strong,
-body.modo-sobrevivencia small,
-body.modo-sobrevivencia .player-tag,
-body.modo-sobrevivencia .card-data-registro,
-body.modo-sobrevivencia.tema-escuro span,
-body.modo-sobrevivencia.tema-escuro strong,
-body.modo-sobrevivencia.tema-escuro small,
-body.modo-sobrevivencia.tema-escuro .player-tag,
-body.modo-sobrevivencia.tema-escuro .card-data-registro {
-    color: #9fc19a !important;
-}
-
-body.modo-sobrevivencia h3,
-body.modo-sobrevivencia .section-header,
-body.modo-sobrevivencia.tema-escuro h3,
-body.modo-sobrevivencia.tema-escuro .section-header {
-    color: #5ca059 !important;
-    border-color: rgba(92, 160, 94, 0.4) !important;
-}
-
-body.modo-sobrevivencia .skill-group-title,
-body.modo-sobrevivencia.tema-escuro .skill-group-title {
-    background-color: rgba(0,0,0,0.3) !important;
-    color: #5ca059 !important;
-    border-color: rgba(92, 160, 94, 0.4) !important;
-}
-
-/* 3. CARDS, CAIXAS E BOTÕES */
+/* 2. CARDS E CAIXAS: COR SÓLIDA PARA NÃO MISTURAR COM O FUNDO */
 body.modo-sobrevivencia .base-card,
 body.modo-sobrevivencia .ritual-card,
 body.modo-sobrevivencia .modal-content,
@@ -471,53 +435,65 @@ body.modo-sobrevivencia .status-card,
 body.modo-sobrevivencia.tema-escuro .base-card,
 body.modo-sobrevivencia.tema-escuro .ritual-card,
 body.modo-sobrevivencia.tema-escuro .modal-content {
-    background-color: #1a231d !important; 
+    background-color: #1a231d !important; /* Cor 100% sólida */
     background-image: none !important;
+    color: #9fc19a !important;
     border-color: rgba(92, 160, 94, 0.4) !important;
     box-shadow: none !important;
 }
 
+/* 3. BLINDAGEM DAS ABAS E BOTÕES */
 body.modo-sobrevivencia .abas-container,
 body.modo-sobrevivencia .nav-tabs,
-body.modo-sobrevivencia.tema-escuro .abas-container {
+body.modo-sobrevivencia .tabs,
+body.modo-sobrevivencia.tema-escuro .abas-container,
+body.modo-sobrevivencia.tema-escuro .nav-tabs {
     border-bottom: 2px solid rgba(92, 160, 94, 0.4) !important;
     background: transparent !important;
+    background-image: none !important;
 }
 
 body.modo-sobrevivencia button.tab-btn,
 body.modo-sobrevivencia button.aba-btn,
-body.modo-sobrevivencia.tema-escuro button.tab-btn {
+body.modo-sobrevivencia .nav-tabs button,
+body.modo-sobrevivencia.tema-escuro button.tab-btn,
+body.modo-sobrevivencia.tema-escuro button.aba-btn,
+body.modo-sobrevivencia.tema-escuro .nav-tabs button {
     background-color: #121814 !important;
+    background-image: none !important;
     color: #9fc19a !important;
     border: 1px solid rgba(92, 160, 94, 0.4) !important;
     border-bottom: none !important;
+    margin-bottom: -2px !important;
 }
 
 body.modo-sobrevivencia button.tab-btn.active,
-body.modo-sobrevivencia.tema-escuro button.tab-btn.active {
+body.modo-sobrevivencia button.aba-btn.active,
+body.modo-sobrevivencia .nav-tabs button.active,
+body.modo-sobrevivencia.tema-escuro button.tab-btn.active,
+body.modo-sobrevivencia.tema-escuro button.aba-btn.active,
+body.modo-sobrevivencia.tema-escuro .nav-tabs button.active {
     background-color: #1a231d !important;
     color: #5ca059 !important;
     border-color: rgba(92, 160, 94, 0.8) !important;
     border-bottom-color: #1a231d !important;
+    font-weight: bold !important;
 }
 
+/* 4. INPUTS EM GERAL */
 body.modo-sobrevivencia input:not([type="checkbox"]):not([type="radio"]),
 body.modo-sobrevivencia select,
 body.modo-sobrevivencia textarea,
 body.modo-sobrevivencia.tema-escuro input,
-body.modo-sobrevivencia.tema-escuro select {
+body.modo-sobrevivencia.tema-escuro select,
+body.modo-sobrevivencia.tema-escuro textarea {
     background-color: rgba(0, 0, 0, 0.4) !important;
+    background-image: none !important;
     color: #9fc19a !important;
     border-color: rgba(92, 160, 94, 0.4) !important;
 }
 
-/* 4. MATA O " / " E AS BARRAS VELHAS */
-body.modo-sobrevivencia .oculto-no-sobrev,
-body.modo-sobrevivencia .progress-bar-status,
-body.modo-sobrevivencia .status-bar-wrapper {
-    display: none !important;
-}
-
+/* 5. ARRUMANDO A FORMATAÇÃO DOS STATUS DE VIDA/SAN/PE */
 body.modo-sobrevivencia .box-status .status-label,
 body.modo-sobrevivencia .status-card .status-label {
     font-size: 11px !important; 
@@ -540,6 +516,48 @@ body.modo-sobrevivencia .status-icones-container {
 body.modo-sobrevivencia .status-icon-item {
     font-size: 18px !important; 
     color: initial !important; 
+}
+
+body.modo-sobrevivencia #vida-atual, body.modo-sobrevivencia #vida-max,
+body.modo-sobrevivencia #san-atual, body.modo-sobrevivencia #san-max,
+body.modo-sobrevivencia #pe-atual, body.modo-sobrevivencia #pe-max,
+body.modo-sobrevivencia .progress-bar-status,
+body.modo-sobrevivencia .status-bar-wrapper {
+    display: none !important;
+}
+
+/* CONTAINER DOS ÍCONES DE STATUS DA SOBREVIVÊNCIA */
+.status-icones-container {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(92, 160, 94, 0.35);
+    border-radius: 3px;
+}
+
+.status-icon-item {
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, opacity 0.2s ease, filter 0.2s ease;
+}
+
+.status-icon-item:hover {
+    transform: scale(1.25);
+}
+
+.status-icon-item.ativo {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(92, 160, 94, 0.6));
+}
+
+.status-icon-item.apagado {
+    opacity: 0.22;
+    filter: grayscale(100%);
 }
     </style>
 
@@ -1910,23 +1928,34 @@ let filtroSubAtualAtaques = 'Todos';
 
         const modoSobrev = (typeof window.isModoSobrevivencia !== 'undefined' && window.isModoSobrevivencia);
 
-        // A SOLUÇÃO DEFINITIVA DO " / "
-        // Pega a DIV pai onde estão os inputs e o " / " e simplesmente oculta ela inteira
+        // NÚCLEO EXTERMINADOR DE " / " (MÁGICA DO JS)
         ['vida-atual', 'san-atual', 'pe-atual'].forEach(id => {
             const inputEl = document.getElementById(id);
             if (inputEl && inputEl.parentElement) {
                 const wrapper = inputEl.parentElement;
+                
+                // Esconde caixas embrulho (se existirem)
                 if (wrapper.tagName === 'DIV' && !wrapper.classList.contains('box-status') && !wrapper.classList.contains('status-card')) {
-                    if (modoSobrev) {
-                        wrapper.classList.add('oculto-no-sobrev');
-                    } else {
-                        wrapper.classList.remove('oculto-no-sobrev');
+                    if (wrapper.id !== 'container-coracoes-vida') {
+                        wrapper.style.display = modoSobrev ? 'none' : '';
                     }
                 }
+
+                // Varre cada pedacinho de texto solto dentro da caixa procurando o "/"
+                Array.from(wrapper.childNodes).forEach(node => {
+                    if (node.nodeType === 3 && node.nodeValue.includes('/')) {
+                        if (modoSobrev) {
+                            if (!node.originalText) node.originalText = node.nodeValue;
+                            node.nodeValue = ''; // Apaga o separador da tela!
+                        } else {
+                            if (node.originalText) node.nodeValue = node.originalText; // Traz de volta se desligar
+                        }
+                    }
+                });
             }
         });
 
-        // Esconde as barras normais de cores
+        // Controle de visibilidade das barras normais
         const barrasNormais = document.querySelectorAll('.bar-container, .status-bar-wrapper, .progress-bar-status');
         if (!modoSobrev) {
             if (contVida) contVida.style.display = 'none';
