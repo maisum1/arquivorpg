@@ -408,22 +408,26 @@ div[id^="preview-"] {
       /* ==========================================
    TEMA ÚNICO ABSOLUTO - MODO SOBREVIVÊNCIA
    ========================================== */
-/* 1. FUNDO GERAL (MATA O TEMA ESCURO E AS TEXTURAS) */
+/* 1. FUNDO GERAL E PALETA TENEBRA (MATA O TEMA ESCURO E AS TEXTURAS) */
 body.modo-sobrevivencia,
 body.modo-sobrevivencia.tema-escuro,
-body.modo-sobrevivencia.dark-mode {
-    background-color: #121814 !important;
-    background-image: none !important; /* Remove a textura de papel (manchas) */
-    color: #9fc19a !important;
-    --bg-paper: #121814 !important;
-    --card-bg: #1a231d !important;
-    --op-ink: #5ca059 !important;
-    --cor-geral: #9fc19a !important;
-    --card-border: rgba(92, 160, 94, 0.4) !important;
-    --san-purple: #467a49 !important;
-    --op-red: #c0392b !important;
+body.modo-sobrevivencia.tema-hexatombe {
+    background-color: #070014 !important; /* Fundo do void super escuro */
+    background-image: none !important;
+    color: #c8b0ff !important;
+    
+    --bg-paper: #070014 !important;
+    --bg-desk: #03000a !important;
+    
+    --card-bg: #15062e !important; /* Fundo dos cards roxo escuro */
+    --op-ink: #a55eea !important; /* Roxo neon vibrante para destaques */
+    --cor-geral: #b993ff !important; /* Roxo claro para textos secundários */
+    
+    --card-border: rgba(165, 94, 234, 0.35) !important;
+    --san-purple: #7a00ff !important;
+    --op-red: #ff0055 !important; /* Mantém um rosa/vermelho neon para vida/alertas */
+    --hp-red: #ff0055 !important;
 }
-
 /* 2. CARDS E CAIXAS: COR SÓLIDA PARA NÃO MISTURAR COM O FUNDO */
 body.modo-sobrevivencia .base-card,
 body.modo-sobrevivencia .ritual-card,
@@ -502,6 +506,11 @@ body.modo-sobrevivencia .status-card .status-label {
     margin-bottom: 4px !important;
 }
 
+        /* Esconde especificamente o <span> que contém a barra, mantendo os botões intocados */
+body.modo-sobrevivencia .bar-content div span:not(.bar-btn) {
+    display: none !important;
+}
+        
 body.modo-sobrevivencia .status-icones-container {
     display: flex !important;
     gap: 4px;
@@ -524,6 +533,26 @@ body.modo-sobrevivencia #pe-atual, body.modo-sobrevivencia #pe-max,
 body.modo-sobrevivencia .progress-bar-status,
 body.modo-sobrevivencia .status-bar-wrapper {
     display: none !important;
+}
+
+/* Limpar texturas e fundos do container principal no modo sobrevivência */
+body.modo-sobrevivencia .grid-container,
+body.modo-sobrevivencia.tema-escuro .grid-container,
+body.modo-sobrevivencia.tema-hexatombe .grid-container {
+    background-image: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Blindar os cabeçalhos de Perícias e Abas (APTIDÕES NATURAIS, etc) */
+body.modo-sobrevivencia .section-header,
+body.modo-sobrevivencia.tema-escuro .section-header,
+body.modo-sobrevivencia.tema-hexatombe .section-header {
+    background: var(--card-bg) !important;
+    color: var(--op-ink) !important;
+    border: 1px solid var(--card-border) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
 }
 
 /* CONTAINER DOS ÍCONES DE STATUS DA SOBREVIVÊNCIA */
