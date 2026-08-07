@@ -406,29 +406,35 @@ div[id^="preview-"] {
 }
 
         /* ==========================================
-   TEMA ÚNICO - MODO SOBREVIVÊNCIA
+   CSS AJUSTADO - MODO SOBREVIVÊNCIA
    ========================================== */
 body.modo-sobrevivencia {
-    --bg-paper: #121614 !important;
-    --card-bg: #1a201c !important;
-    --op-ink: #4e8752 !important;
-    --cor-geral: #8fb38d !important;
-    --card-border: rgba(78, 135, 82, 0.3) !important;
-    --san-purple: #3e6b4d !important;
+    --bg-paper: #121814 !important;
+    --card-bg: #1a231d !important;
+    --op-ink: #5ca05e !important;
+    --cor-geral: #9fc19a !important;
+    --card-border: rgba(92, 160, 94, 0.35) !important;
+    --san-purple: #467a49 !important;
     --op-red: #c0392b !important;
-    background-color: #121614 !important;
-    color: #8fb38d !important;
+    background-color: #121814 !important;
+    color: #9fc19a !important;
 }
 
+/* Transparência suave para não esconder a textura de papel do site */
 body.modo-sobrevivencia .base-card,
 body.modo-sobrevivencia .ritual-card,
-body.modo-sobrevivencia .modal-content,
-body.modo-sobrevivencia input,
+body.modo-sobrevivencia .modal-content {
+    background-color: rgba(26, 35, 29, 0.92) !important;
+    color: #9fc19a !important;
+    border-color: rgba(92, 160, 94, 0.35) !important;
+}
+
+body.modo-sobrevivencia input:not([type="checkbox"]):not([type="radio"]),
 body.modo-sobrevivencia select,
 body.modo-sobrevivencia textarea {
-    background-color: #1a201c !important;
-    color: #8fb38d !important;
-    border-color: rgba(78, 135, 82, 0.3) !important;
+    background-color: rgba(0, 0, 0, 0.25) !important;
+    color: #9fc19a !important;
+    border-color: rgba(92, 160, 94, 0.3) !important;
 }
 
 /* Indicador do Botão de Configuração */
@@ -443,44 +449,6 @@ body.modo-sobrevivencia textarea {
     border-color: var(--card-border) !important;
     color: var(--cor-geral) !important;
     opacity: 0.8;
-}
-
-/* Display de Corações e Lucidez Segmentada */
-.coracoes-container {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    margin-top: 5px;
-    align-items: center;
-}
-
-.coracao-icon {
-    font-size: 16px;
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.1s ease;
-}
-.coracao-icon:hover {
-    transform: scale(1.2);
-}
-
-.lucidez-barras-container {
-    display: flex;
-    gap: 3px;
-    flex-wrap: wrap;
-    margin-top: 5px;
-}
-
-.lucidez-bloco {
-    width: 14px;
-    height: 18px;
-    border: 1px solid #3e6b4d;
-    background: #3e6b4d;
-    cursor: pointer;
-    border-radius: 1px;
-}
-.lucidez-bloco.vazio {
-    background: transparent !important;
 }
     </style>
 
@@ -3362,16 +3330,20 @@ let filtroSubAtualAtaques = 'Todos';
         
         let totalDisponivel = 0;
         const elBanner = document.getElementById('banner-criacao-pericias');
+        const modoSobrev = (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia);
 
-        if (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia) {
-            // MODO SOBREVIVÊNCIA
+        if (modoSobrev) {
+            // MODO SOBREVIVÊNCIA (Criação Rápida)
             totalDisponivel = 8 + (2 * sag);
 
             if (elBanner) {
                 elBanner.innerHTML = `
-                    <div style="padding: 10px; border: 1px solid var(--card-border); background: rgba(39, 174, 96, 0.08); border-radius: 3px; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4; margin-bottom: 10px;">
-                        <strong style="color: var(--op-ink); text-transform: uppercase;">🌲 Criação Rápida (Modo Sobrevivência)</strong><br>
-                        <span style="color: var(--cor-geral);">Você possui <strong>${totalDisponivel}</strong> pontos de perícia (+8 base, +${2*sag} de Sagacidade). Limite máximo de <strong>+2</strong> por perícia.</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; border: 1px solid var(--card-border); background: rgba(39, 174, 96, 0.08); border-radius: 3px; margin-bottom: 10px;">
+                        <div style="flex: 1; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4;">
+                            <strong style="color: var(--op-ink); text-transform: uppercase;">🌲 Criação Rápida (Modo Sobrevivência)</strong><br>
+                            <span style="color: var(--cor-geral);">Você possui <strong>${totalDisponivel}</strong> pontos de perícia (+8 base, +${2*sag} de Sagacidade). Limite máximo de <strong>+2</strong> por perícia.</span>
+                        </div>
+                        <button type="button" class="cris-btn" onclick="toggleElem('modal-guia-criacao')" style="font-size: 10px; padding: 5px 8px; border-color: var(--op-ink); color: var(--op-ink); font-weight: bold; cursor: pointer;">[ 📖 GUIA DE CRIAÇÃO ]</button>
                     </div>`;
             }
         } else {
@@ -3380,14 +3352,17 @@ let filtroSubAtualAtaques = 'Todos';
 
             if (elBanner) {
                 elBanner.innerHTML = `
-                    <div style="padding: 10px; border: 1px dashed var(--card-border); background: rgba(0, 0, 0, 0.02); border-radius: 3px; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4; color: var(--cor-geral); margin-bottom: 10px;">
-                        <strong style="color: var(--op-ink);">Pontos de Treinamento (PT)</strong><br>
-                        <span>Custo incremental por grau de treinamento. Total inicial da criação: 10 + 3xSAG + 2xVON.</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; border: 1px dashed var(--card-border); background: rgba(0, 0, 0, 0.02); border-radius: 3px; margin-bottom: 10px;">
+                        <div style="flex: 1; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4; color: var(--cor-geral);">
+                            <strong style="color: var(--op-ink);">Pontos de Treinamento (PT)</strong><br>
+                            <span>Custo incremental por grau de treinamento. Total inicial da criação: 10 + 3xSAG + 2xVON.</span>
+                        </div>
+                        <button type="button" class="cris-btn" onclick="toggleElem('modal-guia-criacao')" style="font-size: 10px; padding: 5px 8px; border-color: var(--op-ink); color: var(--op-ink); font-weight: bold; cursor: pointer;">[ 📖 GUIA DE CRIAÇÃO ]</button>
                     </div>`;
             }
         }
 
-        // --- LÓGICA DE CÁLCULO DAS ORIGENS E PERÍCIAS ---
+        // --- SISTEMA DE DESCONTO DA ORIGEM E PERÍCIAS ---
         const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
         let periciaOrigem3 = null; 
         let periciaOrigem1 = null; 
@@ -3548,10 +3523,10 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     function aplicarModoSobrevivenciaVisuais(ativo) {
-        isModoSobrevivencia = !!ativo;
+        window.isModoSobrevivencia = !!ativo;
         const btn = document.getElementById('btn-modo-sobrevivencia');
         
-        if (ativo) {
+        if (window.isModoSobrevivencia) {
             document.body.classList.add('modo-sobrevivencia');
             if(btn) {
                 btn.classList.remove('desativado');
@@ -3566,6 +3541,10 @@ let filtroSubAtualAtaques = 'Todos';
                 btn.innerText = "[ 🌲 MODO SOBREVIVÊNCIA: DESLIGADO ]";
             }
         }
+
+        // Atualiza a tela na hora para trocar textos e barras
+        if (typeof recalcularBases === 'function') recalcularBases();
+        if (typeof calcularPontosPericias === 'function') calcularPontosPericias();
     }
 
     // ==========================================
