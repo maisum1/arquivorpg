@@ -454,6 +454,31 @@ body.modo-sobrevivencia.tema-escuro button {
     border-color: rgba(92, 160, 94, 0.4) !important;
 }
 
+/* ==========================================
+   OCULTAR TEXTOS ANTIGOS DE STATUS
+   ========================================== */
+body.modo-sobrevivencia .box-status, 
+body.modo-sobrevivencia .status-card {
+    font-size: 0 !important; /* Some com o caractere '/' flutuante */
+}
+
+body.modo-sobrevivencia .box-status .status-label,
+body.modo-sobrevivencia .status-card .status-label {
+    font-size: 11px !important; /* Restaura a fonte do título "Vitalidade" */
+}
+
+body.modo-sobrevivencia .status-icon-item {
+    font-size: 18px !important; /* Mantém os emojis grandes */
+}
+
+body.modo-sobrevivencia #vida-atual, body.modo-sobrevivencia #vida-max,
+body.modo-sobrevivencia #san-atual, body.modo-sobrevivencia #san-max,
+body.modo-sobrevivencia #pe-atual, body.modo-sobrevivencia #pe-max,
+body.modo-sobrevivencia .progress-bar-status,
+body.modo-sobrevivencia .status-bar-wrapper {
+    display: none !important; /* Oculta as caixinhas numéricas antigas e as barras de cor */
+}
+
 /* CONTAINER DOS ÍCONES DE STATUS DA SOBREVIVÊNCIA */
 .status-icones-container {
     display: flex;
@@ -3468,7 +3493,10 @@ let filtroSubAtualAtaques = 'Todos';
         let orcamentoOrigem1 = 1;
 
         elementosTreino.forEach(inp => {
-            const val = parseInt(inp.value || 0);
+            // BLINDAGEM CONTRA NaN: Força o número a ser 0 se a caixa estiver vazia
+            let val = parseInt(inp.value);
+            if (isNaN(val)) val = 0;
+            
             let custo = 0;
 
             if (modoSobrev) {
@@ -3484,6 +3512,7 @@ let filtroSubAtualAtaques = 'Todos';
             if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
                 custo = Math.max(0, custo - (modoSobrev ? 2 : 4)); 
             }
+            // ... O RESTO DO SEU CÓDIGO CONTINUA IGUAL ABAIXO DISSO ...
             else if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
                 custo = Math.max(0, custo - 1); 
             }
@@ -3636,43 +3665,44 @@ let filtroSubAtualAtaques = 'Todos';
         if (typeof calcularPontosPericias === 'function') calcularPontosPericias();
     };
 
-    function atualizarTextoGuiaCriacao() {
+    window.atualizarTextoGuiaCriacao = function() {
         const guiaModal = document.getElementById('modal-guia-criacao');
         if (!guiaModal) return;
 
-        const tituloGuia = guiaModal.querySelector('h3, .modal-header, .section-header');
-        const corpoGuia = guiaModal.querySelector('.guia-conteudo, .modal-body, div[style*="font-size"]');
+        const modalContent = guiaModal.querySelector('.modal-content') || guiaModal;
 
         if (window.isModoSobrevivencia) {
-            if (tituloGuia) tituloGuia.innerText = "🌲 GUIA DE CRIAÇÃO RÁPIDA (MODO SOBREVIVÊNCIA)";
-            if (corpoGuia) {
-                if (!corpoGuia.getAttribute('data-texto-original')) {
-                    corpoGuia.setAttribute('data-texto-original', corpoGuia.innerHTML);
-                }
-                corpoGuia.innerHTML = `
-                    <div style="font-family:'Courier Prime', monospace; font-size:12px; line-height:1.5; color:var(--cor-geral);">
-                        <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">1. ATRIBUTOS:</strong> Distribua seus pontos de atributo normalmente (Agilidade, Força, Sagacidade, Vontade, Vigor).</p>
-                        <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">2. RECURSOS VITAIS:</strong>
-                            <br>• <strong>Vitalidade (Vida ❤️):</strong> 4 + Vigor (ex: VIG 2 = 6 Corações).
-                            <br>• <strong>Lucidez (Sanidade 🧠):</strong> 10 + (2 × Vontade) (ex: VON 1 = 12 Cérebros).
-                            <br>• <strong>Fôlego (PF ⚡):</strong> Cálculo padrão do sistema (Raios).
-                        </p>
-                        <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">3. PERÍCIAS (CRIAÇÃO RÁPIDA):</strong>
-                            <br>• Você possui as 2 Perícias Treinadas da sua Origem.
-                            <br>• Reserva Inicial: <strong>+8 Pontos de Treinamento</strong>.
-                            <br>• Bônus de Atributo: Cada +1 de Sagacidade concede <strong>+2 Pontos</strong>.
-                            <br>• Custo: 1 Ponto = +1 Grau de Treinamento.
-                            <br>• Limite de Treinamento: Máximo de <strong>+2</strong> por perícia na criação.
-                        </p>
-                    </div>`;
+            // Salva o texto original do jogo normal antes de sobrescrever
+            if (!window.originalGuiaHtml) {
+                window.originalGuiaHtml = modalContent.innerHTML;
             }
+            
+            modalContent.innerHTML = `
+                <h3 style="color:var(--op-ink); text-transform:uppercase; margin-bottom:15px; border-bottom:1px solid var(--card-border); padding-bottom:5px;">🌲 GUIA DE CRIAÇÃO (SOBREVIVÊNCIA)</h3>
+                <div style="font-family:'Courier Prime', monospace; font-size:12px; line-height:1.5; color:var(--cor-geral); margin-bottom:15px;">
+                    <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">1. ATRIBUTOS:</strong> Distribua seus pontos de atributo normalmente (Agilidade, Força, Sagacidade, Vontade, Vigor).</p>
+                    <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">2. RECURSOS VITAIS:</strong>
+                        <br>• <strong>Vida (❤️):</strong> 4 + Vigor (ex: VIG 2 = 6 Corações).
+                        <br>• <strong>Lucidez (🧠):</strong> 10 + (2 × Vontade) (ex: VON 1 = 12 Cérebros).
+                        <br>• <strong>Fôlego (⚡):</strong> Cálculo padrão do sistema (Raios).
+                    </p>
+                    <p style="margin-bottom:10px;"><strong style="color:var(--op-ink);">3. PERÍCIAS (CRIAÇÃO RÁPIDA):</strong>
+                        <br>• Você possui as Perícias da sua Origem.
+                        <br>• Reserva Inicial: <strong>+8 Pontos de Treinamento</strong>.
+                        <br>• Bônus de Atributo: Cada +1 de Sagacidade concede <strong>+2 Pontos</strong>.
+                        <br>• Custo: 1 Ponto = +1 Grau de Treinamento.
+                        <br>• Limite de Treinamento: Máximo de <strong>+2</strong> por perícia na criação.
+                    </p>
+                </div>
+                <button class="cris-btn" onclick="toggleElem('modal-guia-criacao')" style="width:100%; border-color:var(--op-ink); color:var(--op-ink);">[ X ] FECHAR GUIA</button>
+            `;
         } else {
-            if (tituloGuia) tituloGuia.innerText = "📖 GUIA DE CRIAÇÃO DE PERSONAGEM";
-            if (corpoGuia && corpoGuia.getAttribute('data-texto-original')) {
-                corpoGuia.innerHTML = corpoGuia.getAttribute('data-texto-original');
+            // Restaura o texto gigante original se desligar o modo sobrevivência
+            if (window.originalGuiaHtml) {
+                modalContent.innerHTML = window.originalGuiaHtml;
             }
         }
-    }
+    };
     
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
