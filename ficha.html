@@ -405,45 +405,47 @@ div[id^="preview-"] {
     white-space: pre-wrap;
 }
 
-      /* ==========================================
-   TEMA ÚNICO ABSOLUTO - MODO SOBREVIVÊNCIA
-   ========================================== */
-/* 1. FUNDO GERAL E PALETA TENEBRA (MATA O TEMA ESCURO E AS TEXTURAS) */
-body.modo-sobrevivencia,
-body.modo-sobrevivencia.tema-escuro,
-body.modo-sobrevivencia.tema-hexatombe {
-    background-color: #14111a !important; /* Preto mais leve/cinza escuro */
+      /* --- CONFIGURAÇÃO GERAL DO MODO SOBREVIVÊNCIA --- */
+body.modo-sobrevivencia {
     background-image: none !important;
+    --op-red: #c0392b !important;
+    --hp-red: #c0392b !important;
+}
+
+/* --- TEMA 1: SOBREVIVÊNCIA CLÁSSICO (VERDE) --- */
+/* (Quando não está com a classe 'tema-escuro') */
+body.modo-sobrevivencia:not(.tema-escuro) {
+    background-color: #121814 !important;
+    color: #9fc19a !important;
+    --bg-paper: #121814 !important;
+    --bg-desk: #0a0e0b !important;
+    --card-bg: #1a231d !important;
+    --op-ink: #5ca059 !important;
+    --cor-geral: #9fc19a !important;
+    --card-border: rgba(92, 160, 94, 0.4) !important;
+    --san-purple: #467a49 !important;
+}
+
+/* --- TEMA 2: SOBREVIVÊNCIA TENEBRA (ROXO) --- */
+/* (Quando está com a classe 'tema-escuro') */
+body.modo-sobrevivencia.tema-escuro {
+    background-color: #14111a !important;
     color: #c8b0ff !important;
-    
-    --bg-paper: #14111a !important; /* Fundo principal da ficha */
-    --bg-desk: #0d0a12 !important; /* Fundo de trás das bordas laterais */
-    
-    --card-bg: #1c1233 !important; /* Clareei levemente os cards para não sumirem no fundo novo */
-    --op-ink: #a55eea !important; 
-    --cor-geral: #b993ff !important; 
-    
+    --bg-paper: #14111a !important;
+    --bg-desk: #0d0a12 !important;
+    --card-bg: #1c1233 !important;
+    --op-ink: #a55eea !important;
+    --cor-geral: #b993ff !important;
     --card-border: rgba(165, 94, 234, 0.35) !important;
     --san-purple: #7a00ff !important;
-    --op-red: #ff0055 !important;
-    --hp-red: #ff0055 !important;
 }
-/* 2. CARDS E CAIXAS: COR SÓLIDA PARA NÃO MISTURAR COM O FUNDO */
+
+/* --- AJUSTE PARA OS CARDS (COMPARTILHADO) --- */
 body.modo-sobrevivencia .base-card,
 body.modo-sobrevivencia .ritual-card,
-body.modo-sobrevivencia .modal-content,
-body.modo-sobrevivencia .item-card,
-body.modo-sobrevivencia .ataque-card,
-body.modo-sobrevivencia .box-status,
-body.modo-sobrevivencia .status-card,
-body.modo-sobrevivencia.tema-escuro .base-card,
-body.modo-sobrevivencia.tema-escuro .ritual-card,
-body.modo-sobrevivencia.tema-escuro .modal-content {
-    background-color: #1a231d !important; /* Cor 100% sólida */
-    background-image: none !important;
-    color: #9fc19a !important;
-    border-color: rgba(92, 160, 94, 0.4) !important;
-    box-shadow: none !important;
+body.modo-sobrevivencia .modal-content {
+    background-color: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
 }
 
 /* 3. BLINDAGEM DAS ABAS E BOTÕES */
@@ -1515,8 +1517,25 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 
     function copiarLinkOBS() { navigator.clipboard.writeText(`${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}`); alert("Link copiado!"); }
 
-    function alternarTema() { document.body.classList.toggle('tema-escuro'); localStorage.setItem('temaFichaAmeaca', document.body.classList.contains('tema-escuro') ? 'escuro' : 'claro'); }
-    window.addEventListener('DOMContentLoaded', () => { if (localStorage.getItem('temaFichaAmeaca') === 'escuro') document.body.classList.add('tema-escuro'); });
+   function alternarTema() { 
+        document.body.classList.toggle('tema-escuro'); 
+        const ehEscuro = document.body.classList.contains('tema-escuro');
+        localStorage.setItem('temaFichaAmeaca', ehEscuro ? 'escuro' : 'claro'); 
+
+        // Atualiza o texto do botão de sobrevivência se ele estiver ligado
+        const btnSobrev = document.getElementById('btn-modo-sobrevivencia');
+        if (btnSobrev && btnSobrev.classList.contains('ativo')) {
+            btnSobrev.innerText = ehEscuro 
+                ? "[ 🌲 MODO SOBREVIVÊNCIA: TENEBRA ]" 
+                : "[ 🌲 MODO SOBREVIVÊNCIA: CLÁSSICO ]";
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { 
+        if (localStorage.getItem('temaFichaAmeaca') === 'escuro') {
+            document.body.classList.add('tema-escuro');
+        } 
+    });
 
     let modalFiltros = { 'select-tpl-ataque': 'Todos', 'select-tpl-item': 'Todos' };
     let modalSubFiltros = { 'select-tpl-ataque': 'Todos' };
