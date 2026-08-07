@@ -405,91 +405,125 @@ div[id^="preview-"] {
     white-space: pre-wrap;
 }
 
-       /* ==========================================
+      /* ==========================================
    TEMA ÚNICO ABSOLUTO - MODO SOBREVIVÊNCIA
    ========================================== */
+/* 1. FUNDO GERAL (MATA O TEMA ESCURO E AS TEXTURAS) */
 body.modo-sobrevivencia,
 body.modo-sobrevivencia.tema-escuro,
 body.modo-sobrevivencia.dark-mode {
+    background-color: #121814 !important;
+    background-image: none !important; /* Remove a textura de papel (manchas) */
+    color: #9fc19a !important;
     --bg-paper: #121814 !important;
-    --card-bg: rgba(26, 35, 29, 0.95) !important;
+    --card-bg: #1a231d !important;
     --op-ink: #5ca059 !important;
     --cor-geral: #9fc19a !important;
-    --card-border: rgba(92, 160, 94, 0.35) !important;
+    --card-border: rgba(92, 160, 94, 0.4) !important;
     --san-purple: #467a49 !important;
     --op-red: #c0392b !important;
-    background-color: #121814 !important;
-    color: #9fc19a !important;
 }
 
+/* 2. CARDS E CAIXAS: COR SÓLIDA PARA NÃO MISTURAR COM O FUNDO */
 body.modo-sobrevivencia .base-card,
 body.modo-sobrevivencia .ritual-card,
 body.modo-sobrevivencia .modal-content,
 body.modo-sobrevivencia .item-card,
 body.modo-sobrevivencia .ataque-card,
+body.modo-sobrevivencia .box-status,
+body.modo-sobrevivencia .status-card,
 body.modo-sobrevivencia.tema-escuro .base-card,
 body.modo-sobrevivencia.tema-escuro .ritual-card,
 body.modo-sobrevivencia.tema-escuro .modal-content {
-    background-color: rgba(26, 35, 29, 0.95) !important;
+    background-color: #1a231d !important; /* Cor 100% sólida */
+    background-image: none !important;
     color: #9fc19a !important;
-    border-color: rgba(92, 160, 94, 0.35) !important;
+    border-color: rgba(92, 160, 94, 0.4) !important;
+    box-shadow: none !important;
 }
 
+/* 3. BLINDAGEM DAS ABAS E BOTÕES */
+body.modo-sobrevivencia .abas-container,
+body.modo-sobrevivencia .nav-tabs,
+body.modo-sobrevivencia .tabs,
+body.modo-sobrevivencia.tema-escuro .abas-container,
+body.modo-sobrevivencia.tema-escuro .nav-tabs {
+    border-bottom: 2px solid rgba(92, 160, 94, 0.4) !important;
+    background: transparent !important;
+    background-image: none !important;
+}
+
+body.modo-sobrevivencia button.tab-btn,
+body.modo-sobrevivencia button.aba-btn,
+body.modo-sobrevivencia .nav-tabs button,
+body.modo-sobrevivencia.tema-escuro button.tab-btn,
+body.modo-sobrevivencia.tema-escuro button.aba-btn,
+body.modo-sobrevivencia.tema-escuro .nav-tabs button {
+    background-color: #121814 !important;
+    background-image: none !important;
+    color: #9fc19a !important;
+    border: 1px solid rgba(92, 160, 94, 0.4) !important;
+    border-bottom: none !important;
+    margin-bottom: -2px !important;
+}
+
+body.modo-sobrevivencia button.tab-btn.active,
+body.modo-sobrevivencia button.aba-btn.active,
+body.modo-sobrevivencia .nav-tabs button.active,
+body.modo-sobrevivencia.tema-escuro button.tab-btn.active,
+body.modo-sobrevivencia.tema-escuro button.aba-btn.active,
+body.modo-sobrevivencia.tema-escuro .nav-tabs button.active {
+    background-color: #1a231d !important;
+    color: #5ca059 !important;
+    border-color: rgba(92, 160, 94, 0.8) !important;
+    border-bottom-color: #1a231d !important;
+    font-weight: bold !important;
+}
+
+/* 4. INPUTS EM GERAL */
 body.modo-sobrevivencia input:not([type="checkbox"]):not([type="radio"]),
 body.modo-sobrevivencia select,
 body.modo-sobrevivencia textarea,
-body.modo-sobrevivencia.tema-escuro input:not([type="checkbox"]):not([type="radio"]),
+body.modo-sobrevivencia.tema-escuro input,
 body.modo-sobrevivencia.tema-escuro select,
 body.modo-sobrevivencia.tema-escuro textarea {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    color: #9fc19a !important;
-    border-color: rgba(92, 160, 94, 0.35) !important;
-}
-
-body.modo-sobrevivencia button,
-body.modo-sobrevivencia .cris-btn,
-body.modo-sobrevivencia .btn-filtro,
-body.modo-sobrevivencia.tema-escuro button {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    background-image: none !important;
     color: #9fc19a !important;
     border-color: rgba(92, 160, 94, 0.4) !important;
 }
 
-/* ==========================================
-   OCULTAR TEXTOS ANTIGOS DE STATUS E SEPARADORES (CORRIGIDO)
-   ========================================== */
-/* Zera o tamanho e deixa qualquer texto solto (como o / ) transparente */
-body.modo-sobrevivencia .box-status, 
-body.modo-sobrevivencia .status-card {
-    font-size: 0 !important; 
-    color: transparent !important; 
-}
-
-/* Restaura a cor e o tamanho APENAS do título (ex: "Vitalidade") */
+/* 5. ARRUMANDO A FORMATAÇÃO DOS STATUS DE VIDA/SAN/PE */
 body.modo-sobrevivencia .box-status .status-label,
 body.modo-sobrevivencia .status-card .status-label {
     font-size: 11px !important; 
     color: var(--cor-geral) !important;
-    display: inline-block; /* Garante que não suma */
+    display: block !important;
+    margin-bottom: 4px !important;
 }
 
-/* Oculta sumariamente qualquer span que seja separador (caso o / esteja num span) */
-body.modo-sobrevivencia .box-status span:not(.status-label):not(.status-icon-item),
-body.modo-sobrevivencia .status-card span:not(.status-label):not(.status-icon-item) {
-    display: none !important;
+body.modo-sobrevivencia .status-icones-container {
+    display: flex !important;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(92, 160, 94, 0.35);
+    border-radius: 3px;
 }
 
-/* Mantém os emojis no tamanho correto */
 body.modo-sobrevivencia .status-icon-item {
     font-size: 18px !important; 
+    color: initial !important; 
 }
 
-/* Esconde os inputs e as barras coloridas antigas */
 body.modo-sobrevivencia #vida-atual, body.modo-sobrevivencia #vida-max,
 body.modo-sobrevivencia #san-atual, body.modo-sobrevivencia #san-max,
 body.modo-sobrevivencia #pe-atual, body.modo-sobrevivencia #pe-max,
 body.modo-sobrevivencia .progress-bar-status,
 body.modo-sobrevivencia .status-bar-wrapper {
-    display: none !important; 
+    display: none !important;
 }
 
 /* CONTAINER DOS ÍCONES DE STATUS DA SOBREVIVÊNCIA */
@@ -1894,12 +1928,44 @@ let filtroSubAtualAtaques = 'Todos';
 
         const modoSobrev = (typeof window.isModoSobrevivencia !== 'undefined' && window.isModoSobrevivencia);
 
+        // NÚCLEO EXTERMINADOR DE " / " (MÁGICA DO JS)
+        ['vida-atual', 'san-atual', 'pe-atual'].forEach(id => {
+            const inputEl = document.getElementById(id);
+            if (inputEl && inputEl.parentElement) {
+                const wrapper = inputEl.parentElement;
+                
+                // Esconde caixas embrulho (se existirem)
+                if (wrapper.tagName === 'DIV' && !wrapper.classList.contains('box-status') && !wrapper.classList.contains('status-card')) {
+                    if (wrapper.id !== 'container-coracoes-vida') {
+                        wrapper.style.display = modoSobrev ? 'none' : '';
+                    }
+                }
+
+                // Varre cada pedacinho de texto solto dentro da caixa procurando o "/"
+                Array.from(wrapper.childNodes).forEach(node => {
+                    if (node.nodeType === 3 && node.nodeValue.includes('/')) {
+                        if (modoSobrev) {
+                            if (!node.originalText) node.originalText = node.nodeValue;
+                            node.nodeValue = ''; // Apaga o separador da tela!
+                        } else {
+                            if (node.originalText) node.nodeValue = node.originalText; // Traz de volta se desligar
+                        }
+                    }
+                });
+            }
+        });
+
+        // Controle de visibilidade das barras normais
+        const barrasNormais = document.querySelectorAll('.bar-container, .status-bar-wrapper, .progress-bar-status');
         if (!modoSobrev) {
             if (contVida) contVida.style.display = 'none';
             if (contSan) contSan.style.display = 'none';
             if (contPe) contPe.style.display = 'none';
+            barrasNormais.forEach(b => b.style.display = '');
             return;
         }
+
+        barrasNormais.forEach(b => b.style.display = 'none');
 
         let vAtual = parseInt(document.getElementById('vida-atual')?.value) || 0;
         let sAtual = parseInt(document.getElementById('san-atual')?.value) || 0;
