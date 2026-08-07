@@ -1858,9 +1858,6 @@ let filtroSubAtualAtaques = 'Todos';
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             window.isCarregandoFicha = true; // <--- TRAVA O RASTREADOR
-
-            const d = doc.data();
-            aplicarModoSobrevivenciaVisuais(d.modoSobrevivencia);
             
             const d_raw = doc.data(); 
             if(!d_raw) { window.isCarregandoFicha = false; return; }
@@ -1969,7 +1966,7 @@ let filtroSubAtualAtaques = 'Todos';
 
             document.getElementById('bgDescricao').value = d_raw.bgDescricao || ""; document.getElementById('bgIdeologia').value = d_raw.bgIdeologia || ""; document.getElementById('bgPessoas').value = d_raw.bgPessoas || ""; document.getElementById('bgLocais').value = d_raw.bgLocais || ""; document.getElementById('bgPosses').value = d_raw.bgPosses || ""; document.getElementById('bgTracos').value = d_raw.bgTracos || ""; document.getElementById('bgCicatrizes').value = d_raw.bgCicatrizes || ""; document.getElementById('bgFobias').value = d_raw.bgFobias || ""; document.getElementById('bgEncontros').value = d_raw.bgEncontros || ""; document.getElementById('campanhaId-config').value = d_raw.campanhaId || "";
 
-            recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); 
+            recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); aplicarModoSobrevivenciaVisuais(doc.data().modoSobrevivencia);
             
             window.isCarregandoFicha = false; // <--- LIBERA O RASTREADOR
         
