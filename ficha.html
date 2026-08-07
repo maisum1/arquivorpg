@@ -3361,33 +3361,33 @@ let filtroSubAtualAtaques = 'Todos';
         const von = parseInt(vonNode?.value || 0);
         
         let totalDisponivel = 0;
+        const elBanner = document.getElementById('banner-criacao-pericias');
 
-        // VERIFICA SE O MODO SOBREVIVÊNCIA ESTÁ ATIVO
         if (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia) {
-            // MODO SOBREVIVÊNCIA: +8 iniciais + 2 por SAG
+            // MODO SOBREVIVÊNCIA
             totalDisponivel = 8 + (2 * sag);
 
-            // Atualiza o texto do Banner para avisar da Criação Rápida
-            const elBanner = document.getElementById('banner-criacao-pericias');
             if (elBanner) {
-                elBanner.innerText = `CRIAÇÃO RÁPIDA (SOBREVIVÊNCIA): VOCÊ POSSUI ${totalDisponivel} PONTOS DE PERÍCIA (+8 BASE, +${2*sag} DE SAG). LIMITE DE +2 POR PERÍCIA.`;
-                elBanner.style.color = "var(--op-red)"; 
-                elBanner.style.fontWeight = "bold";
+                elBanner.innerHTML = `
+                    <div style="padding: 10px; border: 1px solid var(--card-border); background: rgba(39, 174, 96, 0.08); border-radius: 3px; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4; margin-bottom: 10px;">
+                        <strong style="color: var(--op-ink); text-transform: uppercase;">🌲 Criação Rápida (Modo Sobrevivência)</strong><br>
+                        <span style="color: var(--cor-geral);">Você possui <strong>${totalDisponivel}</strong> pontos de perícia (+8 base, +${2*sag} de Sagacidade). Limite máximo de <strong>+2</strong> por perícia.</span>
+                    </div>`;
             }
         } else {
             // MODO NORMAL DE JOGO
             totalDisponivel = 10 + (3 * sag) + (2 * von); 
 
-            // Restaura o texto original do banner se for desativado
-            const elBanner = document.getElementById('banner-criacao-pericias');
             if (elBanner) {
-                elBanner.innerText = `PONTOS DE TREINAMENTO (PT): A CADA GRAU ADQUIRIDO (1), GASTA-SE OS PONTOS DA COLUNA \"CUSTO\" RESPECTIVA EM PARÊNTESES, TOTALIZANDO SEUS PONTOS INICIAIS DA ORIGEM E DO CÁLCULO 10 + 3xSAG + 2xVON. AS PENALIDADES DE ATRIBUTOS NEGATIVOS NÃO DIMINUEM PT's.`;
-                elBanner.style.color = ""; 
-                elBanner.style.fontWeight = "normal";
+                elBanner.innerHTML = `
+                    <div style="padding: 10px; border: 1px dashed var(--card-border); background: rgba(0, 0, 0, 0.02); border-radius: 3px; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4; color: var(--cor-geral); margin-bottom: 10px;">
+                        <strong style="color: var(--op-ink);">Pontos de Treinamento (PT)</strong><br>
+                        <span>Custo incremental por grau de treinamento. Total inicial da criação: 10 + 3xSAG + 2xVON.</span>
+                    </div>`;
             }
         }
 
-        // --- SISTEMA DE DESCONTO DA ORIGEM ---
+        // --- LÓGICA DE CÁLCULO DAS ORIGENS E PERÍCIAS ---
         const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
         let periciaOrigem3 = null; 
         let periciaOrigem1 = null; 
@@ -3404,42 +3404,33 @@ let filtroSubAtualAtaques = 'Todos';
             }
         }
 
-        // A MÁGICA ACONTECE AQUI:
-        // Se o campo estiver vazio ou o jogador digitar uma origem inventada,
-        // ele ganha 5 pontos livres no contador (equivalente a uma perícia +3 e uma +1)
         if (!origemEncontrada) {
             totalDisponivel += 5; 
         }
-        // -------------------------------------
 
         let totalGasto = 0;
         const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
-        
-        // Cria um "orçamento" invisível para perícias com subcategorias (como Balística)
-        let orcamentoOrigem3 = 4; // 4 pontos de custo equivalem a upar +3
-        let orcamentoOrigem1 = 1; // 1 ponto de custo equivale a upar +1
+        let orcamentoOrigem3 = 4;
+        let orcamentoOrigem1 = 1;
 
         elementosTreino.forEach(inp => {
             const val = parseInt(inp.value || 0);
             let custo = 0;
             
-            // Regra de Custo Base
             if (val === 1) custo = 1;
             else if (val === 2) custo = 3;
             else if (val > 2) custo = 3 + (val - 2); 
             
-            // 1. Aplica desconto se for perícia NORMAL (sem subcategorias)
             if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
                 custo = Math.max(0, custo - 4); 
             }
             else if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
                 custo = Math.max(0, custo - 1); 
             }
-            // 2. Aplica desconto diluído se for SUB-PERÍCIA (como Balística)
             else if (periciaOrigem3 && inp.id.startsWith('sub-treino-' + periciaOrigem3)) {
                 let desconto = Math.min(custo, orcamentoOrigem3);
-                custo -= desconto; // Abate do custo real
-                orcamentoOrigem3 -= desconto; // Consome o orçamento gratuito
+                custo -= desconto;
+                orcamentoOrigem3 -= desconto;
             }
             else if (periciaOrigem1 && inp.id.startsWith('sub-treino-' + periciaOrigem1)) {
                 let desconto = Math.min(custo, orcamentoOrigem1);
@@ -3465,9 +3456,8 @@ let filtroSubAtualAtaques = 'Todos';
                 txtRestantes.style.color = "inherit"; 
                 txtRestantes.style.fontWeight = "normal";
             }
-                }
-            };
-        })(); // <--- ESSE FECHAMENTO AQUI É VITAL!// <--- É SÓ ADICIONAR ESSA LINHA AQUI!
+        }
+    }; // <--- ESSE FECHAMENTO AQUI É VITAL!// <--- É SÓ ADICIONAR ESSA LINHA AQUI!
         // ==========================================
 
     // ==========================================
@@ -3576,6 +3566,58 @@ let filtroSubAtualAtaques = 'Todos';
             }
         }
     }
+
+    // ==========================================
+    // RENDERIZADOR DE STATUS DO MODO SOBREVIVÊNCIA
+    // ==========================================
+    function renderizarStatusEspeciaisSobrevivencia(vMax, sMax) {
+        const contVida = document.getElementById('container-coracoes-vida');
+        const contSan = document.getElementById('container-blocos-lucidez');
+
+        if (!contVida || !contSan) return;
+
+        if (typeof isModoSobrevivencia === 'undefined' || !isModoSobrevivencia) {
+            contVida.style.display = 'none';
+            contSan.style.display = 'none';
+            return;
+        }
+
+        contVida.style.display = 'flex';
+        contSan.style.display = 'flex';
+
+        let vAtual = parseInt(document.getElementById('vida-atual')?.value) || 0;
+        let sAtual = parseInt(document.getElementById('san-atual')?.value) || 0;
+
+        // Renderiza Corações de Vida (4 + VIG)
+        contVida.innerHTML = '';
+        for (let i = 1; i <= vMax; i++) {
+            const cheio = i <= vAtual;
+            contVida.innerHTML += `<span class="coracao-icon" onclick="alterarVidaDireto(${i})" style="font-size:18px; cursor:pointer; user-select:none; margin-right:2px;">${cheio ? '❤️' : '🖤'}</span>`;
+        }
+
+        // Renderiza Blocos de Lucidez (10 + 2xVON)
+        contSan.innerHTML = '';
+        for (let i = 1; i <= sMax; i++) {
+            const cheio = i <= sAtual;
+            contSan.innerHTML += `<div class="lucidez-bloco ${cheio ? '' : 'vazio'}" onclick="alterarSanidadeDireto(${i})" style="width:14px; height:18px; border:1px solid #3e6b4d; background:${cheio ? '#3e6b4d' : 'transparent'}; cursor:pointer; border-radius:1px; display:inline-block; margin-right:2px;"></div>`;
+        }
+    }
+
+    window.alterarVidaDireto = function(val) {
+        const input = document.getElementById('vida-atual');
+        if (input) {
+            input.value = val;
+            input.dispatchEvent(new Event('change'));
+        }
+    };
+
+    window.alterarSanidadeDireto = function(val) {
+        const input = document.getElementById('san-atual');
+        if (input) {
+            input.value = val;
+            input.dispatchEvent(new Event('change'));
+        }
+    };
     
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
