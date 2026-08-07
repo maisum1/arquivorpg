@@ -455,28 +455,41 @@ body.modo-sobrevivencia.tema-escuro button {
 }
 
 /* ==========================================
-   OCULTAR TEXTOS ANTIGOS DE STATUS
+   OCULTAR TEXTOS ANTIGOS DE STATUS E SEPARADORES (CORRIGIDO)
    ========================================== */
+/* Zera o tamanho e deixa qualquer texto solto (como o / ) transparente */
 body.modo-sobrevivencia .box-status, 
 body.modo-sobrevivencia .status-card {
-    font-size: 0 !important; /* Some com o caractere '/' flutuante */
+    font-size: 0 !important; 
+    color: transparent !important; 
 }
 
+/* Restaura a cor e o tamanho APENAS do título (ex: "Vitalidade") */
 body.modo-sobrevivencia .box-status .status-label,
 body.modo-sobrevivencia .status-card .status-label {
-    font-size: 11px !important; /* Restaura a fonte do título "Vitalidade" */
+    font-size: 11px !important; 
+    color: var(--cor-geral) !important;
+    display: inline-block; /* Garante que não suma */
 }
 
+/* Oculta sumariamente qualquer span que seja separador (caso o / esteja num span) */
+body.modo-sobrevivencia .box-status span:not(.status-label):not(.status-icon-item),
+body.modo-sobrevivencia .status-card span:not(.status-label):not(.status-icon-item) {
+    display: none !important;
+}
+
+/* Mantém os emojis no tamanho correto */
 body.modo-sobrevivencia .status-icon-item {
-    font-size: 18px !important; /* Mantém os emojis grandes */
+    font-size: 18px !important; 
 }
 
+/* Esconde os inputs e as barras coloridas antigas */
 body.modo-sobrevivencia #vida-atual, body.modo-sobrevivencia #vida-max,
 body.modo-sobrevivencia #san-atual, body.modo-sobrevivencia #san-max,
 body.modo-sobrevivencia #pe-atual, body.modo-sobrevivencia #pe-max,
 body.modo-sobrevivencia .progress-bar-status,
 body.modo-sobrevivencia .status-bar-wrapper {
-    display: none !important; /* Oculta as caixinhas numéricas antigas e as barras de cor */
+    display: none !important; 
 }
 
 /* CONTAINER DOS ÍCONES DE STATUS DA SOBREVIVÊNCIA */
