@@ -404,8 +404,87 @@ body.tema-escuro #btn-toggle-iniciativa {
 div[id^="preview-"] {
     white-space: pre-wrap;
 }
-        
+
+        /* ==========================================
+   TEMA ÚNICO - MODO SOBREVIVÊNCIA
+   ========================================== */
+body.modo-sobrevivencia {
+    --bg-paper: #121614 !important;
+    --card-bg: #1a201c !important;
+    --op-ink: #4e8752 !important;
+    --cor-geral: #8fb38d !important;
+    --card-border: rgba(78, 135, 82, 0.3) !important;
+    --san-purple: #3e6b4d !important;
+    --op-red: #c0392b !important;
+    background-color: #121614 !important;
+    color: #8fb38d !important;
+}
+
+body.modo-sobrevivencia .base-card,
+body.modo-sobrevivencia .ritual-card,
+body.modo-sobrevivencia .modal-content,
+body.modo-sobrevivencia input,
+body.modo-sobrevivencia select,
+body.modo-sobrevivencia textarea {
+    background-color: #1a201c !important;
+    color: #8fb38d !important;
+    border-color: rgba(78, 135, 82, 0.3) !important;
+}
+
+/* Indicador do Botão de Configuração */
+.btn-modo-sobrevivencia.ativo {
+    border-color: #27ae60 !important;
+    color: #27ae60 !important;
+    font-weight: bold !important;
+    box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);
+}
+
+.btn-modo-sobrevivencia.desativado {
+    border-color: var(--card-border) !important;
+    color: var(--cor-geral) !important;
+    opacity: 0.8;
+}
+
+/* Display de Corações e Lucidez Segmentada */
+.coracoes-container {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    align-items: center;
+}
+
+.coracao-icon {
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease;
+}
+.coracao-icon:hover {
+    transform: scale(1.2);
+}
+
+.lucidez-barras-container {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+
+.lucidez-bloco {
+    width: 14px;
+    height: 18px;
+    border: 1px solid #3e6b4d;
+    background: #3e6b4d;
+    cursor: pointer;
+    border-radius: 1px;
+}
+.lucidez-bloco.vazio {
+    background: transparent !important;
+}
     </style>
+
+    
 </head>
 <body>
 
@@ -469,6 +548,13 @@ div[id^="preview-"] {
             <button onclick="window.open('https://online.fliphtml5.com/zhbar/vhvf/', '_blank')" class="cris-btn" style="width: 100%;">[ 📖 ] LIVRO DIGITAL (FLIP5)</button>
             <button onclick="window.open('https://drive.google.com/file/d/1aMXmBlD0t5PXk6VpLbtt0sOJuE2j7KlD/view?usp=drive_link', '_blank')" class="cris-btn" style="border-style: dotted; color: var(--cor-geral); width: 100%;">[ 📄 ] ARQUIVO PDF (ONLINE)</button>
         </div>
+
+<div style="margin-bottom: 12px;">
+    <span class="rit-label" style="display:block; margin-bottom:4px; font-weight:bold;">REGIME DE JOGO</span>
+    <button id="btn-modo-sobrevivencia" class="cris-btn btn-modo-sobrevivencia desativado" style="width:100%; padding:8px; font-size:11px;" onclick="toggleModoSobrevivencia()">
+        [ 🌲 MODO SOBREVIVÊNCIA: DESLIGADO ]
+    </button>
+</div>
     
     <div style="border-top: 1px dotted var(--card-border); margin-top: 20px; padding-top: 20px;">
         <div style="text-align:left; font-size:9px; color:var(--san-purple); margin-bottom: 5px; font-family: 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-weight: bold;">Vincular à Campanha</div>
@@ -1669,29 +1755,112 @@ let filtroSubAtualAtaques = 'Todos';
     function alterarAtributoOuNivel() { recalcularBases(true); salvarFicha(); }
 
     function recalcularBases(fH = false) {
-        let vg = parseInt(document.getElementById('attr-vig').value) || 0; let vn = parseInt(document.getElementById('attr-von').value) || 0; let sg = parseInt(document.getElementById('attr-sag').value) || 0; const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; const ns = document.getElementById('nex-personagem').value || "0%"; let n = parseInt(ns) || 0; const cl = document.getElementById('classe-personagem').value; 
-        const ef = isExtremos || globalExtremos; if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
-        const nV = 12 + (2 * vg) + (2 * nv); const nS = 50 + (10 * vn + 10 * sg); let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); let nL = 1 + vg + vn + nv; let bonusDtArq = 0;
-        if (cl === "Esotérico") { nP += (2 * sg); nL += (2 * sg); } else if (cl === "Canalizador" && nv > 2) { nP += (nv - 2) * 3; } else if (cl === "Focalizador" && nv >= 2) { bonusDtArq = Math.floor(nv / 2) || 1; nL += 1; }
+        let vg = parseInt(document.getElementById('attr-vig').value) || 0; 
+        let vn = parseInt(document.getElementById('attr-von').value) || 0; 
+        let sg = parseInt(document.getElementById('attr-sag').value) || 0; 
+        const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; 
+        const ns = document.getElementById('nex-personagem').value || "0%"; 
+        let n = parseInt(ns) || 0; 
+        const cl = document.getElementById('classe-personagem').value; 
+        
+        const ef = isExtremos || globalExtremos; 
+        if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
+        
+        // CÁLCULOS CONDICIONAIS (MODO SOBREVIVÊNCIA VS NORMAL)
+        let nV = 0;
+        let nS = 0;
+        
+        if (isModoSobrevivencia) {
+            nV = 4 + vg;          // Vida Sobrevivência (Corações)
+            nS = 10 + (2 * vn);   // Lucidez Sobrevivência (Blocos)
+        } else {
+            nV = 12 + (2 * vg) + (2 * nv);     // Vida Normal
+            nS = 50 + (10 * vn + 10 * sg);     // Sanidade Normal
+        }
 
-        const iVM = document.getElementById('vida-max'); if (iVM) { let oldBaseV = parseInt(iVM.dataset.base) || nV; let currentV = !isNaN(parseInt(iVM.value)) ? parseInt(iVM.value) : oldBaseV; if (document.activeElement !== iVM) { iVM.value = nV + (currentV - oldBaseV); } iVM.dataset.base = nV; }
-        const iSM = document.getElementById('san-max'); if (iSM) { let oldBaseS = parseInt(iSM.dataset.base) || nS; let currentS = !isNaN(parseInt(iSM.value)) ? parseInt(iSM.value) : oldBaseS; if (document.activeElement !== iSM) { iSM.value = nS + (currentS - oldBaseS); } iSM.dataset.base = nS; }
-        const iPM = document.getElementById('pe-max'); if (iPM) { let oldBaseP = parseInt(iPM.dataset.base) || nP; let currentP = !isNaN(parseInt(iPM.value)) ? parseInt(iPM.value) : oldBaseP; if (document.activeElement !== iPM) { iPM.value = nP + (currentP - oldBaseP); } iPM.dataset.base = nP; const inptPeAtual = document.getElementById('pe-atual'); if (nP > oldBaseP && oldBaseP > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldBaseP); } } else if (oldBaseP === 0 && nP > 0) { if (inptPeAtual && document.activeElement !== inptPeAtual) { inptPeAtual.value = nP; } } }
-        if (fH) { document.getElementById('vida-atual').value = parseInt(iVM.value); document.getElementById('san-atual').value = parseInt(iSM.value); document.getElementById('pe-atual').value = parseInt(iPM.value); }
+        // Fôlego (PE) não muda no modo sobrevivência, segue a regra normal
+        let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); 
+        let nL = 1 + vg + vn + nv; 
+        let bonusDtArq = 0;
         
-        const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
-        const bL = parseInt(document.getElementById('bonus-limite-pe').value) || 0; document.getElementById('display-limite-pe').innerText = nL + bL; 
-        const bD = parseInt(document.getElementById('bonus-dt').value) || 0; document.getElementById('dt-val').innerText = 10 + sg + nv + bD + bonusDtArq; 
-        let nG = 0; if (n >= 5 && n <= 20) nG = 1; else if (n >= 25 && n <= 40) nG = 2; else if (n >= 45 && n <= 60) nG = 3; else if (n >= 65 && n <= 80) nG = 4; else if (n >= 85 && n <= 99) nG = 5; else if (n >= 100) nG = 6; 
-        if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = nG * 2; if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = nG * 2;
-        const dA = document.getElementById('grupo-arquetipo'); if (nv >= 2) dA.style.display = 'flex'; else { dA.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
+        if (cl === "Esotérico") { nP += (2 * sg); nL += (2 * sg); } 
+        else if (cl === "Canalizador" && nv > 2) { nP += (nv - 2) * 3; } 
+        else if (cl === "Focalizador" && nv >= 2) { bonusDtArq = Math.floor(nv / 2) || 1; nL += 1; }
+
+        const iVM = document.getElementById('vida-max'); 
+        if (iVM) { 
+            let oldBaseV = parseInt(iVM.dataset.base) || nV; 
+            let currentV = !isNaN(parseInt(iVM.value)) ? parseInt(iVM.value) : oldBaseV; 
+            if (document.activeElement !== iVM) { iVM.value = nV + (currentV - oldBaseV); } 
+            iVM.dataset.base = nV; 
+        }
         
-        recalcularDefesas(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe');
+        const iSM = document.getElementById('san-max'); 
+        if (iSM) { 
+            let oldBaseS = parseInt(iSM.dataset.base) || nS; 
+            let currentS = !isNaN(parseInt(iSM.value)) ? parseInt(iSM.value) : oldBaseS; 
+            if (document.activeElement !== iSM) { iSM.value = nS + (currentS - oldBaseS); } 
+            iSM.dataset.base = nS; 
+        }
+        
+        const iPM = document.getElementById('pe-max'); 
+        if (iPM) { 
+            let oldBaseP = parseInt(iPM.dataset.base) || nP; 
+            let currentP = !isNaN(parseInt(iPM.value)) ? parseInt(iPM.value) : oldBaseP; 
+            if (document.activeElement !== iPM) { iPM.value = nP + (currentP - oldBaseP); } 
+            iPM.dataset.base = nP; 
+            const inptPeAtual = document.getElementById('pe-atual'); 
+            if (nP > oldBaseP && oldBaseP > 0) { 
+                if (inptPeAtual && document.activeElement !== inptPeAtual) { 
+                    inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldBaseP); 
+                } 
+            } else if (oldBaseP === 0 && nP > 0) { 
+                if (inptPeAtual && document.activeElement !== inptPeAtual) { 
+                    inptPeAtual.value = nP; 
+                } 
+            } 
+        }
+        
+        if (fH) { 
+            document.getElementById('vida-atual').value = parseInt(iVM.value); 
+            document.getElementById('san-atual').value = parseInt(iSM.value); 
+            document.getElementById('pe-atual').value = parseInt(iPM.value); 
+        }
+        
+        const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); 
+        document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); 
+        document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
+        
+        const bL = parseInt(document.getElementById('bonus-limite-pe').value) || 0; 
+        document.getElementById('display-limite-pe').innerText = nL + bL; 
+        
+        const bD = parseInt(document.getElementById('bonus-dt').value) || 0; 
+        document.getElementById('dt-val').innerText = 10 + sg + nv + bD + bonusDtArq; 
+        
+        let nG = 0; 
+        if (n >= 5 && n <= 20) nG = 1; else if (n >= 25 && n <= 40) nG = 2; else if (n >= 45 && n <= 60) nG = 3; else if (n >= 65 && n <= 80) nG = 4; else if (n >= 85 && n <= 99) nG = 5; else if (n >= 100) nG = 6; 
+        if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = nG * 2; 
+        if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = nG * 2;
+        
+        const dA = document.getElementById('grupo-arquetipo'); 
+        if (nv >= 2) dA.style.display = 'flex'; 
+        else { dA.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
+        
+        recalcularDefesas(); 
+        atualizarStatusVisual('vida'); 
+        atualizarStatusVisual('san'); 
+        atualizarStatusVisual('pe');
+
+        // CHAMADA PARA DESENHAR OS CORAÇÕES SE MODO SOBREVIVÊNCIA ESTIVER ATIVO
+        renderizarStatusEspeciaisSobrevivencia(nV, nS);
     }
 
     function carregarFicha() {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             window.isCarregandoFicha = true; // <--- TRAVA O RASTREADOR
+
+            const d = doc.data();
+            aplicarModoSobrevivenciaVisuais(d.modoSobrevivencia);
             
             const d_raw = doc.data(); 
             if(!d_raw) { window.isCarregandoFicha = false; return; }
@@ -3185,97 +3354,122 @@ let filtroSubAtualAtaques = 'Todos';
                 }
             };
             
-            window.calcularPontosPericias = function() {
-                if (!window.isModoCriacaoAtivo) return;
+           window.calcularPontosPericias = function() {
+        if (!window.isModoCriacaoAtivo) return;
 
-                const sagNode = document.getElementById('attr-sag') || document.getElementById('attr-int');
-                const vonNode = document.getElementById('attr-von') || document.getElementById('attr-pre');
-                
-                const sag = parseInt(sagNode?.value || 0);
-                const von = parseInt(vonNode?.value || 0);
-                
-                // Mudei para 'let' para podermos adicionar os pontos da origem customizada
-                let totalDisponivel = 10 + (3 * sag) + (2 * von); 
+        const sagNode = document.getElementById('attr-sag') || document.getElementById('attr-int');
+        const vonNode = document.getElementById('attr-von') || document.getElementById('attr-pre');
+        
+        const sag = parseInt(sagNode?.value || 0);
+        const von = parseInt(vonNode?.value || 0);
+        
+        let totalDisponivel = 0;
 
-                // --- SISTEMA DE DESCONTO DA ORIGEM ---
-                const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
-                let periciaOrigem3 = null; // Perícia que a origem upa pra +3
-                let periciaOrigem1 = null; // Perícia que a origem upa pra +1
-                let origemEncontrada = false;
+        // VERIFICA SE O MODO SOBREVIVÊNCIA ESTÁ ATIVO
+        if (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia) {
+            // MODO SOBREVIVÊNCIA: +8 iniciais + 2 por SAG
+            totalDisponivel = 8 + (2 * sag);
 
-                if (typeof templatesOrigens !== 'undefined') {
-                    for (let key in templatesOrigens) {
-                        if (templatesOrigens[key].nome === nomeOrigem) {
-                            periciaOrigem3 = templatesOrigens[key].p1;
-                            periciaOrigem1 = templatesOrigens[key].p2;
-                            origemEncontrada = true;
-                            break;
-                        }
-                    }
+            // Atualiza o texto do Banner para avisar da Criação Rápida
+            const elBanner = document.getElementById('banner-criacao-pericias');
+            if (elBanner) {
+                elBanner.innerText = `CRIAÇÃO RÁPIDA (SOBREVIVÊNCIA): VOCÊ POSSUI ${totalDisponivel} PONTOS DE PERÍCIA (+8 BASE, +${2*sag} DE SAG). LIMITE DE +2 POR PERÍCIA.`;
+                elBanner.style.color = "var(--op-red)"; 
+                elBanner.style.fontWeight = "bold";
+            }
+        } else {
+            // MODO NORMAL DE JOGO
+            totalDisponivel = 10 + (3 * sag) + (2 * von); 
+
+            // Restaura o texto original do banner se for desativado
+            const elBanner = document.getElementById('banner-criacao-pericias');
+            if (elBanner) {
+                elBanner.innerText = `PONTOS DE TREINAMENTO (PT): A CADA GRAU ADQUIRIDO (1), GASTA-SE OS PONTOS DA COLUNA \"CUSTO\" RESPECTIVA EM PARÊNTESES, TOTALIZANDO SEUS PONTOS INICIAIS DA ORIGEM E DO CÁLCULO 10 + 3xSAG + 2xVON. AS PENALIDADES DE ATRIBUTOS NEGATIVOS NÃO DIMINUEM PT's.`;
+                elBanner.style.color = ""; 
+                elBanner.style.fontWeight = "normal";
+            }
+        }
+
+        // --- SISTEMA DE DESCONTO DA ORIGEM ---
+        const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
+        let periciaOrigem3 = null; 
+        let periciaOrigem1 = null; 
+        let origemEncontrada = false;
+
+        if (typeof templatesOrigens !== 'undefined') {
+            for (let key in templatesOrigens) {
+                if (templatesOrigens[key].nome === nomeOrigem) {
+                    periciaOrigem3 = templatesOrigens[key].p1;
+                    periciaOrigem1 = templatesOrigens[key].p2;
+                    origemEncontrada = true;
+                    break;
                 }
+            }
+        }
 
-                // A MÁGICA ACONTECE AQUI:
-                // Se o campo estiver vazio ou o jogador digitar uma origem inventada,
-                // ele ganha 5 pontos livres no contador (equivalente a uma perícia +3 e uma +1)
-                if (!origemEncontrada) {
-                    totalDisponivel += 5; 
-                }
-                // -------------------------------------
+        // A MÁGICA ACONTECE AQUI:
+        // Se o campo estiver vazio ou o jogador digitar uma origem inventada,
+        // ele ganha 5 pontos livres no contador (equivalente a uma perícia +3 e uma +1)
+        if (!origemEncontrada) {
+            totalDisponivel += 5; 
+        }
+        // -------------------------------------
 
-                let totalGasto = 0;
-                const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
-                
-                // Cria um "orçamento" invisível para perícias com subcategorias (como Balística)
-                let orcamentoOrigem3 = 4; // 4 pontos de custo equivalem a upar +3
-                let orcamentoOrigem1 = 1; // 1 ponto de custo equivale a upar +1
+        let totalGasto = 0;
+        const elementosTreino = document.querySelectorAll('select[id^="treino-"], select[id^="sub-treino-"], select[id^="base-treino-"]');
+        
+        // Cria um "orçamento" invisível para perícias com subcategorias (como Balística)
+        let orcamentoOrigem3 = 4; // 4 pontos de custo equivalem a upar +3
+        let orcamentoOrigem1 = 1; // 1 ponto de custo equivale a upar +1
 
-                elementosTreino.forEach(inp => {
-                    const val = parseInt(inp.value || 0);
-                    let custo = 0;
-                    
-                    if (val === 1) custo = 1;
-                    else if (val === 2) custo = 3;
-                    else if (val > 2) custo = 3 + (val - 2); 
-                    
-                    // 1. Aplica desconto se for perícia NORMAL (sem subcategorias)
-                    if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
-                        custo = Math.max(0, custo - 4); 
-                    }
-                    else if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
-                        custo = Math.max(0, custo - 1); 
-                    }
-                    // 2. Aplica desconto diluído se for SUB-PERÍCIA (como Balística)
-                    else if (periciaOrigem3 && inp.id.startsWith('sub-treino-' + periciaOrigem3)) {
-                        let desconto = Math.min(custo, orcamentoOrigem3);
-                        custo -= desconto; // Abate do custo real
-                        orcamentoOrigem3 -= desconto; // Consome o orçamento gratuito
-                    }
-                    else if (periciaOrigem1 && inp.id.startsWith('sub-treino-' + periciaOrigem1)) {
-                        let desconto = Math.min(custo, orcamentoOrigem1);
-                        custo -= desconto;
-                        orcamentoOrigem1 -= desconto;
-                    }
+        elementosTreino.forEach(inp => {
+            const val = parseInt(inp.value || 0);
+            let custo = 0;
+            
+            // Regra de Custo Base
+            if (val === 1) custo = 1;
+            else if (val === 2) custo = 3;
+            else if (val > 2) custo = 3 + (val - 2); 
+            
+            // 1. Aplica desconto se for perícia NORMAL (sem subcategorias)
+            if (periciaOrigem3 && inp.id === 'treino-' + periciaOrigem3) {
+                custo = Math.max(0, custo - 4); 
+            }
+            else if (periciaOrigem1 && inp.id === 'treino-' + periciaOrigem1) {
+                custo = Math.max(0, custo - 1); 
+            }
+            // 2. Aplica desconto diluído se for SUB-PERÍCIA (como Balística)
+            else if (periciaOrigem3 && inp.id.startsWith('sub-treino-' + periciaOrigem3)) {
+                let desconto = Math.min(custo, orcamentoOrigem3);
+                custo -= desconto; // Abate do custo real
+                orcamentoOrigem3 -= desconto; // Consome o orçamento gratuito
+            }
+            else if (periciaOrigem1 && inp.id.startsWith('sub-treino-' + periciaOrigem1)) {
+                let desconto = Math.min(custo, orcamentoOrigem1);
+                custo -= desconto;
+                orcamentoOrigem1 -= desconto;
+            }
 
-                    totalGasto += custo;
-                });
+            totalGasto += custo;
+        });
 
-                const txtRestantes = document.getElementById('pts-restantes');
-                const txtTotal = document.getElementById('pts-total');
-                
-                if (txtRestantes && txtTotal) {
-                    const restantes = totalDisponivel - totalGasto;
-                    txtRestantes.innerText = restantes;
-                    txtTotal.innerText = totalDisponivel;
-                    
-                    if (restantes < 0) {
-                        txtRestantes.style.color = "var(--op-red)";
-                        txtRestantes.style.fontWeight = "bold";
-                    } else {
-                        txtRestantes.style.color = "inherit"; 
-                    }
-                }
-            };
-        })(); // <--- É SÓ ADICIONAR ESSA LINHA AQUI!
+        const txtRestantes = document.getElementById('pts-restantes');
+        const txtTotal = document.getElementById('pts-total');
+        
+        if (txtRestantes && txtTotal) {
+            const restantes = totalDisponivel - totalGasto;
+            txtRestantes.innerText = restantes;
+            txtTotal.innerText = totalDisponivel;
+            
+            if (restantes < 0) {
+                txtRestantes.style.color = "var(--op-red)";
+                txtRestantes.style.fontWeight = "bold";
+            } else {
+                txtRestantes.style.color = "inherit"; 
+                txtRestantes.style.fontWeight = "normal";
+            }
+        }
+    };// <--- É SÓ ADICIONAR ESSA LINHA AQUI!
         // ==========================================
 
     // ==========================================
@@ -3344,6 +3538,46 @@ let filtroSubAtualAtaques = 'Todos';
         }
     };
   // ==========================================
+
+    let isModoSobrevivencia = false;
+
+    window.toggleModoSobrevivencia = async function() {
+        const novoEstado = !isModoSobrevivencia;
+        const msg = novoEstado 
+            ? "Deseja ATIVAR o Modo Sobrevivência (Criação Rápida)?\n\n- Vida: 4 + VIG (em Corações)\n- Lucidez: 10 + 2xVON (em Blocos)\n- Perícias: +8 Pontos Iniciais + 2 por SAG\n- Visual: Paleta de Sobrevivência Única"
+            : "Deseja DESATIVAR o Modo Sobrevivência e retornar ao regime padrão de jogo?";
+
+        if (!confirm(msg)) return;
+
+        try {
+            await db.collection("fichas").doc(atual).update({
+                modoSobrevivencia: novoEstado
+            });
+        } catch(e) {
+            alert("Erro ao alterar regime de jogo: " + e);
+        }
+    };
+
+    function aplicarModoSobrevivenciaVisuais(ativo) {
+        isModoSobrevivencia = !!ativo;
+        const btn = document.getElementById('btn-modo-sobrevivencia');
+        
+        if (ativo) {
+            document.body.classList.add('modo-sobrevivencia');
+            if(btn) {
+                btn.classList.remove('desativado');
+                btn.classList.add('ativo');
+                btn.innerText = "[ 🌲 MODO SOBREVIVÊNCIA: LIGADO ]";
+            }
+        } else {
+            document.body.classList.remove('modo-sobrevivencia');
+            if(btn) {
+                btn.classList.remove('ativo');
+                btn.classList.add('desativado');
+                btn.innerText = "[ 🌲 MODO SOBREVIVÊNCIA: DESLIGADO ]";
+            }
+        }
+    }
     
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
