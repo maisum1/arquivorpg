@@ -406,12 +406,14 @@ div[id^="preview-"] {
 }
 
         /* ==========================================
-   CSS AJUSTADO - MODO SOBREVIVÊNCIA
+   TEMA ÚNICO ABSOLUTO - MODO SOBREVIVÊNCIA
    ========================================== */
-body.modo-sobrevivencia {
+body.modo-sobrevivencia,
+body.modo-sobrevivencia.tema-escuro,
+body.modo-sobrevivencia.dark-mode {
     --bg-paper: #121814 !important;
-    --card-bg: #1a231d !important;
-    --op-ink: #5ca05e !important;
+    --card-bg: rgba(26, 35, 29, 0.95) !important;
+    --op-ink: #5ca059 !important;
     --cor-geral: #9fc19a !important;
     --card-border: rgba(92, 160, 94, 0.35) !important;
     --san-purple: #467a49 !important;
@@ -420,35 +422,70 @@ body.modo-sobrevivencia {
     color: #9fc19a !important;
 }
 
-/* Transparência suave para não esconder a textura de papel do site */
 body.modo-sobrevivencia .base-card,
 body.modo-sobrevivencia .ritual-card,
-body.modo-sobrevivencia .modal-content {
-    background-color: rgba(26, 35, 29, 0.92) !important;
+body.modo-sobrevivencia .modal-content,
+body.modo-sobrevivencia .item-card,
+body.modo-sobrevivencia .ataque-card,
+body.modo-sobrevivencia.tema-escuro .base-card,
+body.modo-sobrevivencia.tema-escuro .ritual-card,
+body.modo-sobrevivencia.tema-escuro .modal-content {
+    background-color: rgba(26, 35, 29, 0.95) !important;
     color: #9fc19a !important;
     border-color: rgba(92, 160, 94, 0.35) !important;
 }
 
 body.modo-sobrevivencia input:not([type="checkbox"]):not([type="radio"]),
 body.modo-sobrevivencia select,
-body.modo-sobrevivencia textarea {
-    background-color: rgba(0, 0, 0, 0.25) !important;
+body.modo-sobrevivencia textarea,
+body.modo-sobrevivencia.tema-escuro input:not([type="checkbox"]):not([type="radio"]),
+body.modo-sobrevivencia.tema-escuro select,
+body.modo-sobrevivencia.tema-escuro textarea {
+    background-color: rgba(0, 0, 0, 0.3) !important;
     color: #9fc19a !important;
-    border-color: rgba(92, 160, 94, 0.3) !important;
+    border-color: rgba(92, 160, 94, 0.35) !important;
 }
 
-/* Indicador do Botão de Configuração */
-.btn-modo-sobrevivencia.ativo {
-    border-color: #27ae60 !important;
-    color: #27ae60 !important;
-    font-weight: bold !important;
-    box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);
+body.modo-sobrevivencia button,
+body.modo-sobrevivencia .cris-btn,
+body.modo-sobrevivencia .btn-filtro,
+body.modo-sobrevivencia.tema-escuro button {
+    color: #9fc19a !important;
+    border-color: rgba(92, 160, 94, 0.4) !important;
 }
 
-.btn-modo-sobrevivencia.desativado {
-    border-color: var(--card-border) !important;
-    color: var(--cor-geral) !important;
-    opacity: 0.8;
+/* CONTAINER E ESTILO DOS ÍCONES DE STATUS (SOBREVIVÊNCIA) */
+.status-icones-container {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(92, 160, 94, 0.3);
+    border-radius: 3px;
+}
+
+.status-icon-item {
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, opacity 0.2s ease, filter 0.2s ease;
+}
+
+.status-icon-item:hover {
+    transform: scale(1.25);
+}
+
+.status-icon-item.ativo {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(92, 160, 94, 0.5));
+}
+
+.status-icon-item.apagado {
+    opacity: 0.25;
+    filter: grayscale(100%);
 }
     </style>
 
@@ -1723,30 +1760,30 @@ let filtroSubAtualAtaques = 'Todos';
     function alterarAtributoOuNivel() { recalcularBases(true); salvarFicha(); }
 
     function recalcularBases(fH = false) {
-        let vg = parseInt(document.getElementById('attr-vig').value) || 0; 
-        let vn = parseInt(document.getElementById('attr-von').value) || 0; 
-        let sg = parseInt(document.getElementById('attr-sag').value) || 0; 
-        const nv = parseInt(document.getElementById('nivel-personagem').value) || 0; 
-        const ns = document.getElementById('nex-personagem').value || "0%"; 
+        let vg = parseInt(document.getElementById('attr-vig')?.value) || 0; 
+        let vn = parseInt(document.getElementById('attr-von')?.value) || 0; 
+        let sg = parseInt(document.getElementById('attr-sag')?.value) || 0; 
+        const nv = parseInt(document.getElementById('nivel-personagem')?.value) || 0; 
+        const ns = document.getElementById('nex-personagem')?.value || "0%"; 
         let n = parseInt(ns) || 0; 
-        const cl = document.getElementById('classe-personagem').value; 
+        const cl = document.getElementById('classe-personagem')?.value || ""; 
         
-        const ef = isExtremos || globalExtremos; 
+        const ef = (typeof isExtremos !== 'undefined' && isExtremos) || (typeof globalExtremos !== 'undefined' && globalExtremos); 
         if (!ef) { if (n === 0) n = 5; if (n === 100) n = 99; }
         
-        // CÁLCULOS CONDICIONAIS (MODO SOBREVIVÊNCIA VS NORMAL)
         let nV = 0;
         let nS = 0;
         
-        if (isModoSobrevivencia) {
-            nV = 4 + vg;          // Vida Sobrevivência (Corações)
-            nS = 10 + (2 * vn);   // Lucidez Sobrevivência (Blocos)
+        if (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia) {
+            // MODO SOBREVIVÊNCIA
+            nV = 4 + vg;          // Vida: 4 + VIG
+            nS = 10 + (2 * vn);   // Lucidez: 10 + 2xVON
         } else {
-            nV = 12 + (2 * vg) + (2 * nv);     // Vida Normal
-            nS = 50 + (10 * vn + 10 * sg);     // Sanidade Normal
+            // MODO NORMAL DE JOGO
+            nV = 12 + (2 * vg) + (2 * nv); 
+            nS = 50 + (10 * vn + 10 * sg); 
         }
 
-        // Fôlego (PE) não muda no modo sobrevivência, segue a regra normal
         let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); 
         let nL = 1 + vg + vn + nv; 
         let bonusDtArq = 0;
@@ -1756,71 +1793,35 @@ let filtroSubAtualAtaques = 'Todos';
         else if (cl === "Focalizador" && nv >= 2) { bonusDtArq = Math.floor(nv / 2) || 1; nL += 1; }
 
         const iVM = document.getElementById('vida-max'); 
-        if (iVM) { 
-            let oldBaseV = parseInt(iVM.dataset.base) || nV; 
-            let currentV = !isNaN(parseInt(iVM.value)) ? parseInt(iVM.value) : oldBaseV; 
-            if (document.activeElement !== iVM) { iVM.value = nV + (currentV - oldBaseV); } 
-            iVM.dataset.base = nV; 
-        }
+        if (iVM) { iVM.value = nV; iVM.dataset.base = nV; }
         
         const iSM = document.getElementById('san-max'); 
-        if (iSM) { 
-            let oldBaseS = parseInt(iSM.dataset.base) || nS; 
-            let currentS = !isNaN(parseInt(iSM.value)) ? parseInt(iSM.value) : oldBaseS; 
-            if (document.activeElement !== iSM) { iSM.value = nS + (currentS - oldBaseS); } 
-            iSM.dataset.base = nS; 
-        }
+        if (iSM) { iSM.value = nS; iSM.dataset.base = nS; }
         
         const iPM = document.getElementById('pe-max'); 
-        if (iPM) { 
-            let oldBaseP = parseInt(iPM.dataset.base) || nP; 
-            let currentP = !isNaN(parseInt(iPM.value)) ? parseInt(iPM.value) : oldBaseP; 
-            if (document.activeElement !== iPM) { iPM.value = nP + (currentP - oldBaseP); } 
-            iPM.dataset.base = nP; 
-            const inptPeAtual = document.getElementById('pe-atual'); 
-            if (nP > oldBaseP && oldBaseP > 0) { 
-                if (inptPeAtual && document.activeElement !== inptPeAtual) { 
-                    inptPeAtual.value = (parseInt(inptPeAtual.value) || 0) + (nP - oldBaseP); 
-                } 
-            } else if (oldBaseP === 0 && nP > 0) { 
-                if (inptPeAtual && document.activeElement !== inptPeAtual) { 
-                    inptPeAtual.value = nP; 
-                } 
-            } 
-        }
-        
-        if (fH) { 
-            document.getElementById('vida-atual').value = parseInt(iVM.value); 
-            document.getElementById('san-atual').value = parseInt(iSM.value); 
-            document.getElementById('pe-atual').value = parseInt(iPM.value); 
-        }
-        
-        const lh = Math.floor(nV / 4); const ld = Math.floor(nV / 2); 
-        document.querySelectorAll('.val-quarter').forEach(e => e.innerText = lh); 
-        document.querySelectorAll('.val-half').forEach(e => e.innerText = `(${ld})`);
-        
-        const bL = parseInt(document.getElementById('bonus-limite-pe').value) || 0; 
-        document.getElementById('display-limite-pe').innerText = nL + bL; 
-        
-        const bD = parseInt(document.getElementById('bonus-dt').value) || 0; 
-        document.getElementById('dt-val').innerText = 10 + sg + nv + bD + bonusDtArq; 
-        
-        let nG = 0; 
-        if (n >= 5 && n <= 20) nG = 1; else if (n >= 25 && n <= 40) nG = 2; else if (n >= 45 && n <= 60) nG = 3; else if (n >= 65 && n <= 80) nG = 4; else if (n >= 85 && n <= 99) nG = 5; else if (n >= 100) nG = 6; 
-        if(document.getElementById('pressao-max-inv')) document.getElementById('pressao-max-inv').innerText = nG * 2; 
-        if(document.getElementById('pressao-max-combate')) document.getElementById('pressao-max-combate').innerText = nG * 2;
-        
-        const dA = document.getElementById('grupo-arquetipo'); 
-        if (nv >= 2) dA.style.display = 'flex'; 
-        else { dA.style.display = 'none'; document.getElementById('classe-personagem').value = ""; }
-        
-        recalcularDefesas(); 
-        atualizarStatusVisual('vida'); 
-        atualizarStatusVisual('san'); 
-        atualizarStatusVisual('pe');
+        if (iPM) { iPM.value = nP; iPM.dataset.base = nP; }
 
-        // CHAMADA PARA DESENHAR OS CORAÇÕES SE MODO SOBREVIVÊNCIA ESTIVER ATIVO
-        renderizarStatusEspeciaisSobrevivencia(nV, nS);
+        if (fH) { 
+            if (document.getElementById('vida-atual')) document.getElementById('vida-atual').value = nV; 
+            if (document.getElementById('san-atual')) document.getElementById('san-atual').value = nS; 
+            if (document.getElementById('pe-atual')) document.getElementById('pe-atual').value = nP; 
+        }
+
+        const bL = parseInt(document.getElementById('bonus-limite-pe')?.value) || 0; 
+        if (document.getElementById('display-limite-pe')) document.getElementById('display-limite-pe').innerText = nL + bL; 
+        
+        const bD = parseInt(document.getElementById('bonus-dt')?.value) || 0; 
+        if (document.getElementById('dt-val')) document.getElementById('dt-val').innerText = 10 + sg + nv + bD + bonusDtArq; 
+
+        if (typeof recalcularDefesas === 'function') recalcularDefesas(); 
+        if (typeof atualizarStatusVisual === 'function') {
+            atualizarStatusVisual('vida'); 
+            atualizarStatusVisual('san'); 
+            atualizarStatusVisual('pe');
+        }
+
+        // Renderiza as barras ou ícones
+        renderizarStatusEspeciaisSobrevivencia(nV, nS, nP);
     }
 
     function carregarFicha() {
@@ -3329,40 +3330,26 @@ let filtroSubAtualAtaques = 'Todos';
         const von = parseInt(vonNode?.value || 0);
         
         let totalDisponivel = 0;
-        const elBanner = document.getElementById('banner-criacao-pericias');
         const modoSobrev = (typeof isModoSobrevivencia !== 'undefined' && isModoSobrevivencia);
 
+        // Altera o rótulo do botão de criação sem apagar os outros botões da tela
+        const btnCriacao = document.getElementById('btn-toggle-criacao') || document.querySelector('#banner-criacao-pericias button');
+        
         if (modoSobrev) {
-            // MODO SOBREVIVÊNCIA (Criação Rápida)
+            // MODO SOBREVIVÊNCIA: +8 iniciais + 2xSAG
             totalDisponivel = 8 + (2 * sag);
-
-            if (elBanner) {
-                elBanner.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; border: 1px solid var(--card-border); background: rgba(39, 174, 96, 0.08); border-radius: 3px; margin-bottom: 10px;">
-                        <div style="flex: 1; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4;">
-                            <strong style="color: var(--op-ink); text-transform: uppercase;">🌲 Criação Rápida (Modo Sobrevivência)</strong><br>
-                            <span style="color: var(--cor-geral);">Você possui <strong>${totalDisponivel}</strong> pontos de perícia (+8 base, +${2*sag} de Sagacidade). Limite máximo de <strong>+2</strong> por perícia.</span>
-                        </div>
-                        <button type="button" class="cris-btn" onclick="toggleElem('modal-guia-criacao')" style="font-size: 10px; padding: 5px 8px; border-color: var(--op-ink); color: var(--op-ink); font-weight: bold; cursor: pointer;">[ 📖 GUIA DE CRIAÇÃO ]</button>
-                    </div>`;
+            if (btnCriacao && btnCriacao.innerText.includes('CRIAÇÃO')) {
+                btnCriacao.innerText = '[ 🛠️ CRIAÇÃO RÁPIDA ]';
             }
         } else {
-            // MODO NORMAL DE JOGO
+            // MODO NORMAL: 10 + 3xSAG + 2xVON
             totalDisponivel = 10 + (3 * sag) + (2 * von); 
-
-            if (elBanner) {
-                elBanner.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; border: 1px dashed var(--card-border); background: rgba(0, 0, 0, 0.02); border-radius: 3px; margin-bottom: 10px;">
-                        <div style="flex: 1; font-family: 'Courier Prime', monospace; font-size: 11px; line-height: 1.4; color: var(--cor-geral);">
-                            <strong style="color: var(--op-ink);">Pontos de Treinamento (PT)</strong><br>
-                            <span>Custo incremental por grau de treinamento. Total inicial da criação: 10 + 3xSAG + 2xVON.</span>
-                        </div>
-                        <button type="button" class="cris-btn" onclick="toggleElem('modal-guia-criacao')" style="font-size: 10px; padding: 5px 8px; border-color: var(--op-ink); color: var(--op-ink); font-weight: bold; cursor: pointer;">[ 📖 GUIA DE CRIAÇÃO ]</button>
-                    </div>`;
+            if (btnCriacao && btnCriacao.innerText.includes('CRIAÇÃO')) {
+                btnCriacao.innerText = '[ 🛠️ CRIAÇÃO ]';
             }
         }
 
-        // --- SISTEMA DE DESCONTO DA ORIGEM E PERÍCIAS ---
+        // --- CÁLCULO DE ORIGEM E CUSTOS ---
         const nomeOrigem = document.getElementById('origem-personagem')?.value || "";
         let periciaOrigem3 = null; 
         let periciaOrigem1 = null; 
@@ -3550,52 +3537,82 @@ let filtroSubAtualAtaques = 'Todos';
     // ==========================================
     // RENDERIZADOR DE STATUS DO MODO SOBREVIVÊNCIA
     // ==========================================
-    function renderizarStatusEspeciaisSobrevivencia(vMax, sMax) {
-        const contVida = document.getElementById('container-coracoes-vida');
-        const contSan = document.getElementById('container-blocos-lucidez');
+    function renderizarStatusEspeciaisSobrevivencia(vMax, sMax, pMax) {
+        // Busca os containers de ícones (ou cria caso não existam no HTML)
+        function obterContainer(idParent, idSelf) {
+            let el = document.getElementById(idSelf);
+            if (!el) {
+                const parent = document.getElementById(idParent) || document.querySelector('.' + idParent);
+                if (parent) {
+                    el = document.createElement('div');
+                    el.id = idSelf;
+                    el.className = 'status-icones-container';
+                    parent.appendChild(el);
+                }
+            }
+            return el;
+        }
 
-        if (!contVida || !contSan) return;
+        const contVida = obterContainer('box-vida', 'status-icones-vida');
+        const contSan = obterContainer('box-san', 'status-icones-san');
+        const contPe = obterContainer('box-pe', 'status-icones-pe');
+
+        // Esconde ou mostra as barras normais
+        const barrasNormais = document.querySelectorAll('.bar-container, .status-bar-wrapper, .progress-bar-status');
 
         if (typeof isModoSobrevivencia === 'undefined' || !isModoSobrevivencia) {
-            contVida.style.display = 'none';
-            contSan.style.display = 'none';
+            if (contVida) contVida.style.display = 'none';
+            if (contSan) contSan.style.display = 'none';
+            if (contPe) contPe.style.display = 'none';
+            barrasNormais.forEach(b => b.style.display = '');
             return;
         }
 
-        contVida.style.display = 'flex';
-        contSan.style.display = 'flex';
+        // MODO SOBREVIVÊNCIA ATIVO:
+        barrasNormais.forEach(b => b.style.display = 'none');
 
         let vAtual = parseInt(document.getElementById('vida-atual')?.value) || 0;
         let sAtual = parseInt(document.getElementById('san-atual')?.value) || 0;
+        let pAtual = parseInt(document.getElementById('pe-atual')?.value) || 0;
 
-        // Renderiza Corações de Vida (4 + VIG)
-        contVida.innerHTML = '';
-        for (let i = 1; i <= vMax; i++) {
-            const cheio = i <= vAtual;
-            contVida.innerHTML += `<span class="coracao-icon" onclick="alterarVidaDireto(${i})" style="font-size:18px; cursor:pointer; user-select:none; margin-right:2px;">${cheio ? '❤️' : '🖤'}</span>`;
+        // VIDA (❤️ Corações)
+        if (contVida) {
+            contVida.style.display = 'flex';
+            contVida.innerHTML = '';
+            for (let i = 1; i <= vMax; i++) {
+                const ativo = i <= vAtual;
+                contVida.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('vida-atual', ${i})" title="Vida ${i}/${vMax}">❤️</span>`;
+            }
         }
 
-        // Renderiza Blocos de Lucidez (10 + 2xVON)
-        contSan.innerHTML = '';
-        for (let i = 1; i <= sMax; i++) {
-            const cheio = i <= sAtual;
-            contSan.innerHTML += `<div class="lucidez-bloco ${cheio ? '' : 'vazio'}" onclick="alterarSanidadeDireto(${i})" style="width:14px; height:18px; border:1px solid #3e6b4d; background:${cheio ? '#3e6b4d' : 'transparent'}; cursor:pointer; border-radius:1px; display:inline-block; margin-right:2px;"></div>`;
+        // LUCIDEZ (🧠 Cérebrozinhos)
+        if (contSan) {
+            contSan.style.display = 'flex';
+            contSan.innerHTML = '';
+            for (let i = 1; i <= sMax; i++) {
+                const ativo = i <= sAtual;
+                contSan.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('san-atual', ${i})" title="Lucidez ${i}/${sMax}">🧠</span>`;
+            }
+        }
+
+        // FÔLEGO / PF (⚡ Raiozinhos)
+        if (contPe) {
+            contPe.style.display = 'flex';
+            contPe.innerHTML = '';
+            for (let i = 1; i <= pMax; i++) {
+                const ativo = i <= pAtual;
+                contPe.innerHTML += `<span class="status-icon-item ${ativo ? 'ativo' : 'apagado'}" onclick="alterarStatusSobrevivencia('pe-atual', ${i})" title="Fôlego ${i}/${pMax}">⚡</span>`;
+            }
         }
     }
 
-    window.alterarVidaDireto = function(val) {
-        const input = document.getElementById('vida-atual');
+    window.alterarStatusSobrevivencia = function(inputId, valor) {
+        const input = document.getElementById(inputId);
         if (input) {
-            input.value = val;
+            input.value = valor;
             input.dispatchEvent(new Event('change'));
-        }
-    };
-
-    window.alterarSanidadeDireto = function(val) {
-        const input = document.getElementById('san-atual');
-        if (input) {
-            input.value = val;
-            input.dispatchEvent(new Event('change'));
+            input.dispatchEvent(new Event('input'));
+            if (typeof recalcularBases === 'function') recalcularBases();
         }
     };
     
