@@ -909,47 +909,72 @@ body.tema-escuro .base-card .btn-open:hover {
         }
 
         function renderFichaMonitorCard(doc, context = 'monitor') {
-    const d = doc.data(); 
-    const px = d.pX ?? 50; 
-    const py = d.pY ?? 50; 
-    const pz = d.pZ ?? 1;
-    const isOwner = d.dono === auth.currentUser.uid;
-    
-    const isMestre = (typeof isSuperAdmin !== 'undefined' && isSuperAdmin) || 
-                     (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao) || 
-                     isOwner;
-    
-    // --- CÓDIGO NOVO (ENGRENAGEM MESTRE) ---
-    let nomePersona = (d.nome || 'Persona').replace(/'/g, "\\'");
-    let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${context}')" title="Configurações">⚙️</button>`;
-    // ---------------------------------------
-    // (A chave "}" extra que estava aqui foi removida)
+        const d = doc.data(); 
+        const px = d.pX ?? 50; 
+        const py = d.pY ?? 50; 
+        const pz = d.pZ ?? 1;
+        const isOwner = d.dono === auth.currentUser.uid;
+        
+        let nomePersona = (d.nome || 'Persona').replace(/'/g, "\\'");
+        
+        // Engrenagem (com stopPropagation para não acionar o clique de expansão da ficha sem querer)
+        let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${context}')" title="Configurações">⚙️</button>`;
 
-    let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz}); width: 100%; height: 100%; object-fit: cover; display: block;">` : '';
+        let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz}); width: 100%; height: 100%; object-fit: cover; display: block;">` : '';
 
-    // --- RE-CRIANDO AS VARIÁVEIS FALTANTES ---
-    let expInfo = d.nex ? `<span class="exp-tag">EXP ${d.nex}</span>` : '';
-    let playerInfo = `<span class="player-tag">${d.classe || d.origem || 'Jogador'}</span>`;
-    let statsInfo = `<span class="stats-tag">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0} | LUC: ${d.sanAtual || 0}/${d.sanMax || 0}</span>`;
-    let campanhaInfo = d.campanhaNome ? `<span class="camp-tag">${d.campanhaNome}</span>` : '';
-    // -----------------------------------------
+        // ==========================================
+        // 1. DADOS SEMPRE VISÍVEIS (Padrão)
+        // ==========================================
+        
+        let expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
+        if (!globalRevelado && context !== 'monitor' && context !== 'raiox' && context !== 'campanha') {
+            expInfo = ''; 
+        }
 
-    return `
-        <div class="ficha-card base-card">
-            <div class="card-actions">${botoesAcao}</div>
-            <div class="card-content">
-                <div class="portrait-mini">${img}</div>
-                <div class="card-info">
-                    <strong>${d.nome || 'PERSONA'}</strong>
-                    ${expInfo}
-                    ${playerInfo}
-                    ${statsInfo}
-                    ${campanhaInfo}
+        let nomeJogadorInfo = `<span class="player-name-tag" style="font-family: 'Inter', sans-serif; font-size: 9px; font-weight: bold; color: var(--cor-geral); text-transform: uppercase; display: block; margin-bottom: 2px;">JOGADOR: ${d.nomeJogador || 'DESCONHECIDO'}</span>`;
+
+        let campanhaInfo = '';
+        if (d.campanhaId) {
+            let nomeVisual = d.campanhaId;
+            if (context === 'monitor' || context === 'raiox') {
+                nomeVisual = d.campanhaNome || d.campanhaId;
+            } else {
+                nomeVisual = d.campanhaOculta ? "[ CONFIDENCIAL ]" : (d.campanhaNome || d.campanhaId);
+            }
+            campanhaInfo = `<span class="camp-tag" style="margin-top: 4px;">${nomeVisual}</span>`;
+        }
+
+        // ==========================================
+        // 2. DADOS OCULTOS (Só aparecem ao clicar)
+        // ==========================================
+        
+        let origemInfo = `<span class="player-tag" style="margin-top: 4px;">${d.classe || d.origem || 'Indefinido'}</span>`;
+        let statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC: ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
+
+        // ==========================================
+        // RETORNO DO CARD COM MOTOR DE CLIQUE
+        // ==========================================
+        return `
+            <div class="ficha-card base-card" style="cursor: pointer;" onclick="const sec = this.querySelector('.info-secundaria'); sec.style.display = sec.style.display === 'none' ? 'block' : 'none';">
+                <div class="card-actions">${botoesAcao}</div>
+                <div class="card-content">
+                    <div class="portrait-mini">${img}</div>
+                    <div class="card-info">
+                        <strong>${d.nome || 'PERSONA'}</strong>
+                        ${expInfo}
+                        ${nomeJogadorInfo}
+                        ${campanhaInfo}
+                        
+                        <!-- ESTA CAIXA FICA INVISÍVEL ATÉ CLICAR NO CARD -->
+                        <div class="info-secundaria" style="display: none; margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--card-border);">
+                            ${origemInfo}
+                            ${statsInfo}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <a href="ficha.html?id=${doc.id}" class="btn-open">VER</a>
-        </div>`;
-}
+                <a href="ficha.html?id=${doc.id}" class="btn-open" onclick="event.stopPropagation()">VER</a>
+            </div>`;
+    }
 
         function formatarDataRegistro(createdAt) {
             if (!createdAt) return "—";
