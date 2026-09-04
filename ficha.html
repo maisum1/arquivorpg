@@ -1255,6 +1255,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
                 <button class="btn-filtro" id="btn-filtro-anomalo" style="display:none; color: var(--hp-red); border-color: var(--hp-red);" onclick="setFiltroInventario('Anômalo', this)">ANÔMALOS</button>
             </div>
             <div id="lista-inventario"></div>
+            <div id="lista-inventario-armas" style="margin-top: 10px;"></div>
         </div>
 
         <div id="aba-background" class="tab-content">
@@ -2715,6 +2716,7 @@ let filtroSubAtualAtaques = 'Todos';
         if(unsubAtq) unsubAtq(); const p = (isHexatombe || globalHexatombe) ? "hexa_ataques" : "ataques"; 
         unsubAtq = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const l = document.getElementById('lista-ataques'); l.innerHTML = ""; let pA = 0; 
+            const invArmas = document.getElementById('lista-inventario-armas'); if(invArmas) invArmas.innerHTML = "";
             const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
 
             snap.forEach(doc => { 
@@ -2722,7 +2724,7 @@ let filtroSubAtualAtaques = 'Todos';
                 let cat = a.categoria || getAtaqueCat(a);
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
-                // Passamos o data-pericia para o HTML para o filtro conseguir ler depois
+                // CARD PRINCIPAL NA ABA COMBATE
                 l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-alcance="${a.alcance || ''}" data-pericia="${a.pericia || ''}" style="border-left-color: var(--op-ink);">
                     <div class="card-header" onclick="toggleElem('atq-${id}')">
                         <span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span>
@@ -2736,14 +2738,14 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="rit-grid-2" style="margin-bottom:10px;">
                             <div class="rit-field"><span class="rit-label">Tipo de Dano</span><input type="text" class="rit-input" value="${a.tipo || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'tipo', this.value)"></div>
                              <div class="rit-field">
-    <span class="rit-label">Alcance Operacional</span>
-    <input type="text" list="lista-alcances-combate" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="
-        const val = this.value;
-        const cat = val.toLowerCase().includes('corpo a corpo') ? 'Corpo a Corpo' : 'À Distância';
-        updateSub('${id}', 'ataques', 'alcance', val);
-        updateSub('${id}', 'ataques', 'categoria', cat);
-    ">
-</div>
+                                <span class="rit-label">Alcance Operacional</span>
+                                <input type="text" list="lista-alcances-combate" class="rit-input" value="${a.alcance || ''}" onclick="event.stopPropagation()" onchange="
+                                    const val = this.value;
+                                    const cat = val.toLowerCase().includes('corpo a corpo') ? 'Corpo a Corpo' : 'À Distância';
+                                    updateSub('${id}', 'ataques', 'alcance', val);
+                                    updateSub('${id}', 'ataques', 'categoria', cat);
+                                ">
+                            </div>
                         </div>
                         <div class="rit-grid-2" style="margin-bottom:10px;">
                             <div class="rit-field"><span class="rit-label">Perícia de Combate</span><input type="text" list="lista-pericias-combate" class="rit-input" value="${a.pericia || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pericia', this.value)"></div>
@@ -2763,8 +2765,33 @@ let filtroSubAtualAtaques = 'Todos';
                         </div>
                     </div>
                 </div>`; 
+
+                // CLONE FANTASMA NA ABA INVENTÁRIO
+                if(invArmas) {
+                    const iO_inv = menusAbertos.has('inv-atq-' + id);
+                    const catInv = (cat === 'Anômalo') ? 'Anômalo' : 'Arma';
+                    invArmas.innerHTML += `
+                    <div class="ritual-card item-card" data-categoria="${catInv}" style="border-left-color: var(--op-ink); opacity: 0.55; filter: grayscale(50%);">
+                        <div class="card-header" onclick="toggleElem('inv-atq-${id}')">
+                            <span style="color:var(--op-ink); font-weight:900">⚔️ ${a.nome || 'Arma'}</span>
+                            <span style="font-size:10px; opacity:0.8; font-family:'Inter', sans-serif;">Arma de Combate | Pressão: ${a.pressao || 0}</span>
+                        </div>
+                        <div class="card-body" id="inv-atq-${id}" style="display:${iO_inv ? 'block' : 'none'}">
+                            <div style="font-size: 11px; color: var(--op-ink); font-family: 'Courier Prime', monospace; margin-bottom: 10px; text-align: center; background: rgba(0,0,0,0.05); padding: 10px; border: 1px dashed var(--card-border);">
+                                <strong style="display:block; margin-bottom: 4px;">ARMAMENTO EQUIPADO</strong>
+                                Esta arma está atrelada às suas táticas. Para editar seu dano, atributos e bônus, acesse a aba <strong>COMBATE</strong>.
+                            </div>
+                            <div style="text-align:right; margin-top:10px;">
+                                <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red); width: 100%;" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }
             }); 
-            window.valPressaoAtaques = pA; syncPressaoVisuais(); aplicarFiltrosAtaques(); 
+            window.valPressaoAtaques = pA; 
+            syncPressaoVisuais(); 
+            aplicarFiltrosAtaques(); 
+            aplicarFiltrosInventario(); 
         }); 
     }
     
