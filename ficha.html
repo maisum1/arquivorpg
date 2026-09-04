@@ -910,6 +910,20 @@ body.modo-sobrevivencia .status-icon-item.ativo {
     </div>
 </div>
 
+    <div id="modal-transferir-item" class="modal-padrao">
+    <h3 class="section-header" style="margin:0 0 15px 0; display: block; background: var(--san-purple) !important; border-color: var(--san-purple) !important;">TRANSFERÊNCIA LOGÍSTICA</h3>
+    <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Selecione o agente de destino na sua equipe para enviar este objeto.</p>
+    
+    <select id="select-alvo-transferencia" class="lista-padronizada" size="5" style="margin-bottom: 15px; border-color: var(--san-purple);">
+        <option value="">Localizando agentes na campanha...</option>
+    </select>
+    
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="cris-btn" id="btn-confirmar-transferencia" style="border-color: var(--san-purple); color: var(--san-purple);" onclick="confirmarTransferenciaItem()">CONFIRMAR ENVIO</button>
+        <button class="cris-btn" style="border-style: dotted; color:var(--cor-geral)" onclick="toggleElem('modal-transferir-item')">CANCELAR</button>
+    </div>
+</div>
+    
 <div class="grid-container" id="grid-container">
     <section style="min-width: 0; overflow: hidden; position: relative; z-index: 2;">
         <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -2781,8 +2795,9 @@ let filtroSubAtualAtaques = 'Todos';
                                 <strong style="display:block; margin-bottom: 4px;">ARMAMENTO EQUIPADO</strong>
                                 Esta arma está atrelada às suas táticas. Para editar seu dano, atributos e bônus, acesse a aba <strong>COMBATE</strong>.
                             </div>
-                            <div style="text-align:right; margin-top:10px;">
-                                <button class="cris-btn" style="border-color:var(--op-red) !important; color:var(--op-red) !important; width: 100%; font-weight: 900;" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button class="cris-btn" style="flex: 1; border-color:var(--san-purple) !important; color:var(--san-purple) !important; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferencia('${id}', 'ataques')">[ 📤 ] TRANSFERIR</button>
+                                <button class="cris-btn" style="flex: 1; border-color:var(--op-red) !important; color:var(--op-red) !important; font-weight: 900;" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">[ 🗑️ ] DESCARTAR</button>
                             </div>
                         </div>
                     </div>`;
@@ -2835,8 +2850,9 @@ let filtroSubAtualAtaques = 'Todos';
             <span class="rit-label">Anotações</span>
             <textarea class="cris-textarea" placeholder="Detalhes adicionais, regras ou características do item..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea>
         </div>
-        <div style="text-align:right; margin-top:10px;">
+        <div style="text-align:right; margin-top:10px; display: flex; justify-content: flex-end; gap: 10px;">
             ${btnAdminCopy}
+            <button class="cris-btn" style="border-color:var(--san-purple) !important; color:var(--san-purple) !important; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferencia('${id}', 'inventario')">[ 📤 ] TRANSFERIR</button>
             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button>
         </div>
     </div>
@@ -3970,6 +3986,99 @@ let filtroSubAtualAtaques = 'Todos';
             if (window.originalGuiaHtml) {
                 modalContent.innerHTML = window.originalGuiaHtml;
             }
+        }
+    };
+
+
+    // ==========================================
+    // SISTEMA DE TRANSFERÊNCIA DE ITENS ENTRE PLAYERS
+    // ==========================================
+    let itemParaTransferir = null;
+
+    window.abrirModalTransferencia = async function(idItem, colecao) {
+        try {
+            // Verifica se a ficha está vinculada a uma campanha
+            const d_raw = await db.collection("fichas").doc(atual).get();
+            if (!d_raw.exists) return;
+            const campId = d_raw.data().campanhaId;
+
+            if (!campId) {
+                alert("ERRO DE LOGÍSTICA: Sua ficha precisa estar vinculada a uma Campanha ativa para transferir itens para outras pessoas.");
+                return;
+            }
+
+            // Captura o item original do banco
+            const pathOrigem = (isHexatombe || globalHexatombe) ? "hexa_" + colecao : colecao;
+            const itemDoc = await db.collection("fichas").doc(atual).collection(pathOrigem).doc(idItem).get();
+            
+            if (!itemDoc.exists) {
+                alert("O item selecionado não foi encontrado no banco de dados.");
+                return;
+            }
+
+            // Armazena o objeto na memória
+            itemParaTransferir = { id: idItem, colecao: colecao, dados: itemDoc.data() };
+
+            // Busca os outros jogadores da mesma campanha
+            const snap = await db.collection("fichas").where("campanhaId", "==", campId).get();
+            const select = document.getElementById('select-alvo-transferencia');
+            select.innerHTML = '';
+            
+            let temAlvo = false;
+            snap.forEach(doc => {
+                if (doc.id !== atual) {
+                    temAlvo = true;
+                    select.innerHTML += `<option value="${doc.id}">${doc.data().nome || 'Agente Desconhecido'}</option>`;
+                }
+            });
+            
+            if (!temAlvo) {
+                select.innerHTML = '<option value="">Nenhuma outra Persona localizada nesta campanha.</option>';
+                document.getElementById('btn-confirmar-transferencia').style.display = 'none';
+            } else {
+                document.getElementById('btn-confirmar-transferencia').style.display = 'inline-block';
+            }
+            
+            toggleElem('modal-transferir-item');
+        } catch (e) {
+            console.error(e);
+            alert("Falha na comunicação com os servidores para buscar a equipe.");
+        }
+    };
+
+    window.confirmarTransferenciaItem = async function() {
+        const targetId = document.getElementById('select-alvo-transferencia').value;
+        if (!targetId) {
+            alert("Selecione um alvo válido na lista antes de confirmar.");
+            return;
+        }
+        if (!itemParaTransferir) return;
+
+        const pathOrigem = (isHexatombe || globalHexatombe) ? "hexa_" + itemParaTransferir.colecao : itemParaTransferir.colecao;
+        
+        try {
+            const btn = document.getElementById('btn-confirmar-transferencia');
+            btn.innerText = "TRANSFERINDO...";
+            
+            // Verifica o estado da ficha de destino para enviar à coleção certa
+            const targetDoc = await db.collection("fichas").doc(targetId).get();
+            const targetHexa = targetDoc.data().hexatombe || false;
+            const pathDestino = (targetHexa || globalHexatombe) ? "hexa_" + itemParaTransferir.colecao : itemParaTransferir.colecao;
+
+            // Insere o item na ficha do alvo
+            await db.collection("fichas").doc(targetId).collection(pathDestino).add(itemParaTransferir.dados);
+            
+            // Remove o item da ficha atual
+            await db.collection("fichas").doc(atual).collection(pathOrigem).doc(itemParaTransferir.id).delete();
+            
+            alert("Objeto transferido com sucesso!");
+            toggleElem('modal-transferir-item');
+            itemParaTransferir = null;
+            btn.innerText = "CONFIRMAR ENVIO";
+        } catch (e) {
+            console.error(e);
+            alert("Ocorreu um erro durante a transferência.");
+            document.getElementById('btn-confirmar-transferencia').innerText = "CONFIRMAR ENVIO";
         }
     };
     
