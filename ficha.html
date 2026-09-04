@@ -2005,27 +2005,47 @@ let filtroSubAtualAtaques = 'Todos';
         else if (cl === "Focalizador" && nv >= 2) { bonusDtArq = Math.floor(nv / 2) || 1; nL += 1; }
 
         const iVM = document.getElementById('vida-max'); 
-        if (iVM) { iVM.value = nV; iVM.dataset.base = nV; }
+        if (iVM) { 
+            let oldBaseV = parseInt(iVM.dataset.base);
+            if (isNaN(oldBaseV)) oldBaseV = nV;
+            if (nV !== oldBaseV) iVM.value = nV; // Reseta se o atributo mudar
+            iVM.dataset.base = nV; 
+        }
         
         const iSM = document.getElementById('san-max'); 
-        if (iSM) { iSM.value = nS; iSM.dataset.base = nS; }
+        if (iSM) { 
+            let oldBaseS = parseInt(iSM.dataset.base);
+            if (isNaN(oldBaseS)) oldBaseS = nS;
+            if (nS !== oldBaseS) iSM.value = nS; 
+            iSM.dataset.base = nS; 
+        }
         
         const iPM = document.getElementById('pe-max'); 
-        if (iPM) { iPM.value = nP; iPM.dataset.base = nP; }
+        if (iPM) { 
+            let oldBaseP = parseInt(iPM.dataset.base);
+            if (isNaN(oldBaseP)) oldBaseP = nP;
+            if (nP !== oldBaseP) iPM.value = nP; 
+            iPM.dataset.base = nP; 
+        }
+
+        // Lê o que está na caixa para garantir que edições manuais afetem o limite atual
+        let maxV = iVM && !isNaN(parseInt(iVM.value)) ? parseInt(iVM.value) : nV;
+        let maxS = iSM && !isNaN(parseInt(iSM.value)) ? parseInt(iSM.value) : nS;
+        let maxP = iPM && !isNaN(parseInt(iPM.value)) ? parseInt(iPM.value) : nP;
 
         const iVA = document.getElementById('vida-atual');
-        if (iVA && parseInt(iVA.value) > nV) iVA.value = nV;
+        if (iVA && parseInt(iVA.value) > maxV) iVA.value = maxV;
 
         const iSA = document.getElementById('san-atual');
-        if (iSA && parseInt(iSA.value) > nS) iSA.value = nS;
+        if (iSA && parseInt(iSA.value) > maxS) iSA.value = maxS;
 
         const iPA = document.getElementById('pe-atual');
-        if (iPA && parseInt(iPA.value) > nP) iPA.value = nP;
+        if (iPA && parseInt(iPA.value) > maxP) iPA.value = maxP;
 
         if (fH) { 
-            if (iVA) iVA.value = nV; 
-            if (iSA) iSA.value = nS; 
-            if (iPA) iPA.value = nP; 
+            if (iVA) iVA.value = maxV; 
+            if (iSA) iSA.value = maxS; 
+            if (iPA) iPA.value = maxP; 
         }
 
         const bL = parseInt(document.getElementById('bonus-limite-pe')?.value) || 0; 
@@ -2033,14 +2053,16 @@ let filtroSubAtualAtaques = 'Todos';
         
         const bD = parseInt(document.getElementById('bonus-dt')?.value) || 0; 
         if (document.getElementById('dt-val')) document.getElementById('dt-val').innerText = 10 + sg + nv + bD + bonusDtArq; 
-// Cálculo Automático de Deslocamento (6 + 2xAGI)
-        let calcDeslocamentoMetros = 6 + (2 * ag);
+
+        // Cálculo Automático de Deslocamento
+        let agAtual = parseInt(document.getElementById('attr-agi')?.value) || 0;
+        let calcDeslocamentoMetros = 6 + (2 * agAtual);
         let calcDeslocamentoQuadrados = Math.floor(calcDeslocamentoMetros / 1.5);
         const inputDeslocamento = document.getElementById('deslocamento-personagem');
         if (inputDeslocamento && document.activeElement !== inputDeslocamento) {
             inputDeslocamento.value = `${calcDeslocamentoMetros} m / ${calcDeslocamentoQuadrados} q`;
         }
-        
+
         if (typeof recalcularDefesas === 'function') recalcularDefesas(); 
         if (typeof atualizarStatusVisual === 'function') {
             atualizarStatusVisual('vida'); 
@@ -2048,7 +2070,10 @@ let filtroSubAtualAtaques = 'Todos';
             atualizarStatusVisual('pe');
         }
 
-        renderizarStatusEspeciaisSobrevivencia(nV, nS, nP);
+        // Renderiza os ícones do modo sobrevivência baseando-se no valor editado
+        if (typeof renderizarStatusEspeciaisSobrevivencia === 'function') {
+            renderizarStatusEspeciaisSobrevivencia(maxV, maxS, maxP);
+        }
     }
 
     function renderizarStatusEspeciaisSobrevivencia(vMax, sMax, pMax) {
