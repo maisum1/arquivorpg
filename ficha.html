@@ -173,6 +173,11 @@ body.tema-escuro #btn-toggle-iniciativa {
         
         .ex-round { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--pe-orange); display: inline-block; cursor: pointer; background: transparent; transition: 0.2s;}
         .ex-round.active { background: var(--pe-orange); box-shadow: 0 0 5px var(--pe-orange); }
+        .mor-round { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--hp-red); display: inline-block; cursor: pointer; background: transparent; transition: 0.2s;}
+        .mor-round.active { background: var(--hp-red); box-shadow: 0 0 5px var(--hp-red); }
+
+        .cho-round { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--san-purple); display: inline-block; cursor: pointer; background: transparent; transition: 0.2s;}
+        .cho-round.active { background: var(--san-purple); box-shadow: 0 0 5px var(--san-purple); }
 
         .mini-cond-chk { display: none; }
         .mini-cond-label { display: block; width: 100%; text-align: center; padding: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 2px; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; user-select: none; letter-spacing: 1px; box-sizing: border-box; }
@@ -1009,7 +1014,15 @@ body.modo-sobrevivencia .status-icon-item.ativo {
         </div>
 
         <div class="status-container">
-            <div class="status-header-container"><div class="status-header">VITALIDADE</div><button class="btn-status-action" onclick="instakill()" title="Declarar Óbito">ÓBITO</button></div>
+            <div class="status-header-container">
+                <div class="status-header" style="text-align: center; width: 100%;">VITALIDADE</div>
+                <div id="obito-dots" style="display: none; position: absolute; right: 48px; top: 0; bottom: 0; align-items: center; gap: 4px;">
+                    <div class="mor-round" id="ob-1" onclick="marcarObito(1)"></div>
+                    <div class="mor-round" id="ob-2" onclick="marcarObito(2)"></div>
+                    <div class="mor-round" id="ob-3" onclick="marcarObito(3)"></div>
+                </div>
+                <button id="btn-obito" class="btn-status-action" onclick="toggleObito()" title="Marcadores de Óbito">ÓBITO</button>
+            </div>
             <div class="bar-bg">
                 <div id="bar-vida" class="bar-fill" style="background:var(--hp-red)"></div>
                 <div class="bar-content" id="content-vida">
@@ -1027,12 +1040,20 @@ body.modo-sobrevivencia .status-icon-item.ativo {
                         <span class="bar-btn" onclick="ajustar('vida', 5)">&raquo;</span>
                     </div>
                 </div>
-                <div class="zero-state" id="zero-vida"><span style="color:var(--hp-red); letter-spacing: 2px;">ESTADO CRÍTICO</span><input type="checkbox" id="mor-1" onchange="salvarFicha()"><input type="checkbox" id="mor-2" onchange="salvarFicha()"><input type="checkbox" id="mor-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('vida')">ESTABILIZAR</button></div>
+                <div class="zero-state" id="zero-vida"><span style="color:var(--hp-red); letter-spacing: 2px;">ESTADO CRÍTICO</span><button class="btn-curar" onclick="estabilizarStatus('vida')">ESTABILIZAR</button></div>
             </div>
         </div>
 
         <div class="status-container">
-            <div class="status-header-container"><div class="status-header" style="color: var(--san-purple);">LUCIDEZ</div><button class="btn-status-action" onclick="toggleInsanoTemporario()" title="Choque Psicológico">CHOQUE</button></div>
+            <div class="status-header-container">
+                <div class="status-header" style="color: var(--san-purple); text-align: center; width: 100%;">LUCIDEZ</div>
+                <div id="choque-dots" style="display: none; position: absolute; right: 55px; top: 0; bottom: 0; align-items: center; gap: 4px;">
+                    <div class="cho-round" id="ch-1" onclick="marcarChoque(1)"></div>
+                    <div class="cho-round" id="ch-2" onclick="marcarChoque(2)"></div>
+                    <div class="cho-round" id="ch-3" onclick="marcarChoque(3)"></div>
+                </div>
+                <button id="btn-choque" class="btn-status-action" onclick="toggleChoque()" title="Marcadores de Choque">CHOQUE</button>
+            </div>
             <div class="bar-bg">
                 <div id="bar-san" class="bar-fill" style="background:var(--san-purple)"></div>
                 <div class="bar-content" id="content-san">
@@ -1050,8 +1071,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
                         <span class="bar-btn" onclick="ajustar('san', 5)">&raquo;</span>
                     </div>
                 </div>
-                <div class="zero-state" id="zero-san" style="border-color: var(--san-purple);"><span style="color:var(--san-purple); letter-spacing: 2px;">COLAPSO MENTAL</span><input type="checkbox" id="enlou-1" onchange="salvarFicha()"><input type="checkbox" id="enlou-2" onchange="salvarFicha()"><input type="checkbox" id="enlou-3" onchange="salvarFicha()"><button class="btn-curar" onclick="estabilizarStatus('san')">ACALMAR</button></div>
-                <div class="it-state" id="it-san"><span style="letter-spacing: 1px;">CHOQUE: </span><div class="it-round" id="it-1" onclick="marcarIT(1)"></div><div class="it-round" id="it-2" onclick="marcarIT(2)"></div><div class="it-round" id="it-3" onclick="marcarIT(3)"></div><div class="it-round" id="it-4" onclick="marcarIT(4)"></div><button class="btn-curar" style="margin-left: 10px;" onclick="toggleInsanoTemporario()">RECUPERAR</button></div>
+                <div class="zero-state" id="zero-san" style="border-color: var(--san-purple);"><span style="color:var(--san-purple); letter-spacing: 2px;">COLAPSO MENTAL</span><button class="btn-curar" onclick="estabilizarStatus('san')">ACALMAR</button></div>
             </div>
         </div>
 
@@ -2274,7 +2294,6 @@ let filtroSubAtualAtaques = 'Todos';
 
             document.getElementById('bonus-defesa').value = d.bonusDefesa ? d.bonusDefesa : ""; document.getElementById('bonus-esquiva').value = d.bonusEsquiva ? d.bonusEsquiva : ""; document.getElementById('bonus-bloqueio').value = d.bonusBloqueio ? d.bonusBloqueio : ""; document.getElementById('bonus-dt').value = d.bonusDt ? d.bonusDt : "";
             
-            if(document.getElementById('enlou-1')) document.getElementById('enlou-1').checked = d.enlou1 || false; if(document.getElementById('enlou-2')) document.getElementById('enlou-2').checked = d.enlou2 || false; if(document.getElementById('enlou-3')) document.getElementById('enlou-3').checked = d.enlou3 || false; if(document.getElementById('mor-1')) document.getElementById('mor-1').checked = d.mor1 || false; if(document.getElementById('mor-2')) document.getElementById('mor-2').checked = d.mor2 || false; if(document.getElementById('mor-3')) document.getElementById('mor-3').checked = d.mor3 || false;
             
             statusAcumulados = d.statusAcumulados || [];
             if (!Array.isArray(statusAcumulados)) statusAcumulados = [];
@@ -2290,8 +2309,53 @@ let filtroSubAtualAtaques = 'Todos';
                 if (bx) { if (sg) { sg.classList.remove('lesionado', 'decepado'); if (membrosEstado[k] !== 'normal') sg.classList.add(membrosEstado[k]); } if (xm) { xm.style.display = (membrosEstado[k] === 'decepado') ? 'block' : 'none'; } if (v1 && v2) { v1.className = 'val-btn val-quarter'; v2.className = 'val-btn val-half'; if (membrosEstado[k] === 'lesionado') v1.classList.add('lesionado'); else if (membrosEstado[k] === 'decepado') { v1.classList.add('decepado'); v2.classList.add('decepado'); } } }
             });
 
-            isITActive = d.insanoTemporario || false; const it = document.getElementById('it-san'); const cs = document.getElementById('content-san');
-            if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if(e) { if(i <= (d.itRounds || 0)) e.classList.add('active'); else e.classList.remove('active'); } } } else { it.classList.remove('active'); if(parseInt(d.sanAtual) > 0) cs.style.opacity = '1'; }
+            window.isObitoActive = d.obitoAtivo || false;
+            const obDots = document.getElementById('obito-dots');
+            const btnOb = document.getElementById('btn-obito');
+            if (obDots) {
+                if (window.isObitoActive) {
+                    obDots.style.display = 'flex';
+                    if(btnOb) btnOb.classList.add('btn-active');
+                    for(let i=1; i<=3; i++) {
+                        const e = document.getElementById(`ob-${i}`);
+                        if (e) {
+                            if(i <= (d.obitoNivel || 0)) e.classList.add('active');
+                            else e.classList.remove('active');
+                        }
+                    }
+                } else {
+                    obDots.style.display = 'none';
+                    if(btnOb) btnOb.classList.remove('btn-active');
+                    for(let i=1; i<=3; i++) {
+                        const e = document.getElementById(`ob-${i}`);
+                        if(e) e.classList.remove('active');
+                    }
+                }
+            }
+
+            window.isChoqueActive = d.choqueAtivo || false;
+            const chDots = document.getElementById('choque-dots');
+            const btnCh = document.getElementById('btn-choque');
+            if (chDots) {
+                if (window.isChoqueActive) {
+                    chDots.style.display = 'flex';
+                    if(btnCh) btnCh.classList.add('btn-active');
+                    for(let i=1; i<=3; i++) {
+                        const e = document.getElementById(`ch-${i}`);
+                        if (e) {
+                            if(i <= (d.choqueNivel || 0)) e.classList.add('active');
+                            else e.classList.remove('active');
+                        }
+                    }
+                } else {
+                    chDots.style.display = 'none';
+                    if(btnCh) btnCh.classList.remove('btn-active');
+                    for(let i=1; i<=3; i++) {
+                        const e = document.getElementById(`ch-${i}`);
+                        if(e) e.classList.remove('active');
+                    }
+                }
+            }
             
             isExaustaoActive = d.exaustaoAtiva || false; const exDots = document.getElementById('exaustao-dots');
             const btnEx = document.getElementById('btn-exaustao');
@@ -2358,7 +2422,8 @@ let filtroSubAtualAtaques = 'Todos';
             }
         });
 
-        let iR = 0; for(let i=1; i<=4; i++) { const itEl = document.getElementById(`it-${i}`); if(itEl && itEl.classList.contains('active')) iR = i; }
+       let obR = 0; for(let i=1; i<=3; i++) { const e = document.getElementById(`ob-${i}`); if(e && e.classList.contains('active')) obR = i; }
+        let chR = 0; for(let i=1; i<=3; i++) { const e = document.getElementById(`ch-${i}`); if(e && e.classList.contains('active')) chR = i; }
         let exR = 0; for(let i=1; i<=3; i++) { const exEl = document.getElementById(`ex-${i}`); if(exEl && exEl.classList.contains('active')) exR = i; }
         let valNC = parseInt(document.getElementById('nivel-credito').value); if (isNaN(valNC)) valNC = -1;
 
@@ -2381,9 +2446,9 @@ let filtroSubAtualAtaques = 'Todos';
             statusAcumulados: window.statusAcumulados,
             
             membrosEstado: membrosEstado, condSequela: document.getElementById('chk-sequela').checked, descSequela: document.getElementById('desc-sequela').value,
-            enlou1: document.getElementById('enlou-1').checked, enlou2: document.getElementById('enlou-2').checked, enlou3: document.getElementById('enlou-3').checked, mor1: document.getElementById('mor-1').checked, mor2: document.getElementById('mor-2').checked, mor3: document.getElementById('mor-3').checked,
-            
-            insanoTemporario: (typeof isITActive !== 'undefined' ? isITActive : false), itRounds: iR,
+
+            obitoAtivo: window.isObitoActive, obitoNivel: obR,
+            choqueAtivo: window.isChoqueActive, choqueNivel: chR,
             exaustaoAtiva: window.isExaustaoActive, exaustaoNivel: exR,
             
             revelado: isRevelado, hexatombe: isHexatombe, extremos: isExtremos, restricao: isRestricao,
@@ -2418,11 +2483,75 @@ let filtroSubAtualAtaques = 'Todos';
         } 
     }
     
-    function estabilizarStatus(t) { document.getElementById(`${t}-atual`).value = 1; atualizarStatusVisual(t); if(t === 'vida') { document.getElementById('mor-1').checked = false; document.getElementById('mor-2').checked = false; document.getElementById('mor-3').checked = false; } if(t === 'san') { document.getElementById('enlou-1').checked = false; document.getElementById('enlou-2').checked = false; document.getElementById('enlou-3').checked = false; } salvarFicha(); }
-    function instakill() { document.getElementById(`vida-atual`).value = 0; atualizarStatusVisual('vida'); salvarFicha(); }
-    
-    function toggleInsanoTemporario() { isITActive = !isITActive; const it = document.getElementById('it-san'); const cs = document.getElementById('content-san'); const zs = document.getElementById('zero-san'); if (isITActive) { it.classList.add('active'); cs.style.opacity = '0'; zs.classList.remove('active'); } else { it.classList.remove('active'); for(let i=1; i<=4; i++) { document.getElementById(`it-${i}`).classList.remove('active'); } const sA = parseInt(document.getElementById('san-atual').value) || 0; if (sA <= 0) zs.classList.add('active'); else cs.style.opacity = '1'; } salvarFicha(); }
-    function marcarIT(r) { for(let i=1; i<=4; i++) { const e = document.getElementById(`it-${i}`); if (i <= r) e.classList.add('active'); else e.classList.remove('active'); } salvarFicha(); }
+    function estabilizarStatus(t) { 
+        document.getElementById(`${t}-atual`).value = 1; 
+        atualizarStatusVisual(t); 
+        salvarFicha(); 
+    }
+
+    if (typeof window.isObitoActive === 'undefined') window.isObitoActive = false;
+    function toggleObito() {
+        window.isObitoActive = !window.isObitoActive;
+        const dots = document.getElementById('obito-dots');
+        const btn = document.getElementById('btn-obito');
+        if (window.isObitoActive) {
+            dots.style.display = 'flex';
+            if(btn) btn.classList.add('btn-active');
+            const d1 = document.getElementById('ob-1');
+            if(d1) d1.classList.add('active');
+        } else {
+            dots.style.display = 'none';
+            if(btn) btn.classList.remove('btn-active');
+            for(let i=1; i<=3; i++) {
+                const e = document.getElementById(`ob-${i}`);
+                if(e) e.classList.remove('active');
+            }
+        }
+        salvarFicha();
+    }
+
+    function marcarObito(r) {
+        for(let i=1; i<=3; i++) {
+            const e = document.getElementById(`ob-${i}`);
+            if (e) {
+                if (i <= r) e.classList.add('active');
+                else e.classList.remove('active');
+            }
+        }
+        salvarFicha();
+    }
+
+    if (typeof window.isChoqueActive === 'undefined') window.isChoqueActive = false;
+    function toggleChoque() {
+        window.isChoqueActive = !window.isChoqueActive;
+        const dots = document.getElementById('choque-dots');
+        const btn = document.getElementById('btn-choque');
+        if (window.isChoqueActive) {
+            dots.style.display = 'flex';
+            if(btn) btn.classList.add('btn-active');
+            const d1 = document.getElementById('ch-1');
+            if(d1) d1.classList.add('active');
+        } else {
+            dots.style.display = 'none';
+            if(btn) btn.classList.remove('btn-active');
+            for(let i=1; i<=3; i++) {
+                const e = document.getElementById(`ch-${i}`);
+                if(e) e.classList.remove('active');
+            }
+        }
+        salvarFicha();
+    }
+
+    function marcarChoque(r) {
+        for(let i=1; i<=3; i++) {
+            const e = document.getElementById(`ch-${i}`);
+            if (e) {
+                if (i <= r) e.classList.add('active');
+                else e.classList.remove('active');
+            }
+        }
+        salvarFicha();
+    }
     
     // ======== NOVO SISTEMA DE EXAUSTÃO ========
     if (typeof window.isExaustaoActive === 'undefined') window.isExaustaoActive = false;
