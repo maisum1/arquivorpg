@@ -916,16 +916,12 @@ body.tema-escuro .base-card .btn-open:hover {
         const isOwner = d.dono === auth.currentUser.uid;
         
         let nomePersona = (d.nome || 'Persona').replace(/'/g, "\\'");
+        let ctxPassado = d.isNpcAmeaca ? 'npc-ameaca' : context;
         
-        // Engrenagem (com stopPropagation para não acionar o clique de expansão da ficha sem querer)
-        let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${context}')" title="Configurações">⚙️</button>`;
+        let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${ctxPassado}')" title="Configurações">⚙️</button>`;
 
         let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz}); width: 100%; height: 100%; object-fit: cover; display: block;">` : '';
 
-        // ==========================================
-        // 1. DADOS SEMPRE VISÍVEIS (Padrão)
-        // ==========================================
-        
         let expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
         if (!globalRevelado && context !== 'monitor' && context !== 'raiox' && context !== 'campanha') {
             expInfo = ''; 
@@ -944,16 +940,9 @@ body.tema-escuro .base-card .btn-open:hover {
             campanhaInfo = `<span class="camp-tag" style="margin-top: 4px;">${nomeVisual}</span>`;
         }
 
-        // ==========================================
-        // 2. DADOS OCULTOS (Só aparecem ao clicar)
-        // ==========================================
-        
         let origemInfo = `<span class="player-tag" style="margin-top: 4px;">${d.classe || d.origem || 'Indefinido'}</span>`;
         let statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC: ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
 
-        // ==========================================
-        // RETORNO DO CARD COM MOTOR DE CLIQUE
-        // ==========================================
         return `
             <div class="ficha-card base-card" style="cursor: pointer;" onclick="const sec = this.querySelector('.info-secundaria'); sec.style.display = sec.style.display === 'none' ? 'block' : 'none';">
                 <div class="card-actions">${botoesAcao}</div>
@@ -965,7 +954,6 @@ body.tema-escuro .base-card .btn-open:hover {
                         ${nomeJogadorInfo}
                         ${campanhaInfo}
                         
-                        <!-- ESTA CAIXA FICA INVISÍVEL ATÉ CLICAR NO CARD -->
                         <div class="info-secundaria" style="display: none; margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--card-border);">
                             ${origemInfo}
                             ${statsInfo}
@@ -987,25 +975,36 @@ body.tema-escuro .base-card .btn-open:hover {
         }
 
         function carregarFichasJogador(uid) {
-            db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById('lista-fichas'); 
-                div.innerHTML = "";
-                minhasFichasGlobais = [];
-                
-                const elemContador = document.getElementById('contador-personas');
-                if (elemContador) elemContador.innerText = `Personas: ${snap.size}`;
+        db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
+            const divFichas = document.getElementById('lista-fichas'); 
+            divFichas.innerHTML = "";
+            minhasFichasGlobais = [];
+            
+            const divAmeacas = document.getElementById("lista-ameacas");
+            if (divAmeacas && !document.getElementById('wrapper-ameacas-personas')) {
+                divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
+            }
+            const wrapPersonas = document.getElementById('wrapper-ameacas-personas');
+            if(wrapPersonas) wrapPersonas.innerHTML = "";
 
-                snap.forEach(doc => {
-                    const docData = doc.data(); 
-                    const docId = doc.id;
-                    minhasFichasGlobais.push({ id: docId, nome: docData.nome || 'Persona Desconhecida' });
-                    
+            let count = 0;
+
+            snap.forEach(doc => {
+                const docData = doc.data(); 
+                const docId = doc.id;
+                
+                minhasFichasGlobais.push({ id: docId, nome: docData.nome || 'Persona Desconhecida' });
+                
+                if (docData.isNpcAmeaca) {
+                    if (wrapPersonas) wrapPersonas.innerHTML += renderFichaMonitorCard(doc, 'monitor');
+                } else {
+                    count++;
                     const dataRegistroTexto = formatarDataRegistro(docData.createdAt);
 
-                    div.innerHTML += `
+                    divFichas.innerHTML += `
                         <div class="ficha-card base-card" id="card-${docId}">
                             <div class="card-actions" style="top: 8px; right: 8px;">
-                                <button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}')" title="Configurações da Ficha">⚙️</button>
+                                <button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}', 'ficha', 'hub-proprio')" title="Configurações da Ficha">⚙️</button>
                             </div>
                             
                             <div class="card-content">
@@ -1022,9 +1021,13 @@ body.tema-escuro .base-card .btn-open:hover {
                             <a href="ficha.html?id=${docId}" class="btn-open" style="width: 100%; box-sizing: border-box; display: block; margin-top: auto; text-align: center;">ACESSAR FICHA</a>
                         </div>
                     `;
-                });
+                }
             });
-        }
+            
+            const elemContador = document.getElementById('contador-personas');
+            if (elemContador) elemContador.innerText = `Personas: ${count}`;
+        });
+    }
         
         let fichaSelecionadaId = null;
 
@@ -1036,82 +1039,72 @@ body.tema-escuro .base-card .btn-open:hover {
         };
 
         function abrirOpcoesCard(event, id, nome, tipo, extraContext) {
-    tipo = tipo || 'ficha';
-    extraContext = extraContext || '';
-    
-    if (event && event.stopPropagation) {
-        event.stopPropagation();
+        tipo = tipo || 'ficha';
+        extraContext = extraContext || '';
+        
+        if (event && event.stopPropagation) event.stopPropagation();
+        
+        const menu = document.getElementById('dropdown-opcoes');
+        if (!menu) return;
+
+        if (menu.style.display === 'block' && fichaSelecionadaId === id) {
+            menu.style.display = 'none';
+            fichaSelecionadaId = null;
+            return;
+        }
+
+        fichaSelecionadaId = id;
+        const nomeTratado = (nome || '').replace(/'/g, "\\'");
+        let html = '';
+
+        if (tipo === 'ficha' || tipo === 'ficha-monitor') {
+            html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar</button>';
+            
+            if (extraContext === 'hub-proprio' && typeof abrirModalVincular === 'function') {
+                html += '<button class="dropdown-item" onclick="abrirModalVincular(\'' + id + '\')">📡 Vincular à Campanha</button>';
+            }
+            if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
+                html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
+            }
+            
+            html += '<button class="dropdown-item" onclick="if(window.clonarFicha) window.clonarFicha(\'' + id + '\')">📋 Duplicar Ficha</button>';
+            
+            if (isMestre || isSuperAdmin) {
+                if (extraContext === 'hub-proprio') {
+                    html += '<button class="dropdown-item" style="color:var(--op-red); border-color:var(--op-red);" onclick="transferirParaAmeaca(\'' + id + '\', \'' + nomeTratado + '\', true)">🩸 Mover p/ Ameaças</button>';
+                } else if (extraContext === 'npc-ameaca') {
+                    html += '<button class="dropdown-item" style="color:var(--san-purple); border-color:var(--san-purple);" onclick="transferirParaAmeaca(\'' + id + '\', \'' + nomeTratado + '\', false)">👤 Reverter p/ Persona</button>';
+                }
+            }
+
+            html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ficha</button>';
+            
+        } else if (tipo === 'ameaca') {
+            html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar Link</button>';
+            
+            if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
+                html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
+            }
+            html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
+            
+        } else if (tipo === 'campanha') {
+            if (typeof editarCampanha === 'function') html += '<button class="dropdown-item" onclick="editarCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">✏️ Editar Nome</button>';
+            html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'campanhas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
+        }
+
+        menu.innerHTML = html;
+        const rect = event.target.getBoundingClientRect();
+        menu.style.top = (rect.bottom + window.scrollY) + 'px';
+        
+        const menuWidth = 180;
+        if (rect.right - menuWidth < 0) {
+            menu.style.left = '10px';
+        } else {
+            menu.style.left = (rect.right - menuWidth) + 'px';
+        }
+
+        menu.style.display = 'block';
     }
-    
-    const menu = document.getElementById('dropdown-opcoes');
-    if (!menu) return;
-
-    if (menu.style.display === 'block' && fichaSelecionadaId === id) {
-        menu.style.display = 'none';
-        fichaSelecionadaId = null;
-        return;
-    }
-
-    fichaSelecionadaId = id;
-    
-    // Tratamento do nome para evitar que aspas simples quebrem os comandos
-    const nomeTratado = (nome || '').replace(/'/g, "\\'");
-    
-    let html = '';
-
-    if (tipo === 'ficha' || tipo === 'ficha-monitor') {
-        html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar</button>';
-        
-        if (extraContext === 'hub-proprio' && typeof abrirModalVincular === 'function') {
-            html += '<button class="dropdown-item" onclick="abrirModalVincular(\'' + id + '\')">📡 Vincular à Campanha</button>';
-        }
-        if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
-            html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
-        }
-        
-        html += '<button class="dropdown-item" onclick="if(window.clonarFicha) window.clonarFicha(\'' + id + '\')">📋 Duplicar Ficha</button>';
-        
-        // NOVO BOTÃO DE CONVERSÃO PARA MESTRES
-        if (isMestre || isSuperAdmin) {
-            html += '<button class="dropdown-item" style="color:var(--op-red); border-color:var(--op-red);" onclick="transferirParaAmeaca(\'' + id + '\', \'' + nomeTratado + '\')">🩸 Converter em Ameaça</button>';
-        }
-
-        // CORREÇÃO: Chamando deletarDocumento para fichas
-        html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ficha</button>';
-        
-    } else if (tipo === 'ameaca') {
-        html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar Link</button>';
-        
-        if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
-            html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
-        }
-        
-        // CORREÇÃO: Chamando deletarDocumento para ameaças
-        html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
-        
-    } else if (tipo === 'campanha') {
-        if (typeof editarCampanha === 'function') {
-            html += '<button class="dropdown-item" onclick="editarCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">✏️ Editar Nome</button>';
-        }
-        
-        // CORREÇÃO: Chamando deletarDocumento para campanhas
-        html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'campanhas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
-    }
-
-    menu.innerHTML = html;
-
-    const rect = event.target.getBoundingClientRect();
-    menu.style.top = (rect.bottom + window.scrollY) + 'px';
-    
-    const menuWidth = 180;
-    if (rect.right - menuWidth < 0) {
-        menu.style.left = '10px';
-    } else {
-        menu.style.left = (rect.right - menuWidth) + 'px';
-    }
-
-    menu.style.display = 'block';
-}
         
         function abrirModalVincular(fichaId) {
             document.getElementById('vincular-ficha-id').value = fichaId;
@@ -1200,16 +1193,22 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
         }
 
         function listarAmeacas(uid) {
-            db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById("lista-ameacas"); div.innerHTML = "";
-                minhasAmeacasGlobais = [];
-                snap.forEach(doc => {
-                    const d = doc.data(); 
-                    minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
-                    div.innerHTML += renderAmeacaCard(doc, 'hub');
-                });
+        db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
+            const divAmeacas = document.getElementById("lista-ameacas");
+            if (divAmeacas && !document.getElementById('wrapper-ameacas-puras')) {
+                divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
+            }
+            const wrapPuras = document.getElementById('wrapper-ameacas-puras');
+            if(wrapPuras) wrapPuras.innerHTML = "";
+            
+            minhasAmeacasGlobais = [];
+            snap.forEach(doc => {
+                const d = doc.data(); 
+                minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
+                if(wrapPuras) wrapPuras.innerHTML += renderAmeacaCard(doc, 'hub');
             });
-        }
+        });
+    }
 
         async function clonarAmeacaPeloHub() {
             const link = document.getElementById('input-link-clone').value.trim();
@@ -1678,6 +1677,22 @@ document.addEventListener('click', function() {
             alert("Falha na logística de transferência do servidor.");
         }
     };     
+
+        window.transferirParaAmeaca = async function(idFicha, nomeFicha, tornarAmeaca) {
+        let msg = tornarAmeaca 
+            ? `Deseja organizar "${nomeFicha}" na aba de Ameaças?\n\nA ficha continuará com todas as regras de Persona, mas aparecerá junto aos inimigos.` 
+            : `Deseja retornar "${nomeFicha}" para a aba Minhas Personas?`;
+            
+        if(!confirm(msg)) return;
+
+        try {
+            document.getElementById('dropdown-opcoes').style.display = 'none';
+            await db.collection("fichas").doc(idFicha).update({ isNpcAmeaca: tornarAmeaca });
+        } catch(e) {
+            console.error(e);
+            alert("Falha na logística de transferência do servidor.");
+        }
+    };
     </script>
 </body>
 </html>
