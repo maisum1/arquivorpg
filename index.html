@@ -1630,7 +1630,57 @@ document.addEventListener('click', function() {
         fichaSelecionadaId = null; // Reseta a memória de qual menu estava aberto
     }
 });
-        
+
+   window.transferirParaAmeaca = async function(idFicha, nomeFicha) {
+        if(!confirm(`Deseja realmente converter "${nomeFicha}" em uma Entidade?\n\nA ficha será removida das suas Personas e movida permanentemente para o Registro de Ameaças.`)) return;
+
+        try {
+            document.getElementById('dropdown-opcoes').style.display = 'none'; // Esconde o menu
+            
+            const docRef = db.collection("fichas").doc(idFicha);
+            const snap = await docRef.get();
+            if(!snap.exists) return;
+
+            let data = snap.data();
+            const user = auth.currentUser;
+
+            // Converter parâmetros vitais de Persona para Ameaça
+            data.mestreNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
+            data.na = parseInt(data.nex) || 0; 
+            data.pvAtual = data.vidaAtual || 0;
+            data.pvMax = data.vidaMax || 0;
+            data.campanhasIds = data.campanhaId ? [data.campanhaId] : []; // Ameaças utilizam arrays para campanhas
+
+            // 1. Criar novo registro na coleção de Ameaças
+            const novaAmeacaRef = await db.collection("ameacas").add(data);
+
+            // 2. Transferir todas as subcoleções (Normal e Protocolo Hexatombe)
+            const subColecoes = [
+                "rituais", "poderes", "habilidades", "ataques", "inventario",
+                "hexa_rituais", "hexa_poderes", "hexa_habilidades", "hexa_ataques", "hexa_inventario"
+            ];
+
+            for (const subCol of subColecoes) {
+                const subSnap = await docRef.collection(subCol).get();
+                if (!subSnap.empty) {
+                    const batch = db.batch();
+                    subSnap.forEach(subDoc => {
+                        const novaSubRef = novaAmeacaRef.collection(subCol).doc();
+                        batch.set(novaSubRef, subDoc.data());
+                    });
+                    await batch.commit();
+                }
+            }
+
+            // 3. Deletar a Persona original
+            await docRef.delete();
+
+            alert(`✅ TRANSFERÊNCIA CONCLUÍDA!\n\n"${nomeFicha}" foi reclassificada como Ameaça.`);
+        } catch(e) {
+            console.error(e);
+            alert("Falha na logística de transferência do servidor.");
+        }
+    };     
     </script>
 </body>
 </html>
