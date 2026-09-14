@@ -2048,11 +2048,11 @@ let filtroSubAtualAtaques = 'Todos';
             nS = 50 + (10 * vn + 10 * sg); 
         }
 
-        let nP = 5 + (2 * vg) + vn + Math.floor(n / 10); 
+        let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); 
         let bonusDtArq = 0;
         
-        if (cl === "Modulador") { nP += 2; bonusDtArq += 2 } 
-        else if (cl === "Canalizador") { nP += 5) }
+        if (cl === "Modulador" && nv >= 2) { nP += 2; bonusDtArq = 2; } 
+        else if (cl === "Canalizador" && nv >= 2) { nP += 5; }
 
         const iVM = document.getElementById('vida-max'); 
         if (iVM) { 
@@ -2256,8 +2256,8 @@ let filtroSubAtualAtaques = 'Todos';
                 let hD = d_raw.hexatombe_data || {}; if (hF && hD.vig === undefined) { hD.vig = vN; hD.for = d_raw.for; hD.agi = d_raw.agi; hD.sag = sN; hD.von = vnN; }
                 let vH = hD.vig !== undefined ? parseInt(hD.vig) : vN; let vnH = hD.von !== undefined ? parseInt(hD.von) : vnN; let sH = hD.sag !== undefined ? parseInt(hD.sag) : sN;
                 let mNV = 12 + (2 * vN) + (2 * nv); let mHV = 12 + (2 * vH) + (2 * nv); let mNS = 50 + (10 * vnN + 10 * sN); let mHS = 50 + (10 * vnH + 10 * sH);
-                let mNP = 2 + (2 * vN) + vnN + Math.floor(nx / 10); if (cl === "Esotérico") mNP += (2 * sN); else if (cl === "Canalizador" && nv > 2) mNP += (nv - 2) * 3;
-                let mHP = 2 + (2 * vH) + vnH + Math.floor(nx / 10); if (cl === "Esotérico") mHP += (2 * sH); else if (cl === "Canalizador" && nv > 2) mHP += (nv - 2) * 3;
+                let mNP = 2 + (2 * vN) + vnN + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mNP += 2; else if (cl === "Canalizador" && nv >= 2) mNP += 5;
+                let mHP = 2 + (2 * vH) + vnH + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mHP += 2; else if (cl === "Canalizador" && nv >= 2) mHP += 5;
                 let dV = mHV - mNV; let dS = mHS - mNS; let dP = mHP - mNP; let up = {};
                 if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; up.hexatombe_data = hD; } 
                 else { let vH = parseInt(hD.vidaAtual) || 0; let sH = parseInt(hD.sanAtual) || 0; let pH = parseInt(hD.peAtual) || 0; let nV = vH - dV; if (dV > 0) { if(nV <= 0 && vH >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; } up.vidaAtual = nV; let nS = sH - dS; if (dS > 0) { if(nS <= 0 && sH >= 1) nS = 1; else if (nS < 0) nS = 0; } else { if (nS < 0) nS = 0; } up.sanAtual = nS; let nP = pH - dP; if(nP < 0) nP = 0; up.peAtual = nP; }
