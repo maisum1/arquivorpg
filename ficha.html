@@ -1002,13 +1002,6 @@ body.modo-sobrevivencia .status-icon-item.ativo {
                 </div>
             </div>
 
-            <div class="stat-box" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-                <label style="width: 100%;">TETO DE FÔLEGO</label>
-                <div style="display:flex; align-items:center; justify-content: center; gap:8px; width: auto; margin-top: 2px;">
-                    <input type="number" id="bonus-limite-pe" class="def-input-bonus" placeholder="+0" onchange="recalcularBases(true); salvarFicha();" style="font-size: 14px; width: 45px; text-align: center;">
-                    <div id="display-limite-pe" style="font-size:22px; color:var(--op-ink); font-weight: bold; line-height: 1;">1</div>
-                </div>
-            </div>
             <div class="stat-box"><label>DESLOCAMENTO</label><input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q" style="font-size: 16px;"></div>
         </div>
 
@@ -2033,11 +2026,10 @@ let filtroSubAtualAtaques = 'Todos';
         }
 
         let nP = 2 + (2 * vg) + vn + Math.floor(n / 10); 
-        let nL = 1 + vg + vn + nv; 
         let bonusDtArq = 0;
         
-        if (cl === "Modulador") { nL += 3 + vn; nP += sg; } 
-        else if (cl === "Canalizador" && nv > 2) { nP += vg + ((nv - 2) * 2) ; } 
+        if (cl === "Modulador") { nP += sg; } 
+        else if (cl === "Canalizador" && nv > 2) { nP += vg + ((nv - 2) * 2) ; }
 
         const iVM = document.getElementById('vida-max'); 
         if (iVM) { 
@@ -2082,9 +2074,6 @@ let filtroSubAtualAtaques = 'Todos';
             if (iSA) iSA.value = maxS; 
             if (iPA) iPA.value = maxP; 
         }
-
-        const bL = parseInt(document.getElementById('bonus-limite-pe')?.value) || 0; 
-        if (document.getElementById('display-limite-pe')) document.getElementById('display-limite-pe').innerText = nL + bL; 
         
         const bD = parseInt(document.getElementById('bonus-dt')?.value) || 0; 
         if (document.getElementById('dt-val')) document.getElementById('dt-val').innerText = 10 + sg + nv + bD + bonusDtArq; 
@@ -2269,7 +2258,6 @@ let filtroSubAtualAtaques = 'Todos';
             if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; 
             else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             if (typeof forcarAtualizacaoRessonancia === 'function') forcarAtualizacaoRessonancia();
-            document.getElementById('bonus-limite-pe').value = (parseInt(d.bonusLimitePe) || 0) !== 0 ? d.bonusLimitePe : "";
             document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('fundo-gastos').value = d.fundoGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
 
             let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
