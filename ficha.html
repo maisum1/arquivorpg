@@ -1813,8 +1813,28 @@ let filtroSubAtualAtaques = 'Todos';
     let cheatCode = ""; document.addEventListener('keydown', (e) => { const a = document.activeElement; if (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT') return; cheatCode += e.key.toLowerCase(); cheatCode = cheatCode.slice(-20); if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; } if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; } if (cheatCode.includes("apoteose")) { ativarSegredo('extremos'); cheatCode = ""; } if (cheatCode.includes("restricao")) { ativarSegredo('restricao'); cheatCode = ""; } });
     function verificarCheat() { const c = document.getElementById('input-cheat').value.toLowerCase().trim(); if (c === "despertar") ativarSegredo('revelado'); else if (c === "hexatombe") ativarSegredo('hexatombe'); else if (c === "apoteose") ativarSegredo('extremos'); else if (c === "restricao") ativarSegredo('restricao'); else alert("Comando não reconhecido."); document.getElementById('input-cheat').value = ""; toggleElem('modal-config'); }
 
-    function ativarSegredo(campo) { document.body.classList.add('shake'); salvarFicha(); setTimeout(async () => { document.body.classList.remove('shake'); let doc = await db.collection("fichas").doc(atual).get(); let valAtual = doc.data()[campo] || false; let updates = {}; if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; } if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; } if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; } if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; } await db.collection("fichas").doc(atual).update(updates); aplicarSegredosUI(); }, 800); }
-
+    function ativarSegredo(campo) { 
+        document.body.classList.add('shake'); 
+        try { salvarFicha(); } catch(e) { console.error("Erro ignorado ao salvar:", e); }
+        
+        setTimeout(async () => { 
+            document.body.classList.remove('shake'); 
+            try {
+                let doc = await db.collection("fichas").doc(atual).get(); 
+                let valAtual = doc.data()[campo] || false; 
+                let updates = {}; 
+                if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; } 
+                if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; } 
+                if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; } 
+                if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; } 
+                await db.collection("fichas").doc(atual).update(updates); 
+                aplicarSegredosUI(); 
+            } catch(err) {
+                console.error("Falha de conexão ao ativar o segredo:", err);
+            }
+        }, 800); 
+    }
+    
     function aplicarSegredosUI() {
         const rf = isRevelado || globalRevelado; const hf = isHexatombe || globalHexatombe; const ef = isExtremos || globalExtremos; const ref = isRestricao || globalRestricao;
         if (hf) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
@@ -2429,7 +2449,7 @@ let filtroSubAtualAtaques = 'Todos';
             sanMax: !isNaN(parseInt(document.getElementById('san-max').value)) ? parseInt(document.getElementById('san-max').value) : 12, 
             peMax: !isNaN(parseInt(document.getElementById('pe-max').value)) ? parseInt(document.getElementById('pe-max').value) : 2,
             
-            nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value, bonusLimitePe: parseInt(document.getElementById('bonus-limite-pe').value) || 0,
+            nivel: document.getElementById('nivel-personagem').value, nex: document.getElementById('nex-personagem').value, ressonancia: document.getElementById('grau-ressonancia').value, deslocamento: document.getElementById('deslocamento-personagem').value,
             bonusDefesa: parseInt(document.getElementById('bonus-defesa').value) || 0, bonusEsquiva: parseInt(document.getElementById('bonus-esquiva').value) || 0, bonusBloqueio: parseInt(document.getElementById('bonus-bloqueio').value) || 0, bonusDt: parseInt(document.getElementById('bonus-dt').value) || 0,
             
             statusPersonagem: document.getElementById('status-personagem').value,
@@ -2445,7 +2465,7 @@ let filtroSubAtualAtaques = 'Todos';
             nivelCredito: valNC, fundoGastos: document.getElementById('fundo-gastos').value, dinheiroEspecie: document.getElementById('dinheiro-especie').value, patrimonioRecursos: document.getElementById('patrimonio-recursos').value,
             campanhaId: document.getElementById('campanhaId-config').value
         };
-
+        
         let bgData = { bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value };
 
         let rU = { hexatombe: isHexatombe, restricao: isRestricao, ...bgData, campanhaId: pl.campanhaId };
