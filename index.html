@@ -768,6 +768,13 @@ body.tema-escuro .base-card .btn-open:hover {
                 const userEmail = user.email ? user.email.toLowerCase() : "";
                 isSuperAdmin = (userEmail === EMAIL_SUPER_ADMIN.toLowerCase());
                 
+                // CARREGAMENTO SEGURO DE FICHAS (FORA DE LOOPS)
+                setTimeout(() => {
+                    if (document.getElementById('lista-fichas')) {
+                        carregarFichasJogador(user.uid);
+                    }
+                }, 150);
+                
                 if(isSuperAdmin) {
                     document.getElementById('btn-admin').style.display = 'block';
                     const painelDiretor = document.getElementById('painel-diretor-global');
@@ -778,7 +785,9 @@ body.tema-escuro .base-card .btn-open:hover {
                     document.getElementById('btn-ameacas').style.display = 'inline-block';
                     document.getElementById('btn-campanhas').style.display = 'inline-block';
                     document.getElementById('btn-mestre').style.display = 'inline-block';
-                    listarAmeacas(user.uid); listarCampanhas(user.uid);
+                    listarAmeacas(user.uid); 
+                    listarCampanhas(user.uid);
+                    if (typeof carregarMonitorMestre === 'function') carregarMonitorMestre();
                 }
 
                 if (userEmail && !isSuperAdmin) {
@@ -789,7 +798,9 @@ body.tema-escuro .base-card .btn-open:hover {
                             document.getElementById('btn-ameacas').style.display = 'inline-block';
                             document.getElementById('btn-campanhas').style.display = 'inline-block';
                             document.getElementById('btn-mestre').style.display = 'inline-block';
-                            listarAmeacas(user.uid); listarCampanhas(user.uid);
+                            listarAmeacas(user.uid); 
+                            listarCampanhas(user.uid);
+                            if (typeof carregarMonitorMestre === 'function') carregarMonitorMestre();
                         } else {
                             document.getElementById('btn-ameacas').style.display = 'none';
                             document.getElementById('btn-campanhas').style.display = 'none';
@@ -843,11 +854,6 @@ body.tema-escuro .base-card .btn-open:hover {
                                 btnHex.style.color = "";
                                 btnHex.style.borderColor = "";
                             }
-                        }
-
-                        if (document.getElementById('lista-fichas')) {
-                            carregarFichasJogador(user.uid);
-                            if (isMestre) carregarMonitorMestre();
                         }
                     } 
                 });
