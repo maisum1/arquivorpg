@@ -84,6 +84,11 @@
         body.tema-escuro .attr-box { border-color: var(--op-ink); }
         body.tema-escuro .defesa-badge { border-color: var(--op-ink); }
 
+        /* Alternadores de Visibilidade para NPCs Mundanos */
+        body.ameaca-mundana .anomalia-only { display: none !important; }
+        body.ameaca-mundana .mundana-only { display: flex !important; }
+        body:not(.ameaca-mundana) .mundana-only { display: none !important; }
+        
         /* Custom Scrollbar Integrado */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -521,9 +526,16 @@
                 <input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex: 1;">
             </div>
 
-            <div class="book-stat-row" style="margin-top: 15px;">
+            <div class="book-stat-row" style="margin-top: 15px; align-items: center;">
                 <span class="stat-label">PERÍCIAS:</span> 
-                <input id="pericias" class="book-input save-auto" placeholder="Atletismo 4d20+15..." style="flex: 1;">
+                <!-- O input livre some se for mundano -->
+                <input id="pericias" class="book-input save-auto anomalia-only" placeholder="Atletismo 4d20+15..." style="flex: 1;">
+                
+                <!-- O construtor de botões aparece se for mundano -->
+                <div class="mundana-only" style="flex: 1; gap: 5px; flex-wrap: wrap; align-items: center; display: none;">
+                    <div id="tags-pericias-npc" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>
+                    <button class="btn-add" style="margin: 0; padding: 4px 8px; font-size: 10px;" onclick="abrirModalPericiasNPC()">+ SELECIONAR PERÍCIAS</button>
+                </div>
             </div>
             
             <div class="book-stat-row">
@@ -555,18 +567,30 @@
     <div id="lista-acoes"></div>
     <button class="btn-add" onclick="addAcao()">[+] ANEXAR REGISTRO DE AÇÃO</button>
 
-    <div class="section-header" style="margin-top: 40px;">HABILIDADES E COMPORTAMENTOS</div>
+    <div class="section-header" style="margin-top: 40px;">
+        <span class="anomalia-only">HABILIDADES E COMPORTAMENTOS</span>
+        <span class="mundana-only" style="display:none;">HABILIDADES E TÁTICAS</span>
+    </div>
     <div id="lista-habilidades"></div>
     <button class="btn-add" onclick="addHabilidade()">[+] ANEXAR TRAÇO OBSERVADO</button>
 
-    <div class="section-header" style="margin-top: 40px;">JURAMENTO RESTRITIVO</div>
-    <div class="dynamic-item-highlight">
-        <textarea id="enigma" class="cris-textarea save-auto" placeholder="Insira o texto sobre a o juramento restritivo e seus determinantes... [Acesso Restrito]" style="border: none;"></textarea>
+    <div class="anomalia-only">
+        <div class="section-header" style="margin-top: 40px;">JURAMENTO RESTRITIVO</div>
+        <div class="dynamic-item-highlight">
+            <textarea id="enigma" class="cris-textarea save-auto" placeholder="Insira o texto sobre a o juramento restritivo e seus determinantes... [Acesso Restrito]" style="border: none;"></textarea>
+        </div>
     </div>
 
     <div class="section-header" style="margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
     <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, incidentes relacionados..." style="min-height: 250px; background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border); border-radius: 2px;"></textarea>
 
+</div>
+
+    <div id="modal-pericias-npc" class="modal-padrao" style="max-height: 80vh; overflow-y: auto;">
+    <h3 style="margin-top: 0; margin-bottom: 20px; font-family: 'Crimson Text', serif; font-size: 20px; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px;">SELECIONAR PERÍCIAS</h3>
+    <div id="lista-checkbox-pericias" style="display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 20px;"></div>
+    <button class="cris-btn-modal" onclick="salvarPericiasNPC()" style="background: var(--op-ink); color: var(--bg-paper); border: none;">SALVAR PERÍCIAS</button>
+    <button onclick="toggleElem('modal-pericias-npc')" style="margin-top:10px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">FECHAR PAINEL</button>
 </div>
 
 <script>
@@ -753,6 +777,18 @@
             }
 
             let d = d_raw;
+            // LEITURA DO TIPO DE AMEAÇA
+            if(d.tipoAmeaca === 'mundana') {
+                document.body.classList.add('ameaca-mundana');
+                document.getElementById('tipo-criatura').placeholder = "PROFISSÃO / FACÇÃO";
+                document.getElementById('na').previousElementSibling.innerText = "NÍVEL"; 
+            } else {
+                document.body.classList.remove('ameaca-mundana');
+                document.getElementById('tipo-criatura').placeholder = "CRIATURA - ELEMENTO";
+                document.getElementById('na').previousElementSibling.innerText = "NA";
+            }
+            window.periciasNPC = d.pericias_mundanas || [];
+            renderizarTagsPericiasNPC();
             if (hexatombeFinal && d_raw.hexatombe_data) { 
                 d = { ...d_raw, ...d_raw.hexatombe_data }; 
                 d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
@@ -1357,6 +1393,45 @@ if (campanhaParam) {
                 try { await db.collection("combates").doc(idDaCampanhaAtiva).delete(); } catch (e) {}
             }
         };
+
+    const listaCompletaPericias = ["Acrobacia", "Adestramento", "Artes", "Atletismo", "Atualidades", "Avaliação", "Balística", "Briga", "Ciências", "Ciências Ocultas", "Combate", "Crime", "Direção", "Direito", "Educação", "Engenharia", "Fortitude", "Furtividade", "Gastronomia", "Idiomas", "Intimidação", "Intuição", "Investigação", "Medicina", "Natação", "Percepção", "Persuasão", "Pilotagem", "Pontaria", "Proatividade", "Reflexos", "Religião", "Resiliência", "Sobrevivência", "Tecnologia"];
+
+    function abrirModalPericiasNPC() {
+        const container = document.getElementById('lista-checkbox-pericias');
+        container.innerHTML = '';
+        const selecionadas = window.periciasNPC || [];
+
+        listaCompletaPericias.forEach(p => {
+            const checked = selecionadas.includes(p) ? 'checked' : '';
+            container.innerHTML += `<label style="font-family: 'Inter', sans-serif; font-size: 13px; cursor: pointer; color: var(--op-ink); display: flex; align-items: center; gap: 8px;"><input type="checkbox" value="${p}" class="chk-pericia-npc" ${checked}> ${p}</label>`;
+        });
+        toggleElem('modal-pericias-npc');
+    }
+
+    function salvarPericiasNPC() {
+        const checkboxes = document.querySelectorAll('.chk-pericia-npc:checked');
+        const selecionadas = Array.from(checkboxes).map(c => c.value);
+        window.periciasNPC = selecionadas;
+        renderizarTagsPericiasNPC();
+        
+        // Salva de forma segura compatível com o Hexatombe
+        const hexatombeFinal = isHexatombe || globalHexatombe;
+        const path = hexatombeFinal ? "hexatombe_data.pericias_mundanas" : "pericias_mundanas";
+        let obj = {}; obj[path] = selecionadas;
+        db.collection("ameacas").doc(atual).update(obj);
+        
+        toggleElem('modal-pericias-npc');
+    }
+
+    function renderizarTagsPericiasNPC() {
+        const container = document.getElementById('tags-pericias-npc');
+        if(!container) return;
+        container.innerHTML = '';
+        const selecionadas = window.periciasNPC || [];
+        selecionadas.forEach(p => {
+            container.innerHTML += `<span style="background: var(--op-ink); color: var(--bg-paper); padding: 4px 8px; font-family: 'Special Elite', monospace; font-size: 11px; border-radius: 2px;">${p}</span>`;
+        });
+    }
         // ==========================================
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
