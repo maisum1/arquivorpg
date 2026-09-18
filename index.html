@@ -497,6 +497,16 @@ body.tema-escuro .base-card .btn-open:hover {
         <button onclick="toggleModal('modal-clonar-ameaca')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
 
+<div id="modal-tipo-ameaca" class="modal-padrao" style="z-index: 10000000;">
+        <h3 style="border-color: var(--op-red); background: var(--op-red) !important; color: #fff !important;">TIPO DE ARQUIVO</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Selecione a classificação da ameaça a ser documentada.</p>
+
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('mundana')" style="border-color: var(--op-ink); color: var(--op-ink); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 👤 ] AMEAÇA MUNDANA (NPC Humano)</button>
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('anomala')" style="border-color: var(--op-red); color: var(--op-red); font-size: 12px; margin-bottom: 15px; width: 100%;">[ 🩸 ] ANOMALIA (Criatura Paranormal)</button>
+
+        <button onclick="toggleModal('modal-tipo-ameaca')" style="width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
+    </div>
+    
     <div id="modal-selecionar-vinculo" class="modal-padrao">
         <h3 id="titulo-modal-vinculo">VINCULAR...</h3>
         <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Selecione o arquivo que deseja adicionar a esta campanha.</p>
@@ -542,12 +552,12 @@ body.tema-escuro .base-card .btn-open:hover {
 
         <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
-                <button class="btn-google" style="border-color: var(--op-red); color: var(--op-red); margin-top: 0;" onclick="criarNovaAmeaca()">[+] DOCUMENTAR ANOMALIA</button>
+                <button class="btn-google" style="border-color: var(--op-red); color: var(--op-red); margin-top: 0;" onclick="toggleModal('modal-tipo-ameaca')">[+] REGISTRAR AMEAÇA / NPC</button>
                 <button class="btn-google" style="border-color: var(--san-purple); color: var(--san-purple); margin-top: 0;" onclick="toggleModal('modal-clonar-ameaca')">[📥] CLONAR VIA LINK</button>
             </div>
             <div id="lista-ameacas" class="grid" style="max-width: 900px; margin: 0 auto;"></div>
         </div>
-
+        
         <div id="hub-campanhas" class="conteudo-hub" style="display: none;">
             <button class="btn-google" style="border-color: var(--san-purple); color: var(--san-purple);" onclick="criarCampanha()">[+] FUNDAR NOVA CAMPANHA</button>
             <div id="lista-campanhas" class="grid" style="max-width: 900px; margin: 20px auto 0 auto;"></div>
@@ -1164,11 +1174,33 @@ body.tema-escuro .base-card .btn-open:hover {
             }
         }
 
-        async function criarNovaAmeaca() {
+        async function criarNovaAmeaca(tipo = 'anomala') {
             const user = auth.currentUser;
             const mNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
-            const ref = await db.collection("ameacas").add({ dono: user.uid, mestreNome: mNome, nome: "ENTIDADE DESCONHECIDA", elemento: "SANGUE", na: 0, pvAtual: 20, pvMax: 20, pX: 50, pY: 50, pZ: 1, campanhasIds: [] });
-            window.location.href = `ameaca.html?id=${ref.id}`;
+
+            let nomePadrao = tipo === 'mundana' ? "NOVO NPC" : "ENTIDADE DESCONHECIDA";
+            let elementoPadrao = tipo === 'mundana' ? "Mundano" : "SANGUE";
+
+            try {
+                if (document.getElementById('modal-tipo-ameaca').style.display === 'block') {
+                    toggleModal('modal-tipo-ameaca');
+                }
+                const ref = await db.collection("ameacas").add({
+                    dono: user.uid,
+                    mestreNome: mNome,
+                    nome: nomePadrao,
+                    elemento: elementoPadrao,
+                    tipoAmeaca: tipo,
+                    na: 0,
+                    pvAtual: 20, pvMax: 20,
+                    pX: 50, pY: 50, pZ: 1,
+                    campanhasIds: []
+                });
+                window.location.href = `ameaca.html?id=${ref.id}`;
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao criar arquivo.");
+            }
         }
 
         function renderAmeacaCard(doc, context = 'hub') {
