@@ -4757,6 +4757,48 @@ let filtroSubAtualAtaques = 'Todos';
 }
 </style>
 
+<style id="fq-mobile-layout-v5">
+/* V5 — composição mobile: mais área útil, perícias legíveis e retrato central. */
+.fq-attr-bars i.neg{background:var(--fq-red-hi)!important;border-color:var(--fq-red-hi)!important;box-shadow:0 0 5px rgba(180,35,40,.18)}
+@media(max-width:600px){
+  .fq-character{
+    left:31%;top:23%;width:38%;height:49%;
+    z-index:3;
+  }
+  .fq-character img.fq-cutout{
+    width:100%;height:100%;max-width:100%;max-height:100%;
+    object-fit:contain!important;object-position:50% 50%!important;
+  }
+  .fq-attrs{left:5.5%;top:21.5%;width:38%;z-index:5}
+  .fq-resources{right:5.5%;top:21.5%;width:31%;z-index:5}
+  .fq-skills-block{
+    left:5.5%;top:51.5%;width:42%;bottom:auto;max-height:25.5%;
+    z-index:7;overflow:hidden;
+  }
+  .fq-abilities{
+    right:5.5%;top:51.5%;width:39%;max-height:25.5%;
+    z-index:7;
+  }
+  .fq-skills-block.fq-many-skills .fq-skills{column-gap:9px}
+  .fq-skill{grid-template-columns:10px minmax(0,1fr) 18px;gap:3px;padding:2px 0}
+  .fq-skill-name{font-size:8.7px;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fq-skill-attr{font-size:5px}
+  .fq-skill-value{font-size:11px}
+  .fq-ability-name{font-size:11.5px}
+  .fq-ability-desc{font-size:7.4px;line-height:1.15}
+  .fq-status{bottom:17.2%}
+}
+@media(max-width:390px){
+  .fq-character{left:30%;top:23.5%;width:40%;height:47.5%}
+  .fq-attrs{left:5.5%;top:21.5%;width:39%}
+  .fq-resources{right:5.5%;top:21.5%;width:31.5%}
+  .fq-skills-block{left:5.5%;top:52%;width:43%;max-height:25%}
+  .fq-abilities{right:5.5%;top:52%;width:40%;max-height:24.5%}
+  .fq-skill-name{font-size:8.3px}
+  .fq-skill-value{font-size:10.5px}
+}
+</style>
+
 <button id="fq-open" type="button" onclick="window.abrirFichaRapida()">✦ FICHA RÁPIDA</button>
 <div id="fq-backdrop" onclick="window.fecharFichaRapida()"></div>
 
@@ -4910,10 +4952,16 @@ let filtroSubAtualAtaques = 'Todos';
         samples.forEach(i=>{
           if(px[i+3]>10){br+=px[i];bg+=px[i+1];bb+=px[i+2];count++;}
         });
-        if(!count){ paintFallback(); return; }
-        br/=count;bg/=count;bb/=count;
+        if(!count){
+          /* Arte já transparente: não há cor de fundo para estimar.
+             Mantemos os pixels originais e deixamos o recorte alfa abaixo
+             cuidar das margens transparentes. */
+          br=bg=bb=0;
+        } else {
+          br/=count;bg/=count;bb/=count;
+        }
 
-        const tolerance=((br+bg+bb)/3>225)?58:((Math.max(br,bg,bb)-Math.min(br,bg,bb)<28)?62:48);
+        const tolerance=count ? (((br+bg+bb)/3>225)?58:((Math.max(br,bg,bb)-Math.min(br,bg,bb)<28)?62:48)) : 0;
         const visited=new Uint8Array(w*h);
         const queue=[];
         const push=(x,y)=>{
@@ -4960,6 +5008,40 @@ let filtroSubAtualAtaques = 'Todos';
           }
         }
 
+        /* Recorta as margens transparentes criadas pelo processamento.
+           Isso faz o retrato ocupar de fato a área reservada, independente
+           do tamanho/aspect ratio original do arquivo do portrait. */
+        let minX=w,minY=h,maxX=-1,maxY=-1;
+        for(let y=0;y<h;y++){
+          for(let x=0;x<w;x++){
+            const i=(y*w+x)*4;
+            if(px[i+3]>8){
+              if(x<minX)minX=x;if(x>maxX)maxX=x;
+              if(y<minY)minY=y;if(y>maxY)maxY=y;
+            }
+          }
+        }
+        if(maxX>=0 && maxY>=0){
+          const pad=Math.max(2,Math.round(Math.max(maxX-minX+1,maxY-minY+1)*0.025));
+          minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+          maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
+          const crop=document.createElement('canvas');
+          crop.width=maxX-minX+1; crop.height=maxY-minY+1;
+          crop.getContext('2d').putImageData(
+            new ImageData(new Uint8ClampedArray(crop.width*crop.height*4),crop.width,crop.height),0,0
+          );
+          const cropCtx=crop.getContext('2d');
+          cropCtx.clearRect(0,0,crop.width,crop.height);
+          cropCtx.drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
+          const out=crop.toDataURL('image/png');
+          if(job!==fqPortraitJob)return;
+          host.classList.remove('empty');
+          host.innerHTML=`<img class="fq-cutout" src="${out}" alt="Retrato do personagem">`;
+          const img=host.querySelector('img');
+          img.style.objectPosition="50% 50%";
+          img.style.transform="none";
+          return;
+        }
         ctx.putImageData(data,0,0);
         const out=canvas.toDataURL('image/png');
         if(job!==fqPortraitJob)return;
@@ -5002,8 +5084,12 @@ let filtroSubAtualAtaques = 'Todos';
       const v=attrVal(a), input=$('fq-'+a), bars=$('fq-bars-'+a);
       if(input && document.activeElement!==input) input.value=v;
       if(bars){
-        const count=Math.max(1,Math.min(5,v+1));
-        bars.innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<count?'on':''}"></i>`).join('');
+        const magnitude=Math.min(5,Math.abs(v));
+        const negative=v<0;
+        bars.innerHTML=Array.from({length:5},(_,i)=>{
+          const filled=i<magnitude;
+          return `<i class="${filled ? (negative?'on neg':'on') : ''}"></i>`;
+        }).join('');
       }
     });
   }
