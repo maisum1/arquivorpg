@@ -31,6 +31,161 @@
     color: var(--bg-paper);
 }
 
+        /* =========================================================
+   ESTILOS DA FICHA RÁPIDA (ORDEM PARANORMAL 2 AESTHETIC)
+========================================================= */
+#ficha-rapida-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: radial-gradient(circle at 70% 50%, #1a1a1a 0%, #050505 80%);
+    background-color: #050505;
+    z-index: 10000;
+    display: none; /* Muda para 'flex' no JS quando ativado */
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Special Elite', monospace;
+    backdrop-filter: blur(10px);
+}
+
+#ficha-rapida-overlay.active {
+    display: flex;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.fr-container {
+    width: 90%;
+    max-width: 1000px;
+    height: 85vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+}
+
+/* --- IMAGEM DO PERSONAGEM (SEM FUNDO BRANCO E COM EFEITO DE MESCLAGEM) --- */
+.fr-portrait-wrapper {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important; /* Corrige o bug do fundo branco */
+}
+
+.fr-portrait-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    background: transparent !important;
+    /* Isso faz a parte de baixo da imagem sumir gradativamente, como no Photoshop! */
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+    filter: drop-shadow(0 0 20px rgba(158, 11, 15, 0.2)); /* Brilho vermelho sutil */
+}
+
+/* --- INFORMAÇÕES E TEXTOS --- */
+.fr-info-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+}
+
+.fr-name {
+    font-family: 'Crimson Text', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin: 0;
+    line-height: 1;
+    border-bottom: 2px solid var(--op-red);
+    padding-bottom: 10px;
+}
+.fr-name span { color: var(--op-red); } /* Para destacar o sobrenome, se quiser */
+
+/* --- ATRIBUTOS (CORRIGINDO A SOBREPOSIÇÃO) --- */
+.fr-atributos-grid {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 25px;
+    border-radius: 4px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.fr-attr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.fr-attr-val {
+    font-size: 38px;
+    color: #fff;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.fr-attr-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--cor-geral);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* --- PERÍCIAS E DETALHES --- */
+.fr-pericias-lista {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #d4d4d4;
+    columns: 2; /* Divide em duas colunas pra ficar elegante */
+    column-gap: 40px;
+}
+
+.fr-pericias-lista span {
+    color: var(--op-red);
+    font-weight: bold;
+}
+
+.btn-voltar-ficha {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid var(--op-red);
+    color: var(--op-red);
+    padding: 10px 20px;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+.btn-voltar-ficha:hover {
+    background: var(--op-red);
+    color: #fff;
+    box-shadow: 0 0 15px var(--op-red);
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Responsividade Básica para telas menores */
+@media (max-width: 900px) {
+    .fr-container { flex-direction: column; gap: 20px; text-align: center; }
+    .fr-name { font-size: 36px; border-bottom: none; }
+    .btn-voltar-ficha { align-self: center; }
+    .fr-portrait-wrapper { height: 40vh; }
+}
+        
 /* Cor dourada ativada apenas no Modo Escuro */
 body.tema-escuro .btn-incluir {
     background: var(--accent-gold);
@@ -4605,7 +4760,63 @@ body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}bod
   document.addEventListener('change',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))setTimeout(()=>refresh(true),50);});
   setTimeout(()=>refresh(true),1200);
 })();
+
+    function toggleFichaRapida() {
+    const overlay = document.getElementById('ficha-rapida-overlay');
+    
+    if (!overlay.classList.contains('active')) {
+        // Pega os valores da ficha completa e joga pra ficha rápida antes de abrir
+        document.getElementById('fr-nome').innerText = document.querySelector('.header-name').value || "DESCONHECIDO";
+        // Pegue os atributos...
+        document.getElementById('fr-agi').innerText = document.getElementById('atributo-agi').value || "0";
+        // Pegue a imagem e aplique...
+        const imgSrc = document.querySelector('.portrait-box img').src;
+        document.getElementById('fr-img-personagem').src = imgSrc;
+        
+        overlay.classList.add('active');
+    } else {
+        overlay.classList.remove('active');
+    }
+}
 </script>
 
+    <!-- OVERLAY DA FICHA RÁPIDA (Estilo OP2) -->
+<div id="ficha-rapida-overlay">
+    <div class="fr-container">
+        
+        <!-- Lado Esquerdo: Imagem com Fade-out -->
+        <div class="fr-portrait-wrapper">
+            <!-- Puxe o src da imagem dinamicamente do seu JS -->
+            <img id="fr-img-personagem" src="link-da-sua-imagem.png" alt="Personagem">
+        </div>
+
+        <!-- Lado Direito: Informações Organizadas -->
+        <div class="fr-info-panel">
+            <h1 class="fr-name" id="fr-nome">NOME DO <span>PERSONAGEM</span></h1>
+            
+            <div class="fr-atributos-grid">
+                <div class="fr-attr"><span class="fr-attr-val" id="fr-agi">2</span><span class="fr-attr-label">AGI</span></div>
+                <div class="fr-attr"><span class="fr-attr-val" id="fr-for">1</span><span class="fr-attr-label">FOR</span></div>
+                <div class="fr-attr"><span class="fr-attr-val" id="fr-int">3</span><span class="fr-attr-label">INT</span></div>
+                <div class="fr-attr"><span class="fr-attr-val" id="fr-pre">2</span><span class="fr-attr-label">PRE</span></div>
+                <div class="fr-attr"><span class="fr-attr-val" id="fr-vig">2</span><span class="fr-attr-label">VIG</span></div>
+            </div>
+
+            <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #888; letter-spacing: 2px; border-bottom: 1px dotted #333; padding-bottom: 5px; margin-bottom: -15px;">PERÍCIAS EM DESTAQUE</div>
+            
+            <div class="fr-pericias-lista" id="fr-pericias">
+                <!-- Exemplo de como devem ser inseridas pelo seu script -->
+                Luta <span>+10</span><br>
+                Pontaria <span>+5</span><br>
+                Investigação <span>+10</span><br>
+                Ocultismo <span>+15</span><br>
+                Vontade <span>+5</span><br>
+                Iniciativa <span>+10</span>
+            </div>
+
+            <button class="btn-voltar-ficha" onclick="toggleFichaRapida()">Voltar para Ficha Completa</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
