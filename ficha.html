@@ -4758,7 +4758,7 @@ let filtroSubAtualAtaques = 'Todos';
 </style>
 
 <style id="fq-mobile-layout-v5">
-/* V5 — composição mobile: mais área útil, perícias legíveis e retrato central. */
+/* V5 — composição mobile: mais área útil, perícias legíveis e retrato central. (base preservada) */
 .fq-attr-bars i.neg{background:var(--fq-red-hi)!important;border-color:var(--fq-red-hi)!important;box-shadow:0 0 5px rgba(180,35,40,.18)}
 @media(max-width:600px){
   .fq-character{
@@ -4796,6 +4796,129 @@ let filtroSubAtualAtaques = 'Todos';
   .fq-abilities{right:5.5%;top:52%;width:40%;max-height:24.5%}
   .fq-skill-name{font-size:8.3px}
   .fq-skill-value{font-size:10.5px}
+}
+</style>
+
+<style id="fq-mobile-layout-v6">
+/* V6 — celular: composição alinhada à referência visual.
+   Desktop permanece intocado. */
+@media(max-width:600px){
+  .fq-close{
+    right:10px !important;
+    top:12px !important;
+    width:28px;height:28px;
+    z-index:50;
+  }
+
+  /* Retrato maior e central, ocupando o miolo da folha sem voltar ao card/fundo. */
+  .fq-character{
+    left:25%;
+    top:19%;
+    width:50%;
+    height:60%;
+    z-index:3;
+  }
+  .fq-character img.fq-cutout{
+    width:100%;height:100%;
+    max-width:100%;max-height:100%;
+    object-fit:contain !important;
+    object-position:50% 50% !important;
+    mix-blend-mode:normal !important;
+  }
+
+  /* Atributos e recursos continuam por cima do retrato, preservando a leitura. */
+  .fq-attrs{
+    left:5.5%;
+    top:21%;
+    width:35%;
+    z-index:8;
+  }
+  .fq-resources{
+    right:5.5%;
+    top:21%;
+    width:31%;
+    z-index:8;
+  }
+
+  /* Cinco quadrados sempre visíveis; não reduzir a quantidade no mobile. */
+  .fq-attr-bars{
+    display:flex;
+    gap:2px;
+    height:12px;
+  }
+  .fq-attr-bars i{
+    flex:1 1 0;
+    min-width:0;
+  }
+
+  /* Perícias/habilidades descem para a metade inferior e ganham mais largura. */
+  .fq-skills-block{
+    left:5.5%;
+    top:55%;
+    width:44%;
+    bottom:auto;
+    max-height:24.5%;
+    z-index:9;
+    overflow:hidden;
+  }
+  .fq-abilities{
+    right:5.5%;
+    top:55%;
+    width:39%;
+    max-height:24.5%;
+    z-index:9;
+    overflow:hidden;
+  }
+  .fq-skill{
+    grid-template-columns:11px minmax(0,1fr) 20px;
+    gap:3px;
+    padding:3px 0;
+  }
+  .fq-skill-name{
+    font-size:9.2px;
+    line-height:1.08;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .fq-skill-attr{font-size:5.2px}
+  .fq-skill-value{font-size:11.5px}
+  .fq-ability-name{font-size:11.5px}
+  .fq-ability-desc{font-size:7.5px;line-height:1.16}
+
+  /* Condições ficam mais próximas da faixa inferior, sem colar nos atributos acima. */
+  .fq-status{
+    left:5.5%;
+    right:5.5%;
+    bottom:13.8%;
+    z-index:9;
+  }
+
+  /* Rodapé já estava bom no celular; apenas mantém os atalhos fora da linha da moldura. */
+  .fq-actions{
+    left:5%;right:5%;bottom:1.85%;
+    z-index:12;
+  }
+
+  /* O botão de iniciativa fica numa faixa própria, sem encostar na ficha rápida. */
+  #btn-toggle-iniciativa{
+    right:165px !important;
+    bottom:10px !important;
+    z-index:9998 !important;
+  }
+}
+
+@media(max-width:390px){
+  .fq-character{left:23%;top:19%;width:54%;height:59%}
+  .fq-attrs{left:5%;top:21%;width:38%}
+  .fq-resources{right:5%;top:21%;width:32%}
+  .fq-skills-block{left:5%;top:55.5%;width:45%;max-height:24%}
+  .fq-abilities{right:5%;top:55.5%;width:40%;max-height:23.5%}
+  .fq-skill-name{font-size:8.8px}
+  .fq-skill-value{font-size:10.8px}
+  .fq-status{left:5%;right:5%;bottom:13.8%}
+  .fq-actions{left:4%;right:4%;bottom:1.8%}
+  #btn-toggle-iniciativa{right:160px !important}
 }
 </style>
 
@@ -5025,11 +5148,13 @@ let filtroSubAtualAtaques = 'Todos';
           const pad=Math.max(2,Math.round(Math.max(maxX-minX+1,maxY-minY+1)*0.025));
           minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
           maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
+          /* IMPORTANTE: o processamento de transparência foi feito no ImageData;
+             devolvemos os pixels tratados ao canvas ANTES de recortar. Sem isso,
+             o recorte voltava a desenhar a imagem original e o fundo cinza/branco
+             reaparecia. */
+          ctx.putImageData(data,0,0);
           const crop=document.createElement('canvas');
           crop.width=maxX-minX+1; crop.height=maxY-minY+1;
-          crop.getContext('2d').putImageData(
-            new ImageData(new Uint8ClampedArray(crop.width*crop.height*4),crop.width,crop.height),0,0
-          );
           const cropCtx=crop.getContext('2d');
           cropCtx.clearRect(0,0,crop.width,crop.height);
           cropCtx.drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
@@ -5086,6 +5211,8 @@ let filtroSubAtualAtaques = 'Todos';
       if(bars){
         const magnitude=Math.min(5,Math.abs(v));
         const negative=v<0;
+        /* Sempre exatamente CINCO quadrados por atributo.
+           0 = nenhum; 1..5 = brancos; -1..-5 = vermelhos. */
         bars.innerHTML=Array.from({length:5},(_,i)=>{
           const filled=i<magnitude;
           return `<i class="${filled ? (negative?'on neg':'on') : ''}"></i>`;
