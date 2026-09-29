@@ -4299,6 +4299,16 @@ let filtroSubAtualAtaques = 'Todos';
 }
 #fq-open:hover{transform:translateY(-2px);border-color:var(--fq-red-hi);color:#fff}
 
+/* Durante um combate, o botão de iniciativa nunca ocupa a mesma área da Ficha Rápida.
+   As regras abaixo vencem o posicionamento inline original do botão. */
+@media(min-width:601px){
+  #btn-toggle-iniciativa{right:185px !important;bottom:18px !important;z-index:9998 !important}
+}
+@media(max-width:600px){
+  #fq-open{right:10px;bottom:10px}
+  #btn-toggle-iniciativa{right:155px !important;bottom:10px !important;z-index:9998 !important}
+}
+
 /* Overlay */
 #fq-backdrop{
   position:fixed;inset:0;z-index:9991;
@@ -4716,32 +4726,35 @@ let filtroSubAtualAtaques = 'Todos';
 @media(max-width:600px){
   .fq-skills-block.fq-many-skills .fq-skills{column-gap:7px}
 }
+</style>
 
 <style id="fq-final-polish">
-/* Ajustes finais solicitados: composição desktop + controles inferiores + celular. */
+/* Ajustes finais: somente posicionamento responsivo. */
 @media(min-width:601px){
-  /* O corredor superior fica livre do título/subtítulo. */
-  .fq-rule.r1{top:16.4%}
-  .fq-cross.c1,.fq-cross.c2{top:15.6%}
-  /* A segunda marca delimita a área superior sem cair sobre o rodapé. */
-  .fq-cross.c3,.fq-cross.c4{top:40.4%}
-  /* Sobe só alguns pixels os atalhos para não encostarem na moldura inferior. */
-  .fq-actions{bottom:1.8%}
-  /* Quando o combate está ativo, o botão de iniciativa fica ao lado da Ficha Rápida. */
-  #btn-toggle-iniciativa{right:160px !important;bottom:18px !important}
+  /* Cabeçalho: os crosses ficam abaixo do subtítulo/NEX e não atravessam texto. */
+  .fq-rule.r1{top:17.1%}
+  .fq-cross.c1,.fq-cross.c2{top:16.75%}
+  /* Crosses inferiores marcam o fim da área superior, sem competir com status/rodapé. */
+  .fq-cross.c3,.fq-cross.c4{top:42.2%}
+  .fq-rule.r2{top:41.7%}
+  /* Sobe alguns pixels os atalhos do desktop para liberar a linha da moldura. */
+  .fq-actions{bottom:2.25%}
+  /* Iniciativa e Ficha Rápida ficam lado a lado quando o combate estiver ativo. */
+  #btn-toggle-iniciativa{right:185px !important;bottom:18px !important}
 }
 
 @media(max-width:600px){
-  /* Desce o enquadramento do personagem para o cabeçalho não esconder a cabeça. */
-  .fq-character{top:18%;height:61%}
-  /* X um pouco mais afastado do bloco NÍVEL. */
-  .fq-close{right:15px;top:20px}
-  /* No celular os atalhos sobem um pouco mais da linha da moldura. */
+  /* No celular o retrato desce e ganha uma área mais baixa; object-position
+     inferior mantém os pés dentro da composição e evita a cabeça atrás do cabeçalho. */
+  .fq-character{left:26%;top:20.5%;width:48%;height:62%;}
+  .fq-character img.fq-cutout{object-position:50% 100% !important;}
+  /* X fica na extremidade da folha, separado visualmente do NÍVEL. */
+  .fq-close{right:5px;top:18px}
+  /* Mantém os atalhos acima da linha inferior, como já estava bom no celular. */
   .fq-actions{bottom:1.85%}
-  /* Iniciativa + Ficha Rápida ocupam a mesma faixa, lado a lado. */
-  #btn-toggle-iniciativa{right:138px !important;bottom:10px !important}
+  /* Iniciativa e Ficha Rápida ocupam a mesma faixa, lado a lado. */
+  #btn-toggle-iniciativa{right:155px !important;bottom:10px !important}
 }
-</style>
 </style>
 
 <button id="fq-open" type="button" onclick="window.abrirFichaRapida()">✦ FICHA RÁPIDA</button>
