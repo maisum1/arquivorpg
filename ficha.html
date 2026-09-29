@@ -4671,6 +4671,38 @@ let filtroSubAtualAtaques = 'Todos';
   .fq-bottom{left:5.5%;right:5.5%;bottom:5.8%;display:flex;flex-direction:column;align-items:flex-start;gap:4px}.fq-status-values{gap:7px}.fq-bigstat{font-size:14px}.fq-defense{gap:8px}.fq-defense span{font-size:11px}
   .fq-actions{left:5%;right:5%;bottom:1%;}.fq-action{font-size:5px;padding:3px 5px;letter-spacing:.5px}
 }
+/* Ajustes finais de enquadramento e espaçamento.
+   Mantém a composição original intacta e apenas cria corredores seguros
+   entre cabeçalho → atributos → perícias, além de normalizar o retrato. */
+.fq-player{margin-top:4px}
+.fq-character{left:29%;top:15.5%;width:42%;height:49%}
+.fq-character img{transform:none!important;max-width:100%;max-height:100%;object-fit:contain;object-position:center center}
+.fq-attrs{top:20.5%}
+.fq-skills-block{top:46%;max-height:24.5%}
+.fq-abilities{top:46%;max-height:24.5%}
+
+@media(max-width:600px){
+  .fq-sheet{width:96vw;height:97vh}
+  .fq-nameblock{left:6%;right:32%;top:4.7%}
+  .fq-player{margin-top:3px;font-size:6px}
+  .fq-character{left:28%;top:15.5%;width:44%;height:45%}
+  .fq-character img{transform:none!important;object-fit:contain;object-position:center center}
+  .fq-attrs{left:5.5%;top:20%;width:31%}
+  .fq-skills-block{left:5.5%;top:45%;width:29%;max-height:24.5%}
+  .fq-abilities{right:5.5%;top:45%;width:29%;max-height:22.5%}
+}
+
+@media(max-width:390px){
+  .fq-name{font-size:21px}
+  .fq-subtitle{font-size:9px;letter-spacing:1px}
+  .fq-topmeta{right:5.5%}
+  .fq-level{font-size:20px}
+  .fq-character{left:27%;width:46%;height:44%}
+  .fq-attrs{top:20.5%;width:32%}
+  .fq-attr-name{font-size:14px}
+  .fq-skills-block{top:45.5%;width:30%;max-height:23.5%}
+  .fq-abilities{top:45.5%;width:30%;max-height:21.5%}
+}
 </style>
 
 <button id="fq-open" type="button" onclick="window.abrirFichaRapida()">✦ FICHA RÁPIDA</button>
@@ -4779,9 +4811,13 @@ let filtroSubAtualAtaques = 'Todos';
     fqPortraitSource=url;
     const job=++fqPortraitJob;
 
-    /* Mantém o enquadramento usado na ficha completa. */
-    const objectPosition = src.style.objectPosition || "50% 50%";
-    const transform = src.style.transform || "none";
+    /*
+      A ficha rápida tem seu próprio enquadramento.
+      O zoom/scale usado no retrato da ficha completa não é reaproveitado:
+      ele pode ser diferente para cada imagem e fazia alguns personagens
+      explodirem para fora da composição. Mantemos apenas a posição focal.
+    */
+    const objectPosition = getComputedStyle(src).objectPosition || "50% 50%";
 
     const paintFallback=()=>{
       if(job!==fqPortraitJob) return;
@@ -4789,7 +4825,7 @@ let filtroSubAtualAtaques = 'Todos';
       host.innerHTML=`<img class="fq-cutout" src="${esc(url)}" alt="Retrato do personagem">`;
       const img=host.querySelector('img');
       img.style.objectPosition=objectPosition;
-      img.style.transform=transform;
+      img.style.transform="none";
     };
 
     /*
