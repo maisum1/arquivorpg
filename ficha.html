@@ -31,161 +31,6 @@
     color: var(--bg-paper);
 }
 
-        /* =========================================================
-   ESTILOS DA FICHA RÁPIDA (ORDEM PARANORMAL 2 AESTHETIC)
-========================================================= */
-#ficha-rapida-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: radial-gradient(circle at 70% 50%, #1a1a1a 0%, #050505 80%);
-    background-color: #050505;
-    z-index: 10000;
-    display: none; /* Muda para 'flex' no JS quando ativado */
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-family: 'Special Elite', monospace;
-    backdrop-filter: blur(10px);
-}
-
-#ficha-rapida-overlay.active {
-    display: flex;
-    animation: fadeIn 0.4s ease-out;
-}
-
-.fr-container {
-    width: 90%;
-    max-width: 1000px;
-    height: 85vh;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 40px;
-    position: relative;
-}
-
-/* --- IMAGEM DO PERSONAGEM (SEM FUNDO BRANCO E COM EFEITO DE MESCLAGEM) --- */
-.fr-portrait-wrapper {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent !important; /* Corrige o bug do fundo branco */
-}
-
-.fr-portrait-wrapper img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    background: transparent !important;
-    /* Isso faz a parte de baixo da imagem sumir gradativamente, como no Photoshop! */
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-    filter: drop-shadow(0 0 20px rgba(158, 11, 15, 0.2)); /* Brilho vermelho sutil */
-}
-
-/* --- INFORMAÇÕES E TEXTOS --- */
-.fr-info-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
-}
-
-.fr-name {
-    font-family: 'Crimson Text', serif;
-    font-size: 52px;
-    font-weight: 900;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    margin: 0;
-    line-height: 1;
-    border-bottom: 2px solid var(--op-red);
-    padding-bottom: 10px;
-}
-.fr-name span { color: var(--op-red); } /* Para destacar o sobrenome, se quiser */
-
-/* --- ATRIBUTOS (CORRIGINDO A SOBREPOSIÇÃO) --- */
-.fr-atributos-grid {
-    display: flex;
-    justify-content: space-between;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 15px 25px;
-    border-radius: 4px;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-}
-
-.fr-attr {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.fr-attr-val {
-    font-size: 38px;
-    color: #fff;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.fr-attr-label {
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    color: var(--cor-geral);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-/* --- PERÍCIAS E DETALHES --- */
-.fr-pericias-lista {
-    font-size: 18px;
-    line-height: 1.6;
-    color: #d4d4d4;
-    columns: 2; /* Divide em duas colunas pra ficar elegante */
-    column-gap: 40px;
-}
-
-.fr-pericias-lista span {
-    color: var(--op-red);
-    font-weight: bold;
-}
-
-.btn-voltar-ficha {
-    align-self: flex-start;
-    background: transparent;
-    border: 1px solid var(--op-red);
-    color: var(--op-red);
-    padding: 10px 20px;
-    font-family: 'Inter', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 20px;
-}
-.btn-voltar-ficha:hover {
-    background: var(--op-red);
-    color: #fff;
-    box-shadow: 0 0 15px var(--op-red);
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* Responsividade Básica para telas menores */
-@media (max-width: 900px) {
-    .fr-container { flex-direction: column; gap: 20px; text-align: center; }
-    .fr-name { font-size: 36px; border-bottom: none; }
-    .btn-voltar-ficha { align-self: center; }
-    .fr-portrait-wrapper { height: 40vh; }
-}
-        
 /* Cor dourada ativada apenas no Modo Escuro */
 body.tema-escuro .btn-incluir {
     background: var(--accent-gold);
@@ -4418,94 +4263,413 @@ let filtroSubAtualAtaques = 'Todos';
     </div>
 </div>
 
+
 <style id="ficha-rapida-css">
 /* =========================================================
-   FICHA RÁPIDA — composição ilustrada
-   Pensada para parecer uma ficha de papel/arte, não um painel.
+   FICHA RÁPIDA — composição editorial / Ordem Paranormal II
+   Escopo isolado: todas as regras começam com .fq / #fq.
    ========================================================= */
 :root{
-  --fq-paper:#efe4c9;
-  --fq-paper-deep:#e2d1ae;
-  --fq-ink:#16130f;
-  --fq-red:#9b171b;
-  --fq-blue:#2e5365;
-  --fq-gold:#9a752c;
-  --fq-green:#465d39;
-  --fq-line:rgba(32,25,16,.26);
+  --fq-bg:#0b0b0a;
+  --fq-panel:#121211;
+  --fq-paper:#e8e0ce;
+  --fq-paper-2:#cfc3aa;
+  --fq-ink:#ece7dc;
+  --fq-muted:#a69f92;
+  --fq-line:rgba(232,224,206,.24);
+  --fq-line-soft:rgba(232,224,206,.11);
+  --fq-red:#a9191e;
+  --fq-red-hi:#d13a38;
+  --fq-gold:#b59a69;
+  --fq-green:#66795a;
+  --fq-blue:#607c8d;
+  --fq-shadow:0 30px 90px rgba(0,0,0,.78);
 }
-#fq-open{position:fixed;right:18px;bottom:18px;z-index:9990;border:1px solid #d9c8a2;background:#17130e;color:#f5ead2;padding:11px 15px;border-radius:2px;cursor:pointer;font:900 10px/1 'Inter',sans-serif;letter-spacing:1.5px;text-transform:uppercase;box-shadow:0 8px 25px rgba(0,0,0,.4);transition:.2s ease}
-#fq-open:hover{transform:translateY(-2px)}
-#fq-backdrop{position:fixed;inset:0;z-index:9991;background:rgba(0,0,0,.76);opacity:0;pointer-events:none;transition:opacity .25s ease;backdrop-filter:blur(3px)}
+
+/* Botão fora da ficha */
+#fq-open{
+  position:fixed;right:18px;bottom:18px;z-index:9990;
+  border:1px solid rgba(232,224,206,.35);
+  background:#0d0d0c;color:#eee6d6;
+  padding:11px 15px;cursor:pointer;
+  font:900 10px/1 'Inter',sans-serif;
+  letter-spacing:1.6px;text-transform:uppercase;
+  box-shadow:0 8px 25px rgba(0,0,0,.45);
+  transition:.2s ease;
+}
+#fq-open:hover{transform:translateY(-2px);border-color:var(--fq-red-hi);color:#fff}
+
+/* Overlay */
+#fq-backdrop{
+  position:fixed;inset:0;z-index:9991;
+  background:rgba(0,0,0,.86);
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease;
+  backdrop-filter:blur(4px);
+}
 #fq-backdrop.open{opacity:1;pointer-events:auto}
-#ficha-rapida{position:fixed;inset:0;z-index:9992;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .22s ease,visibility .22s ease}
+
+#ficha-rapida{
+  position:fixed;inset:0;z-index:9992;
+  display:flex;align-items:center;justify-content:center;
+  padding:18px;box-sizing:border-box;
+  opacity:0;pointer-events:none;visibility:hidden;
+  transition:opacity .22s ease,visibility .22s ease;
+}
 #ficha-rapida.open{opacity:1;pointer-events:auto;visibility:visible}
-.fq-sheet{position:relative;width:min(920px,94vw);height:min(1180px,94vh);aspect-ratio:3/4;overflow:hidden;color:var(--fq-ink);background:radial-gradient(circle at 13% 15%,rgba(117,79,27,.08),transparent 24%),radial-gradient(circle at 88% 78%,rgba(117,79,27,.09),transparent 28%),linear-gradient(90deg,rgba(92,59,19,.035),transparent 15%,transparent 85%,rgba(92,59,19,.04)),var(--fq-paper);box-shadow:0 22px 70px rgba(0,0,0,.65);border:1px solid rgba(55,39,20,.55);font-family:'Crimson Text',Georgia,serif}
-.fq-sheet:before{content:"";position:absolute;inset:12px;border:1px solid rgba(40,30,18,.35);pointer-events:none;z-index:20}
-.fq-sheet:after{content:"";position:absolute;inset:18px;border:1px solid rgba(40,30,18,.13);pointer-events:none;z-index:20}
-.fq-corner{position:absolute;width:34px;height:34px;z-index:21;opacity:.7}.fq-corner.tl{left:9px;top:9px;border-left:2px solid var(--fq-ink);border-top:2px solid var(--fq-ink)}.fq-corner.tr{right:9px;top:9px;border-right:2px solid var(--fq-ink);border-top:2px solid var(--fq-ink)}.fq-corner.bl{left:9px;bottom:9px;border-left:2px solid var(--fq-ink);border-bottom:2px solid var(--fq-ink)}.fq-corner.br{right:9px;bottom:9px;border-right:2px solid var(--fq-ink);border-bottom:2px solid var(--fq-ink)}
-.fq-close{position:absolute;right:28px;top:26px;z-index:30;width:30px;height:30px;border:0;background:transparent;color:var(--fq-ink);cursor:pointer;font:900 24px/1 Georgia,serif;opacity:.75}.fq-close:hover{opacity:1;transform:scale(1.08)}
+
+/* Folha */
+.fq-sheet{
+  position:relative;
+  width:min(1000px,96vw);
+  height:min(1180px,96vh);
+  aspect-ratio:4/5;
+  overflow:hidden;
+  color:var(--fq-ink);
+  background:
+    radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.035),transparent 43%),
+    radial-gradient(circle at 8% 12%,rgba(169,25,30,.10),transparent 25%),
+    radial-gradient(circle at 91% 76%,rgba(169,25,30,.07),transparent 30%),
+    linear-gradient(105deg,#090908 0%,#11110f 48%,#090908 100%);
+  box-shadow:var(--fq-shadow);
+  border:1px solid rgba(232,224,206,.32);
+  font-family:'Crimson Text',Georgia,serif;
+  isolation:isolate;
+}
+
+/* Textura sem imagem externa */
+.fq-sheet:before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.42;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 4px),
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.03) 0 1px,transparent 1px),
+    radial-gradient(circle at 70% 65%,rgba(255,255,255,.025) 0 1px,transparent 1px);
+  background-size:auto,9px 9px,13px 13px;
+  mix-blend-mode:screen;
+}
+
+/* Moldura dupla + cantos */
+.fq-sheet:after{
+  content:"";position:absolute;inset:13px;z-index:25;pointer-events:none;
+  border:1px solid rgba(232,224,206,.22);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.5);
+}
+.fq-corner{
+  position:absolute;width:42px;height:42px;z-index:30;opacity:.82;pointer-events:none;
+}
+.fq-corner.tl{left:7px;top:7px;border-left:2px solid var(--fq-muted);border-top:2px solid var(--fq-muted)}
+.fq-corner.tr{right:7px;top:7px;border-right:2px solid var(--fq-muted);border-top:2px solid var(--fq-muted)}
+.fq-corner.bl{left:7px;bottom:7px;border-left:2px solid var(--fq-muted);border-bottom:2px solid var(--fq-muted)}
+.fq-corner.br{right:7px;bottom:7px;border-right:2px solid var(--fq-muted);border-bottom:2px solid var(--fq-muted)}
+.fq-corner:after{
+  content:"";position:absolute;width:7px;height:7px;background:var(--fq-red);
+  box-shadow:0 0 12px rgba(169,25,30,.5);
+}
+.fq-corner.tl:after{left:-4px;top:-4px}.fq-corner.tr:after{right:-4px;top:-4px}
+.fq-corner.bl:after{left:-4px;bottom:-4px}.fq-corner.br:after{right:-4px;bottom:-4px}
+
+.fq-close{
+  position:absolute;right:28px;top:25px;z-index:40;
+  width:30px;height:30px;border:0;background:transparent;
+  color:var(--fq-paper);cursor:pointer;
+  font:900 25px/1 Georgia,serif;opacity:.65;
+}
+.fq-close:hover{opacity:1;color:#fff;transform:scale(1.08)}
+
+/* Linhas de composição */
+.fq-rule{
+  position:absolute;z-index:2;pointer-events:none;
+  height:1px;background:linear-gradient(90deg,transparent,var(--fq-line),transparent);
+}
+.fq-rule.r1{left:7%;right:7%;top:14.2%}
+.fq-rule.r2{left:7%;right:7%;top:39.2%;opacity:.65}
+.fq-rule.r3{left:7%;right:7%;bottom:14.3%;opacity:.55}
+.fq-cross{
+  position:absolute;z-index:3;width:18px;height:18px;opacity:.55;pointer-events:none;
+}
+.fq-cross:before,.fq-cross:after{content:"";position:absolute;background:var(--fq-red)}
+.fq-cross:before{width:18px;height:1px;left:0;top:8px}.fq-cross:after{width:1px;height:18px;left:8px;top:0}
+.fq-cross.c1{left:6.1%;top:13.55%}.fq-cross.c2{right:6.1%;top:13.55%}
+.fq-cross.c3{left:6.1%;top:38.55%}.fq-cross.c4{right:6.1%;top:38.55%}
 
 /* Cabeçalho */
-.fq-nameblock{position:absolute;left:7%;right:27%;top:5.2%;z-index:10}
-.fq-name{font:500 clamp(29px,4.4vw,53px)/.88 'Crimson Text',Georgia,serif;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fq-subtitle{font:500 clamp(13px,1.45vw,18px)/1.1 'Crimson Text',Georgia,serif;margin-top:5px}
-/* A frase não é necessária na ficha de combate e estava criando uma linha vazia/ruído. */
-.fq-quote{display:none}
-.fq-player{font:900 8px/1.2 'Inter',sans-serif;letter-spacing:1.4px;text-transform:uppercase;margin-top:8px;opacity:.65}
-.fq-topmeta{position:absolute;right:7%;top:5.4%;z-index:10;text-align:right;min-width:18%}
-.fq-level{font:500 clamp(25px,3.2vw,40px)/.9 'Crimson Text',Georgia,serif;white-space:nowrap}.fq-meta-line{font:900 8px/1.3 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:3px}.fq-meta-line b{font-size:11px}
-
-/* Personagem central — menor e centralizado para deixar corredores laterais livres. */
-.fq-character{position:absolute;z-index:3;left:34%;top:14%;width:32%;height:58%;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
-.fq-character img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(2px 5px 5px rgba(0,0,0,.15))}.fq-character.empty{font:900 10px/1.5 'Inter',sans-serif;text-align:center;letter-spacing:1px;opacity:.35;align-items:center}
-
-.fq-block{position:absolute;z-index:8}.fq-label{display:block;font:900 clamp(9px,1.05vw,12px)/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--fq-ink);padding-bottom:4px}
-
-/* Atributos: valor é texto transparente, sem a caixa branca do input padrão. */
-.fq-attrs{left:7%;top:18%;width:25%}
-.fq-attr-row{display:grid;grid-template-columns:minmax(34px,1fr) 29px minmax(55px,68px);align-items:center;gap:5px;margin:5px 0}
-.fq-attr-name{text-align:right;font:500 clamp(17px,2vw,25px)/1 'Crimson Text',Georgia,serif;text-transform:uppercase}
-.fq-attr-val{width:29px;min-width:29px;height:28px;box-sizing:border-box;text-align:center;padding:0;margin:0;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0;color:var(--fq-ink);font:900 clamp(16px,1.8vw,23px)/28px 'Crimson Text',Georgia,serif;-webkit-appearance:none;appearance:textfield}
-.fq-attr-val::-webkit-inner-spin-button,.fq-attr-val::-webkit-outer-spin-button{margin:0;-webkit-appearance:none}.fq-attr-val:focus{color:var(--fq-red);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
-.fq-attr-bars{display:flex;gap:3px;height:18px;align-items:stretch}.fq-attr-bars i{flex:1;min-width:0;border:1px solid rgba(70,50,20,.18);background:rgba(122,88,33,.10);border-radius:1px}.fq-attr-bars i.on{background:var(--fq-ink);border-color:var(--fq-ink)}
-
-/* Recursos */
-.fq-resources{right:7%;top:16%;width:25%}.fq-resource{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:8px;margin:8px 0}.fq-resource-tag{font:900 9px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.7px;padding:5px;background:var(--fq-ink);color:var(--fq-paper);text-align:center}.fq-resource-main{display:flex;align-items:baseline;gap:4px;border-bottom:1px solid var(--fq-line);padding-bottom:2px;min-width:0}.fq-resource-main input{width:43px;background:transparent!important;border:0!important;outline:0;color:var(--fq-ink);font:900 clamp(22px,2.7vw,33px)/.9 'Crimson Text',Georgia,serif;text-align:right;padding:0;box-shadow:none!important;-webkit-appearance:none;appearance:textfield}.fq-resource-main input::-webkit-inner-spin-button,.fq-resource-main input::-webkit-outer-spin-button{margin:0;-webkit-appearance:none}.fq-resource-main span{font:500 14px/1 'Crimson Text',Georgia,serif}.fq-resource-main b{font:900 13px/1 'Crimson Text',Georgia,serif}.fq-resource-main input:focus{border-bottom:1px dotted var(--fq-red)!important}.fq-mini-controls{display:flex;gap:2px;margin-left:auto}.fq-mini-controls button{width:17px;height:17px;border:0;background:transparent;color:var(--fq-ink);cursor:pointer;font:900 13px/1 Inter,sans-serif;padding:0}.fq-mini-controls button:hover{background:rgba(0,0,0,.08)}
-
-/* Perícias — somente treinadas. */
-.fq-skills-block{left:7%;top:38%;width:26.5%;max-height:38%;overflow:hidden}.fq-skills{display:flex;flex-direction:column;gap:1px}.fq-skill{display:grid;grid-template-columns:14px minmax(0,1fr) 24px;gap:4px;align-items:center;border-bottom:1px dotted rgba(35,25,15,.18);padding:2px 0}.fq-skill-mark{font:900 9px/1 'Inter',sans-serif;text-align:center}.fq-skill-name{font:500 clamp(10px,1.12vw,14px)/1.05 'Crimson Text',Georgia,serif;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fq-skill-attr{font:900 7px/1 'Inter',sans-serif;opacity:.5;margin-left:3px}.fq-skill-value{text-align:right;font:900 clamp(13px,1.5vw,18px)/1 'Crimson Text',Georgia,serif;color:var(--fq-red)}.fq-subskills{grid-column:2/4;font:italic 8px/1.1 'Crimson Text',Georgia,serif;opacity:.72;margin-top:-1px}.fq-empty{font:italic 11px/1.3 'Crimson Text',Georgia,serif;opacity:.55}
-
-/* Habilidades — coluna própria, sem invadir o retrato. */
-.fq-abilities{right:7%;top:38%;width:26.5%;max-height:31%;overflow:hidden}.fq-ability{margin-bottom:11px}.fq-ability-name{font:900 clamp(13px,1.55vw,18px)/1 'Crimson Text',Georgia,serif;margin-bottom:3px}.fq-ability-desc{font:italic clamp(9px,1.05vw,12px)/1.15 'Crimson Text',Georgia,serif;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-
-.fq-status{position:absolute;left:7%;right:7%;bottom:17%;z-index:8}.fq-status-label{font:900 9px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}.fq-status-list{display:flex;flex-wrap:wrap;gap:4px;min-height:17px}.fq-status-tag{font:900 8px/1 'Inter',sans-serif;letter-spacing:.5px;text-transform:uppercase;padding:4px 6px;background:var(--fq-ink);color:var(--fq-paper)}
-
-/* Linha final — ocupa a largura toda para não esmagar PV/LUC/FÔL no desktop. */
-.fq-bottom{position:absolute;left:7%;right:7%;bottom:5.5%;z-index:9;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.fq-status-values{display:flex;align-items:baseline;gap:15px;flex-wrap:wrap}.fq-bigstat{font:500 clamp(19px,2.35vw,29px)/.9 'Crimson Text',Georgia,serif;white-space:nowrap}.fq-bigstat b{font-weight:900}.fq-bigstat.vida b{color:var(--fq-red)}.fq-bigstat.san b{color:var(--fq-blue)}.fq-bigstat.pe b{color:var(--fq-gold)}.fq-defense{display:flex;justify-content:flex-end;gap:20px;align-items:baseline;flex-wrap:wrap}.fq-defense span{font:500 clamp(15px,1.8vw,23px)/1 'Crimson Text',Georgia,serif;white-space:nowrap}.fq-defense b{font-weight:900}.fq-defense small{font:900 7px/1 'Inter',sans-serif;letter-spacing:.7px;text-transform:uppercase;opacity:.55}
-.fq-actions{position:absolute;left:50%;transform:translateX(-50%);bottom:1.2%;z-index:25;display:flex;gap:4px;opacity:.72}.fq-action{border:0;background:transparent;color:var(--fq-ink);cursor:pointer;font:900 7px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;padding:4px 7px}.fq-action:hover{background:rgba(0,0,0,.08);opacity:1}.fq-action.primary{font-weight:900}
-body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}body.tema-hexatombe #ficha-rapida .fq-sheet{--fq-paper:#e5d8c0;--fq-ink:#24100e;--fq-red:#8d171c}
-
-@media(max-width:760px){
-  #ficha-rapida{padding:8px}.fq-sheet{width:98vw;height:96vh;aspect-ratio:auto}
-  .fq-nameblock{left:7%;right:31%;top:5.2%}.fq-name{font-size:29px}.fq-subtitle{font-size:13px}.fq-player{font-size:7px;margin-top:7px}
-  .fq-topmeta{right:7%;top:5.4%;min-width:22%}.fq-level{font-size:28px}.fq-meta-line{font-size:7px}
-  .fq-character{left:34%;top:15%;width:32%;height:49%}
-  .fq-attrs{left:6%;top:18%;width:28%}.fq-resources{right:6%;top:17%;width:28%}
-  .fq-attr-row{grid-template-columns:minmax(28px,1fr) 26px minmax(43px,55px);gap:4px;margin:4px 0}.fq-attr-name{font-size:18px}.fq-attr-val{width:26px;min-width:26px;height:26px;line-height:26px;font-size:18px}.fq-attr-bars{gap:2px;height:15px}.fq-resource{grid-template-columns:37px minmax(0,1fr);gap:6px;margin:7px 0}.fq-resource-tag{font-size:8px;padding:4px}.fq-resource-main input{width:37px;font-size:23px}.fq-resource-main span{font-size:12px}.fq-resource-main b{font-size:11px}.fq-mini-controls{display:none}
-  .fq-skills-block{left:6%;top:40%;width:28%;max-height:30%}.fq-abilities{right:6%;top:40%;width:28%;max-height:27%}.fq-skill-name{font-size:9px}.fq-skill-value{font-size:14px}.fq-ability-name{font-size:13px}.fq-ability-desc{font-size:9px}
-  .fq-status{left:6%;right:6%;bottom:18%}.fq-bottom{left:6%;right:6%;bottom:5.8%;display:flex;flex-direction:column;align-items:flex-start;gap:5px}.fq-status-values{gap:8px}.fq-bigstat{font-size:18px}.fq-defense{gap:9px;justify-content:flex-start}.fq-defense span{font-size:16px}.fq-actions{bottom:1%}.fq-action{font-size:6px;padding:4px 5px}
+.fq-nameblock{
+  position:absolute;left:7%;right:29%;top:5.2%;z-index:10;
 }
-@media(max-width:520px){
-  #fq-open{right:10px;bottom:10px}.fq-sheet{min-height:0;height:96vh;overflow:hidden}
-  .fq-nameblock{left:7%;right:32%;top:4.8%}.fq-name{font-size:25px}.fq-subtitle{font-size:12px}.fq-player{font-size:6.5px}
-  .fq-topmeta{right:7%;top:5.1%;min-width:24%}.fq-level{font-size:24px}.fq-meta-line{font-size:6.5px}
-  .fq-character{left:31%;top:17%;width:38%;height:42%}
-  .fq-attrs{left:6%;top:17%;width:29%}.fq-resources{right:6%;top:17%;width:28%}
-  .fq-attr-row{grid-template-columns:minmax(25px,1fr) 23px minmax(38px,48px);gap:3px;margin:3px 0}.fq-attr-name{font-size:16px}.fq-attr-val{width:23px;min-width:23px;height:23px;line-height:23px;font-size:16px}.fq-attr-bars{gap:2px;height:13px}
-  .fq-resource{grid-template-columns:34px minmax(0,1fr);gap:5px;margin:5px 0}.fq-resource-tag{font-size:7px;padding:4px 3px}.fq-resource-main input{width:33px;font-size:21px}.fq-resource-main span{font-size:11px}.fq-resource-main b{font-size:10px}
-  /* No celular, as duas listas começam depois do retrato. */
-  .fq-skills-block{left:6%;top:42%;width:27%;max-height:25%}.fq-abilities{right:6%;top:42%;width:27%;max-height:23%}.fq-skill{grid-template-columns:12px minmax(0,1fr) 20px;padding:1.5px 0}.fq-skill-name{font-size:8.5px}.fq-skill-value{font-size:12px}.fq-ability-name{font-size:12px}.fq-ability-desc{font-size:8px;-webkit-line-clamp:3}
-  .fq-status{left:6%;right:6%;bottom:17%}.fq-status-label{font-size:8px}.fq-status-tag{font-size:7px;padding:3px 5px}.fq-bottom{left:6%;right:6%;bottom:5.7%;gap:3px}.fq-status-values{gap:6px}.fq-bigstat{font-size:15px}.fq-defense{gap:8px}.fq-defense span{font-size:13px}.fq-actions{gap:0;bottom:.8%}.fq-action{font-size:5.5px;padding:3px 4px}
+.fq-name{
+  font:700 clamp(30px,4.4vw,55px)/.86 'Crimson Text',Georgia,serif;
+  letter-spacing:.3px;text-transform:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 2px 0 rgba(0,0,0,.65);
+}
+.fq-subtitle{
+  margin-top:6px;
+  font:700 clamp(12px,1.35vw,17px)/1.05 'Inter',sans-serif;
+  letter-spacing:2.1px;text-transform:uppercase;color:var(--fq-paper-2);
+}
+.fq-quote{
+  margin-top:7px;max-width:90%;
+  font:italic clamp(11px,1.05vw,14px)/1.15 'Crimson Text',Georgia,serif;
+  color:#aaa397;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.fq-player{
+  margin-top:6px;
+  font:900 8px/1 'Inter',sans-serif;
+  color:var(--fq-red-hi);letter-spacing:1.1px;text-transform:uppercase;
+}
+
+/* Meta superior direita */
+.fq-topmeta{
+  position:absolute;right:7%;top:5.1%;z-index:10;
+  min-width:22%;text-align:right;
+}
+.fq-level{
+  font:900 clamp(23px,3.1vw,37px)/.85 'Crimson Text',Georgia,serif;
+  letter-spacing:1px;text-transform:uppercase;
+}
+.fq-level b{color:var(--fq-red-hi);font-size:1.12em}
+.fq-meta-line{
+  margin-top:6px;color:#bcb5a8;
+  font:900 8px/1 'Inter',sans-serif;
+  letter-spacing:1px;text-transform:uppercase;
+}
+
+/* Retrato central: grande, sem card branco */
+.fq-character{
+  position:absolute;z-index:5;
+  left:29%;top:16%;width:42%;height:48%;
+  display:flex;align-items:flex-end;justify-content:center;
+  pointer-events:none;
+  overflow:visible;
+}
+.fq-character:before{
+  content:"";position:absolute;left:7%;right:7%;bottom:2%;height:72%;
+  background:radial-gradient(ellipse at 50% 70%,rgba(169,25,30,.20),transparent 68%);
+  filter:blur(18px);opacity:.85;z-index:-2;
+}
+.fq-character:after{
+  content:"";position:absolute;left:10%;right:10%;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--fq-red),transparent);
+  box-shadow:0 0 20px rgba(169,25,30,.45);
+}
+.fq-character img{
+  width:100%;height:100%;display:block;
+  object-fit:contain;object-position:50% 50%;
+  filter:contrast(1.06) saturate(.88);
+  mix-blend-mode:screen;
+  transform-origin:center bottom;
+}
+.fq-character img.fq-cutout{
+  mix-blend-mode:normal;
+  filter:contrast(1.04) saturate(.9) drop-shadow(0 16px 16px rgba(0,0,0,.55));
+}
+.fq-character.empty{
+  color:#777268;text-align:center;
+  font:900 10px/1.5 'Inter',sans-serif;letter-spacing:2px;
+  align-items:center;
+}
+.fq-character.empty:before{
+  width:70%;height:70%;left:15%;right:auto;bottom:15%;
+  border:1px dashed rgba(232,224,206,.22);
+  background:transparent;filter:none;
+}
+
+/* Títulos dos blocos */
+.fq-label{
+  display:flex;align-items:center;gap:7px;
+  color:var(--fq-paper);
+  font:900 9px/1 'Inter',sans-serif;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.fq-label:before{
+  content:"";display:inline-block;width:18px;height:3px;background:var(--fq-red);
+  box-shadow:7px 0 0 rgba(169,25,30,.35);
+}
+.fq-label:after{
+  content:"";flex:1;height:1px;background:var(--fq-line);
+}
+.fq-block{position:absolute;z-index:8}
+
+/* Atributos — coluna esquerda, com barras */
+.fq-attrs{left:7%;top:17.5%;width:25%}
+.fq-attr-row{
+  display:grid;
+  grid-template-columns:minmax(40px,1fr) 30px minmax(56px,70px);
+  align-items:center;gap:6px;margin:8px 0;
+}
+.fq-attr-name{
+  text-align:right;
+  font:700 clamp(16px,1.75vw,23px)/1 'Crimson Text',Georgia,serif;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.fq-attr-val{
+  width:30px;height:30px;box-sizing:border-box;
+  text-align:center;padding:0;margin:0;
+  background:transparent!important;border:1px solid rgba(232,224,206,.42)!important;
+  color:var(--fq-paper)!important;
+  outline:0;border-radius:0!important;
+  font:900 17px/30px 'Crimson Text',Georgia,serif;
+  -webkit-appearance:none;appearance:textfield;
+}
+.fq-attr-val:focus{border-color:var(--fq-red-hi)!important;color:#fff!important}
+.fq-attr-bars{display:flex;gap:3px;height:15px;align-items:stretch}
+.fq-attr-bars i{
+  flex:1;min-width:0;border:1px solid rgba(232,224,206,.20);
+  background:rgba(232,224,206,.055);border-radius:0;
+}
+.fq-attr-bars i.on{background:var(--fq-paper);border-color:var(--fq-paper);box-shadow:0 0 5px rgba(232,224,206,.12)}
+
+/* Recursos — coluna direita */
+.fq-resources{right:7%;top:17%;width:25%}
+.fq-resource{
+  display:grid;grid-template-columns:43px minmax(0,1fr);
+  align-items:center;gap:8px;margin:8px 0;
+}
+.fq-resource-tag{
+  font:900 9px/1 'Inter',sans-serif;text-transform:uppercase;
+  letter-spacing:1px;padding:6px 4px;
+  background:var(--fq-paper);color:#111;text-align:center;
+  clip-path:polygon(0 0,100% 0,93% 100%,0 100%);
+}
+.fq-resource-main{
+  display:flex;align-items:baseline;gap:4px;
+  border-bottom:1px solid var(--fq-line);padding-bottom:3px;min-width:0;
+}
+.fq-resource-main input{
+  width:43px;background:transparent!important;border:0!important;
+  outline:0;color:var(--fq-paper)!important;
+  font:900 clamp(22px,2.7vw,34px)/.85 'Crimson Text',Georgia,serif;
+  text-align:right;padding:0;box-shadow:none!important;
+  -webkit-appearance:none;appearance:textfield;
+}
+.fq-resource-main span{font:500 14px/1 'Crimson Text',Georgia,serif;color:#8f897e}
+.fq-resource-main b{font:900 12px/1 'Crimson Text',Georgia,serif;color:#d2c9b8}
+.fq-resource-main input:focus{color:#fff!important}
+.fq-mini-controls{display:flex;gap:1px;margin-left:auto}
+.fq-mini-controls button{
+  width:17px;height:17px;border:0;background:transparent;color:#b8b0a2;
+  cursor:pointer;font:900 13px/1 Inter,sans-serif;padding:0;
+}
+.fq-mini-controls button:hover{background:rgba(232,224,206,.08);color:#fff}
+
+/* Perícias */
+.fq-skills-block{left:7%;top:42%;width:28%;max-height:27%;overflow:hidden}
+.fq-skills{display:flex;flex-direction:column;gap:1px}
+.fq-skill{
+  display:grid;grid-template-columns:13px minmax(0,1fr) 25px;
+  gap:4px;align-items:center;
+  border-bottom:1px dotted rgba(232,224,206,.15);
+  padding:3px 0;
+}
+.fq-skill-mark{font:900 8px/1 'Inter',sans-serif;color:var(--fq-red-hi);text-align:center}
+.fq-skill-name{
+  font:700 clamp(9px,1.05vw,13px)/1.05 'Crimson Text',Georgia,serif;
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.fq-skill-attr{font:900 6px/1 'Inter',sans-serif;color:#827b70;margin-left:3px}
+.fq-skill-value{
+  text-align:right;color:var(--fq-paper);
+  font:900 clamp(13px,1.5vw,18px)/1 'Crimson Text',Georgia,serif;
+}
+.fq-subskills{
+  grid-column:2/4;font:italic 8px/1.1 'Crimson Text',Georgia,serif;
+  color:#918a7e;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.fq-empty{font:italic 11px/1.3 'Crimson Text',Georgia,serif;color:#777168}
+
+/* Habilidades */
+.fq-abilities{right:7%;top:42%;width:28%;max-height:27%;overflow:hidden}
+.fq-ability{margin-bottom:10px;border-left:2px solid var(--fq-red);padding-left:8px}
+.fq-ability-name{
+  font:900 clamp(13px,1.5vw,18px)/1 'Crimson Text',Georgia,serif;
+  margin-bottom:3px;
+}
+.fq-ability-desc{
+  color:#a7a094;
+  font:italic clamp(9px,1vw,12px)/1.18 'Crimson Text',Georgia,serif;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+/* Condições — faixa */
+.fq-status{
+  position:absolute;left:7%;right:7%;bottom:17.2%;z-index:8;
+  display:flex;align-items:center;gap:10px;
+}
+.fq-status-label{font:900 8px/1 'Inter',sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:#aaa297;white-space:nowrap}
+.fq-status-list{display:flex;flex-wrap:wrap;gap:4px;min-height:17px}
+.fq-status-tag{
+  font:900 7px/1 'Inter',sans-serif;letter-spacing:.6px;text-transform:uppercase;
+  padding:4px 6px;background:rgba(169,25,30,.82);color:#fff;
+  border:1px solid rgba(209,58,56,.55);
+}
+
+/* Linha final */
+.fq-bottom{
+  position:absolute;left:7%;right:7%;bottom:6.1%;z-index:9;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:18px;
+}
+.fq-status-values{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.fq-bigstat{
+  font:700 clamp(18px,2.15vw,27px)/1 'Crimson Text',Georgia,serif;
+  letter-spacing:.2px;text-transform:uppercase;
+}
+.fq-bigstat b{font-size:1.2em;margin-left:3px}
+.fq-bigstat.vida{color:#c33a3a}.fq-bigstat.san{color:#8da0ad}.fq-bigstat.pe{color:#c1a878}
+.fq-defense{display:flex;align-items:baseline;gap:14px;justify-content:flex-end}
+.fq-defense span{
+  color:#b9b1a3;font:900 clamp(12px,1.4vw,17px)/1 'Crimson Text',Georgia,serif;
+  text-transform:uppercase;white-space:nowrap;
+}
+.fq-defense b{color:#eee7da;font-size:1.15em}
+
+/* Rodapé */
+.fq-actions{
+  position:absolute;left:7%;right:7%;bottom:1.35%;z-index:10;
+  display:flex;justify-content:center;gap:0;
+}
+.fq-action{
+  background:transparent;border:0;border-right:1px solid rgba(232,224,206,.22);
+  color:#777066;padding:3px 13px;cursor:pointer;
+  font:900 7px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;
+}
+.fq-action:first-child{border-left:1px solid rgba(232,224,206,.22)}
+.fq-action:hover{color:#eee}.fq-action.primary{color:var(--fq-red-hi)}
+
+/* ------------------------ RESPONSIVO ------------------------ */
+@media(max-width:900px){
+  #ficha-rapida{padding:8px}
+  .fq-sheet{width:98vw;height:96vh;aspect-ratio:auto}
+  .fq-nameblock{left:7%;right:30%;top:5.2%}
+  .fq-name{font-size:29px}.fq-subtitle{font-size:12px}.fq-player{font-size:7px}
+  .fq-topmeta{right:7%;top:5.3%;min-width:23%}.fq-level{font-size:28px}.fq-meta-line{font-size:7px}
+  .fq-character{left:33%;top:16%;width:34%;height:47%}
+  .fq-attrs{left:6%;top:18%;width:29%}.fq-resources{right:6%;top:17%;width:29%}
+  .fq-attr-row{grid-template-columns:minmax(28px,1fr) 26px minmax(44px,56px);gap:4px;margin:5px 0}
+  .fq-attr-name{font-size:18px}.fq-attr-val{width:26px;height:26px;line-height:26px;font-size:18px}.fq-attr-bars{height:14px}
+  .fq-resource{grid-template-columns:37px minmax(0,1fr);gap:6px;margin:6px 0}
+  .fq-resource-tag{font-size:8px;padding:5px 3px}.fq-resource-main input{width:37px;font-size:24px}
+  .fq-skills-block{left:6%;top:40%;width:29%;max-height:29%}
+  .fq-abilities{right:6%;top:40%;width:29%;max-height:26%}
+  .fq-skill-name{font-size:9px}.fq-skill-value{font-size:14px}.fq-ability-name{font-size:13px}.fq-ability-desc{font-size:9px}
+  .fq-status{left:6%;right:6%;bottom:17.2%}
+  .fq-bottom{left:6%;right:6%;bottom:5.8%}
+}
+@media(max-width:600px){
+  #fq-open{right:10px;bottom:10px}
+  .fq-sheet{height:97vh}
+  .fq-nameblock{left:6%;right:33%;top:4.7%}.fq-name{font-size:24px}.fq-subtitle{font-size:10px;letter-spacing:1.3px}.fq-quote{font-size:9px}.fq-player{font-size:6px}
+  .fq-topmeta{right:6%;top:4.8%;min-width:25%}.fq-level{font-size:23px}.fq-meta-line{font-size:6px}
+  .fq-character{left:29%;top:16%;width:42%;height:43%}
+  .fq-attrs{left:5.5%;top:17%;width:31%}.fq-resources{right:5.5%;top:17%;width:30%}
+  .fq-attr-row{grid-template-columns:minmax(22px,1fr) 22px minmax(34px,45px);gap:3px;margin:4px 0}
+  .fq-attr-name{font-size:15px}.fq-attr-val{width:22px;height:22px;line-height:22px;font-size:15px}.fq-attr-bars{height:11px;gap:2px}
+  .fq-resource{grid-template-columns:31px minmax(0,1fr);gap:4px;margin:5px 0}.fq-resource-tag{font-size:6px;padding:4px 2px}.fq-resource-main input{width:31px;font-size:20px}.fq-resource-main span{font-size:9px}.fq-resource-main b{font-size:9px}.fq-mini-controls{display:none}
+  .fq-skills-block{left:5.5%;top:41%;width:29%;max-height:25%}.fq-abilities{right:5.5%;top:41%;width:29%;max-height:23%}
+  .fq-skill{grid-template-columns:10px minmax(0,1fr) 18px;padding:2px 0}.fq-skill-name{font-size:7.5px}.fq-skill-value{font-size:11px}.fq-skill-attr{font-size:5px}.fq-ability-name{font-size:11px}.fq-ability-desc{font-size:7px;-webkit-line-clamp:3}
+  .fq-status{left:5.5%;right:5.5%;bottom:17.2%;gap:6px}.fq-status-label{font-size:6px}.fq-status-tag{font-size:6px;padding:3px 4px}
+  .fq-bottom{left:5.5%;right:5.5%;bottom:5.8%;display:flex;flex-direction:column;align-items:flex-start;gap:4px}.fq-status-values{gap:7px}.fq-bigstat{font-size:14px}.fq-defense{gap:8px}.fq-defense span{font-size:11px}
+  .fq-actions{left:5%;right:5%;bottom:1%;}.fq-action{font-size:5px;padding:3px 5px;letter-spacing:.5px}
 }
 </style>
 
@@ -4515,14 +4679,17 @@ body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}bod
 <aside id="ficha-rapida" aria-label="Ficha rápida do personagem">
   <div class="fq-sheet" role="dialog" aria-modal="true">
     <i class="fq-corner tl"></i><i class="fq-corner tr"></i><i class="fq-corner bl"></i><i class="fq-corner br"></i>
+    <i class="fq-cross c1"></i><i class="fq-cross c2"></i><i class="fq-cross c3"></i><i class="fq-cross c4"></i>
+    <i class="fq-rule r1"></i><i class="fq-rule r2"></i><i class="fq-rule r3"></i>
     <button class="fq-close" type="button" onclick="window.fecharFichaRapida()" aria-label="Fechar">×</button>
 
     <div class="fq-nameblock">
       <div class="fq-name" id="fq-nome">PERSONAGEM</div>
-      <div class="fq-subtitle" id="fq-origem">Origem</div>
+      <div class="fq-subtitle" id="fq-origem">ORIGEM</div>
       <div class="fq-quote" id="fq-quote">—</div>
       <div class="fq-player" id="fq-jogador">JOGADOR(A): —</div>
     </div>
+
     <div class="fq-topmeta">
       <div class="fq-level">NÍVEL <b id="fq-nivel">0</b></div>
       <div class="fq-meta-line" id="fq-classe">—</div>
@@ -4582,7 +4749,6 @@ body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}bod
     </nav>
   </div>
 </aside>
-
 <script id="ficha-rapida-js">
 (function(){
   "use strict";
@@ -4594,15 +4760,122 @@ body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}bod
   function esc(v){return String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
   function attrVal(a){return num('attr-'+a);}
 
+  let fqPortraitSource = "";
+  let fqPortraitJob = 0;
+
   function renderPortrait(){
     const host=$('fq-character'), src=main('display-portrait');
     if(!host) return;
-    if(src && src.src && src.style.display!=='none'){
-      host.classList.remove('empty');
-      host.innerHTML=`<img src="${esc(src.src)}" alt="Retrato do personagem">`;
-    }else{
-      host.classList.add('empty');host.innerHTML='SEM<br>REGISTRO<br>FOTOGRÁFICO';
+    const url = src && src.src ? src.src : "";
+    if(!url || (src && src.style.display==='none')){
+      host.classList.add('empty');
+      host.innerHTML='SEM<br>REGISTRO<br>FOTOGRÁFICO';
+      fqPortraitSource="";
+      return;
     }
+
+    const current = host.querySelector('img');
+    if(fqPortraitSource===url && current) return;
+    fqPortraitSource=url;
+    const job=++fqPortraitJob;
+
+    /* Mantém o enquadramento usado na ficha completa. */
+    const objectPosition = src.style.objectPosition || "50% 50%";
+    const transform = src.style.transform || "none";
+
+    const paintFallback=()=>{
+      if(job!==fqPortraitJob) return;
+      host.classList.remove('empty');
+      host.innerHTML=`<img class="fq-cutout" src="${esc(url)}" alt="Retrato do personagem">`;
+      const img=host.querySelector('img');
+      img.style.objectPosition=objectPosition;
+      img.style.transform=transform;
+    };
+
+    /*
+      Tenta transformar fundos brancos/cinzentos uniformes em transparência.
+      Isso evita o "quadrado branco" quando a arte foi exportada com fundo.
+      A remoção é feita só por regiões conectadas à borda, então pele/roupa
+      clara no interior da ilustração não é apagada.
+    */
+    const im=new Image();
+    im.onload=()=>{
+      if(job!==fqPortraitJob) return;
+      try{
+        const max=1500;
+        const scale=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+        const w=Math.max(1,Math.round(im.naturalWidth*scale));
+        const h=Math.max(1,Math.round(im.naturalHeight*scale));
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        const ctx=canvas.getContext('2d',{willReadFrequently:true});
+        ctx.drawImage(im,0,0,w,h);
+        const data=ctx.getImageData(0,0,w,h);
+        const px=data.data;
+        const idx=(x,y)=>(y*w+x)*4;
+        const samples=[
+          idx(0,0),idx(w-1,0),idx(0,h-1),idx(w-1,h-1),
+          idx(Math.floor(w/2),0),idx(Math.floor(w/2),h-1),
+          idx(0,Math.floor(h/2)),idx(w-1,Math.floor(h/2))
+        ];
+        let br=0,bg=0,bb=0,count=0;
+        samples.forEach(i=>{
+          if(px[i+3]>10){br+=px[i];bg+=px[i+1];bb+=px[i+2];count++;}
+        });
+        if(!count){ paintFallback(); return; }
+        br/=count;bg/=count;bb/=count;
+
+        const tolerance=34;
+        const visited=new Uint8Array(w*h);
+        const queue=[];
+        const push=(x,y)=>{
+          if(x<0||x>=w||y<0||y>=h)return;
+          const n=y*w+x;
+          if(visited[n])return;
+          visited[n]=1;queue.push(n);
+        };
+        for(let x=0;x<w;x++){push(x,0);push(x,h-1)}
+        for(let y=0;y<h;y++){push(0,y);push(w-1,y)}
+
+        let head=0,removed=0;
+        while(head<queue.length){
+          const n=queue[head++];
+          const i=n*4;
+          if(px[i+3]===0) continue;
+          const dr=px[i]-br,dg=px[i+1]-bg,db=px[i+2]-bb;
+          const dist=Math.sqrt(dr*dr+dg*dg+db*db);
+          if(dist<=tolerance){
+            px[i+3]=0;removed++;
+            const x=n%w,y=Math.floor(n/w);
+            push(x+1,y);push(x-1,y);push(x,y+1);push(x,y-1);
+          }
+        }
+
+        /* Também elimina halos quase brancos que ficam imediatamente na borda. */
+        if((br+bg+bb)/3>225){
+          for(let y=0;y<h;y++){
+            for(let x=0;x<w;x++){
+              const i=idx(x,y);
+              if(px[i+3]>0 && px[i]>247 && px[i+1]>247 && px[i+2]>247) px[i+3]=0;
+            }
+          }
+        }
+
+        ctx.putImageData(data,0,0);
+        const out=canvas.toDataURL('image/png');
+        if(job!==fqPortraitJob)return;
+        host.classList.remove('empty');
+        host.innerHTML=`<img class="fq-cutout" src="${out}" alt="Retrato do personagem">`;
+        const img=host.querySelector('img');
+        img.style.objectPosition=objectPosition;
+        img.style.transform=transform;
+      }catch(err){
+        paintFallback();
+      }
+    };
+    im.onerror=paintFallback;
+    try{im.crossOrigin="anonymous";}catch(e){}
+    im.src=url;
   }
 
   function renderProfile(){
@@ -4760,63 +5033,7 @@ body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}bod
   document.addEventListener('change',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))setTimeout(()=>refresh(true),50);});
   setTimeout(()=>refresh(true),1200);
 })();
-
-    function toggleFichaRapida() {
-    const overlay = document.getElementById('ficha-rapida-overlay');
-    
-    if (!overlay.classList.contains('active')) {
-        // Pega os valores da ficha completa e joga pra ficha rápida antes de abrir
-        document.getElementById('fr-nome').innerText = document.querySelector('.header-name').value || "DESCONHECIDO";
-        // Pegue os atributos...
-        document.getElementById('fr-agi').innerText = document.getElementById('atributo-agi').value || "0";
-        // Pegue a imagem e aplique...
-        const imgSrc = document.querySelector('.portrait-box img').src;
-        document.getElementById('fr-img-personagem').src = imgSrc;
-        
-        overlay.classList.add('active');
-    } else {
-        overlay.classList.remove('active');
-    }
-}
 </script>
 
-    <!-- OVERLAY DA FICHA RÁPIDA (Estilo OP2) -->
-<div id="ficha-rapida-overlay">
-    <div class="fr-container">
-        
-        <!-- Lado Esquerdo: Imagem com Fade-out -->
-        <div class="fr-portrait-wrapper">
-            <!-- Puxe o src da imagem dinamicamente do seu JS -->
-            <img id="fr-img-personagem" src="link-da-sua-imagem.png" alt="Personagem">
-        </div>
-
-        <!-- Lado Direito: Informações Organizadas -->
-        <div class="fr-info-panel">
-            <h1 class="fr-name" id="fr-nome">NOME DO <span>PERSONAGEM</span></h1>
-            
-            <div class="fr-atributos-grid">
-                <div class="fr-attr"><span class="fr-attr-val" id="fr-agi">2</span><span class="fr-attr-label">AGI</span></div>
-                <div class="fr-attr"><span class="fr-attr-val" id="fr-for">1</span><span class="fr-attr-label">FOR</span></div>
-                <div class="fr-attr"><span class="fr-attr-val" id="fr-int">3</span><span class="fr-attr-label">INT</span></div>
-                <div class="fr-attr"><span class="fr-attr-val" id="fr-pre">2</span><span class="fr-attr-label">PRE</span></div>
-                <div class="fr-attr"><span class="fr-attr-val" id="fr-vig">2</span><span class="fr-attr-label">VIG</span></div>
-            </div>
-
-            <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #888; letter-spacing: 2px; border-bottom: 1px dotted #333; padding-bottom: 5px; margin-bottom: -15px;">PERÍCIAS EM DESTAQUE</div>
-            
-            <div class="fr-pericias-lista" id="fr-pericias">
-                <!-- Exemplo de como devem ser inseridas pelo seu script -->
-                Luta <span>+10</span><br>
-                Pontaria <span>+5</span><br>
-                Investigação <span>+10</span><br>
-                Ocultismo <span>+15</span><br>
-                Vontade <span>+5</span><br>
-                Iniciativa <span>+10</span>
-            </div>
-
-            <button class="btn-voltar-ficha" onclick="toggleFichaRapida()">Voltar para Ficha Completa</button>
-        </div>
-    </div>
-</div>
 </body>
 </html>
