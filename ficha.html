@@ -4265,648 +4265,421 @@ let filtroSubAtualAtaques = 'Todos';
 
 <style id="ficha-rapida-css">
 /* =========================================================
-   FICHA RÁPIDA — modo de jogo
-   Complementar à ficha completa. Não altera o layout original.
+   FICHA RÁPIDA — visual de ficha ilustrada
+   A ficha completa continua sendo a fonte dos dados.
    ========================================================= */
 :root{
-    --fq-paper:#eee7d8;
-    --fq-paper-2:#e4dbc9;
-    --fq-ink:#171717;
-    --fq-muted:#746d61;
-    --fq-line:rgba(23,23,23,.18);
-    --fq-red:#9e0b0f;
-    --fq-blue:#30465a;
-    --fq-gold:#8d6d3f;
+  --fq-paper:#efe4c9;
+  --fq-paper-deep:#e2d1ae;
+  --fq-ink:#16130f;
+  --fq-red:#9b171b;
+  --fq-blue:#2e5365;
+  --fq-gold:#9a752c;
+  --fq-green:#465d39;
+  --fq-line:rgba(32,25,16,.26);
 }
 #fq-open{
-    position:fixed;
-    right:18px;
-    bottom:18px;
-    z-index:9990;
-    border:1px solid rgba(255,255,255,.16);
-    background:#151515;
-    color:#f2eadb;
-    padding:11px 15px;
-    border-radius:3px;
-    cursor:pointer;
-    font:900 10px/1 'Inter',sans-serif;
-    letter-spacing:1.4px;
-    text-transform:uppercase;
-    box-shadow:0 8px 25px rgba(0,0,0,.45);
-    transition:.2s ease;
+  position:fixed;right:18px;bottom:18px;z-index:9990;
+  border:1px solid #d9c8a2;background:#17130e;color:#f5ead2;
+  padding:11px 15px;border-radius:2px;cursor:pointer;
+  font:900 10px/1 'Inter',sans-serif;letter-spacing:1.5px;text-transform:uppercase;
+  box-shadow:0 8px 25px rgba(0,0,0,.4);transition:.2s ease;
 }
-#fq-open:hover{transform:translateY(-2px);background:#222;}
-body.tema-escuro #fq-open{background:#a68a64;color:#121212;border-color:#a68a64;}
-body.tema-hexatombe #fq-open{background:#6f090d;color:#fff;border-color:#8e1a20;}
-
+#fq-open:hover{transform:translateY(-2px)}
 #fq-backdrop{
-    position:fixed;
-    inset:0;
-    z-index:9991;
-    background:rgba(0,0,0,.68);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease;
-    backdrop-filter:blur(2px);
+  position:fixed;inset:0;z-index:9991;background:rgba(0,0,0,.76);
+  opacity:0;pointer-events:none;transition:opacity .25s ease;backdrop-filter:blur(3px);
 }
-#fq-backdrop.open{opacity:1;pointer-events:auto;}
-
+#fq-backdrop.open{opacity:1;pointer-events:auto}
 #ficha-rapida{
-    position:fixed;
-    top:0;
-    right:0;
-    width:min(560px,96vw);
-    height:100dvh;
-    z-index:9992;
-    transform:translateX(105%);
-    transition:transform .3s cubic-bezier(.2,.8,.2,1);
-    background:
-        radial-gradient(circle at 15% 15%,rgba(139,115,85,.08),transparent 25%),
-        radial-gradient(circle at 90% 80%,rgba(120,100,80,.08),transparent 28%),
-        var(--fq-paper);
-    color:var(--fq-ink);
-    box-shadow:-18px 0 50px rgba(0,0,0,.55);
-    overflow-y:auto;
-    overscroll-behavior:contain;
-    font-family:'Courier Prime',monospace;
+  position:fixed;inset:0;z-index:9992;display:flex;align-items:center;justify-content:center;
+  padding:24px;box-sizing:border-box;opacity:0;pointer-events:none;visibility:hidden;
+  transition:opacity .22s ease,visibility .22s ease;
 }
-#ficha-rapida.open{transform:translateX(0);}
-body.tema-escuro #ficha-rapida{
-    --fq-paper:#181818;
-    --fq-paper-2:#222;
-    --fq-ink:#e2e2e2;
-    --fq-muted:#969696;
-    --fq-line:rgba(255,255,255,.13);
-    --fq-red:#a94b4f;
-    --fq-blue:#58718b;
-    --fq-gold:#a68a64;
-    background:radial-gradient(circle at center,#202020 0%,#111 100%);
+#ficha-rapida.open{opacity:1;pointer-events:auto;visibility:visible}
+.fq-sheet{
+  position:relative;width:min(920px,94vw);height:min(1180px,94vh);aspect-ratio:3/4;
+  overflow:hidden;color:var(--fq-ink);background:
+    radial-gradient(circle at 13% 15%,rgba(117,79,27,.08),transparent 24%),
+    radial-gradient(circle at 88% 78%,rgba(117,79,27,.09),transparent 28%),
+    linear-gradient(90deg,rgba(92,59,19,.035),transparent 15%,transparent 85%,rgba(92,59,19,.04)),
+    var(--fq-paper);
+  box-shadow:0 22px 70px rgba(0,0,0,.65);border:1px solid rgba(55,39,20,.55);
+  font-family:'Crimson Text',Georgia,serif;
 }
-body.tema-hexatombe #ficha-rapida{
-    --fq-paper:#130606;
-    --fq-paper-2:#210909;
-    --fq-ink:#e2e2e2;
-    --fq-muted:#a88b8b;
-    --fq-line:rgba(180,60,60,.28);
-    --fq-red:#b3282f;
-    --fq-blue:#6f5a5a;
-    --fq-gold:#a68a64;
-    background:radial-gradient(circle at center,rgba(130,0,0,.14),#0d0000 75%);
-}
-
-.fq-wrap{padding:22px 22px 35px;min-height:100%;box-sizing:border-box;}
-.fq-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;}
-.fq-kicker{font:900 9px/1 'Inter',sans-serif;letter-spacing:2px;color:var(--fq-muted);}
-.fq-title{font:900 25px/1 'Crimson Text',serif;letter-spacing:1px;text-transform:uppercase;margin:4px 0 0;}
+.fq-sheet:before{content:"";position:absolute;inset:12px;border:1px solid rgba(40,30,18,.35);pointer-events:none;z-index:20}
+.fq-sheet:after{content:"";position:absolute;inset:18px;border:1px solid rgba(40,30,18,.13);pointer-events:none;z-index:20}
+.fq-corner{position:absolute;width:34px;height:34px;z-index:21;opacity:.7}
+.fq-corner.tl{left:9px;top:9px;border-left:2px solid var(--fq-ink);border-top:2px solid var(--fq-ink)}
+.fq-corner.tr{right:9px;top:9px;border-right:2px solid var(--fq-ink);border-top:2px solid var(--fq-ink)}
+.fq-corner.bl{left:9px;bottom:9px;border-left:2px solid var(--fq-ink);border-bottom:2px solid var(--fq-ink)}
+.fq-corner.br{right:9px;bottom:9px;border-right:2px solid var(--fq-ink);border-bottom:2px solid var(--fq-ink)}
 .fq-close{
-    width:34px;height:34px;border:1px solid var(--fq-line);background:transparent;color:var(--fq-ink);
-    cursor:pointer;font:900 18px/1 'Inter',sans-serif;border-radius:2px;
+  position:absolute;right:28px;top:26px;z-index:30;width:30px;height:30px;border:0;background:transparent;
+  color:var(--fq-ink);cursor:pointer;font:900 24px/1 Georgia,serif;opacity:.75;
 }
-.fq-close:hover{background:rgba(0,0,0,.07);}
-body.tema-escuro .fq-close:hover{background:rgba(255,255,255,.07);}
+.fq-close:hover{opacity:1;transform:scale(1.08)}
+.fq-nameblock{position:absolute;left:8%;right:25%;top:5.2%;z-index:10}
+.fq-name{font:500 clamp(29px,4.4vw,53px)/.86 'Crimson Text',Georgia,serif;letter-spacing:.2px}
+.fq-subtitle{font:500 clamp(13px,1.45vw,18px)/1.1 'Crimson Text',Georgia,serif;margin-top:6px}
+.fq-quote{font:italic clamp(11px,1.25vw,15px)/1.1 'Crimson Text',Georgia,serif;margin-top:10px;max-width:75%;opacity:.8}
+.fq-player{font:900 8px/1.2 'Inter',sans-serif;letter-spacing:1.4px;text-transform:uppercase;margin-top:9px;opacity:.65}
+.fq-topmeta{position:absolute;right:7.5%;top:5.4%;z-index:10;text-align:right}
+.fq-level{font:500 clamp(25px,3.2vw,40px)/.9 'Crimson Text',Georgia,serif}
+.fq-meta-line{font:900 8px/1.3 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.fq-meta-line b{font-size:11px}
 
-.fq-profile{
-    display:grid;grid-template-columns:112px 1fr;gap:16px;align-items:end;
-    border-bottom:2px solid var(--fq-ink);padding-bottom:14px;margin-bottom:14px;
+/* Personagem central: não é uma "foto em card"; ele faz parte da composição. */
+.fq-character{
+  position:absolute;z-index:3;left:25%;top:9%;width:51%;height:76%;
+  display:flex;align-items:flex-end;justify-content:center;pointer-events:none;
 }
-.fq-portrait{
-    width:112px;height:142px;object-fit:cover;display:block;background:var(--fq-paper-2);
-    border:5px solid #fff;box-sizing:border-box;box-shadow:2px 3px 9px rgba(0,0,0,.22);
-    transform:rotate(-1.5deg);
-}
-.fq-no-photo{
-    width:112px;height:142px;display:flex;align-items:center;justify-content:center;text-align:center;
-    background:var(--fq-paper-2);border:1px dashed var(--fq-line);box-sizing:border-box;
-    color:var(--fq-muted);font:900 9px/1.4 'Inter',sans-serif;letter-spacing:1px;
-}
-.fq-name{font:900 28px/1.02 'Crimson Text',serif;letter-spacing:.4px;margin-bottom:4px;}
-.fq-meta{color:var(--fq-muted);font:700 10px/1.4 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1px;}
-.fq-quote{font:italic 13px/1.3 'Crimson Text',serif;margin-top:9px;opacity:.82;}
-.fq-id-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
-.fq-pill{
-    border:1px solid var(--fq-line);padding:5px 8px;background:rgba(255,255,255,.18);
-    font:900 9px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.8px;
-}
-body.tema-escuro .fq-pill{background:rgba(255,255,255,.025);}
+.fq-character img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(2px 5px 5px rgba(0,0,0,.15));}
+.fq-character.empty{font:900 10px/1.5 'Inter',sans-serif;text-align:center;letter-spacing:1px;opacity:.35;align-items:center}
 
-.fq-section{margin-top:18px;}
-.fq-section-head{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;
+.fq-block{position:absolute;z-index:8}
+.fq-label{
+  display:inline-block;font:900 clamp(9px,1.05vw,12px)/1 'Inter',sans-serif;letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:7px;border-bottom:1px solid var(--fq-ink);padding-bottom:4px;
 }
-.fq-section-title{
-    display:inline-block;background:var(--fq-ink);color:var(--fq-paper);padding:5px 10px;
-    font:900 11px/1 'Crimson Text',serif;letter-spacing:1.5px;text-transform:uppercase;
-}
-body.tema-escuro .fq-section-title{color:#171717;background:var(--fq-gold);}
-body.tema-hexatombe .fq-section-title{background:#6f090d;color:#fff;}
-.fq-section-note{font:700 8px/1 'Inter',sans-serif;color:var(--fq-muted);letter-spacing:1px;text-transform:uppercase;}
+.fq-attrs{left:6.5%;top:16%;width:23%;}
+.fq-attr-row{display:grid;grid-template-columns:1fr 25px 68px;align-items:center;gap:5px;margin:6px 0}
+.fq-attr-name{text-align:right;font:500 clamp(17px,2vw,25px)/1 'Crimson Text',Georgia,serif;text-transform:uppercase}
+.fq-attr-val{text-align:center;font:900 clamp(16px,1.8vw,23px)/1 'Crimson Text',Georgia,serif}
+.fq-attr-bars{display:flex;gap:3px;height:20px;align-items:stretch}
+.fq-attr-bars i{flex:1;border:1px solid rgba(70,50,20,.15);background:rgba(122,88,33,.12);border-radius:1px}
+.fq-attr-bars i.on{background:var(--fq-ink);border-color:var(--fq-ink)}
 
-.fq-attributes{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
-.fq-attr{
-    position:relative;text-align:center;border:1px solid var(--fq-line);background:rgba(255,255,255,.15);
-    padding:8px 4px 6px;box-sizing:border-box;
-}
-body.tema-escuro .fq-attr{background:rgba(255,255,255,.025);}
-.fq-attr label{display:block;color:var(--fq-muted);font:900 8px/1 'Inter',sans-serif;letter-spacing:1px;margin-bottom:5px;}
-.fq-attr input{
-    width:100%;box-sizing:border-box;text-align:center;background:transparent;border:0;color:var(--fq-ink);
-    font:900 25px/1 'Crimson Text',serif;outline:none;padding:0;
-}
-.fq-attr input:focus{border-bottom:1px dotted var(--fq-red);}
+.fq-resources{right:6.5%;top:14.5%;width:25%;}
+.fq-resource{display:grid;grid-template-columns:42px 1fr;align-items:center;gap:8px;margin:8px 0}
+.fq-resource-tag{font:900 9px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.7px;padding:5px 5px;background:var(--fq-ink);color:var(--fq-paper);text-align:center}
+.fq-resource-main{display:flex;align-items:baseline;gap:4px;border-bottom:1px solid var(--fq-line);padding-bottom:2px}
+.fq-resource-main input{width:43px;background:transparent;border:0;outline:0;color:var(--fq-ink);font:900 clamp(22px,2.7vw,33px)/.9 'Crimson Text',Georgia,serif;text-align:right;padding:0}
+.fq-resource-main span{font:500 14px/1 'Crimson Text',Georgia,serif}
+.fq-resource-main b{font:900 13px/1 'Crimson Text',Georgia,serif}
+.fq-resource-main input:focus{border-bottom:1px dotted var(--fq-red)}
+.fq-mini-controls{display:flex;gap:2px;margin-left:auto}
+.fq-mini-controls button{width:17px;height:17px;border:0;background:transparent;color:var(--fq-ink);cursor:pointer;font:900 13px/1 Inter,sans-serif;padding:0}
+.fq-mini-controls button:hover{background:rgba(0,0,0,.08)}
 
-.fq-resource{margin-top:9px;}
-.fq-resource-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-.fq-resource-name{font:900 9px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;}
-.fq-resource-value{font:900 13px/1 'Crimson Text',serif;}
-.fq-bar{
-    height:29px;border:1px solid var(--fq-line);background:rgba(0,0,0,.04);position:relative;overflow:hidden;
-}
-.fq-fill{position:absolute;inset:0 auto 0 0;width:0;transition:width .2s ease;opacity:.72;}
-.fq-resource.vida .fq-fill{background:var(--fq-red);}
-.fq-resource.san .fq-fill{background:var(--fq-blue);}
-.fq-resource.pe .fq-fill{background:var(--fq-gold);}
-.fq-resource-controls{
-    position:relative;z-index:2;height:100%;display:grid;grid-template-columns:30px 1fr 30px;align-items:center;
-}
-.fq-step{
-    height:100%;border:0;background:transparent;color:var(--fq-ink);cursor:pointer;font:900 15px/1 'Inter',sans-serif;
-}
-.fq-step:hover{background:rgba(0,0,0,.08);}
-.fq-resource-edit{
-    display:flex;align-items:center;justify-content:center;gap:4px;
-}
-.fq-resource-edit input{
-    width:42px;background:transparent;border:0;text-align:center;color:var(--fq-ink);outline:none;
-    font:900 17px/1 'Crimson Text',serif;padding:0;
-}
-.fq-resource-edit span{font:700 10px/1 'Inter',sans-serif;color:var(--fq-muted);}
+.fq-skills-block{left:6.5%;top:31%;width:27%;max-height:44%;overflow:hidden}
+.fq-skills{display:flex;flex-direction:column;gap:2px}
+.fq-skill{display:grid;grid-template-columns:18px 1fr 29px;gap:4px;align-items:center;border-bottom:1px dotted rgba(35,25,15,.18);padding:2px 0}
+.fq-skill-mark{font:900 10px/1 'Inter',sans-serif;text-align:center}
+.fq-skill-name{font:500 clamp(10px,1.18vw,14px)/1.05 'Crimson Text',Georgia,serif;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fq-skill-attr{font:900 7px/1 'Inter',sans-serif;opacity:.5;margin-left:3px}
+.fq-skill-value{text-align:center;font:900 clamp(13px,1.55vw,18px)/1 'Crimson Text',Georgia,serif;color:var(--fq-red)}
+.fq-subskills{grid-column:2/4;font:italic 8px/1.1 'Crimson Text',Georgia,serif;opacity:.72;margin-top:-1px}
+.fq-empty{font:italic 11px/1.3 'Crimson Text',Georgia,serif;opacity:.55}
 
-.fq-combat{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
-.fq-combat-card{
-    border:1px solid var(--fq-line);background:rgba(255,255,255,.15);padding:8px 4px;text-align:center;
-}
-body.tema-escuro .fq-combat-card{background:rgba(255,255,255,.025);}
-.fq-combat-label{font:900 8px/1.2 'Inter',sans-serif;color:var(--fq-muted);letter-spacing:.8px;text-transform:uppercase;}
-.fq-combat-value{font:900 23px/1 'Crimson Text',serif;margin-top:4px;}
-.fq-combat-sub{font:700 7px/1.2 'Inter',sans-serif;color:var(--fq-muted);margin-top:3px;}
+.fq-abilities{right:6.5%;top:31%;width:27%;max-height:38%;overflow:hidden}
+.fq-ability{margin-bottom:13px}
+.fq-ability-name{font:900 clamp(13px,1.55vw,18px)/1 'Crimson Text',Georgia,serif;margin-bottom:3px}
+.fq-ability-desc{font:italic clamp(9px,1.05vw,12px)/1.15 'Crimson Text',Georgia,serif;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 
-.fq-status{
-    display:flex;align-items:center;gap:7px;flex-wrap:wrap;border:1px solid var(--fq-line);
-    padding:8px;background:rgba(255,255,255,.12);min-height:28px;box-sizing:border-box;
-}
-.fq-status-label{font:900 8px/1 'Inter',sans-serif;color:var(--fq-muted);letter-spacing:1px;text-transform:uppercase;}
-.fq-status-tag{
-    padding:4px 7px;background:var(--fq-ink);color:var(--fq-paper);
-    font:900 8px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.5px;
-}
-body.tema-escuro .fq-status-tag{background:var(--fq-gold);color:#111;}
-body.tema-hexatombe .fq-status-tag{background:#6f090d;color:#fff;}
+.fq-status{position:absolute;left:35%;right:6.5%;bottom:17.5%;z-index:8}
+.fq-status-label{font:900 9px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}
+.fq-status-list{display:flex;flex-wrap:wrap;gap:4px;min-height:17px}
+.fq-status-tag{font:900 8px/1 'Inter',sans-serif;letter-spacing:.5px;text-transform:uppercase;padding:4px 6px;background:var(--fq-ink);color:var(--fq-paper)}
 
-.fq-skills{
-    display:grid;grid-template-columns:1fr 1fr;gap:5px 7px;
-}
-.fq-skill{
-    display:grid;grid-template-columns:minmax(0,1fr) 31px;align-items:center;
-    border-bottom:1px dotted var(--fq-line);padding:5px 3px;min-width:0;
-}
-.fq-skill-name{font:700 10px/1.15 'Courier Prime',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.fq-skill-name small{font:700 7px/1 'Inter',sans-serif;color:var(--fq-muted);margin-left:4px;}
-.fq-skill-value{
-    text-align:center;font:900 15px/1 'Crimson Text',serif;border:1px solid transparent;
-}
-.fq-skill.trained .fq-skill-value{color:var(--fq-red);}
-.fq-subskill{padding-left:10px;font-size:8px;color:var(--fq-muted);margin-top:2px;}
-.fq-subskill strong{color:var(--fq-ink);font-size:9px;}
+.fq-bottom{position:absolute;left:6.5%;right:6.5%;bottom:5.5%;z-index:9;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:end}
+.fq-status-values{display:flex;align-items:baseline;gap:17px;flex-wrap:wrap}
+.fq-bigstat{font:500 clamp(19px,2.35vw,29px)/.9 'Crimson Text',Georgia,serif;white-space:nowrap}
+.fq-bigstat b{font-weight:900}
+.fq-bigstat.vida b{color:var(--fq-red)}
+.fq-bigstat.san b{color:var(--fq-blue)}
+.fq-bigstat.pe b{color:var(--fq-gold)}
+.fq-defense{display:flex;justify-content:flex-end;gap:22px;align-items:baseline;flex-wrap:wrap}
+.fq-defense span{font:500 clamp(15px,1.8vw,23px)/1 'Crimson Text',Georgia,serif;white-space:nowrap}
+.fq-defense b{font-weight:900}
+.fq-defense small{font:900 7px/1 'Inter',sans-serif;letter-spacing:.7px;text-transform:uppercase;opacity:.55}
 
-.fq-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;}
-.fq-action{
-    border:1px solid var(--fq-ink);background:transparent;color:var(--fq-ink);padding:10px 8px;
-    cursor:pointer;font:900 9px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;
-}
-.fq-action:hover{background:var(--fq-ink);color:var(--fq-paper);}
-.fq-action.primary{background:var(--fq-ink);color:var(--fq-paper);}
-body.tema-escuro .fq-action.primary{background:var(--fq-gold);border-color:var(--fq-gold);color:#111;}
-body.tema-escuro .fq-action:hover{background:var(--fq-gold);border-color:var(--fq-gold);color:#111;}
+.fq-actions{position:absolute;left:50%;transform:translateX(-50%);bottom:1.2%;z-index:25;display:flex;gap:4px;opacity:.72}
+.fq-action{border:0;background:transparent;color:var(--fq-ink);cursor:pointer;font:900 7px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;padding:4px 7px}
+.fq-action:hover{background:rgba(0,0,0,.08);opacity:1}
+.fq-action.primary{font-weight:900}
 
-.fq-footer{margin-top:14px;text-align:center;color:var(--fq-muted);font:700 7px/1.4 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+body.tema-escuro #ficha-rapida .fq-sheet{--fq-paper:#ded5c0;--fq-ink:#17130e}
+body.tema-hexatombe #ficha-rapida .fq-sheet{--fq-paper:#e5d8c0;--fq-ink:#24100e;--fq-red:#8d171c}
 
-@media (max-width:700px){
-    #fq-open{right:12px;bottom:12px;padding:12px 13px;}
-    #ficha-rapida{width:100vw;}
-    .fq-wrap{padding:16px 14px 28px;}
-    .fq-profile{grid-template-columns:86px 1fr;gap:12px;}
-    .fq-portrait,.fq-no-photo{width:86px;height:112px;}
-    .fq-name{font-size:24px;}
-    .fq-attributes{gap:4px;}
-    .fq-attr{padding:7px 2px;}
-    .fq-attr input{font-size:21px;}
-    .fq-combat{grid-template-columns:repeat(2,1fr);}
-    .fq-skills{grid-template-columns:1fr;}
+@media(max-width:760px){
+  #ficha-rapida{padding:8px}
+  .fq-sheet{width:98vw;height:96vh;aspect-ratio:auto}
+  .fq-nameblock{left:8%;right:30%;top:5.5%}
+  .fq-name{font-size:30px}.fq-subtitle{font-size:13px}.fq-quote{font-size:10px}
+  .fq-character{left:24%;top:12%;width:53%;height:64%}
+  .fq-attrs{left:5.5%;top:18%;width:27%}.fq-resources{right:5.5%;top:17%;width:28%}
+  .fq-skills-block{left:5.5%;top:34%;width:30%;max-height:34%}.fq-abilities{right:5.5%;top:34%;width:30%;max-height:31%}
+  .fq-status{left:37%;right:5.5%;bottom:18%}
+  .fq-bottom{left:5.5%;right:5.5%;bottom:5.8%;grid-template-columns:1fr 1fr;gap:8px}
+  .fq-status-values{gap:7px}.fq-defense{gap:7px}
+  .fq-action{font-size:6px;padding:4px 5px}
 }
-@media (max-width:380px){
-    .fq-profile{grid-template-columns:1fr;}
-    .fq-portrait,.fq-no-photo{width:92px;height:118px;}
+@media(max-width:520px){
+  #fq-open{right:10px;bottom:10px}
+  .fq-sheet{overflow-y:auto;overflow-x:hidden;min-height:720px;height:96vh}
+  .fq-character{left:20%;width:60%;top:15%;height:55%}
+  .fq-nameblock{left:8%;right:8%;top:4.5%;text-align:center}.fq-quote{max-width:100%}
+  .fq-topmeta{right:8%;top:11%}
+  .fq-attrs{left:7%;top:19%;width:28%}.fq-resources{right:7%;top:19%;width:29%}
+  .fq-skills-block{left:7%;top:34%;width:36%;max-height:31%}.fq-abilities{right:7%;top:34%;width:36%;max-height:29%}
+  .fq-skill-name{font-size:9px}.fq-ability-name{font-size:13px}.fq-ability-desc{font-size:9px}
+  .fq-status{left:7%;right:7%;bottom:17.5%}
+  .fq-bottom{left:7%;right:7%;grid-template-columns:1fr;bottom:5.2%;gap:3px}.fq-defense{justify-content:flex-start}
+  .fq-actions{bottom:1%;}
 }
 </style>
 
-<!-- =========================================================
-     FICHA RÁPIDA — complementar à ficha completa
-     ========================================================= -->
-<button id="fq-open" type="button" onclick="window.abrirFichaRapida()">⚡ FICHA RÁPIDA</button>
+<button id="fq-open" type="button" onclick="window.abrirFichaRapida()">✦ FICHA RÁPIDA</button>
 <div id="fq-backdrop" onclick="window.fecharFichaRapida()"></div>
 
 <aside id="ficha-rapida" aria-label="Ficha rápida do personagem">
-    <div class="fq-wrap">
-        <div class="fq-topbar">
-            <div>
-                <div class="fq-kicker">MODO DE JOGO</div>
-                <div class="fq-title">Ficha rápida</div>
-            </div>
-            <button class="fq-close" type="button" onclick="window.fecharFichaRapida()" aria-label="Fechar">×</button>
-        </div>
+  <div class="fq-sheet" role="dialog" aria-modal="true">
+    <i class="fq-corner tl"></i><i class="fq-corner tr"></i><i class="fq-corner bl"></i><i class="fq-corner br"></i>
+    <button class="fq-close" type="button" onclick="window.fecharFichaRapida()" aria-label="Fechar">×</button>
 
-        <div class="fq-profile">
-            <div id="fq-portrait-wrap">
-                <div class="fq-no-photo">SEM<br>REGISTRO<br>FOTOGRÁFICO</div>
-            </div>
-            <div>
-                <div class="fq-name" id="fq-nome">—</div>
-                <div class="fq-meta" id="fq-origem">—</div>
-                <div class="fq-meta" id="fq-classe">—</div>
-                <div class="fq-quote" id="fq-jogador">JOGADOR: —</div>
-                <div class="fq-id-row">
-                    <span class="fq-pill">NÍVEL <b id="fq-nivel">0</b></span>
-                    <span class="fq-pill">IDADE <b id="fq-idade">—</b></span>
-                    <span class="fq-pill" id="fq-nex-pill">NEX <b id="fq-nex">—</b></span>
-                </div>
-            </div>
-        </div>
-
-        <section class="fq-section">
-            <div class="fq-section-head">
-                <span class="fq-section-title">ATRIBUTOS</span>
-                <span class="fq-section-note">clique para editar</span>
-            </div>
-            <div class="fq-attributes">
-                <div class="fq-attr"><label>AGI</label><input id="fq-agi" type="number" inputmode="numeric"></div>
-                <div class="fq-attr"><label>FOR</label><input id="fq-for" type="number" inputmode="numeric"></div>
-                <div class="fq-attr"><label>SAG</label><input id="fq-sag" type="number" inputmode="numeric"></div>
-                <div class="fq-attr"><label>VON</label><input id="fq-von" type="number" inputmode="numeric"></div>
-                <div class="fq-attr"><label>VIG</label><input id="fq-vig" type="number" inputmode="numeric"></div>
-            </div>
-        </section>
-
-        <section class="fq-section">
-            <div class="fq-section-head">
-                <span class="fq-section-title">RECURSOS</span>
-                <span class="fq-section-note">toque nos números ou use ±</span>
-            </div>
-
-            <div class="fq-resource vida">
-                <div class="fq-resource-head"><span class="fq-resource-name">Vitalidade</span><span class="fq-resource-value" id="fq-vida-text">0 / 0</span></div>
-                <div class="fq-bar"><div class="fq-fill" id="fq-vida-fill"></div><div class="fq-resource-controls">
-                    <button class="fq-step" type="button" onclick="window.fqStep('vida',-1)">−</button>
-                    <div class="fq-resource-edit"><input id="fq-vida" type="number" inputmode="numeric"><span>/</span><span id="fq-vida-max">0</span></div>
-                    <button class="fq-step" type="button" onclick="window.fqStep('vida',1)">+</button>
-                </div></div>
-            </div>
-
-            <div class="fq-resource san">
-                <div class="fq-resource-head"><span class="fq-resource-name">Lucidez</span><span class="fq-resource-value" id="fq-san-text">0 / 0</span></div>
-                <div class="fq-bar"><div class="fq-fill" id="fq-san-fill"></div><div class="fq-resource-controls">
-                    <button class="fq-step" type="button" onclick="window.fqStep('san',-1)">−</button>
-                    <div class="fq-resource-edit"><input id="fq-san" type="number" inputmode="numeric"><span>/</span><span id="fq-san-max">0</span></div>
-                    <button class="fq-step" type="button" onclick="window.fqStep('san',1)">+</button>
-                </div></div>
-            </div>
-
-            <div class="fq-resource pe">
-                <div class="fq-resource-head"><span class="fq-resource-name">Fôlego</span><span class="fq-resource-value" id="fq-pe-text">0 / 0</span></div>
-                <div class="fq-bar"><div class="fq-fill" id="fq-pe-fill"></div><div class="fq-resource-controls">
-                    <button class="fq-step" type="button" onclick="window.fqStep('pe',-1)">−</button>
-                    <div class="fq-resource-edit"><input id="fq-pe" type="number" inputmode="numeric"><span>/</span><span id="fq-pe-max">0</span></div>
-                    <button class="fq-step" type="button" onclick="window.fqStep('pe',1)">+</button>
-                </div></div>
-            </div>
-        </section>
-
-        <section class="fq-section">
-            <div class="fq-section-head">
-                <span class="fq-section-title">COMBATE</span>
-                <span class="fq-section-note">valores calculados</span>
-            </div>
-            <div class="fq-combat">
-                <div class="fq-combat-card"><div class="fq-combat-label">Defesa</div><div class="fq-combat-value" id="fq-defesa">0</div><div class="fq-combat-sub">base + bônus</div></div>
-                <div class="fq-combat-card"><div class="fq-combat-label">Bloqueio</div><div class="fq-combat-value" id="fq-bloqueio">0</div><div class="fq-combat-sub">defesa + fort.</div></div>
-                <div class="fq-combat-card"><div class="fq-combat-label">Esquiva</div><div class="fq-combat-value" id="fq-esquiva">0</div><div class="fq-combat-sub">defesa + reflex.</div></div>
-                <div class="fq-combat-card"><div class="fq-combat-label">Desloc.</div><div class="fq-combat-value" id="fq-desloc">—</div><div class="fq-combat-sub">movimento</div></div>
-            </div>
-        </section>
-
-        <section class="fq-section">
-            <div class="fq-section-head">
-                <span class="fq-section-title">CONDIÇÕES</span>
-                <span class="fq-section-note">estado atual</span>
-            </div>
-            <div class="fq-status">
-                <span class="fq-status-label">Status</span>
-                <div id="fq-status-list" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
-                <span id="fq-sequela" class="fq-status-tag" style="display:none;">SEQUELA</span>
-                <span id="fq-obito" class="fq-status-tag" style="display:none;">ÓBITO</span>
-                <span id="fq-choque" class="fq-status-tag" style="display:none;">CHOQUE</span>
-                <span id="fq-exaustao" class="fq-status-tag" style="display:none;">EXAUSTÃO</span>
-            </div>
-        </section>
-
-        <section class="fq-section">
-            <div class="fq-section-head">
-                <span class="fq-section-title">PERÍCIAS</span>
-                <span class="fq-section-note">total atual</span>
-            </div>
-            <div id="fq-skills" class="fq-skills"></div>
-        </section>
-
-        <div class="fq-actions">
-            <button class="fq-action primary" type="button" onclick="window.fqAbrirAba('combate')">⚔ COMBATE</button>
-            <button class="fq-action" type="button" onclick="window.fqAbrirAba('inventario')">▣ EQUIPAMENTO</button>
-            <button class="fq-action" type="button" onclick="window.fqAbrirAba('tracos')">✦ HABILIDADES</button>
-            <button class="fq-action" type="button" onclick="window.fqAbrirFichaCompleta()">☷ FICHA COMPLETA</button>
-        </div>
-
-        <div class="fq-footer">A ficha rápida usa os mesmos dados da ficha completa. Alterações são sincronizadas com a ficha atual.</div>
+    <div class="fq-nameblock">
+      <div class="fq-name" id="fq-nome">PERSONAGEM</div>
+      <div class="fq-subtitle" id="fq-origem">Origem</div>
+      <div class="fq-quote" id="fq-quote">—</div>
+      <div class="fq-player" id="fq-jogador">JOGADOR(A): —</div>
     </div>
+    <div class="fq-topmeta">
+      <div class="fq-level">NÍVEL <b id="fq-nivel">0</b></div>
+      <div class="fq-meta-line" id="fq-classe">—</div>
+      <div class="fq-meta-line" id="fq-idade">—</div>
+      <div class="fq-meta-line" id="fq-nex-wrap" style="display:none">NEX <b id="fq-nex">—</b></div>
+    </div>
+
+    <div class="fq-character" id="fq-character"><span>SEM<br>REGISTRO<br>FOTOGRÁFICO</span></div>
+
+    <section class="fq-block fq-attrs">
+      <div class="fq-label">ATRIBUTOS</div>
+      <div class="fq-attr-row"><div class="fq-attr-name">AGI</div><input id="fq-agi" class="fq-attr-val" type="number" inputmode="numeric" value="0"><div class="fq-attr-bars" id="fq-bars-agi"></div></div>
+      <div class="fq-attr-row"><div class="fq-attr-name">FOR</div><input id="fq-for" class="fq-attr-val" type="number" inputmode="numeric" value="0"><div class="fq-attr-bars" id="fq-bars-for"></div></div>
+      <div class="fq-attr-row"><div class="fq-attr-name">SAG</div><input id="fq-sag" class="fq-attr-val" type="number" inputmode="numeric" value="0"><div class="fq-attr-bars" id="fq-bars-sag"></div></div>
+      <div class="fq-attr-row"><div class="fq-attr-name">VON</div><input id="fq-von" class="fq-attr-val" type="number" inputmode="numeric" value="0"><div class="fq-attr-bars" id="fq-bars-von"></div></div>
+      <div class="fq-attr-row"><div class="fq-attr-name">VIG</div><input id="fq-vig" class="fq-attr-val" type="number" inputmode="numeric" value="0"><div class="fq-attr-bars" id="fq-bars-vig"></div></div>
+    </section>
+
+    <section class="fq-block fq-resources">
+      <div class="fq-resource"><span class="fq-resource-tag">PV</span><div class="fq-resource-main"><input id="fq-vida" type="number" inputmode="numeric"><span>/</span><b id="fq-vida-max">0</b><div class="fq-mini-controls"><button type="button" onclick="window.fqStep('vida',-1)">−</button><button type="button" onclick="window.fqStep('vida',1)">+</button></div></div></div>
+      <div class="fq-resource"><span class="fq-resource-tag">LUC</span><div class="fq-resource-main"><input id="fq-san" type="number" inputmode="numeric"><span>/</span><b id="fq-san-max">0</b><div class="fq-mini-controls"><button type="button" onclick="window.fqStep('san',-1)">−</button><button type="button" onclick="window.fqStep('san',1)">+</button></div></div></div>
+      <div class="fq-resource"><span class="fq-resource-tag">FÔL</span><div class="fq-resource-main"><input id="fq-pe" type="number" inputmode="numeric"><span>/</span><b id="fq-pe-max">0</b><div class="fq-mini-controls"><button type="button" onclick="window.fqStep('pe',-1)">−</button><button type="button" onclick="window.fqStep('pe',1)">+</button></div></div></div>
+    </section>
+
+    <section class="fq-block fq-skills-block">
+      <div class="fq-label">PERÍCIAS TREINADAS</div>
+      <div id="fq-skills" class="fq-skills"></div>
+    </section>
+
+    <section class="fq-block fq-abilities">
+      <div class="fq-label">HABILIDADES</div>
+      <div id="fq-abilities-list"></div>
+    </section>
+
+    <section class="fq-status">
+      <span class="fq-status-label">CONDIÇÕES</span>
+      <div id="fq-status-list" class="fq-status-list"></div>
+    </section>
+
+    <div class="fq-bottom">
+      <div class="fq-status-values">
+        <span class="fq-bigstat vida">VITALIDADE <b id="fq-vida-bottom">0</b></span>
+        <span class="fq-bigstat san">LUCIDEZ <b id="fq-san-bottom">0</b></span>
+        <span class="fq-bigstat pe">FÔLEGO <b id="fq-pe-bottom">0</b></span>
+      </div>
+      <div class="fq-defense">
+        <span>DEFESA <b id="fq-defesa">0</b></span>
+        <span>DESLOC. <b id="fq-desloc">—</b></span>
+      </div>
+    </div>
+
+    <nav class="fq-actions" aria-label="Atalhos da ficha">
+      <button class="fq-action" type="button" onclick="window.fqAbrirAba('combate')">COMBATE</button>
+      <button class="fq-action" type="button" onclick="window.fqAbrirAba('inventario')">EQUIPAMENTO</button>
+      <button class="fq-action" type="button" onclick="window.fqAbrirAba('tracos')">HABILIDADES</button>
+      <button class="fq-action primary" type="button" onclick="window.fqAbrirFichaCompleta()">FICHA COMPLETA</button>
+    </nav>
+  </div>
 </aside>
 
 <script id="ficha-rapida-js">
 (function(){
-    "use strict";
+  "use strict";
+  const $ = id => document.getElementById(id);
+  let fqAberta = false, fqTimer = null;
+  const main = id => $(id);
+  const num = id => { const n = parseInt(main(id)?.value,10); return Number.isFinite(n) ? n : 0; };
 
-    const $ = id => document.getElementById(id);
-    let fqAberta = false;
-    let fqTimer = null;
-    let fqSaveTimer = null;
+  function esc(v){return String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+  function attrVal(a){return num('attr-'+a);}
 
-    function main(id){ return $(id); }
-    function num(id){ return parseInt(main(id)?.value,10) || 0; }
-
-    function salvarRapido(){
-        clearTimeout(fqSaveTimer);
-        fqSaveTimer = setTimeout(() => {
-            try { if (typeof salvarFicha === "function") salvarFicha(); } catch(e){ console.warn("Ficha rápida: erro ao salvar",e); }
-        }, 450);
+  function renderPortrait(){
+    const host=$('fq-character'), src=main('display-portrait');
+    if(!host) return;
+    if(src && src.src && src.style.display!=='none'){
+      host.classList.remove('empty');
+      host.innerHTML=`<img src="${esc(src.src)}" alt="Retrato do personagem">`;
+    }else{
+      host.classList.add('empty');host.innerHTML='SEM<br>REGISTRO<br>FOTOGRÁFICO';
     }
+  }
 
-    function setMainAndSave(id, value){
-        const el = main(id);
-        if(!el) return;
-        el.value = value;
-        salvarRapido();
-    }
+  function renderProfile(){
+    const name=main('nome-personagem')?.value || 'PERSONAGEM';
+    const origem=main('origem-personagem')?.value || 'Origem não definida';
+    const classe=main('classe-personagem')?.value || '';
+    const idade=main('idade-personagem')?.value || '—';
+    const nivel=main('nivel-personagem')?.value || '0';
+    const nex=main('nex-personagem')?.value || '—';
+    $('fq-nome').textContent=name;$('fq-origem').textContent=origem;
+    $('fq-classe').textContent=classe ? classe.toUpperCase() : '—';
+    $('fq-idade').textContent=idade!=='—' ? 'IDADE '+idade : '';
+    $('fq-nivel').textContent=nivel;
+    const jogador=($('label-nome-jogador')?.textContent||'JOGADOR(A): —').replace(/\s+/g,' ').trim();
+    $('fq-jogador').textContent=jogador;
+    const quote=main('bgDescricao')?.value || main('bgTracos')?.value || '—';
+    $('fq-quote').textContent=quote.length>150 ? quote.slice(0,147)+'…' : quote;
+    const vis=$('content-exposicao-real')?.style.display==='flex';
+    $('fq-nex-wrap').style.display=vis?'block':'none';$('fq-nex').textContent=vis?nex:'—';
+    renderPortrait();
+  }
 
-    function bindNumber(fqId, mainId, recalcular){
-        const el = $(fqId);
-        if(!el) return;
-        el.addEventListener("change", () => {
-            setMainAndSave(mainId, el.value);
-            if(recalcular){
-                try { recalcular(); } catch(e){}
-            }
-            refresh(true);
-        });
-        el.addEventListener("keydown", e => {
-            if(e.key === "Enter"){ e.preventDefault(); el.blur(); }
-        });
-    }
-
-    function updateResource(kind, value){
-        const src = main(kind + "-atual");
-        if(!src) return;
-        const max = num(kind + "-max");
-        let v = parseInt(value,10);
-        if(isNaN(v)) v = 0;
-        v = Math.max(0, Math.min(v, max));
-        src.value = v;
-        try { if(typeof atualizarStatusVisual === "function") atualizarStatusVisual(kind); } catch(e){}
-        salvarRapido();
-        refresh(true);
-    }
-
-    window.fqStep = function(kind, delta){
-        updateResource(kind, num(kind + "-atual") + delta);
-    };
-
-    function renderResource(kind){
-        const current = num(kind + "-atual");
-        const max = num(kind + "-max");
-        const pct = max > 0 ? Math.max(0, Math.min(100, current/max*100)) : 0;
-
-        const input = $("fq-" + kind);
-        const maxEl = $("fq-" + kind + "-max");
-        const text = $("fq-" + kind + "-text");
-        const fill = $("fq-" + kind + "-fill");
-
-        if(input && document.activeElement !== input) input.value = current;
-        if(maxEl) maxEl.textContent = max;
-        if(text) text.textContent = `${current} / ${max}`;
-        if(fill) fill.style.width = pct + "%";
-    }
-
-    function getSkillTotal(p){
-        const info = (typeof bancoPericias !== "undefined" && bancoPericias[p]) || {};
-        const attrName = main("attr-" + p)?.value || info.attr || "";
-        const attrEl = main("attr-" + String(attrName).toLowerCase());
-        const attrVal = parseInt(attrEl?.value,10) || 0;
-        const hasSubs = !!(info.subs || info.subsInputs);
-
-        if(!hasSubs){
-            const bonus = parseInt(main("bonus-" + p)?.value,10) || 0;
-            const treino = parseInt(main("treino-" + p)?.value,10) || 0;
-            return { total: attrVal + bonus + treino, attr: attrName, treino, subs: [] };
-        }
-
-        const subs = [];
-        const names = info.subs || [];
-        for(let i=0;i<4;i++){
-            const t = parseInt(main(`sub-treino-${p}-${i}`)?.value,10) || 0;
-            const b = parseInt(main(`sub-bonus-${p}-${i}`)?.value,10) || 0;
-            const n = main(`sub-nome-${p}-${i}`)?.value || names[i] || "";
-            if(n || t || b || names[i]){
-                subs.push({name:n || `Sub ${i+1}`, total:attrVal+t+b, treino:t});
-            }
-        }
-        const maxSub = subs.reduce((a,b)=>Math.max(a,b.total),0);
-        return { total:maxSub, attr:attrName, treino:subs.reduce((a,b)=>a+b.treino,0), subs };
-    }
-
-    function renderSkills(){
-        const box = $("fq-skills");
-        if(!box || typeof nomesPericias === "undefined") return;
-        const rows = [];
-
-        nomesPericias.forEach(p => {
-            const r = getSkillTotal(p);
-            rows.push({name:p, ...r});
-        });
-
-        rows.sort((a,b) => (b.total-a.total) || a.name.localeCompare(b.name,'pt-BR'));
-
-        box.innerHTML = rows.map(r => {
-            const trained = r.treino > 0;
-            const subHtml = r.subs?.length
-                ? `<div class="fq-subskill">${r.subs.map(s => `<span>${escapeHtml(s.name)} <strong>${s.total}</strong></span>`).join(" · ")}</div>`
-                : "";
-            return `<div class="fq-skill ${trained ? "trained":""}" title="${escapeHtml(r.attr || "")}">
-                        <div class="fq-skill-name">${escapeHtml(r.name)} <small>${escapeHtml(r.attr || "")}</small>${subHtml}</div>
-                        <div class="fq-skill-value">${r.subs?.length ? "—" : r.total}</div>
-                    </div>`;
-        }).join("");
-    }
-
-    function escapeHtml(v){
-        return String(v ?? "").replace(/[&<>"']/g, c => ({
-            "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-        }[c]));
-    }
-
-    function renderProfile(){
-        const name = main("nome-personagem")?.value || "PERSONAGEM";
-        const origem = main("origem-personagem")?.value || "Origem não definida";
-        const classe = main("classe-personagem")?.value || "";
-        const idade = main("idade-personagem")?.value || "—";
-        const nivel = main("nivel-personagem")?.value || "0";
-        const nex = main("nex-personagem")?.value || "—";
-
-        $("fq-nome").textContent = name;
-        $("fq-origem").textContent = origem;
-        $("fq-classe").textContent = classe ? "ARQUÉTIPO " + classe : "ARQUÉTIPO NÃO DEFINIDO";
-        $("fq-idade").textContent = idade;
-        $("fq-nivel").textContent = nivel;
-        const exposicaoVisivel = $("content-exposicao-real")?.style.display === "flex";
-        const nexPill = $("fq-nex-pill");
-        if(nexPill){
-            nexPill.style.display = exposicaoVisivel ? "inline-block" : "none";
-        }
-        $("fq-nex").textContent = exposicaoVisivel ? nex : "—";
-        $("fq-jogador").textContent = ($("label-nome-jogador")?.textContent || "JOGADOR: —").replace(/\s+/g," ").trim();
-
-        const img = main("display-portrait");
-        const wrap = $("fq-portrait-wrap");
-        if(img && img.src && img.style.display !== "none"){
-            wrap.innerHTML = `<img class="fq-portrait" src="${escapeHtml(img.src)}" alt="Retrato do personagem">`;
-        }else{
-            wrap.innerHTML = `<div class="fq-no-photo">SEM<br>REGISTRO<br>FOTOGRÁFICO</div>`;
-        }
-    }
-
-    function renderAttributes(){
-        ["agi","for","sag","von","vig"].forEach(a=>{
-            const src = main("attr-" + a), dest = $("fq-" + a);
-            if(src && dest && document.activeElement !== dest) dest.value = src.value;
-        });
-    }
-
-    function renderCombat(){
-        $("fq-defesa").textContent = $("display-defesa")?.textContent || "0";
-        $("fq-bloqueio").textContent = $("display-bloqueio")?.textContent || "0";
-        $("fq-esquiva").textContent = $("display-esquiva")?.textContent || "0";
-        $("fq-desloc").textContent = main("deslocamento-personagem")?.value || "—";
-    }
-
-    function renderStatus(){
-        const list = $("fq-status-list");
-        if(!list) return;
-        const values = Array.isArray(window.statusAcumulados) ? window.statusAcumulados : [];
-        list.innerHTML = values.length
-            ? values.map(s => `<span class="fq-status-tag">${escapeHtml(s)}</span>`).join("")
-            : `<span style="font:700 9px 'Inter',sans-serif;color:var(--fq-muted);">NORMAL</span>`;
-
-        const map = [
-            ["fq-sequela","chk-sequela"],
-            ["fq-obito","btn-obito"],
-            ["fq-choque","btn-choque"],
-            ["fq-exaustao","btn-exaustao"]
-        ];
-        map.forEach(([target, source])=>{
-            const t = $(target), s = $(source);
-            if(!t || !s) return;
-            const active = source === "chk-sequela" ? !!s.checked : s.classList.contains("btn-active");
-            t.style.display = active ? "inline-block" : "none";
-        });
-    }
-
-    function refresh(force){
-        if(!fqAberta && !force) return;
-        renderProfile();
-        renderAttributes();
-        renderResource("vida");
-        renderResource("san");
-        renderResource("pe");
-        renderCombat();
-        renderStatus();
-        renderSkills();
-    }
-
-    window.abrirFichaRapida = function(){
-        fqAberta = true;
-        $("ficha-rapida")?.classList.add("open");
-        $("fq-backdrop")?.classList.add("open");
-        document.body.style.overflow = "hidden";
-        refresh(true);
-        clearInterval(fqTimer);
-        fqTimer = setInterval(()=>refresh(false), 700);
-    };
-
-    window.fecharFichaRapida = function(){
-        fqAberta = false;
-        $("ficha-rapida")?.classList.remove("open");
-        $("fq-backdrop")?.classList.remove("open");
-        document.body.style.overflow = "";
-        clearInterval(fqTimer);
-    };
-
-    window.fqAbrirAba = function(aba){
-        window.fecharFichaRapida();
-        try{
-            const btn = document.querySelector(`.tab-btn[onclick*="mudarAba('${aba}')"]`);
-            if(btn) btn.click();
-            else if(typeof mudarAba === "function") mudarAba(aba);
-        }catch(e){ console.warn(e); }
-    };
-
-    window.fqAbrirFichaCompleta = function(){
-        window.fecharFichaRapida();
-        window.scrollTo({top:0,behavior:"smooth"});
-    };
-
-    bindNumber("fq-agi","attr-agi",()=>typeof alterarAtributoOuNivel==="function" && alterarAtributoOuNivel());
-    bindNumber("fq-for","attr-for",()=>typeof alterarAtributoOuNivel==="function" && alterarAtributoOuNivel());
-    bindNumber("fq-sag","attr-sag",()=>typeof alterarAtributoOuNivel==="function" && alterarAtributoOuNivel());
-    bindNumber("fq-von","attr-von",()=>typeof alterarAtributoOuNivel==="function" && alterarAtributoOuNivel());
-    bindNumber("fq-vig","attr-vig",()=>typeof alterarAtributoOuNivel==="function" && alterarAtributoOuNivel());
-
-    ["vida","san","pe"].forEach(kind=>{
-        const input = $("fq-" + kind);
-        if(!input) return;
-        input.addEventListener("change",()=>updateResource(kind,input.value));
-        input.addEventListener("keydown",e=>{
-            if(e.key==="Enter"){e.preventDefault();input.blur();}
-        });
+  function renderAttrs(){
+    ['agi','for','sag','von','vig'].forEach(a=>{
+      const v=attrVal(a), input=$('fq-'+a), bars=$('fq-bars-'+a);
+      if(input && document.activeElement!==input) input.value=v;
+      if(bars){
+        const count=Math.max(1,Math.min(5,v+1));
+        bars.innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<count?'on':''}"></i>`).join('');
+      }
     });
+  }
 
-    document.addEventListener("keydown",e=>{
-        if(e.key === "Escape" && fqAberta) window.fecharFichaRapida();
-    });
+  function updateResource(kind,value){
+    const src=main(kind+'-atual'); if(!src)return;
+    const max=Math.max(0,num(kind+'-max')); let v=parseInt(value,10); if(!Number.isFinite(v))v=0;
+    v=Math.max(0,Math.min(v,max)); src.value=v;
+    try{if(typeof atualizarStatusVisual==='function') atualizarStatusVisual(kind);}catch(e){}
+    try{salvarFicha();}catch(e){}
+    renderResources();
+  }
+  window.fqStep=(kind,delta)=>updateResource(kind,num(kind+'-atual')+delta);
 
-    /* Se algo mudar na ficha completa, a ficha rápida atualiza sem precisar recarregar. */
-    document.addEventListener("input",(e)=>{
-        if(fqAberta && !e.target.closest("#ficha-rapida")) refresh(true);
+  function renderResources(){
+    [['vida','fq-vida'],['san','fq-san'],['pe','fq-pe']].forEach(([k,id])=>{
+      const cur=num(k+'-atual'),max=num(k+'-max'),inp=$(id);
+      if(inp && document.activeElement!==inp)inp.value=cur;
+      $(id+'-max').textContent=max;
+      const bottom=$(id+'-bottom');if(bottom)bottom.textContent=cur;
     });
-    document.addEventListener("change",(e)=>{
-        if(fqAberta && !e.target.closest("#ficha-rapida")) setTimeout(()=>refresh(true),50);
-    });
+  }
 
-    /* Mantém a ficha rápida alinhada ao carregamento assíncrono do Firebase. */
-    setTimeout(()=>refresh(true),1200);
+  function skillData(p){
+    const info=(typeof bancoPericias!=='undefined'&&bancoPericias[p])||{};
+    const attr=(main('attr-'+p)?.value)||info.attr||'';
+    const av=num('attr-'+String(attr).toLowerCase());
+    const hasSubs=!!(info.subs||info.subsInputs);
+    if(!hasSubs){
+      const treino=parseInt(main('treino-'+p)?.value,10)||0;
+      const bonus=parseInt(main('bonus-'+p)?.value,10)||0;
+      return {trained:treino>0,total:av+bonus+treino,attr,subs:[]};
+    }
+    const subs=[];let any=false;
+    for(let i=0;i<4;i++){
+      const treino=parseInt(main(`sub-treino-${p}-${i}`)?.value,10)||0;
+      const bonus=parseInt(main(`sub-bonus-${p}-${i}`)?.value,10)||0;
+      const name=main(`sub-nome-${p}-${i}`)?.value || (Array.isArray(info.subs)?info.subs[i]:'') || '';
+      if(treino>0){any=true;subs.push({name:name||`Sub ${i+1}`,total:av+bonus+treino});}
+    }
+    const base=main(`base-treino-${p}`)?.value==='true';
+    if(base)any=true;
+    const total=base ? av + (parseInt(main('bonus-'+p)?.value,10)||0) + (parseInt(main('treino-'+p)?.value,10)||0) : (subs.length?Math.max(...subs.map(s=>s.total)):av);
+    return {trained:any,total,attr,subs};
+  }
+
+  function renderSkills(){
+    const box=$('fq-skills');if(!box||typeof nomesPericias==='undefined')return;
+    const rows=[];nomesPericias.forEach(p=>{const d=skillData(p);if(d.trained)rows.push({name:p,...d});});
+    rows.sort((a,b)=>b.total-a.total || a.name.localeCompare(b.name,'pt-BR'));
+    if(!rows.length){box.innerHTML='<div class="fq-empty">Nenhuma perícia treinada registrada.</div>';return;}
+    box.innerHTML=rows.map(r=>`<div class="fq-skill"><span class="fq-skill-mark">◆</span><div class="fq-skill-name">${esc(r.name)} <span class="fq-skill-attr">${esc(r.attr||'')}</span>${r.subs.length?`<div class="fq-subskills">${r.subs.map(s=>`${esc(s.name)} ${s.total}`).join(' · ')}</div>`:''}</div><b class="fq-skill-value">${r.subs.length?'—':r.total}</b></div>`).join('');
+  }
+
+  function renderAbilities(){
+    const box=$('fq-abilities-list');if(!box)return;
+    const cards=[...document.querySelectorAll('#lista-habilidades .ritual-card')];
+    if(!cards.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
+    box.innerHTML=cards.slice(0,2).map(card=>{
+      const title=card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade';
+      const desc=card.querySelector('textarea')?.value?.trim()||'';
+      return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
+    }).join('');
+  }
+
+  function renderStatus(){
+    const box=$('fq-status-list');if(!box)return;
+    const tags=[];
+    if(Array.isArray(window.statusAcumulados))tags.push(...window.statusAcumulados);
+    if($('chk-sequela')?.checked)tags.push('Sequela');
+    if($('btn-obito')?.classList.contains('btn-active'))tags.push('Óbito');
+    if($('btn-choque')?.classList.contains('btn-active'))tags.push('Choque');
+    if($('btn-exaustao')?.classList.contains('btn-active'))tags.push('Exaustão');
+    box.innerHTML=tags.length?tags.map(s=>`<span class="fq-status-tag">${esc(s)}</span>`).join(''):'<span style="font:italic 11px Georgia,serif;opacity:.55">Normal</span>';
+  }
+
+  function renderCombat(){
+    $('fq-defesa').textContent=$('display-defesa')?.textContent||'0';
+    $('fq-desloc').textContent=main('deslocamento-personagem')?.value||'—';
+  }
+
+  function refresh(force){if(!fqAberta&&!force)return;renderProfile();renderAttrs();renderResources();renderSkills();renderAbilities();renderStatus();renderCombat();}
+
+  window.abrirFichaRapida=function(){
+    fqAberta=true;$('ficha-rapida')?.classList.add('open');$('fq-backdrop')?.classList.add('open');document.body.style.overflow='hidden';refresh(true);
+    clearInterval(fqTimer);fqTimer=setInterval(()=>refresh(false),700);
+  };
+  window.fecharFichaRapida=function(){
+    fqAberta=false;$('ficha-rapida')?.classList.remove('open');$('fq-backdrop')?.classList.remove('open');document.body.style.overflow='';clearInterval(fqTimer);
+  };
+
+  function bindNumber(id,mainId,recalc){
+    const el=$(id);if(!el)return;
+    el.addEventListener('change',()=>{const src=main(mainId);if(src){src.value=el.value;try{recalc&&recalc();}catch(e){}try{salvarFicha();}catch(e){}}refresh(true);});
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}});
+  }
+  ['agi','for','sag','von','vig'].forEach(a=>bindNumber('fq-'+a,'attr-'+a,()=>typeof alterarAtributoOuNivel==='function'&&alterarAtributoOuNivel()));
+  ['vida','san','pe'].forEach(k=>{
+    const el=$('fq-'+k);if(!el)return;
+    el.addEventListener('change',()=>updateResource(k,el.value));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}});
+  });
+
+  /* Atalhos agora trocam a aba de verdade, em vez de depender do objeto global event. */
+  window.fqAbrirAba=function(aba){
+    window.fecharFichaRapida();
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    const alvo=$('aba-'+aba);if(alvo)alvo.classList.add('active');
+    const btn=[...document.querySelectorAll('.tab-btn')].find(b=>(b.getAttribute('onclick')||'').includes(`mudarAba('${aba}')`));
+    if(btn)btn.classList.add('active');
+    setTimeout(()=>alvo?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  };
+  window.fqAbrirFichaCompleta=function(){
+    window.fecharFichaRapida();
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    const per=$('aba-pericias');if(per)per.classList.add('active');
+    const btn=[...document.querySelectorAll('.tab-btn')].find(b=>(b.getAttribute('onclick')||'').includes("mudarAba('pericias')"));
+    if(btn)btn.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fqAberta)window.fecharFichaRapida();});
+  document.addEventListener('input',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))refresh(true);});
+  document.addEventListener('change',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))setTimeout(()=>refresh(true),50);});
+  setTimeout(()=>refresh(true),1200);
 })();
 </script>
 
