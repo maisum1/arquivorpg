@@ -1814,19 +1814,91 @@ let filtroSubAtualAtaques = 'Todos';
     let cheatCode = ""; document.addEventListener('keydown', (e) => { const a = document.activeElement; if (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT') return; cheatCode += e.key.toLowerCase(); cheatCode = cheatCode.slice(-20); if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; } if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; } if (cheatCode.includes("apoteose")) { ativarSegredo('extremos'); cheatCode = ""; } if (cheatCode.includes("restricao")) { ativarSegredo('restricao'); cheatCode = ""; } });
     function verificarCheat() { const c = document.getElementById('input-cheat').value.toLowerCase().trim(); if (c === "despertar") ativarSegredo('revelado'); else if (c === "hexatombe") ativarSegredo('hexatombe'); else if (c === "apoteose") ativarSegredo('extremos'); else if (c === "restricao") ativarSegredo('restricao'); else alert("Comando não reconhecido."); document.getElementById('input-cheat').value = ""; toggleElem('modal-config'); }
 
-    function ativarSegredo(campo) { 
+    async function prepararEstadoInicialHexatombe(d_raw) {
+        const refFicha = db.collection("fichas").doc(atual);
+
+        // Primeiro acionamento: cria uma cópia independente da ficha normal.
+        let hD = { ...d_raw };
+        delete hD.hexatombe_data;
+        delete hD.pericias_hexa;
+        delete hD.hexatombe_inicializado;
+        hD.hexatombe = true;
+
+        hD.vidaAtual = parseInt(d_raw.vidaAtual) || 1;
+        hD.sanAtual = parseInt(d_raw.sanAtual) || 1;
+        hD.peAtual = parseInt(d_raw.peAtual) || 1;
+        hD.vidaMax = parseInt(d_raw.vidaMax) || 12;
+        hD.sanMax = parseInt(d_raw.sanMax) || 50;
+        hD.peMax = parseInt(d_raw.peMax) || 2;
+
+        const periciasNormais = d_raw.pericias || {};
+        const colecoes = [
+            ["rituais", "hexa_rituais"],
+            ["poderes", "hexa_poderes"],
+            ["habilidades", "hexa_habilidades"],
+            ["inventario", "hexa_inventario"],
+            ["ataques", "hexa_ataques"]
+        ];
+
+        for (const [origem, destino] of colecoes) {
+            const origemSnap = await refFicha.collection(origem).get();
+            const destinoSnap = await refFicha.collection(destino).get();
+            let batch = db.batch();
+            let ops = 0;
+
+            // Remove restos de uma versão anterior somente nesta primeira inicialização.
+            for (const doc of destinoSnap.docs) {
+                batch.delete(doc.ref);
+                ops++;
+                if (ops >= 450) {
+                    await batch.commit();
+                    batch = db.batch();
+                    ops = 0;
+                }
+            }
+
+            for (const doc of origemSnap.docs) {
+                batch.set(refFicha.collection(destino).doc(doc.id), doc.data());
+                ops++;
+                if (ops >= 450) {
+                    await batch.commit();
+                    batch = db.batch();
+                    ops = 0;
+                }
+            }
+
+            if (ops > 0) await batch.commit();
+        }
+
+        await refFicha.update({
+            hexatombe_data: hD,
+            pericias_hexa: periciasNormais,
+            hexatombe_inicializado: true
+        });
+    }
+
+    async function ativarSegredo(campo) { 
         document.body.classList.add('shake'); 
-        try { salvarFicha(); } catch(e) { console.error("Erro ignorado ao salvar:", e); }
+        try { await salvarFicha(); } catch(e) { console.error("Erro ignorado ao salvar:", e); }
         
         setTimeout(async () => { 
             document.body.classList.remove('shake'); 
             try {
+                // Garante que a cópia seja criada a partir da última versão salva.
+                try { await salvarFicha(); } catch(e) { console.error("Erro ignorado ao sincronizar antes do segredo:", e); }
+
                 let doc = await db.collection("fichas").doc(atual).get(); 
                 let valAtual = doc.data()[campo] || false; 
                 let updates = {}; 
                 if(campo === 'revelado') { isRevelado = !valAtual; updates.revelado = isRevelado; } 
                 if(campo === 'extremos') { isExtremos = !valAtual; updates.extremos = isExtremos; } 
-                if(campo === 'hexatombe') { isHexatombe = !valAtual; updates.hexatombe = isHexatombe; } 
+                if(campo === 'hexatombe') { 
+                    isHexatombe = !valAtual; 
+                    if (isHexatombe && !doc.data().hexatombe_inicializado) {
+                        await prepararEstadoInicialHexatombe(doc.data());
+                    }
+                    updates.hexatombe = isHexatombe; 
+                } 
                 if(campo === 'restricao') { isRestricao = !valAtual; updates.restricao = isRestricao; } 
                 await db.collection("fichas").doc(atual).update(updates); 
                 aplicarSegredosUI(); 
@@ -2252,16 +2324,50 @@ let filtroSubAtualAtaques = 'Todos';
             if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; d.origem = d_raw.origem; d.nivelCredito = d_raw.nivelCredito; d.fundoGastos = d_raw.fundoGastos; d.dinheiroEspecie = d_raw.dinheiroEspecie; d.patrimonioRecursos = d_raw.patrimonioRecursos; }
 
             if (prevHexatombeFinal !== hF) {
-                let vN = parseInt(d_raw.vig) || 0; let vnN = parseInt(d_raw.von) || 0; let sN = parseInt(d_raw.sag) || 0; let nv = parseInt(d_raw.nivel) || 0; let nx = parseInt(d_raw.nex) || 0; let cl = d_raw.classe || "";
-                let hD = d_raw.hexatombe_data || {}; if (hF && hD.vig === undefined) { hD.vig = vN; hD.for = d_raw.for; hD.agi = d_raw.agi; hD.sag = sN; hD.von = vnN; }
-                let vH = hD.vig !== undefined ? parseInt(hD.vig) : vN; let vnH = hD.von !== undefined ? parseInt(hD.von) : vnN; let sH = hD.sag !== undefined ? parseInt(hD.sag) : sN;
-                let mNV = 12 + (2 * vN) + (2 * nv); let mHV = 12 + (2 * vH) + (2 * nv); let mNS = 50 + (10 * vnN + 10 * sN); let mHS = 50 + (10 * vnH + 10 * sH);
-                let mNP = 2 + (2 * vN) + vnN + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mNP += 2; else if (cl === "Canalizador" && nv >= 2) mNP += 5;
-                let mHP = 2 + (2 * vH) + vnH + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mHP += 2; else if (cl === "Canalizador" && nv >= 2) mHP += 5;
-                let dV = mHV - mNV; let dS = mHS - mNS; let dP = mHP - mNP; let up = {};
-                if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; up.hexatombe_data = hD; } 
-                else { let vH = parseInt(hD.vidaAtual) || 0; let sH = parseInt(hD.sanAtual) || 0; let pH = parseInt(hD.peAtual) || 0; let nV = vH - dV; if (dV > 0) { if(nV <= 0 && vH >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; } up.vidaAtual = nV; let nS = sH - dS; if (dS > 0) { if(nS <= 0 && sH >= 1) nS = 1; else if (nS < 0) nS = 0; } else { if (nS < 0) nS = 0; } up.sanAtual = nS; let nP = pH - dP; if(nP < 0) nP = 0; up.peAtual = nP; }
-                prevHexatombeFinal = hF; db.collection("fichas").doc(atual).update(up); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
+                const hD = d_raw.hexatombe_data || {};
+                let up = {};
+
+                // Ao entrar no Hexatombe, a ficha normal continua sendo a base.
+                // O snapshot salvo em hexatombe_data representa a versão paralela.
+                if (hF) {
+                    const vNMax = parseInt(d_raw.vidaMax) || 0;
+                    const sNMax = parseInt(d_raw.sanMax) || 0;
+                    const pNMax = parseInt(d_raw.peMax) || 0;
+                    const vN = parseInt(d_raw.vidaAtual) || 1;
+                    const sN = parseInt(d_raw.sanAtual) || 1;
+                    const pN = parseInt(d_raw.peAtual) || 1;
+
+                    // Usa a diferença REAL dos máximos. Assim funciona tanto para
+                    // aumento por atributo quanto para aumento concedido pelo mestre.
+                    const dV = (hD.vidaMax !== undefined ? parseInt(hD.vidaMax) : vNMax) - vNMax;
+                    const dS = (hD.sanMax !== undefined ? parseInt(hD.sanMax) : sNMax) - sNMax;
+                    const dP = (hD.peMax !== undefined ? parseInt(hD.peMax) : pNMax) - pNMax;
+
+                    hD.vidaAtual = Math.max(1, vN + dV);
+                    hD.sanAtual = Math.max(1, sN + dS);
+                    hD.peAtual = Math.max(1, pN + dP);
+                    up.hexatombe_data = hD;
+                } else {
+                    // Ao sair, só os recursos voltam para a ficha normal.
+                    // Perícias, habilidades, atributos etc. continuam no snapshot Hexatombe.
+                    const vH = parseInt(hD.vidaAtual) || 1;
+                    const sH = parseInt(hD.sanAtual) || 1;
+                    const pH = parseInt(hD.peAtual) || 1;
+                    const vNMax = parseInt(d_raw.vidaMax) || 0;
+                    const sNMax = parseInt(d_raw.sanMax) || 0;
+                    const pNMax = parseInt(d_raw.peMax) || 0;
+                    const dV = (hD.vidaMax !== undefined ? parseInt(hD.vidaMax) : vNMax) - vNMax;
+                    const dS = (hD.sanMax !== undefined ? parseInt(hD.sanMax) : sNMax) - sNMax;
+                    const dP = (hD.peMax !== undefined ? parseInt(hD.peMax) : pNMax) - pNMax;
+
+                    up.vidaAtual = Math.max(1, vH - dV);
+                    up.sanAtual = Math.max(1, sH - dS);
+                    up.peAtual = Math.max(1, pH - dP);
+                }
+
+                prevHexatombeFinal = hF;
+                db.collection("fichas").doc(atual).update(up);
+                carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
             }
 
             let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
@@ -2477,7 +2583,7 @@ let filtroSubAtualAtaques = 'Todos';
 
         if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.fundoGastos = pl.fundoGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
-        db.collection("fichas").doc(atual).update(rU); recalcularBases();
+        return db.collection("fichas").doc(atual).update(rU).then(() => { recalcularBases(); });
     }
 
     let delaySalvarFicha;
@@ -4221,36 +4327,6 @@ let filtroSubAtualAtaques = 'Todos';
             document.getElementById('btn-confirmar-transferencia').innerText = "CONFIRMAR ENVIO";
         }
     };
-
-    let danoAcumuladoHexatombe = 0;
-
-function executarTrocaHexatombe() {
-    const body = document.body;
-    const inputVidaMax = document.getElementById('vida-max');
-    const inputVidaAtual = document.getElementById('vida-atual');
-
-    if (!inputVidaMax || !inputVidaAtual) return;
-
-    let vMax = parseInt(inputVidaMax.value) || 0;
-    let vAtual = parseInt(inputVidaAtual.value) || 0;
-
-    // Se estiver no modo Normal e for ativar o Hexatombe
-    if (!body.classList.contains('tema-hexatombe')) {
-        danoAcumuladoHexatombe = Math.max(0, vMax - vAtual); // Salva dano atual
-        body.classList.add('tema-hexatombe'); // Aplica tema visual
-        
-        let novoMax = parseInt(inputVidaMax.value) || vMax;
-        inputVidaAtual.value = Math.max(1, novoMax - danoAcumuladoHexatombe);
-    
-    // Se estiver no Hexatombe e for voltar ao Normal
-    } else {
-        danoAcumuladoHexatombe = Math.max(0, vMax - vAtual); // Salva dano tomado no Hexatombe
-        body.classList.remove('tema-hexatombe'); // Remove tema
-        
-        let novoMax = parseInt(inputVidaMax.value) || vMax;
-        inputVidaAtual.value = Math.max(1, novoMax - danoAcumuladoHexatombe);
-    }
-}
     
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
