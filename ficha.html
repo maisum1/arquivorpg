@@ -1831,6 +1831,11 @@ let filtroSubAtualAtaques = 'Todos';
         hD.sanMax = parseInt(d_raw.sanMax) || 50;
         hD.peMax = parseInt(d_raw.peMax) || 2;
 
+        const statusHexaBase = { vida: hD.vidaAtual, san: hD.sanAtual, pe: hD.peAtual };
+        hD.hexatombe_status_base = statusHexaBase;
+        hD.hexatombe_status_ultimo = { ...statusHexaBase };
+        hD.hexatombe_status_subtraido = { vida: 0, san: 0, pe: 0 };
+
         const periciasNormais = d_raw.pericias || {};
         const colecoes = [
             ["rituais", "hexa_rituais"],
@@ -2323,6 +2328,15 @@ let filtroSubAtualAtaques = 'Todos';
             const hF = isHexatombe || globalHexatombe; let d = d_raw;
             if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; d.origem = d_raw.origem; d.nivelCredito = d_raw.nivelCredito; d.fundoGastos = d_raw.fundoGastos; d.dinheiroEspecie = d_raw.dinheiroEspecie; d.patrimonioRecursos = d_raw.patrimonioRecursos; }
 
+            if (hF && d_raw.hexatombe_data) {
+                const hc = d_raw.hexatombe_data;
+                window.hexatombeStatusControle = {
+                    base: hc.hexatombe_status_base || { vida: parseInt(d_raw.vidaAtual) || 1, san: parseInt(d_raw.sanAtual) || 1, pe: parseInt(d_raw.peAtual) || 1 },
+                    ultimo: hc.hexatombe_status_ultimo || { vida: parseInt(hc.vidaAtual) || 1, san: parseInt(hc.sanAtual) || 1, pe: parseInt(hc.peAtual) || 1 },
+                    subtraido: hc.hexatombe_status_subtraido || { vida: 0, san: 0, pe: 0 }
+                };
+            }
+
             if (prevHexatombeFinal !== hF) {
                 const hD = d_raw.hexatombe_data || {};
                 let up = {};
@@ -2337,8 +2351,6 @@ let filtroSubAtualAtaques = 'Todos';
                     const sN = parseInt(d_raw.sanAtual) || 1;
                     const pN = parseInt(d_raw.peAtual) || 1;
 
-                    // Usa a diferença REAL dos máximos. Assim funciona tanto para
-                    // aumento por atributo quanto para aumento concedido pelo mestre.
                     const dV = (hD.vidaMax !== undefined ? parseInt(hD.vidaMax) : vNMax) - vNMax;
                     const dS = (hD.sanMax !== undefined ? parseInt(hD.sanMax) : sNMax) - sNMax;
                     const dP = (hD.peMax !== undefined ? parseInt(hD.peMax) : pNMax) - pNMax;
@@ -2346,25 +2358,18 @@ let filtroSubAtualAtaques = 'Todos';
                     hD.vidaAtual = Math.max(1, vN + dV);
                     hD.sanAtual = Math.max(1, sN + dS);
                     hD.peAtual = Math.max(1, pN + dP);
+                    hD.hexatombe_status_base = { vida: vN, san: sN, pe: pN };
+                    hD.hexatombe_status_ultimo = { vida: hD.vidaAtual, san: hD.sanAtual, pe: hD.peAtual };
+                    hD.hexatombe_status_subtraido = { vida: 0, san: 0, pe: 0 };
                     up.hexatombe_data = hD;
                 } else {
-                    // Ao sair, só os recursos voltam para a ficha normal.
-                    // Perícias, habilidades, atributos etc. continuam no snapshot Hexatombe.
-                    const vH = parseInt(hD.vidaAtual) || 1;
-                    const sH = parseInt(hD.sanAtual) || 1;
-                    const pH = parseInt(hD.peAtual) || 1;
-                    const vNMax = parseInt(d_raw.vidaMax) || 0;
-                    const sNMax = parseInt(d_raw.sanMax) || 0;
-                    const pNMax = parseInt(d_raw.peMax) || 0;
-                    const dV = (hD.vidaMax !== undefined ? parseInt(hD.vidaMax) : vNMax) - vNMax;
-                    const dS = (hD.sanMax !== undefined ? parseInt(hD.sanMax) : sNMax) - sNMax;
-                    const dP = (hD.peMax !== undefined ? parseInt(hD.peMax) : pNMax) - pNMax;
-
-                    up.vidaAtual = Math.max(1, vH - dV);
-                    up.sanAtual = Math.max(1, sH - dS);
-                    up.peAtual = Math.max(1, pH - dP);
+                    const base = hD.hexatombe_status_base || { vida: parseInt(d_raw.vidaAtual) || 1, san: parseInt(d_raw.sanAtual) || 1, pe: parseInt(d_raw.peAtual) || 1 };
+                    const sub = hD.hexatombe_status_subtraido || { vida: 0, san: 0, pe: 0 };
+                    up.vidaAtual = Math.max(1, (parseInt(base.vida) || 1) - (parseInt(sub.vida) || 0));
+                    up.sanAtual = Math.max(1, (parseInt(base.san) || 1) - (parseInt(sub.san) || 0));
+                    up.peAtual = Math.max(1, (parseInt(base.pe) || 1) - (parseInt(sub.pe) || 0));
                 }
-
+                if (!hF) window.hexatombeStatusControle = null;
                 prevHexatombeFinal = hF;
                 db.collection("fichas").doc(atual).update(up);
                 carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
@@ -2581,7 +2586,31 @@ let filtroSubAtualAtaques = 'Todos';
         let iS = parseInt(document.getElementById('san-atual').value); iS = isNaN(iS) ? 0 : iS;
         let iP = parseInt(document.getElementById('pe-atual').value); iP = isNaN(iP) ? 0 : iP;
 
-        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.fundoGastos = pl.fundoGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
+        if (hF) {
+            rU.hexatombe_data = pl;
+            rU.hexatombe_data.vidaAtual = iV;
+            rU.hexatombe_data.sanAtual = iS;
+            rU.hexatombe_data.peAtual = iP;
+
+            const controleAnterior = window.hexatombeStatusControle || {};
+            const ultimo = controleAnterior.ultimo || { vida: iV, san: iS, pe: iP };
+            const subtraido = {
+                vida: (parseInt(controleAnterior.subtraido?.vida) || 0) + Math.max(0, (parseInt(ultimo.vida) || iV) - iV),
+                san: (parseInt(controleAnterior.subtraido?.san) || 0) + Math.max(0, (parseInt(ultimo.san) || iS) - iS),
+                pe: (parseInt(controleAnterior.subtraido?.pe) || 0) + Math.max(0, (parseInt(ultimo.pe) || iP) - iP)
+            };
+            const base = controleAnterior.base || rU.hexatombe_data.hexatombe_status_base || { vida: iV, san: iS, pe: iP };
+            const controleNovo = {
+                base: { vida: parseInt(base.vida) || 1, san: parseInt(base.san) || 1, pe: parseInt(base.pe) || 1 },
+                ultimo: { vida: iV, san: iS, pe: iP },
+                subtraido
+            };
+            window.hexatombeStatusControle = controleNovo;
+            rU.hexatombe_data.hexatombe_status_base = controleNovo.base;
+            rU.hexatombe_data.hexatombe_status_ultimo = controleNovo.ultimo;
+            rU.hexatombe_data.hexatombe_status_subtraido = controleNovo.subtraido;
+            rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig;
+            rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.fundoGastos = pl.fundoGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; }
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
         return db.collection("fichas").doc(atual).update(rU).then(() => { recalcularBases(); });
     }
