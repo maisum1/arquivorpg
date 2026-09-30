@@ -1768,6 +1768,67 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 
 /* Fallback do retrato: sem blend/filter. */
 .fq-character img.fq-cutout-fallback{mix-blend-mode:normal !important;filter:none !important;}
+
+/* ===== Ficha Rápida — ajustes finais para celular ===== */
+@media(max-width:600px){
+  /* Uma única coluna de perícias no celular, subindo para aproveitar o corredor
+     livre à esquerda do personagem e deixando espaço vertical suficiente. */
+  .fq-skills-block{
+    left:4.5% !important;
+    top:42% !important;
+    width:34% !important;
+    bottom:auto !important;
+    max-height:39% !important;
+    overflow:hidden !important;
+  }
+  .fq-skills,
+  .fq-skills-block.fq-many-skills .fq-skills{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    column-gap:0 !important;
+    row-gap:0 !important;
+  }
+  .fq-skills-block.fq-many-skills .fq-label{grid-column:1 !important;}
+  .fq-skill{
+    grid-template-columns:9px minmax(0,1fr) auto !important;
+    gap:2px !important;
+    padding:2px 0 !important;
+  }
+  .fq-skill-name{
+    font-size:8.8px !important;
+    line-height:1.05 !important;
+  }
+  .fq-skill-value{
+    min-width:29px !important;
+    font-size:10px !important;
+    white-space:nowrap !important;
+    text-align:right !important;
+  }
+  .fq-skill-total,.fq-sub-total{
+    font-size:.9em !important;
+    opacity:.9;
+  }
+  .fq-subskills{
+    font-size:6.5px !important;
+    line-height:1.05 !important;
+  }
+  /* Habilidades mais estreitas e um pouco mais altas para não invadir o retrato. */
+  .fq-abilities{
+    right:4.5% !important;
+    top:42% !important;
+    width:29% !important;
+    max-height:35% !important;
+    overflow:hidden !important;
+  }
+}
+
+@media(max-width:390px){
+  .fq-skills-block{top:41% !important;width:34% !important;max-height:40% !important;}
+  .fq-abilities{top:41% !important;width:29% !important;max-height:36% !important;}
+  .fq-skill-name{font-size:8.5px !important;}
+  .fq-skill-value{font-size:9.7px !important;}
+  .fq-subskills{font-size:6.3px !important;}
+}
 </style>
 </head>
 <body>
@@ -5778,19 +5839,21 @@ let filtroSubAtualAtaques = 'Todos';
     if(!hasSubs){
       const treino=parseInt(main('treino-'+p)?.value,10)||0;
       const bonus=parseInt(main('bonus-'+p)?.value,10)||0;
-      return {trained:treino>0,total:av+bonus+treino,attr,subs:[]};
+      return {trained:treino>0,total:av+bonus+treino,treino,bonus,attr,subs:[]};
     }
     const subs=[];let any=false;
     for(let i=0;i<4;i++){
       const treino=parseInt(main(`sub-treino-${p}-${i}`)?.value,10)||0;
       const bonus=parseInt(main(`sub-bonus-${p}-${i}`)?.value,10)||0;
       const name=main(`sub-nome-${p}-${i}`)?.value || (Array.isArray(info.subs)?info.subs[i]:'') || '';
-      if(treino>0){any=true;subs.push({name:name||`Sub ${i+1}`,total:av+bonus+treino});}
+      if(treino>0){any=true;subs.push({name:name||`Sub ${i+1}`,treino,bonus,total:av+bonus+treino});}
     }
     const base=main(`base-treino-${p}`)?.value==='true';
     if(base)any=true;
     const total=base ? av + (parseInt(main('bonus-'+p)?.value,10)||0) + (parseInt(main('treino-'+p)?.value,10)||0) : (subs.length?Math.max(...subs.map(s=>s.total)):av);
-    return {trained:any,total,attr,subs};
+    const treino=parseInt(main(`treino-${p}`)?.value,10)||0;
+    const bonus=parseInt(main(`bonus-${p}`)?.value,10)||0;
+    return {trained:any,total,treino,bonus,attr,subs};
   }
 
   function renderSkills(){
@@ -5799,7 +5862,7 @@ let filtroSubAtualAtaques = 'Todos';
     rows.sort((a,b)=>b.total-a.total || a.name.localeCompare(b.name,'pt-BR'));
     if(!rows.length){box.innerHTML='<div class="fq-empty">Nenhuma perícia treinada registrada.</div>';return;}
     const skillsBlock=box.closest('.fq-skills-block'); if(skillsBlock) skillsBlock.classList.toggle('fq-many-skills', rows.length>12);
-    box.innerHTML=rows.map(r=>`<div class="fq-skill"><span class="fq-skill-mark">◆</span><div class="fq-skill-name">${esc(r.name)} <span class="fq-skill-attr">${esc(r.attr||'')}</span>${r.subs.length?`<div class="fq-subskills">${r.subs.map(s=>`${esc(s.name)} ${s.total}`).join(' · ')}</div>`:''}</div><b class="fq-skill-value">${r.subs.length?'—':r.total}</b></div>`).join('');
+    box.innerHTML=rows.map(r=>`<div class="fq-skill"><span class="fq-skill-mark">◆</span><div class="fq-skill-name">${esc(r.name)} <span class="fq-skill-attr">${esc(r.attr||'')}</span>${r.subs.length?`<div class="fq-subskills">${r.subs.map(s=>`${esc(s.name)} ${s.treino} <span class="fq-sub-total">(${s.total})</span>`).join(' · ')}</div>`:''}</div><b class="fq-skill-value">${r.subs.length?(r.treino?`${r.treino} <span class="fq-skill-total">(${r.total})</span>`:'—'):`${r.treino} <span class="fq-skill-total">(${r.total})</span>`}</b></div>`).join('');
   }
 
   function renderAbilities(){
