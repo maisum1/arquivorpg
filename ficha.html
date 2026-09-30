@@ -1443,25 +1443,32 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
   mix-blend-mode:normal !important;
   filter:none !important;
 }
+/* No celular, as perícias deixam de usar duas colunas para não passarem
+   por cima do retrato. A coluna fica no corredor livre à esquerda. */
 .fq-skills-block{
-  left:5% !important;
-  top:62% !important;
-  width:45% !important;
+  left:4.5% !important;
+  top:55% !important;
+  width:34% !important;
   bottom:auto !important;
-  max-height:24% !important;
-  z-index:40 !important;
-  overflow:hidden;
-}
-.fq-abilities{
-  right:5% !important;
-  top:62% !important;
-  width:41% !important;
-  max-height:24% !important;
+  max-height:31% !important;
   z-index:40 !important;
   overflow:hidden !important;
 }
-.fq-skills-block.fq-many-skills .fq-skills{
-  column-gap:9px;
+.fq-skills-block.fq-many-skills .fq-skills,
+.fq-skills{
+  grid-template-columns:1fr !important;
+  column-gap:0 !important;
+}
+.fq-skills-block.fq-many-skills .fq-label{
+  grid-column:1 !important;
+}
+.fq-abilities{
+  right:4.5% !important;
+  top:55% !important;
+  width:30% !important;
+  max-height:31% !important;
+  z-index:40 !important;
+  overflow:hidden !important;
 }
 .fq-skill{
   grid-template-columns:10px minmax(0,1fr) 20px !important;
@@ -1636,18 +1643,18 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
   top:17.5% !important;
 }
 .fq-skills-block{
-  top:63% !important;
-  width:45% !important;
-  bottom:20%;
-  max-height:23% !important;
-  left:5% !important;
+  top:54% !important;
+  width:34% !important;
+  bottom:auto !important;
+  max-height:31% !important;
+  left:4.5% !important;
   z-index:40 !important;
 }
 .fq-abilities{
-  top:63% !important;
-  width:41% !important;
-  max-height:23% !important;
-  right:5% !important;
+  top:54% !important;
+  width:30% !important;
+  max-height:31% !important;
+  right:4.5% !important;
   z-index:40 !important;
 }
 .fq-skill-name{
@@ -5434,8 +5441,38 @@ let filtroSubAtualAtaques = 'Todos';
   let fqAberta = false, fqTimer = null;
 
   /* A cor secundária é independente do tema claro/escuro e fica salva no navegador. */
-  const fqAccentKey = 'fichaRapidaCorSecundaria';
+  const fqAccentKeyBase = 'fichaRapidaCorSecundaria';
   const fqAccents = ['red','blue','green'];
+
+  // Cada ficha possui sua própria cor. O ID vem da URL (rota ?id=...) e,
+  // como fallback, da variável global 'atual' usada pelo sistema da ficha.
+  function obterFichaRapidaId(){
+    try{
+      const idUrl = new URLSearchParams(window.location.search).get('id');
+      if(idUrl) return idUrl;
+    }catch(e){}
+    try{
+      if(typeof atual !== 'undefined' && atual) return String(atual);
+    }catch(e){}
+    try{
+      if(window.atual) return String(window.atual);
+    }catch(e){}
+    return 'sem-ficha';
+  }
+
+  function chaveCorFichaRapida(){
+    return fqAccentKeyBase + ':' + obterFichaRapidaId();
+  }
+
+  function lerCorFichaRapida(){
+    try{
+      const salva = localStorage.getItem(chaveCorFichaRapida());
+      return fqAccents.includes(salva) ? salva : 'red';
+    }catch(e){
+      return 'red';
+    }
+  }
+
   function aplicarCorFichaRapida(cor, salvar=true){
     if(!fqAccents.includes(cor)) cor='red';
     document.body.setAttribute('data-fq-accent',cor);
@@ -5443,10 +5480,9 @@ let filtroSubAtualAtaques = 'Todos';
       btn.classList.toggle('active',btn.getAttribute('data-fq-accent')===cor);
     });
 
-    // A cor escolhida é uma preferência do usuário e deve sobreviver
-    // ao fechamento da Ficha Rápida, troca de ficha e recarregamento do site.
+    // A preferência fica vinculada à ficha atual, não ao site inteiro.
     if(salvar){
-      try { localStorage.setItem(fqAccentKey, cor); } catch(e) {}
+      try { localStorage.setItem(chaveCorFichaRapida(), cor); } catch(e) {}
     }
   }
 
@@ -5796,7 +5832,9 @@ let filtroSubAtualAtaques = 'Todos';
   function refresh(force){if(!fqAberta&&!force)return;renderProfile();renderAttrs();renderResources();renderSkills();renderAbilities();renderStatus();renderCombat();}
 
   window.abrirFichaRapida=function(){
-    aplicarCorFichaRapida('red',false);
+    // Ao abrir, recupera a cor salva especificamente para esta ficha.
+    // Se ainda não houver uma escolha para ela, começa em vermelho.
+    aplicarCorFichaRapida(lerCorFichaRapida(),false);
     fqAberta=true;$('ficha-rapida')?.classList.add('open');$('fq-backdrop')?.classList.add('open');document.body.style.overflow='hidden';refresh(true);
     clearInterval(fqTimer);fqTimer=setInterval(()=>refresh(false),700);
   };
@@ -5844,13 +5882,9 @@ let filtroSubAtualAtaques = 'Todos';
     btn.addEventListener('click',()=>aplicarCorFichaRapida(btn.getAttribute('data-fq-accent'),true));
   });
 
-  // Primeiro acesso: vermelho. Depois disso, recupera a última cor escolhida.
-  let fqCorSalva = 'red';
-  try {
-    const salva = localStorage.getItem(fqAccentKey);
-    if(fqAccents.includes(salva)) fqCorSalva = salva;
-  } catch(e) {}
-  aplicarCorFichaRapida(fqCorSalva,false);
+  // Primeiro acesso da ficha atual: vermelho. Se já houver escolha salva,
+  // ela é recuperada quando a Ficha Rápida for aberta.
+  aplicarCorFichaRapida(lerCorFichaRapida(),false);
 
   setTimeout(()=>refresh(true),1200);
 })();
