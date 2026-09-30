@@ -1163,7 +1163,6 @@ body.modo-sobrevivencia.tema-escuro{
   font:900 clamp(13px,1.5vw,18px)/1 'Crimson Text',Georgia,serif;
   margin-bottom:3px;
 }
-.fq-power .fq-ability-name{color:var(--fq-red)!important;}
 .fq-ability-desc{
   color:var(--fq-text-soft);
   font:italic clamp(9px,1vw,12px)/1.18 'Crimson Text',Georgia,serif;
@@ -1422,9 +1421,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 .fq-mini-controls{
   display:flex !important;
   flex-shrink:0 !important;
-  width:38px !important;
-  justify-content:space-between !important;
-  gap:5px !important;
+  gap:3px !important;
   margin-left:4px !important;
   position:relative !important;
   z-index:60 !important;
@@ -1433,16 +1430,16 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  width:15px !important;
-  height:15px !important;
-  min-width:15px !important;
-  min-height:15px !important;
+  width:20px !important;
+  height:20px !important;
+  min-width:20px !important;
+  min-height:20px !important;
   padding:0 !important;
   border:1px solid var(--fq-line) !important;
   border-radius:2px !important;
   background:rgba(0,0,0,.28) !important;
   color:var(--fq-paper) !important;
-  font:900 12px/15px Inter,sans-serif !important;
+  font:900 15px/20px Inter,sans-serif !important;
   opacity:1 !important;
   visibility:visible !important;
 }
@@ -6190,19 +6187,12 @@ let filtroSubAtualAtaques = 'Todos';
   function renderAbilities(){
     const box=$('fq-abilities-list');if(!box)return;
     const cards=[...document.querySelectorAll('#lista-habilidades .ritual-card')];
-    const powers=[...document.querySelectorAll('#lista-poderes .ritual-card')];
-    if(!cards.length && !powers.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
-    const normal=cards.map(card=>{
+    if(!cards.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
+    box.innerHTML=cards.slice(0,2).map(card=>{
       const title=card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade';
       const desc=card.querySelector('textarea')?.value?.trim()||'';
       return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
-    });
-    const especiais=powers.map(card=>{
-      const title=card.querySelector('.card-header span')?.textContent?.trim()||card.querySelector('input[placeholder*="Nome da Especialização"]')?.value?.trim()||'Vínculo / Especialização';
-      const desc=card.querySelector('.cris-textarea')?.value?.trim()||'';
-      return `<article class="fq-ability fq-power"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
-    });
-    box.innerHTML=normal.concat(especiais).join('');
+    }).join('');
   }
 
   function renderStatus(){
@@ -6288,63 +6278,3 @@ let filtroSubAtualAtaques = 'Todos';
 
 
 
-
-<style id="fq-user-request-final-2026-09-30">
-/* ALTERAÇÕES SOLICITADAS — SOMENTE CELULAR */
-@media (max-width:600px){
-  .fq-mini-controls{
-    display:flex !important;
-    width:34px !important;
-    min-width:34px !important;
-    justify-content:space-between !important;
-    align-items:center !important;
-    gap:0 !important;
-    margin-left:5px !important;
-  }
-  .fq-mini-controls button{
-    display:flex !important;
-    width:13px !important;
-    min-width:13px !important;
-    height:13px !important;
-    min-height:13px !important;
-    align-items:center !important;
-    justify-content:center !important;
-    padding:0 !important;
-    margin:0 !important;
-    font-size:10px !important;
-    line-height:13px !important;
-  }
-  .fq-abilities .fq-power .fq-ability-name{
-    color:var(--fq-red) !important;
-  }
-}
-</style>
-<script>
-/* Reforço final: Vínculos/Especializações entram na Ficha Rápida como traços. */
-(function(){
-  const oldRenderAbilities = window.__fqRenderAbilitiesOriginal;
-  /* A função interna já coleta #lista-poderes; este observer força uma atualização
-     quando o Firebase termina de montar/alterar os cards. */
-  const sync = ()=>{
-    const quick=document.getElementById('ficha-rapida');
-    const out=document.getElementById('fq-abilities-list');
-    if(!quick || !out || !quick.classList.contains('open')) return;
-    const powers=document.querySelectorAll('#lista-poderes .ritual-card');
-    if(!powers.length) return;
-    const normal=[...document.querySelectorAll('#lista-habilidades .ritual-card')].map(card=>{
-      const title=card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade';
-      const desc=card.querySelector('textarea')?.value?.trim()||'Sem descrição.';
-      return `<article class="fq-ability"><div class="fq-ability-name">${title.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}</div><div class="fq-ability-desc">${desc.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}</div></article>`;
-    });
-    const esp=[...powers].map(card=>{
-      const title=card.querySelector('.card-header span')?.textContent?.trim()||'Vínculo / Especialização';
-      const desc=card.querySelector('.cris-textarea')?.value?.trim()||'Sem descrição.';
-      const e=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-      return `<article class="fq-ability fq-power"><div class="fq-ability-name">${e(title)}</div><div class="fq-ability-desc">${e(desc)}</div></article>`;
-    });
-    out.innerHTML=normal.concat(esp).join('');
-  };
-  new MutationObserver(sync).observe(document.body,{childList:true,subtree:true});
-  setInterval(sync,700);
-})();
-</script>
