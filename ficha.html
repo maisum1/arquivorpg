@@ -3441,27 +3441,39 @@ let filtroSubAtualAtaques = 'Todos';
         else if (cl === "Canalizador" && nv >= 2) { nP += 5; }
 
         const iVM = document.getElementById('vida-max'); 
-        if (iVM) { 
-            let oldBaseV = parseInt(iVM.dataset.base);
-            if (isNaN(oldBaseV)) oldBaseV = nV;
-            if (nV !== oldBaseV) iVM.value = nV; // Reseta se o atributo mudar
-            iVM.dataset.base = nV; 
-        }
-        
         const iSM = document.getElementById('san-max'); 
-        if (iSM) { 
-            let oldBaseS = parseInt(iSM.dataset.base);
-            if (isNaN(oldBaseS)) oldBaseS = nS;
-            if (nS !== oldBaseS) iSM.value = nS; 
-            iSM.dataset.base = nS; 
-        }
-        
-        const iPM = document.getElementById('pe-max'); 
-        if (iPM) { 
-            let oldBaseP = parseInt(iPM.dataset.base);
-            if (isNaN(oldBaseP)) oldBaseP = nP;
-            if (nP !== oldBaseP) iPM.value = nP; 
-            iPM.dataset.base = nP; 
+        const iPM = document.getElementById('pe-max');
+
+        // Em Hexatombe, os máximos não são recalculados pelas fórmulas normais.
+        // O valor salvo em hexatombe_data é o que vale, inclusive após uma edição manual.
+        const emHexa = (typeof isHexatombe !== 'undefined' && isHexatombe) || (typeof globalHexatombe !== 'undefined' && globalHexatombe);
+        if (!emHexa) {
+            // Fora do Hexatombe, mantém a lógica antiga de recalcular quando atributos/nível mudam.
+            // O valor manual pré-Hexatombe já foi restaurado pelo carregamento da ficha.
+            if (iVM) { 
+                let oldBaseV = parseInt(iVM.dataset.base);
+                if (isNaN(oldBaseV)) oldBaseV = parseInt(iVM.value);
+                if (isNaN(oldBaseV)) oldBaseV = nV;
+                if (nV !== oldBaseV && !iVM.dataset.preserveManualMax) iVM.value = nV;
+                iVM.dataset.base = nV;
+                delete iVM.dataset.preserveManualMax;
+            }
+            if (iSM) { 
+                let oldBaseS = parseInt(iSM.dataset.base);
+                if (isNaN(oldBaseS)) oldBaseS = parseInt(iSM.value);
+                if (isNaN(oldBaseS)) oldBaseS = nS;
+                if (nS !== oldBaseS && !iSM.dataset.preserveManualMax) iSM.value = nS;
+                iSM.dataset.base = nS;
+                delete iSM.dataset.preserveManualMax;
+            }
+            if (iPM) { 
+                let oldBaseP = parseInt(iPM.dataset.base);
+                if (isNaN(oldBaseP)) oldBaseP = parseInt(iPM.value);
+                if (isNaN(oldBaseP)) oldBaseP = nP;
+                if (nP !== oldBaseP && !iPM.dataset.preserveManualMax) iPM.value = nP;
+                iPM.dataset.base = nP;
+                delete iPM.dataset.preserveManualMax;
+            }
         }
 
         // Lê o que está na caixa para garantir que edições manuais afetem o limite atual
@@ -3639,13 +3651,32 @@ let filtroSubAtualAtaques = 'Todos';
 
             if (prevHexatombeFinal !== hF) {
                 let vN = parseInt(d_raw.vig) || 0; let vnN = parseInt(d_raw.von) || 0; let sN = parseInt(d_raw.sag) || 0; let nv = parseInt(d_raw.nivel) || 0; let nx = parseInt(d_raw.nex) || 0; let cl = d_raw.classe || "";
-                let hD = d_raw.hexatombe_data || {}; if (hF && hD.vig === undefined) { hD.vig = vN; hD.for = d_raw.for; hD.agi = d_raw.agi; hD.sag = sN; hD.von = vnN; }
+                let hD = d_raw.hexatombe_data || {};
+                // Ao entrar em Hexatombe, preserva os máximos que existiam fora do modo.
+                // Eles viram a base daquele modo e só mudam se o jogador editar manualmente
+                // o máximo enquanto Hexatombe estiver ativo.
+                if (hF) {
+                    // Cada nova entrada em Hexatombe cria uma nova fotografia dos máximos
+                    // que estavam valendo na ficha normal naquele momento.
+                    hD.hexatombe_max_original = {
+                        vidaMax: d_raw.vidaMax !== undefined ? parseInt(d_raw.vidaMax) : null,
+                        sanMax: d_raw.sanMax !== undefined ? parseInt(d_raw.sanMax) : null,
+                        peMax: d_raw.peMax !== undefined ? parseInt(d_raw.peMax) : null
+                    };
+                }
+                if (hF && hD.hexatombe_max_original) {
+                    const hm = hD.hexatombe_max_original;
+                    if (hm.vidaMax !== null && !isNaN(hm.vidaMax)) hD.vidaMax = hm.vidaMax;
+                    if (hm.sanMax !== null && !isNaN(hm.sanMax)) hD.sanMax = hm.sanMax;
+                    if (hm.peMax !== null && !isNaN(hm.peMax)) hD.peMax = hm.peMax;
+                }
+                if (hF && hD.vig === undefined) { hD.vig = vN; hD.for = d_raw.for; hD.agi = d_raw.agi; hD.sag = sN; hD.von = vnN; }
                 let vH = hD.vig !== undefined ? parseInt(hD.vig) : vN; let vnH = hD.von !== undefined ? parseInt(hD.von) : vnN; let sH = hD.sag !== undefined ? parseInt(hD.sag) : sN;
                 let mNV = 12 + (2 * vN) + (2 * nv); let mHV = 12 + (2 * vH) + (2 * nv); let mNS = 50 + (10 * vnN + 10 * sN); let mHS = 50 + (10 * vnH + 10 * sH);
                 let mNP = 2 + (2 * vN) + vnN + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mNP += 2; else if (cl === "Canalizador" && nv >= 2) mNP += 5;
                 let mHP = 2 + (2 * vH) + vnH + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mHP += 2; else if (cl === "Canalizador" && nv >= 2) mHP += 5;
                 let dV = mHV - mNV; let dS = mHS - mNS; let dP = mHP - mNP; let up = {};
-                if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; up.hexatombe_data = hD; } 
+                if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; up.hexatombe_data = hD; }
                 else { let vH = parseInt(hD.vidaAtual) || 0; let sH = parseInt(hD.sanAtual) || 0; let pH = parseInt(hD.peAtual) || 0; let nV = vH - dV; if (dV > 0) { if(nV <= 0 && vH >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; } up.vidaAtual = nV; let nS = sH - dS; if (dS > 0) { if(nS <= 0 && sH >= 1) nS = 1; else if (nS < 0) nS = 0; } else { if (nS < 0) nS = 0; } up.sanAtual = nS; let nP = pH - dP; if(nP < 0) nP = 0; up.peAtual = nP; }
                 prevHexatombeFinal = hF; db.collection("fichas").doc(atual).update(up); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
             }
@@ -3653,9 +3684,9 @@ let filtroSubAtualAtaques = 'Todos';
             let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
             if (document.activeElement !== document.getElementById('vida-atual')) document.getElementById('vida-atual').value = vA ?? 12; if (document.activeElement !== document.getElementById('san-atual')) document.getElementById('san-atual').value = sA ?? 50; if (document.activeElement !== document.getElementById('pe-atual')) document.getElementById('pe-atual').value = pA ?? 2;
             
-            if (document.activeElement !== document.getElementById('vida-max') && d.vidaMax !== undefined) document.getElementById('vida-max').value = d.vidaMax;
-            if (document.activeElement !== document.getElementById('san-max') && d.sanMax !== undefined) document.getElementById('san-max').value = d.sanMax;
-            if (document.activeElement !== document.getElementById('pe-max') && d.peMax !== undefined) document.getElementById('pe-max').value = d.peMax;
+            if (document.activeElement !== document.getElementById('vida-max') && d.vidaMax !== undefined) { document.getElementById('vida-max').value = d.vidaMax; if (!hF) document.getElementById('vida-max').dataset.preserveManualMax = '1'; }
+            if (document.activeElement !== document.getElementById('san-max') && d.sanMax !== undefined) { document.getElementById('san-max').value = d.sanMax; if (!hF) document.getElementById('san-max').dataset.preserveManualMax = '1'; }
+            if (document.activeElement !== document.getElementById('pe-max') && d.peMax !== undefined) { document.getElementById('pe-max').value = d.peMax; if (!hF) document.getElementById('pe-max').dataset.preserveManualMax = '1'; }
             
             document.getElementById('label-nome-jogador').innerText = `JOGADOR(A): ${d_raw.nomeJogador || 'DESCONHECIDO'}`;
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
