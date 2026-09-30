@@ -5239,11 +5239,11 @@ let filtroSubAtualAtaques = 'Todos';
 
     const showOriginalOnlyAsLastResort=()=>{
       if(job!==fqPortraitJob)return;
-      host.classList.remove('empty');
-      host.innerHTML=`<img class="fq-cutout fq-cutout-fallback" src="${esc(url)}" alt="Retrato do personagem">`;
-      const img=host.querySelector('img');
-      img.style.objectPosition=objectPosition;
-      img.style.transform='none';
+      /* Nunca devolve a imagem original: isso reintroduziria o fundo.
+         Se o navegador bloquear o processamento, mantemos o espaço vazio
+         em vez de mostrar uma imagem opaca. */
+      host.classList.add('empty');
+      host.innerHTML='SEM<br>REGISTRO<br>FOTOGRÁFICO';
     };
 
     /*
@@ -5366,17 +5366,22 @@ let filtroSubAtualAtaques = 'Todos';
         minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
         maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
 
+        /* Reescreve os pixels processados no canvas original e só depois
+           recorta a área útil. Não usamos putImageData em um slice retangular
+           (as linhas do ImageData têm stride diferente e isso pode gerar erro,
+           fazendo o código cair no fallback e devolver a imagem com fundo). */
+        ctx.putImageData(imageData,0,0);
+
         const crop=document.createElement('canvas');
-        crop.width=maxX-minX+1; crop.height=maxY-minY+1;
-        crop.getContext('2d').putImageData(
-          new ImageData(px.slice((minY*w+minX)*4,(maxY*w+maxX+1)*4),crop.width,crop.height),0,0
-        );
-        /* putImageData acima não funciona para linhas não-contíguas; redesenha
-           corretamente a região usando o canvas já processado. */
+        crop.width=maxX-minX+1;
+        crop.height=maxY-minY+1;
         const cropCtx=crop.getContext('2d');
         cropCtx.clearRect(0,0,crop.width,crop.height);
-        ctx.putImageData(imageData,0,0);
-        cropCtx.drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
+        cropCtx.drawImage(
+          canvas,
+          minX,minY,crop.width,crop.height,
+          0,0,crop.width,crop.height
+        );
 
         const out=crop.toDataURL('image/png');
         if(job!==fqPortraitJob)return;
