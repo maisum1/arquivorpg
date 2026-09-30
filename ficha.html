@@ -4446,7 +4446,7 @@ let filtroSubAtualAtaques = 'Todos';
 
 /* Retrato central: grande, sem card branco */
 .fq-character{
-  position:absolute;z-index:5;background:transparent !important;
+  position:absolute;z-index:5;
   left:29%;top:16%;width:42%;height:48%;
   display:flex;align-items:flex-end;justify-content:center;
   pointer-events:none;
@@ -4758,7 +4758,7 @@ let filtroSubAtualAtaques = 'Todos';
 </style>
 
 <style id="fq-mobile-layout-v5">
-/* V5 — composição mobile: mais área útil, perícias legíveis e retrato central. (base preservada) */
+/* V5 — composição mobile: mais área útil, perícias legíveis e retrato central. */
 .fq-attr-bars i.neg{background:var(--fq-red-hi)!important;border-color:var(--fq-red-hi)!important;box-shadow:0 0 5px rgba(180,35,40,.18)}
 @media(max-width:600px){
   .fq-character{
@@ -4799,129 +4799,111 @@ let filtroSubAtualAtaques = 'Todos';
 }
 </style>
 
-<style id="fq-mobile-layout-v6">
-/* V6 — celular: composição alinhada à referência visual.
-   Desktop permanece intocado. */
-@media(max-width:600px){
-  .fq-close{
-    right:10px !important;
-    top:12px !important;
-    width:28px;height:28px;
-    z-index:50;
-  }
 
-  /* Retrato maior e central, ocupando o miolo da folha sem voltar ao card/fundo. */
-  .fq-character{
-    left:25%;
-    top:19%;
-    width:50%;
-    height:60%;
-    z-index:3;
-  }
-  .fq-character img.fq-cutout{
-    width:100%;height:100%;
-    max-width:100%;max-height:100%;
-    object-fit:contain !important;
-    object-position:50% 50% !important;
-    mix-blend-mode:normal !important;
-  }
-
-  /* Atributos e recursos continuam por cima do retrato, preservando a leitura. */
+<style id="fq-portrait-fallback">
+/* Se o navegador bloquear leitura do canvas por CORS, o retrato ainda se funde visualmente ao fundo escuro. */
+.fq-character img.fq-cutout-fallback{mix-blend-mode:multiply;filter:contrast(1.08) saturate(1.04);}
+</style>
+<style id="fq-mobile-final-v6">
+/* V6 — ajuste final do mobile, baseado na composição de referência. */
+@media (max-width:600px){
+  /* Cabeçalho e recursos permanecem no alto; atributos ganham mais largura à esquerda. */
   .fq-attrs{
-    left:5.5%;
-    top:21%;
-    width:35%;
-    z-index:8;
+    left:4.2% !important;
+    top:21.7% !important;
+    width:42% !important;
+    z-index:12 !important;
   }
   .fq-resources{
-    right:5.5%;
-    top:21%;
-    width:31%;
-    z-index:8;
+    right:4.2% !important;
+    top:21.7% !important;
+    width:30% !important;
+    z-index:12 !important;
+  }
+  .fq-attr-row{
+    grid-template-columns:minmax(28px,1fr) 24px minmax(48px,58px) !important;
+    gap:4px !important;
+    margin:4px 0 !important;
+  }
+  .fq-attr-name{font-size:16px !important}
+  .fq-attr-val{width:24px !important;height:24px !important;line-height:24px !important;font-size:16px !important}
+  .fq-attr-bars{height:12px !important;gap:2px !important}
+
+  /* Retrato: maior, central e deslocado para baixo, como na referência. */
+  .fq-character{
+    left:20% !important;
+    top:24.5% !important;
+    width:60% !important;
+    height:54% !important;
+    z-index:4 !important;
+    overflow:visible !important;
+  }
+  .fq-character img.fq-cutout{
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    max-height:none !important;
+    object-fit:contain !important;
+    object-position:50% 50% !important;
   }
 
-  /* Cinco quadrados sempre visíveis; não reduzir a quantidade no mobile. */
-  .fq-attr-bars{
-    display:flex;
-    gap:2px;
-    height:12px;
-  }
-  .fq-attr-bars i{
-    flex:1 1 0;
-    min-width:0;
-  }
-
-  /* Perícias/habilidades descem para a metade inferior e ganham mais largura. */
+  /* Conteúdo textual fica sobre o personagem apenas na parte inferior. */
   .fq-skills-block{
-    left:5.5%;
-    top:55%;
-    width:44%;
-    bottom:auto;
-    max-height:24.5%;
-    z-index:9;
-    overflow:hidden;
+    left:5.5% !important;
+    top:59.5% !important;
+    width:44% !important;
+    max-height:20.5% !important;
+    bottom:auto !important;
+    z-index:14 !important;
   }
   .fq-abilities{
-    right:5.5%;
-    top:55%;
-    width:39%;
-    max-height:24.5%;
-    z-index:9;
-    overflow:hidden;
+    right:5.5% !important;
+    top:59.5% !important;
+    width:40% !important;
+    max-height:20.5% !important;
+    z-index:14 !important;
   }
   .fq-skill{
-    grid-template-columns:11px minmax(0,1fr) 20px;
-    gap:3px;
-    padding:3px 0;
+    grid-template-columns:10px minmax(0,1fr) 18px !important;
+    gap:3px !important;
+    padding:2.5px 0 !important;
   }
   .fq-skill-name{
-    font-size:9.2px;
-    line-height:1.08;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    font-size:8.8px !important;
+    line-height:1.08 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
   }
-  .fq-skill-attr{font-size:5.2px}
-  .fq-skill-value{font-size:11.5px}
-  .fq-ability-name{font-size:11.5px}
-  .fq-ability-desc{font-size:7.5px;line-height:1.16}
+  .fq-skill-attr{font-size:5px !important}
+  .fq-skill-value{font-size:11px !important}
+  .fq-ability-name{font-size:11.5px !important}
+  .fq-ability-desc{font-size:7.4px !important;line-height:1.16 !important}
 
-  /* Condições ficam mais próximas da faixa inferior, sem colar nos atributos acima. */
+  /* Condições desce para perto dos status finais, sem encostar neles. */
   .fq-status{
-    left:5.5%;
-    right:5.5%;
-    bottom:13.8%;
-    z-index:9;
+    left:5.5% !important;
+    right:5.5% !important;
+    bottom:11.2% !important;
+    z-index:15 !important;
   }
-
-  /* Rodapé já estava bom no celular; apenas mantém os atalhos fora da linha da moldura. */
-  .fq-actions{
-    left:5%;right:5%;bottom:1.85%;
-    z-index:12;
+  .fq-bottom{
+    left:5.5% !important;
+    right:5.5% !important;
+    bottom:5.6% !important;
   }
-
-  /* O botão de iniciativa fica numa faixa própria, sem encostar na ficha rápida. */
-  #btn-toggle-iniciativa{
-    right:165px !important;
-    bottom:10px !important;
-    z-index:9998 !important;
-  }
+  .fq-actions{bottom:1.85% !important}
 }
-
-@media(max-width:390px){
-  .fq-character{left:23%;top:19%;width:54%;height:59%}
-  .fq-attrs{left:5%;top:21%;width:38%}
-  .fq-resources{right:5%;top:21%;width:32%}
-  .fq-skills-block{left:5%;top:55.5%;width:45%;max-height:24%}
-  .fq-abilities{right:5%;top:55.5%;width:40%;max-height:23.5%}
-  .fq-skill-name{font-size:8.8px}
-  .fq-skill-value{font-size:10.8px}
-  .fq-status{left:5%;right:5%;bottom:13.8%}
-  .fq-actions{left:4%;right:4%;bottom:1.8%}
-  #btn-toggle-iniciativa{right:160px !important}
+@media (max-width:390px){
+  .fq-attrs{left:4% !important;width:43% !important}
+  .fq-resources{right:4% !important;width:30.5% !important}
+  .fq-character{left:18% !important;top:25% !important;width:64% !important;height:53% !important}
+  .fq-skills-block{left:5.5% !important;top:59.5% !important;width:44% !important;max-height:20% !important}
+  .fq-abilities{right:5.5% !important;top:59.5% !important;width:40% !important;max-height:20% !important}
+  .fq-skill-name{font-size:8.5px !important}
+  .fq-status{bottom:11% !important}
 }
 </style>
-
 <button id="fq-open" type="button" onclick="window.abrirFichaRapida()">✦ FICHA RÁPIDA</button>
 <div id="fq-backdrop" onclick="window.fecharFichaRapida()"></div>
 
@@ -5039,7 +5021,7 @@ let filtroSubAtualAtaques = 'Todos';
     const paintFallback=()=>{
       if(job!==fqPortraitJob) return;
       host.classList.remove('empty');
-      host.innerHTML=`<img class="fq-cutout" src="${esc(url)}" alt="Retrato do personagem">`;
+      host.innerHTML=`<img class="fq-cutout fq-cutout-fallback" src="${esc(url)}" alt="Retrato do personagem">`;
       const img=host.querySelector('img');
       img.style.objectPosition=objectPosition;
       img.style.transform="none";
@@ -5084,11 +5066,7 @@ let filtroSubAtualAtaques = 'Todos';
           br/=count;bg/=count;bb/=count;
         }
 
-        const bgMean=(br+bg+bb)/3;
-        const bgSat=Math.max(br,bg,bb)-Math.min(br,bg,bb);
-        /* Fundos brancos/cinzas de JPG: a remoção é agressiva apenas nas
-           regiões conectadas à borda, preservando pele/roupa dentro da arte. */
-        const tolerance=count ? (bgSat<35 ? (bgMean>220?82:(bgMean>160?72:64)) : (bgMean>220?62:50)) : 0;
+        const tolerance=count ? (((br+bg+bb)/3>225)?58:((Math.max(br,bg,bb)-Math.min(br,bg,bb)<28)?62:48)) : 0;
         const visited=new Uint8Array(w*h);
         const queue=[];
         const push=(x,y)=>{
@@ -5115,8 +5093,10 @@ let filtroSubAtualAtaques = 'Todos';
         }
 
         /* Segunda passada: remove halos claros/cinzentos que ficaram conectados à borda. */
-        if(bgMean>90 && bgSat<55){
-          const haloTol = bgMean>220 ? 88 : (bgMean>155 ? 72 : 62);
+        const bgMean=(br+bg+bb)/3;
+        const bgSat=Math.max(br,bg,bb)-Math.min(br,bg,bb);
+        if(bgMean>155 && bgSat<45){
+          const haloTol = bgMean>225 ? 72 : 58;
           const q2=[]; const seen2=new Uint8Array(w*h);
           const add2=(x,y)=>{if(x<0||x>=w||y<0||y>=h)return;const n=y*w+x;if(seen2[n])return;seen2[n]=1;q2.push(n);};
           for(let x=0;x<w;x++){add2(x,0);add2(x,h-1)}
@@ -5150,13 +5130,11 @@ let filtroSubAtualAtaques = 'Todos';
           const pad=Math.max(2,Math.round(Math.max(maxX-minX+1,maxY-minY+1)*0.025));
           minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
           maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
-          /* IMPORTANTE: o processamento de transparência foi feito no ImageData;
-             devolvemos os pixels tratados ao canvas ANTES de recortar. Sem isso,
-             o recorte voltava a desenhar a imagem original e o fundo cinza/branco
-             reaparecia. */
-          ctx.putImageData(data,0,0);
           const crop=document.createElement('canvas');
           crop.width=maxX-minX+1; crop.height=maxY-minY+1;
+          crop.getContext('2d').putImageData(
+            new ImageData(new Uint8ClampedArray(crop.width*crop.height*4),crop.width,crop.height),0,0
+          );
           const cropCtx=crop.getContext('2d');
           cropCtx.clearRect(0,0,crop.width,crop.height);
           cropCtx.drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
@@ -5213,8 +5191,6 @@ let filtroSubAtualAtaques = 'Todos';
       if(bars){
         const magnitude=Math.min(5,Math.abs(v));
         const negative=v<0;
-        /* Sempre exatamente CINCO quadrados por atributo.
-           0 = nenhum; 1..5 = brancos; -1..-5 = vermelhos. */
         bars.innerHTML=Array.from({length:5},(_,i)=>{
           const filled=i<magnitude;
           return `<i class="${filled ? (negative?'on neg':'on') : ''}"></i>`;
@@ -5349,126 +5325,6 @@ let filtroSubAtualAtaques = 'Todos';
   setTimeout(()=>refresh(true),1200);
 })();
 </script>
-
-
-<style id="fq-final-reference-v7">
-/* V7 — composição mobile alinhada ao mockup final. Desktop permanece inalterado. */
-@media (max-width:600px){
-  #ficha-rapida{padding:10px 8px;align-items:center;justify-content:center;}
-  .fq-sheet{
-    width:min(94vw,704px);
-    height:auto;
-    aspect-ratio:2/3;
-    max-height:calc(100vh - 20px);
-    overflow:hidden;
-  }
-
-  /* Cabeçalho / fechamento */
-  .fq-nameblock{left:6.5%;right:28%;top:5.0%;}
-  .fq-name{font-size:clamp(22px,6.5vw,42px);line-height:.92;}
-  .fq-subtitle{font-size:clamp(8px,2.6vw,15px);margin-top:5px;letter-spacing:1.5px;}
-  .fq-player{font-size:6.5px;margin-top:7px;}
-  .fq-quote{display:none;}
-  .fq-topmeta{right:6.5%;top:5.0%;min-width:24%;}
-  .fq-level{font-size:clamp(20px,6vw,38px);line-height:.9;}
-  .fq-meta-line{font-size:6.5px;margin-top:5px;}
-  .fq-close{right:2.8% !important;top:2.2% !important;width:25px;height:25px;font-size:23px;opacity:.75;}
-
-  /* Linhas e cruzes — mesmas faixas da composição de referência. */
-  .fq-rule.r1{top:13.0%;}
-  .fq-rule.r2{top:40.7%;}
-  .fq-rule.r3{bottom:14.2%;}
-  .fq-cross.c1,.fq-cross.c2{top:12.35%;}
-  .fq-cross.c3,.fq-cross.c4{top:40.1%;}
-
-  /* Retrato: grande, central, sem qualquer card/fundo. */
-  .fq-character{
-    left:22%;top:14.0%;width:56%;height:56%;
-    z-index:4;
-  }
-  .fq-character img.fq-cutout{
-    width:100%;height:100%;
-    object-fit:contain !important;
-    object-position:50% 50% !important;
-    mix-blend-mode:normal !important;
-    filter:contrast(1.04) saturate(.9) drop-shadow(0 12px 12px rgba(0,0,0,.55));
-  }
-  .fq-character:before{left:8%;right:8%;bottom:2%;height:68%;}
-
-  /* Atributos: levemente mais à esquerda para preservar os cinco quadrados. */
-  .fq-attrs{left:5.5%;top:17.0%;width:39%;z-index:9;}
-  .fq-attr-row{
-    grid-template-columns:minmax(42px,1fr) 27px minmax(58px,1fr);
-    gap:4px;margin:6px 0;
-  }
-  .fq-attr-name{font-size:clamp(15px,4.4vw,24px);}
-  .fq-attr-val{width:27px;height:27px;line-height:27px;font-size:16px;}
-  .fq-attr-bars{gap:2px;height:12px;}
-  .fq-attr-bars i{min-width:0;}
-
-  /* Recursos na direita, alinhados com os atributos. */
-  .fq-resources{right:5.5%;top:17.0%;width:30%;z-index:9;}
-  .fq-resource{grid-template-columns:39px minmax(0,1fr);gap:6px;margin:7px 0;}
-  .fq-resource-tag{font-size:7.5px;padding:5px 3px;}
-  .fq-resource-main input{width:36px;font-size:clamp(21px,5.8vw,31px);}
-  .fq-resource-main span{font-size:11px;}
-  .fq-resource-main b{font-size:9px;}
-  .fq-mini-controls{display:none;}
-
-  /* Blocos inferiores: duas colunas largas e legíveis, sobre o retrato. */
-  .fq-skills-block{
-    left:5.5%;top:63.5%;width:43.5%;bottom:auto;max-height:18.0%;
-    overflow:hidden;z-index:10;
-  }
-  .fq-abilities{
-    right:5.5%;top:63.5%;width:38%;max-height:18.0%;
-    overflow:hidden;z-index:10;
-  }
-  .fq-label{font-size:8px;letter-spacing:1.7px;margin-bottom:6px;}
-  .fq-label:before{width:16px;height:3px;}
-  .fq-skill{grid-template-columns:10px minmax(0,1fr) 18px;gap:3px;padding:2.5px 0;}
-  .fq-skill-name{font-size:clamp(8px,2.35vw,12px);line-height:1.05;}
-  .fq-skill-attr{font-size:5px;}
-  .fq-skill-value{font-size:clamp(10px,3vw,15px);}
-  .fq-subskills{font-size:6.5px;}
-  .fq-ability{margin-bottom:7px;padding-left:7px;}
-  .fq-ability-name{font-size:clamp(10px,3.1vw,16px);}
-  .fq-ability-desc{font-size:clamp(7px,2vw,10px);line-height:1.15;-webkit-line-clamp:4;}
-
-  /* Condições mais baixas, perto da faixa de status. */
-  .fq-status{left:5.5%;right:5.5%;bottom:13.3%;z-index:10;}
-  .fq-status-label{font-size:7px;}
-  .fq-status-list{min-height:14px;}
-  .fq-status-tag{font-size:6px;padding:3px 5px;}
-
-  /* Rodapé igual ao mockup: estatísticas acima e atalhos quase no limite inferior. */
-  .fq-bottom{left:5.5%;right:5.5%;bottom:6.0%;gap:8px;align-items:flex-end;}
-  .fq-status-values{gap:7px;}
-  .fq-bigstat{font-size:clamp(12px,3.8vw,21px);}
-  .fq-defense{gap:7px;}
-  .fq-defense span{font-size:clamp(8px,2.5vw,13px);}
-  .fq-actions{left:15%;right:15%;bottom:1.55%;z-index:12;}
-  .fq-action{padding:3px 8px;font-size:6px;letter-spacing:.7px;}
-
-  /* Iniciativa e ficha rápida são dois botões irmãos, sem sobreposição. */
-  #fq-open{right:10px !important;bottom:10px !important;}
-  #btn-toggle-iniciativa{right:145px !important;bottom:10px !important;z-index:9998 !important;}
-}
-
-@media(max-width:390px){
-  .fq-sheet{width:94vw;aspect-ratio:2/3;}
-  .fq-name{font-size:22px;}
-  .fq-attrs{width:40%;}
-  .fq-resources{width:31%;}
-  .fq-character{left:20%;width:60%;height:56.5%;}
-  .fq-skills-block{top:63.5%;width:44%;}
-  .fq-abilities{top:63.5%;width:39%;}
-  .fq-skill-name{font-size:8px;}
-  .fq-bottom{bottom:6.2%;}
-  .fq-actions{left:11%;right:11%;}
-  #btn-toggle-iniciativa{right:140px !important;}
-}
-</style>
 
 </body>
 </html>
