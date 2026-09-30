@@ -797,11 +797,9 @@ body.modo-sobrevivencia .status-icon-item.ativo {
     mix-blend-mode:normal !important;
   }
   .fq-character img.fq-cutout-fallback{
-    /* Último recurso: funde a imagem original com o fundo escuro em vez de
-       deixar um retângulo claro evidente. Quando o recorte por canvas funciona,
-       a classe fq-cutout normal acima continua sendo usada. */
-    mix-blend-mode:multiply !important;
-    filter:contrast(1.06) saturate(.92) drop-shadow(0 16px 16px rgba(0,0,0,.55)) !important;
+    /* Fallback sem blend-mode: nunca cria um retângulo artificial sobre a ficha. */
+    mix-blend-mode:normal !important;
+    filter:none !important;
   }
 
   /* Texto ocupa a faixa inferior da ilustração, como na referência. */
@@ -5004,8 +5002,8 @@ let filtroSubAtualAtaques = 'Todos';
 
 
 <style id="fq-portrait-fallback">
-/* Se o navegador bloquear leitura do canvas por CORS, o retrato ainda se funde visualmente ao fundo escuro. */
-.fq-character img.fq-cutout-fallback{mix-blend-mode:multiply;filter:contrast(1.08) saturate(1.04);}
+/* O retrato normal é PNG com alfa real. O fallback não aplica blend-mode. */
+.fq-character img.fq-cutout-fallback{mix-blend-mode:normal !important;filter:none !important;}
 </style>
 <style id="fq-mobile-final-v6">
 /* V6 — ajuste final do mobile, baseado na composição de referência. */
@@ -5123,55 +5121,10 @@ let filtroSubAtualAtaques = 'Todos';
   .fq-attr-row{
     grid-template-columns:minmax(34px,1fr) 24px minmax(48px,58px) !important;
   }
-  /* O fallback não usa multiply: tenta eliminar visualmente o fundo claro. */
-  .fq-character img.fq-cutout-fallback{
-    mix-blend-mode:screen !important;
-    filter:contrast(1.18) saturate(.92) brightness(.78) drop-shadow(0 16px 16px rgba(0,0,0,.55)) !important;
-  }
 }
 @media(max-width:390px){
   .fq-character{left:15% !important;top:23% !important;width:70% !important;height:55% !important}
   .fq-attrs{left:2.5% !important;width:40% !important}
-}
-</style>
-
-<style id="fq-user-final-v7">
-/* V7 — ajuste solicitado: retrato um pouco maior e atributos mais à esquerda. */
-@media(max-width:600px){
-  .fq-character{
-    left:15% !important;
-    top:22.5% !important;
-    width:70% !important;
-    height:57% !important;
-  }
-  .fq-attrs{
-    left:1.8% !important;
-    width:39% !important;
-  }
-  .fq-attr-name{
-    transform:translateX(-3px);
-  }
-  .fq-attr-bars{
-    gap:2px !important;
-  }
-}
-@media(max-width:390px){
-  .fq-character{
-    left:13% !important;
-    top:22.5% !important;
-    width:74% !important;
-    height:57% !important;
-  }
-  .fq-attrs{
-    left:1.2% !important;
-    width:40% !important;
-  }
-}
-/* Se a origem remota não permitir canvas, o fallback escurece o fundo claro
-   contra a folha escura em vez de deixar um retângulo cinza evidente. */
-.fq-character img.fq-cutout-fallback{
-  mix-blend-mode:darken !important;
-  filter:contrast(1.08) saturate(.95) drop-shadow(0 16px 16px rgba(0,0,0,.55)) !important;
 }
 </style>
 <button id="fq-open" type="button" onclick="window.abrirFichaRapida()">✦ FICHA RÁPIDA</button>
@@ -5280,10 +5233,12 @@ let filtroSubAtualAtaques = 'Todos';
     fqPortraitSource=url;
     const job=++fqPortraitJob;
 
+    /* A ficha rápida usa somente o enquadramento do retrato, nunca o zoom
+       da ficha completa. O PNG final é sempre montado com alfa real. */
     const objectPosition=getComputedStyle(src).objectPosition || '50% 50%';
 
-    const paintFallback=()=>{
-      if(job!==fqPortraitJob) return;
+    const showOriginalOnlyAsLastResort=()=>{
+      if(job!==fqPortraitJob)return;
       host.classList.remove('empty');
       host.innerHTML=`<img class="fq-cutout fq-cutout-fallback" src="${esc(url)}" alt="Retrato do personagem">`;
       const img=host.querySelector('img');
@@ -5291,46 +5246,52 @@ let filtroSubAtualAtaques = 'Todos';
       img.style.transform='none';
     };
 
-    const im=new Image();
-    im.onload=()=>{
-      if(job!==fqPortraitJob) return;
+    /*
+      Remove o fundo de verdade, em vez de usar mix-blend-mode.
+      O processamento usa os pixels da borda como referência e apaga somente
+      regiões conectadas à borda. Assim, cinza/branco do fundo é removido sem
+      destruir áreas claras internas do personagem.
+    */
+    const processImage=(image, revokeUrl=null)=>{
       try{
         const max=1800;
-        const scale=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
-        const w=Math.max(1,Math.round(im.naturalWidth*scale));
-        const h=Math.max(1,Math.round(im.naturalHeight*scale));
+        const scale=Math.min(1,max/Math.max(image.naturalWidth,image.naturalHeight));
+        const w=Math.max(1,Math.round(image.naturalWidth*scale));
+        const h=Math.max(1,Math.round(image.naturalHeight*scale));
         const canvas=document.createElement('canvas');
         canvas.width=w; canvas.height=h;
         const ctx=canvas.getContext('2d',{willReadFrequently:true});
-        ctx.drawImage(im,0,0,w,h);
-        const data=ctx.getImageData(0,0,w,h);
-        const px=data.data;
+        ctx.clearRect(0,0,w,h);
+        ctx.drawImage(image,0,0,w,h);
+
+        const imageData=ctx.getImageData(0,0,w,h);
+        const px=imageData.data;
         const idx=(x,y)=>(y*w+x)*4;
 
-        // Estima a cor do fundo usando muitos pontos da borda, evitando que
-        // um único canto diferente impeça a remoção do fundo.
+        /* Amostra densa da borda; a mediana evita que um canto diferente
+           altere a cor estimada do fundo. */
         const edge=[];
-        const addSample=(x,y)=>{
-          const i=idx(x,y), a=px[i+3];
-          if(a>8) edge.push([px[i],px[i+1],px[i+2]]);
+        const step=Math.max(1,Math.floor(Math.min(w,h)/100));
+        const sample=(x,y)=>{
+          const i=idx(x,y);
+          if(px[i+3]>8) edge.push([px[i],px[i+1],px[i+2]]);
         };
-        const step=Math.max(1,Math.floor(Math.min(w,h)/80));
-        for(let x=0;x<w;x+=step){addSample(x,0);addSample(x,h-1)}
-        for(let y=0;y<h;y+=step){addSample(0,y);addSample(w-1,y)}
-        edge.sort((a,b)=>((a[0]+a[1]+a[2])-(b[0]+b[1]+b[2])));
-        const med=arr=>arr.length?arr[Math.floor(arr.length/2)]:[0,0,0];
-        const br=med(edge.map(v=>v[0]));
-        const bg=med(edge.map(v=>v[1]));
-        const bb=med(edge.map(v=>v[2]));
+        for(let x=0;x<w;x+=step){sample(x,0);sample(x,h-1)}
+        for(let y=0;y<h;y+=step){sample(0,y);sample(w-1,y)}
+        if(!edge.length) throw new Error('imagem sem pixels utilizáveis');
+        edge.sort((a,b)=>(a[0]+a[1]+a[2])-(b[0]+b[1]+b[2]));
+        const medianChannel=k=>{
+          const a=edge.map(v=>v[k]).sort((x,y)=>x-y);
+          return a[Math.floor(a.length/2)];
+        };
+        const br=medianChannel(0), bg=medianChannel(1), bb=medianChannel(2);
         const bgMean=(br+bg+bb)/3;
         const bgSat=Math.max(br,bg,bb)-Math.min(br,bg,bb);
 
-        // Fundo cinza/branco: usa tolerância ampla, pois compressão e sombras
-        // suaves podem criar dezenas de tons diferentes no mesmo fundo.
-        const lightNeutral=bgMean>125 && bgSat<75;
-        const darkNeutral=bgMean<=125 && bgSat<48;
-        const tolerance=lightNeutral ? 105 : (darkNeutral ? 62 : 52);
-        const soft=tolerance+24;
+        /* Fundo cinza/branco recebe uma tolerância maior; fundos coloridos,
+           uma tolerância menor para não comer cabelo/roupa. */
+        let tolerance = bgMean>225 ? 92 : bgMean>150 ? 82 : (bgSat<35 ? 70 : 52);
+        tolerance=Math.max(45,Math.min(105,tolerance));
 
         const visited=new Uint8Array(w*h);
         const queue=[];
@@ -5338,7 +5299,7 @@ let filtroSubAtualAtaques = 'Todos';
           if(x<0||x>=w||y<0||y>=h)return;
           const n=y*w+x;
           if(visited[n])return;
-          visited[n]=1;queue.push(n);
+          visited[n]=1; queue.push(n);
         };
         for(let x=0;x<w;x++){push(x,0);push(x,h-1)}
         for(let y=0;y<h;y++){push(0,y);push(w-1,y)}
@@ -5346,51 +5307,49 @@ let filtroSubAtualAtaques = 'Todos';
         let head=0;
         while(head<queue.length){
           const n=queue[head++], i=n*4;
-          if(px[i+3]===0) continue;
-          const dr=px[i]-br,dg=px[i+1]-bg,db=px[i+2]-bb;
+          if(px[i+3]===0)continue;
+          const dr=px[i]-br, dg=px[i+1]-bg, db=px[i+2]-bb;
           const dist=Math.sqrt(dr*dr+dg*dg+db*db);
-          const lum=(px[i]+px[i+1]+px[i+2])/3;
-          const sat=Math.max(px[i],px[i+1],px[i+2])-Math.min(px[i],px[i+1],px[i+2]);
-          let remove=false;
-          if(dist<=tolerance) remove=true;
-          // Fundo neutro: também aceita variações de luminosidade com pouca cor.
-          if(!remove && lightNeutral && sat<65 && Math.abs(lum-bgMean)<soft) remove=true;
-          if(!remove && darkNeutral && sat<42 && Math.abs(lum-bgMean)<tolerance) remove=true;
-
-          if(remove){
-            px[i+3]=0;
-            const x=n%w,y=Math.floor(n/w);
+          if(dist<=tolerance){
+            /* Pequena suavização na borda elimina halo do fundo sem criar
+               um contorno duro em volta do personagem. */
+            if(dist>tolerance*0.78){
+              const keep=(dist-tolerance*0.78)/(tolerance*0.22);
+              px[i+3]=Math.round(px[i+3]*Math.max(0,Math.min(1,keep)));
+            }else{
+              px[i+3]=0;
+            }
+            const x=n%w, y=Math.floor(n/w);
             push(x+1,y);push(x-1,y);push(x,y+1);push(x,y-1);
-            // diagonais deixam o recorte mais limpo em cantos/ombros.
-            push(x+1,y+1);push(x-1,y-1);push(x+1,y-1);push(x-1,y+1);
           }
         }
 
-        // Suaviza apenas o halo que continua conectado à área transparente.
-        // Não aplica a toda a imagem, para não apagar roupas/pele claras.
-        const haloQueue=[], haloSeen=new Uint8Array(w*h);
-        const addHalo=(x,y)=>{
+        /* Segunda limpeza para halos claros/cinzentos que tenham ficado
+           encostados na área já transparente. */
+        const haloTol=Math.min(120,tolerance+22);
+        const q2=[], seen2=new Uint8Array(w*h);
+        const add2=(x,y)=>{
           if(x<0||x>=w||y<0||y>=h)return;
           const n=y*w+x;
-          if(haloSeen[n])return;
-          haloSeen[n]=1;haloQueue.push(n);
+          if(seen2[n])return;
+          seen2[n]=1;q2.push(n);
         };
-        for(let x=0;x<w;x++){addHalo(x,0);addHalo(x,h-1)}
-        for(let y=0;y<h;y++){addHalo(0,y);addHalo(w-1,y)}
-        let hh=0;
-        while(hh<haloQueue.length){
-          const n=haloQueue[hh++], i=n*4;
-          if(px[i+3]===0){const x=n%w,y=Math.floor(n/w);addHalo(x+1,y);addHalo(x-1,y);addHalo(x,y+1);addHalo(x,y-1);continue;}
-          const dr=px[i]-br,dg=px[i+1]-bg,db=px[i+2]-bb;
-          const dist=Math.sqrt(dr*dr+dg*dg+db*db);
-          if(dist<=soft){
-            const alpha=Math.max(0,Math.min(255,Math.round((dist-tolerance)/(soft-tolerance)*255)));
-            px[i+3]=Math.min(px[i+3],alpha);
-            const x=n%w,y=Math.floor(n/w);addHalo(x+1,y);addHalo(x-1,y);addHalo(x,y+1);addHalo(x,y-1);
+        for(let x=0;x<w;x++){add2(x,0);add2(x,h-1)}
+        for(let y=0;y<h;y++){add2(0,y);add2(w-1,y)}
+        let h2=0;
+        while(h2<q2.length){
+          const n=q2[h2++], i=n*4;
+          const x=n%w, y=Math.floor(n/w);
+          if(px[i+3]===0){add2(x+1,y);add2(x-1,y);add2(x,y+1);add2(x,y-1);continue;}
+          const dr=px[i]-br, dg=px[i+1]-bg, db=px[i+2]-bb;
+          if(Math.sqrt(dr*dr+dg*dg+db*db)<=haloTol){
+            px[i+3]=0;
+            add2(x+1,y);add2(x-1,y);add2(x,y+1);add2(x,y-1);
           }
         }
 
-        // Recorta somente as margens que ficaram transparentes.
+        /* Recorta o transparente excedente. Isso torna o personagem realmente
+           grande na área reservada, independentemente do tamanho original. */
         let minX=w,minY=h,maxX=-1,maxY=-1;
         for(let y=0;y<h;y++){
           for(let x=0;x<w;x++){
@@ -5401,32 +5360,65 @@ let filtroSubAtualAtaques = 'Todos';
             }
           }
         }
+        if(maxX<0||maxY<0)throw new Error('recorte ficou vazio');
 
-        if(maxX>=0 && maxY>=0){
-          const pad=Math.max(3,Math.round(Math.max(maxX-minX+1,maxY-minY+1)*0.018));
-          minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
-          maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
-          const crop=document.createElement('canvas');
-          crop.width=maxX-minX+1;crop.height=maxY-minY+1;
-          crop.getContext('2d').clearRect(0,0,crop.width,crop.height);
-          crop.getContext('2d').drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
-          const out=crop.toDataURL('image/png');
-          if(job!==fqPortraitJob)return;
-          host.classList.remove('empty');
-          host.innerHTML=`<img class="fq-cutout" src="${out}" alt="Retrato do personagem">`;
-          const img=host.querySelector('img');
-          img.style.objectPosition='50% 50%';
-          img.style.transform='none';
-          return;
-        }
-        paintFallback();
+        const pad=Math.max(2,Math.round(Math.max(maxX-minX+1,maxY-minY+1)*0.018));
+        minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+        maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
+
+        const crop=document.createElement('canvas');
+        crop.width=maxX-minX+1; crop.height=maxY-minY+1;
+        crop.getContext('2d').putImageData(
+          new ImageData(px.slice((minY*w+minX)*4,(maxY*w+maxX+1)*4),crop.width,crop.height),0,0
+        );
+        /* putImageData acima não funciona para linhas não-contíguas; redesenha
+           corretamente a região usando o canvas já processado. */
+        const cropCtx=crop.getContext('2d');
+        cropCtx.clearRect(0,0,crop.width,crop.height);
+        ctx.putImageData(imageData,0,0);
+        cropCtx.drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
+
+        const out=crop.toDataURL('image/png');
+        if(job!==fqPortraitJob)return;
+        host.classList.remove('empty');
+        host.innerHTML=`<img class="fq-cutout" src="${out}" alt="Retrato do personagem">`;
+        const img=host.querySelector('img');
+        img.style.objectPosition='50% 50%';
+        img.style.transform='none';
       }catch(err){
-        paintFallback();
+        console.warn('Ficha rápida: não foi possível gerar PNG transparente.',err);
+        showOriginalOnlyAsLastResort();
+      }finally{
+        if(revokeUrl)URL.revokeObjectURL(revokeUrl);
       }
     };
-    im.onerror=paintFallback;
-    try{im.crossOrigin='anonymous';}catch(e){}
-    im.src=url;
+
+    /* Primeiro tenta obter os bytes via fetch. Isso permite processar imagens
+       hospedadas externamente quando o servidor libera CORS. Data URLs (que são
+       as imagens normalmente gravadas pelo crop da ficha) vão direto ao Image. */
+    const loadDirect=()=>{
+      const im=new Image();
+      im.onload=()=>processImage(im);
+      im.onerror=()=>showOriginalOnlyAsLastResort();
+      im.src=url;
+    };
+
+    if(url.startsWith('data:') || url.startsWith('blob:')){
+      loadDirect();
+      return;
+    }
+
+    fetch(url,{mode:'cors',cache:'no-store'})
+      .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.blob();})
+      .then(blob=>{
+        if(job!==fqPortraitJob)return;
+        const objectUrl=URL.createObjectURL(blob);
+        const im=new Image();
+        im.onload=()=>processImage(im,objectUrl);
+        im.onerror=()=>{URL.revokeObjectURL(objectUrl);showOriginalOnlyAsLastResort();};
+        im.src=objectUrl;
+      })
+      .catch(()=>loadDirect());
   }
 
   function renderProfile(){
