@@ -1811,7 +1811,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     db.collection("configuracoes").doc("globais").onSnapshot(doc => { if(doc.exists) { const data = doc.data(); globalRevelado = data.revelado || false; globalHexatombe = data.hexatombe || false; globalExtremos = data.extremos || false; globalRestricao = data.restricao || false; aplicarSegredosUI(); } });
 
-    let cheatCode = ""; document.addEventListener('keydown', (e) => { const a = document.activeElement; if (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT') return; cheatCode += e.key.toLowerCase(); cheatCode = cheatCode.slice(-20); if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; } if (cheatCode.includes("hexatombe")) { ativarSegredo('hexatombe'); cheatCode = ""; } if (cheatCode.includes("apoteose")) { ativarSegredo('extremos'); cheatCode = ""; } if (cheatCode.includes("restricao")) { ativarSegredo('restricao'); cheatCode = ""; } });
+    let cheatCode = ""; document.addEventListener('keydown', (e) => { const a = document.activeElement; if (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT') return; cheatCode += e.key.toLowerCase(); cheatCode = cheatCode.slice(-20); if (cheatCode.includes("despertar")) { ativarSegredo('revelado'); cheatCode = ""; } if (cheatCode.includes("hexatombe")) executarTrocaHexatombe(); cheatCode = ""; } if (cheatCode.includes("apoteose")) { ativarSegredo('extremos'); cheatCode = ""; } if (cheatCode.includes("restricao")) { ativarSegredo('restricao'); cheatCode = ""; } });
     function verificarCheat() { const c = document.getElementById('input-cheat').value.toLowerCase().trim(); if (c === "despertar") ativarSegredo('revelado'); else if (c === "hexatombe") ativarSegredo('hexatombe'); else if (c === "apoteose") ativarSegredo('extremos'); else if (c === "restricao") ativarSegredo('restricao'); else alert("Comando não reconhecido."); document.getElementById('input-cheat').value = ""; toggleElem('modal-config'); }
 
     function ativarSegredo(campo) { 
@@ -4221,6 +4221,36 @@ let filtroSubAtualAtaques = 'Todos';
             document.getElementById('btn-confirmar-transferencia').innerText = "CONFIRMAR ENVIO";
         }
     };
+
+    let danoAcumuladoHexatombe = 0;
+
+function executarTrocaHexatombe() {
+    const body = document.body;
+    const inputVidaMax = document.getElementById('vida-max');
+    const inputVidaAtual = document.getElementById('vida-atual');
+
+    if (!inputVidaMax || !inputVidaAtual) return;
+
+    let vMax = parseInt(inputVidaMax.value) || 0;
+    let vAtual = parseInt(inputVidaAtual.value) || 0;
+
+    // Se estiver no modo Normal e for ativar o Hexatombe
+    if (!body.classList.contains('tema-hexatombe')) {
+        danoAcumuladoHexatombe = Math.max(0, vMax - vAtual); // Salva dano atual
+        body.classList.add('tema-hexatombe'); // Aplica tema visual
+        
+        let novoMax = parseInt(inputVidaMax.value) || vMax;
+        inputVidaAtual.value = Math.max(1, novoMax - danoAcumuladoHexatombe);
+    
+    // Se estiver no Hexatombe e for voltar ao Normal
+    } else {
+        danoAcumuladoHexatombe = Math.max(0, vMax - vAtual); // Salva dano tomado no Hexatombe
+        body.classList.remove('tema-hexatombe'); // Remove tema
+        
+        let novoMax = parseInt(inputVidaMax.value) || vMax;
+        inputVidaAtual.value = Math.max(1, novoMax - danoAcumuladoHexatombe);
+    }
+}
     
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
