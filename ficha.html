@@ -1908,6 +1908,104 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
     box-shadow:1px 1px 3px rgba(0,0,0,.25) !important;
   }
 }
+
+/* ===== Ajustes finais solicitados — valores e controles ===== */
+/* Os valores de treino e a soma usam SEMPRE a cor secundária escolhida,
+   independentemente do tema claro/escuro da ficha completa. */
+.fq-skill-value,
+.fq-skill-value .fq-skill-total,
+.fq-sub-train,
+.fq-sub-total{
+  color:var(--fq-accent-hi) !important;
+}
+
+/* Desktop/tablet: treino e soma permanecem na mesma linha. */
+@media (min-width:601px){
+  .fq-skill-value{
+    white-space:nowrap !important;
+    display:inline-flex !important;
+    align-items:baseline !important;
+    justify-content:flex-end !important;
+    gap:3px !important;
+  }
+
+  /* Mais espaço vertical para a lista de perícias; condições ficam abaixo dela. */
+  .fq-skills-block{
+    top:40.5% !important;
+    max-height:33% !important;
+  }
+  .fq-status{
+    bottom:13.8% !important;
+  }
+}
+
+/* Celular: valores em uma coluna vertical fixa, aproximados do nome. */
+@media (max-width:600px){
+  .fq-skills-block{
+    top:42% !important;
+    max-height:34% !important;
+  }
+  .fq-skill{
+    grid-template-columns:9px minmax(0,1fr) 30px !important;
+    gap:1px !important;
+  }
+  .fq-skill-name{
+    min-width:0 !important;
+    max-width:none !important;
+  }
+  .fq-skill-value{
+    width:30px !important;
+    min-width:30px !important;
+    white-space:nowrap !important;
+    display:inline-flex !important;
+    align-items:baseline !important;
+    justify-content:flex-start !important;
+    gap:2px !important;
+    font-size:10px !important;
+    text-align:left !important;
+  }
+  .fq-sub-train,.fq-sub-total{
+    white-space:nowrap !important;
+  }
+
+  /* Iniciativa volta ao tamanho normal e fica acima do botão FICHA RÁPIDA
+     e da paleta, sem ocupar a faixa dos atalhos inferiores. */
+  #btn-toggle-iniciativa{
+    right:10px !important;
+    bottom:72px !important;
+    padding:12px 15px !important;
+    font-size:12px !important;
+    line-height:1 !important;
+    letter-spacing:normal !important;
+    min-width:auto !important;
+    width:auto !important;
+    height:auto !important;
+    box-shadow:3px 3px 0 rgba(0,0,0,.3) !important;
+  }
+
+  /* Atalhos inferiores: aumento discreto. */
+  .fq-action{
+    font-size:6px !important;
+    padding:4px 7px !important;
+  }
+
+  /* Habilidades um pouco mais abaixo, sem devolver a sobreposição ao retrato. */
+  .fq-abilities{
+    top:56% !important;
+  }
+}
+
+/* <=390px mantém o mesmo desenho, com a lista ainda cabendo inteira. */
+@media (max-width:390px){
+  .fq-skills-block{
+    top:41% !important;
+    max-height:35% !important;
+  }
+  .fq-abilities{
+    top:56.5% !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5941,7 +6039,7 @@ let filtroSubAtualAtaques = 'Todos';
     rows.sort((a,b)=>b.total-a.total || a.name.localeCompare(b.name,'pt-BR'));
     if(!rows.length){box.innerHTML='<div class="fq-empty">Nenhuma perícia treinada registrada.</div>';return;}
     const skillsBlock=box.closest('.fq-skills-block'); if(skillsBlock) skillsBlock.classList.toggle('fq-many-skills', rows.length>12);
-    box.innerHTML=rows.map(r=>`<div class="fq-skill"><span class="fq-skill-mark">◆</span><div class="fq-skill-name">${esc(r.name)} <span class="fq-skill-attr">${esc(r.attr||'')}</span>${r.subs.length?`<div class="fq-subskills">${r.subs.map(s=>`${esc(s.name)} ${s.treino} <span class="fq-sub-total">(${s.total})</span>`).join(' · ')}</div>`:''}</div><b class="fq-skill-value">${r.subs.length?(r.treino?`${r.treino} <span class="fq-skill-total">(${r.total})</span>`:'—'):`${r.treino} <span class="fq-skill-total">(${r.total})</span>`}</b></div>`).join('');
+    box.innerHTML=rows.map(r=>`<div class="fq-skill"><span class="fq-skill-mark">◆</span><div class="fq-skill-name">${esc(r.name)} <span class="fq-skill-attr">${esc(r.attr||'')}</span>${r.subs.length?`<div class="fq-subskills">${r.subs.map(s=>`${esc(s.name)} <span class="fq-sub-train">${s.treino}</span> <span class="fq-sub-total">(${s.total})</span>`).join(' · ')}</div>`:''}</div><b class="fq-skill-value">${r.subs.length?(r.treino?`${r.treino} <span class="fq-skill-total">(${r.total})</span>`:'—'):`${r.treino} <span class="fq-skill-total">(${r.total})</span>`}</b></div>`).join('');
   }
 
   function renderAbilities(){
