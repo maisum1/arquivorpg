@@ -706,6 +706,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
    Escopo isolado: todas as regras começam com .fq / #fq.
    ========================================================= */
 :root{
+  /* Cores neutras da Ficha Rápida — alteradas automaticamente pelo tema global. */
   --fq-bg:#0b0b0a;
   --fq-panel:#121211;
   --fq-paper:#e8e0ce;
@@ -714,19 +715,134 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   --fq-muted:#a69f92;
   --fq-line:rgba(232,224,206,.24);
   --fq-line-soft:rgba(232,224,206,.11);
-  --fq-red:#a9191e;
-  --fq-red-hi:#d13a38;
+  --fq-text-soft:#a7a094;
+  --fq-text-faint:#827b70;
+  --fq-border:rgba(232,224,206,.32);
+  --fq-accent-green:#718b58;
+  --fq-accent-blue:#5f7f96;
+  --fq-accent-red:#a9191e;
+  --fq-accent:var(--fq-accent-green);
+  --fq-accent-hi:#9dbb7d;
+  --fq-accent-rgb:113,139,88;
+  --fq-accent-ink:#111;
+  /* Compatibilidade com as regras antigas: todo o destaque passa pelo seletor de cor. */
+  --fq-red:var(--fq-accent);
+  --fq-red-hi:var(--fq-accent-hi);
   --fq-gold:#b59a69;
-  --fq-green:#66795a;
-  --fq-blue:#607c8d;
+  --fq-green:var(--fq-accent-green);
+  --fq-blue:var(--fq-accent-blue);
   --fq-shadow:0 30px 90px rgba(0,0,0,.78);
 }
+
+/* =========================================================
+   TEMA DA FICHA RÁPIDA
+   A Ficha Rápida lê as mesmas classes que controlam a ficha completa.
+   A cor secundária é independente do tema e pode ser trocada pelos três
+   botões discretos de cor.
+   ========================================================= */
+body[data-fq-accent="green"]{
+  --fq-accent:var(--fq-accent-green);
+  --fq-accent-hi:#9dbb7d;
+  --fq-accent-rgb:113,139,88;
+  --fq-accent-ink:#111;
+}
+body[data-fq-accent="blue"]{
+  --fq-accent:var(--fq-accent-blue);
+  --fq-accent-hi:#8eabc0;
+  --fq-accent-rgb:95,127,150;
+  --fq-accent-ink:#111;
+}
+body[data-fq-accent="red"]{
+  --fq-accent:var(--fq-accent-red);
+  --fq-accent-hi:#d13a38;
+  --fq-accent-rgb:169,25,30;
+  --fq-accent-ink:#fff;
+}
+
+/* Claro padrão */
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia){
+  --fq-bg:#e7e0d1;
+  --fq-panel:#f0eadf;
+  --fq-paper:#1c1a17;
+  --fq-paper-2:#5e584e;
+  --fq-ink:#1c1a17;
+  --fq-muted:#746d61;
+  --fq-line:rgba(28,26,23,.22);
+  --fq-line-soft:rgba(28,26,23,.10);
+  --fq-text-soft:#5e584e;
+  --fq-text-faint:#746d61;
+  --fq-border:rgba(28,26,23,.28);
+  --fq-shadow:0 25px 70px rgba(0,0,0,.24);
+}
+
+/* Escuro padrão */
+body.tema-escuro:not(.tema-hexatombe):not(.modo-sobrevivencia){
+  --fq-bg:#0b0b0a;
+  --fq-panel:#121211;
+  --fq-paper:#e8e0ce;
+  --fq-paper-2:#cfc3aa;
+  --fq-ink:#ece7dc;
+  --fq-muted:#a69f92;
+  --fq-line:rgba(232,224,206,.24);
+  --fq-line-soft:rgba(232,224,206,.11);
+  --fq-text-soft:#a7a094;
+  --fq-text-faint:#827b70;
+  --fq-border:rgba(232,224,206,.32);
+  --fq-shadow:0 30px 90px rgba(0,0,0,.78);
+}
+
+/* Hexatombe: acompanha o fundo vermelho/negro da ficha principal. */
+body.tema-hexatombe{
+  --fq-bg:#120303;
+  --fq-panel:#1b0808;
+  --fq-paper:#e7dddd;
+  --fq-paper-2:#c9b4b4;
+  --fq-ink:#e5dddd;
+  --fq-muted:#8f6969;
+  --fq-line:rgba(210,110,110,.24);
+  --fq-line-soft:rgba(210,110,110,.11);
+  --fq-text-soft:#b99a9a;
+  --fq-text-faint:#8f6969;
+  --fq-border:rgba(210,110,110,.30);
+  --fq-shadow:0 30px 90px rgba(0,0,0,.88);
+}
+
+/* Modo Sobrevivência — respeita as duas variantes já existentes na ficha. */
+body.modo-sobrevivencia:not(.tema-escuro){
+  --fq-bg:#121814;
+  --fq-panel:#1a231d;
+  --fq-paper:#d7e4d1;
+  --fq-paper-2:#9fc19a;
+  --fq-ink:#cfe0ca;
+  --fq-muted:#70926f;
+  --fq-line:rgba(92,160,94,.35);
+  --fq-line-soft:rgba(92,160,94,.16);
+  --fq-text-soft:#9fc19a;
+  --fq-text-faint:#769376;
+  --fq-border:rgba(92,160,94,.40);
+  --fq-shadow:0 30px 90px rgba(0,0,0,.72);
+}
+body.modo-sobrevivencia.tema-escuro{
+  --fq-bg:#14111a;
+  --fq-panel:#1c1233;
+  --fq-paper:#eee8fa;
+  --fq-paper-2:#c8b0ff;
+  --fq-ink:#e7ddff;
+  --fq-muted:#8e70b7;
+  --fq-line:rgba(165,94,234,.35);
+  --fq-line-soft:rgba(165,94,234,.15);
+  --fq-text-soft:#b993ff;
+  --fq-text-faint:#8e70b7;
+  --fq-border:rgba(165,94,234,.35);
+  --fq-shadow:0 30px 90px rgba(0,0,0,.85);
+}
+
 
 /* Botão fora da ficha */
 #fq-open{
   position:fixed;right:18px;bottom:18px;z-index:9990;
-  border:1px solid rgba(232,224,206,.35);
-  background:#0d0d0c;color:#eee6d6;
+  border:1px solid var(--fq-border);
+  background:var(--fq-panel);color:var(--fq-paper);
   padding:11px 15px;cursor:pointer;
   font:900 10px/1 'Inter',sans-serif;
   letter-spacing:1.6px;text-transform:uppercase;
@@ -769,11 +885,11 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   color:var(--fq-ink);
   background:
     radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.035),transparent 43%),
-    radial-gradient(circle at 8% 12%,rgba(169,25,30,.10),transparent 25%),
-    radial-gradient(circle at 91% 76%,rgba(169,25,30,.07),transparent 30%),
-    linear-gradient(105deg,#090908 0%,#11110f 48%,#090908 100%);
+    radial-gradient(circle at 8% 12%,rgba(var(--fq-accent-rgb),.10),transparent 25%),
+    radial-gradient(circle at 91% 76%,rgba(var(--fq-accent-rgb),.07),transparent 30%),
+    linear-gradient(105deg,var(--fq-bg) 0%,var(--fq-panel) 48%,var(--fq-bg) 100%);
   box-shadow:var(--fq-shadow);
-  border:1px solid rgba(232,224,206,.32);
+  border:1px solid var(--fq-border);
   font-family:'Crimson Text',Georgia,serif;
   isolation:isolate;
 }
@@ -808,6 +924,27 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 }
 .fq-corner.tl:after{left:-4px;top:-4px}.fq-corner.tr:after{right:-4px;top:-4px}
 .fq-corner.bl:after{left:-4px;bottom:-4px}.fq-corner.br:after{right:-4px;bottom:-4px}
+
+.fq-palette{
+  position:absolute;right:64px;top:35px;z-index:41;
+  display:flex;align-items:center;gap:5px;
+  padding:3px 4px;
+  border:1px solid var(--fq-line-soft);
+  background:color-mix(in srgb, var(--fq-panel) 78%, transparent);
+  opacity:.78;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.fq-palette:hover{opacity:1}
+.fq-palette button{
+  width:9px;height:9px;padding:0;margin:0;
+  border-radius:50%;border:1px solid rgba(255,255,255,.42);
+  cursor:pointer;opacity:.72;
+  box-shadow:0 0 0 1px transparent;
+  transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease;
+}
+.fq-palette button:hover{opacity:1;transform:scale(1.18)}
+.fq-palette button.active{opacity:1;transform:scale(1.12);box-shadow:0 0 0 1px var(--fq-paper),0 0 0 2px var(--fq-accent)}
+.fq-palette .green{background:#718b58}.fq-palette .blue{background:#5f7f96}.fq-palette .red{background:#a9191e}
 
 .fq-close{
   position:absolute;right:28px;top:25px;z-index:40;
@@ -851,7 +988,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 .fq-quote{
   margin-top:7px;max-width:90%;
   font:italic clamp(11px,1.05vw,14px)/1.15 'Crimson Text',Georgia,serif;
-  color:#aaa397;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--fq-text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .fq-player{
   margin-top:6px;
@@ -870,7 +1007,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 }
 .fq-level b{color:var(--fq-red-hi);font-size:1.12em}
 .fq-meta-line{
-  margin-top:6px;color:#bcb5a8;
+  margin-top:6px;color:var(--fq-text-soft);
   font:900 8px/1 'Inter',sans-serif;
   letter-spacing:1px;text-transform:uppercase;
 }
@@ -891,7 +1028,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 .fq-character:after{
   content:"";position:absolute;left:10%;right:10%;bottom:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--fq-red),transparent);
-  box-shadow:0 0 20px rgba(169,25,30,.45);
+  box-shadow:0 0 20px rgba(var(--fq-accent-rgb),.45);
 }
 .fq-character img{
   width:100%;height:100%;display:block;
@@ -905,7 +1042,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   filter:contrast(1.04) saturate(.9) drop-shadow(0 16px 16px rgba(0,0,0,.55));
 }
 .fq-character.empty{
-  color:#777268;text-align:center;
+  color:var(--fq-text-faint);text-align:center;
   font:900 10px/1.5 'Inter',sans-serif;letter-spacing:2px;
   align-items:center;
 }
@@ -970,7 +1107,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 .fq-resource-tag{
   font:900 9px/1 'Inter',sans-serif;text-transform:uppercase;
   letter-spacing:1px;padding:6px 4px;
-  background:var(--fq-paper);color:#111;text-align:center;
+  background:var(--fq-accent);color:var(--fq-accent-ink);text-align:center;
   clip-path:polygon(0 0,100% 0,93% 100%,0 100%);
 }
 .fq-resource-main{
@@ -984,12 +1121,12 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   text-align:right;padding:0;box-shadow:none!important;
   -webkit-appearance:none;appearance:textfield;
 }
-.fq-resource-main span{font:500 14px/1 'Crimson Text',Georgia,serif;color:#8f897e}
-.fq-resource-main b{font:900 12px/1 'Crimson Text',Georgia,serif;color:#d2c9b8}
+.fq-resource-main span{font:500 14px/1 'Crimson Text',Georgia,serif;color:var(--fq-text-soft)}
+.fq-resource-main b{font:900 12px/1 'Crimson Text',Georgia,serif;color:var(--fq-paper-2)}
 .fq-resource-main input:focus{color:#fff!important}
 .fq-mini-controls{display:flex;gap:1px;margin-left:auto}
 .fq-mini-controls button{
-  width:17px;height:17px;border:0;background:transparent;color:#b8b0a2;
+  width:17px;height:17px;border:0;background:transparent;color:var(--fq-text-soft);
   cursor:pointer;font:900 13px/1 Inter,sans-serif;padding:0;
 }
 .fq-mini-controls button:hover{background:rgba(232,224,206,.08);color:#fff}
@@ -1008,16 +1145,16 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   font:700 clamp(9px,1.05vw,13px)/1.05 'Crimson Text',Georgia,serif;
   text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.fq-skill-attr{font:900 6px/1 'Inter',sans-serif;color:#827b70;margin-left:3px}
+.fq-skill-attr{font:900 6px/1 'Inter',sans-serif;color:var(--fq-text-faint);margin-left:3px}
 .fq-skill-value{
   text-align:right;color:var(--fq-paper);
   font:900 clamp(13px,1.5vw,18px)/1 'Crimson Text',Georgia,serif;
 }
 .fq-subskills{
   grid-column:2/4;font:italic 8px/1.1 'Crimson Text',Georgia,serif;
-  color:#918a7e;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--fq-text-soft);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.fq-empty{font:italic 11px/1.3 'Crimson Text',Georgia,serif;color:#777168}
+.fq-empty{font:italic 11px/1.3 'Crimson Text',Georgia,serif;color:var(--fq-text-faint)}
 
 /* Habilidades */
 .fq-abilities{right:7%;top:42%;width:28%;max-height:27%;overflow:hidden}
@@ -1027,7 +1164,7 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   margin-bottom:3px;
 }
 .fq-ability-desc{
-  color:#a7a094;
+  color:var(--fq-text-soft);
   font:italic clamp(9px,1vw,12px)/1.18 'Crimson Text',Georgia,serif;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
 }
@@ -1037,12 +1174,12 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   position:absolute;left:7%;right:7%;bottom:17.2%;z-index:8;
   display:flex;align-items:center;gap:10px;
 }
-.fq-status-label{font:900 8px/1 'Inter',sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:#aaa297;white-space:nowrap}
+.fq-status-label{font:900 8px/1 'Inter',sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:var(--fq-text-soft);white-space:nowrap}
 .fq-status-list{display:flex;flex-wrap:wrap;gap:4px;min-height:17px}
 .fq-status-tag{
   font:900 7px/1 'Inter',sans-serif;letter-spacing:.6px;text-transform:uppercase;
-  padding:4px 6px;background:rgba(169,25,30,.82);color:#fff;
-  border:1px solid rgba(209,58,56,.55);
+  padding:4px 6px;background:rgba(var(--fq-accent-rgb),.82);color:#fff;
+  border:1px solid rgba(var(--fq-accent-rgb),.55);
 }
 
 /* Linha final */
@@ -1056,13 +1193,13 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   letter-spacing:.2px;text-transform:uppercase;
 }
 .fq-bigstat b{font-size:1.2em;margin-left:3px}
-.fq-bigstat.vida{color:#c33a3a}.fq-bigstat.san{color:#8da0ad}.fq-bigstat.pe{color:#c1a878}
+.fq-bigstat.vida{color:var(--fq-accent-hi)}.fq-bigstat.san{color:var(--fq-text-soft)}.fq-bigstat.pe{color:var(--fq-paper-2)}
 .fq-defense{display:flex;align-items:baseline;gap:14px;justify-content:flex-end}
 .fq-defense span{
-  color:#b9b1a3;font:900 clamp(12px,1.4vw,17px)/1 'Crimson Text',Georgia,serif;
+  color:var(--fq-text-soft);font:900 clamp(12px,1.4vw,17px)/1 'Crimson Text',Georgia,serif;
   text-transform:uppercase;white-space:nowrap;
 }
-.fq-defense b{color:#eee7da;font-size:1.15em}
+.fq-defense b{color:var(--fq-paper);font-size:1.15em}
 
 /* Rodapé */
 .fq-actions{
@@ -1070,12 +1207,50 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   display:flex;justify-content:center;gap:0;
 }
 .fq-action{
-  background:transparent;border:0;border-right:1px solid rgba(232,224,206,.22);
-  color:#777066;padding:3px 13px;cursor:pointer;
+  background:transparent;border:0;border-right:1px solid var(--fq-line);
+  color:var(--fq-text-faint);padding:3px 13px;cursor:pointer;
   font:900 7px/1 'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase;
 }
-.fq-action:first-child{border-left:1px solid rgba(232,224,206,.22)}
+.fq-action:first-child{border-left:1px solid var(--fq-line)}
 .fq-action:hover{color:#eee}.fq-action.primary{color:var(--fq-red-hi)}
+
+/* =========================================================
+   NEUTROS ADAPTÁVEIS AO TEMA
+   ========================================================= */
+.fq-sheet:after{border-color:var(--fq-line)}
+.fq-sheet:before{mix-blend-mode:screen}
+.fq-corner.tl,.fq-corner.tr,.fq-corner.bl,.fq-corner.br{border-color:var(--fq-muted)}
+.fq-close{color:var(--fq-paper)}
+.fq-quote,.fq-meta-line,.fq-resource-main span,.fq-resource-main b,.fq-mini-controls button,
+.fq-skill-attr,.fq-subskills,.fq-empty,.fq-ability-desc,.fq-status-label,.fq-defense span,.fq-action{color:var(--fq-text-soft)}
+.fq-attr-val{border-color:var(--fq-border)!important;color:var(--fq-paper)!important}
+.fq-attr-bars i{border-color:var(--fq-line);background:var(--fq-line-soft)}
+.fq-attr-bars i.on{background:var(--fq-paper);border-color:var(--fq-paper)}
+.fq-skill{border-bottom-color:var(--fq-line-soft)}
+.fq-action{border-right-color:var(--fq-line)}
+.fq-action:first-child{border-left-color:var(--fq-line)}
+.fq-defense b{color:var(--fq-paper)}
+
+/* Modo claro: textura e retrato deixam de usar o efeito "screen" escuro. */
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) .fq-sheet:before{
+  background-image:
+    repeating-linear-gradient(0deg,rgba(0,0,0,.025) 0,rgba(0,0,0,.025) 1px,transparent 1px,transparent 4px),
+    radial-gradient(circle at 30% 20%,rgba(0,0,0,.025) 0 1px,transparent 1px),
+    radial-gradient(circle at 70% 65%,rgba(0,0,0,.02) 0 1px,transparent 1px);
+  mix-blend-mode:multiply;
+}
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) .fq-character img:not(.fq-cutout){mix-blend-mode:multiply}
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) .fq-name{text-shadow:0 1px 0 rgba(255,255,255,.65)}
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #fq-open{box-shadow:0 8px 25px rgba(0,0,0,.20)}
+
+/* Hexatombe mantém o contraste vermelho/negro do tema principal. */
+body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
+
+/* A paleta permanece discreta em telas pequenas. */
+@media(max-width:600px){
+  .fq-palette{right:36px;top:26px;gap:4px;padding:2px 3px}
+  .fq-palette button{width:8px;height:8px}
+}
 
 /* ------------------------ RESPONSIVO ------------------------ */
 
@@ -5159,6 +5334,11 @@ let filtroSubAtualAtaques = 'Todos';
     <i class="fq-cross c1"></i><i class="fq-cross c2"></i><i class="fq-cross c3"></i><i class="fq-cross c4"></i>
     <i class="fq-rule r1"></i><i class="fq-rule r2"></i><i class="fq-rule r3"></i>
     <button class="fq-close" type="button" onclick="window.fecharFichaRapida()" aria-label="Fechar">×</button>
+    <div class="fq-palette" aria-label="Cor secundária da ficha rápida" role="group">
+      <button class="green" type="button" data-fq-accent="green" aria-label="Verde" title="Verde"></button>
+      <button class="blue" type="button" data-fq-accent="blue" aria-label="Azul" title="Azul"></button>
+      <button class="red" type="button" data-fq-accent="red" aria-label="Vermelho" title="Vermelho"></button>
+    </div>
 
     <div class="fq-nameblock">
       <div class="fq-name" id="fq-nome">PERSONAGEM</div>
@@ -5226,6 +5406,21 @@ let filtroSubAtualAtaques = 'Todos';
   "use strict";
   const $ = id => document.getElementById(id);
   let fqAberta = false, fqTimer = null;
+
+  /* A cor secundária é independente do tema claro/escuro e fica salva no navegador. */
+  const fqAccentKey = 'fichaRapidaCorSecundaria';
+  const fqAccents = ['green','blue','red'];
+  function aplicarCorFichaRapida(cor, salvar=true){
+    if(!fqAccents.includes(cor)) cor='green';
+    document.body.setAttribute('data-fq-accent',cor);
+    document.querySelectorAll('[data-fq-accent]').forEach(btn=>{
+      btn.classList.toggle('active',btn.getAttribute('data-fq-accent')===cor);
+    });
+    if(salvar){
+      try{localStorage.setItem(fqAccentKey,cor);}catch(e){}
+    }
+  }
+
   const main = id => $(id);
   const num = id => { const n = parseInt(main(id)?.value,10); return Number.isFinite(n) ? n : 0; };
 
@@ -5614,6 +5809,16 @@ let filtroSubAtualAtaques = 'Todos';
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fqAberta)window.fecharFichaRapida();});
   document.addEventListener('input',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))refresh(true);});
   document.addEventListener('change',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))setTimeout(()=>refresh(true),50);});
+
+  document.querySelectorAll('#ficha-rapida [data-fq-accent]').forEach(btn=>{
+    btn.addEventListener('click',()=>aplicarCorFichaRapida(btn.getAttribute('data-fq-accent')));
+  });
+  try{
+    aplicarCorFichaRapida(localStorage.getItem(fqAccentKey) || 'green',false);
+  }catch(e){
+    aplicarCorFichaRapida('green',false);
+  }
+
   setTimeout(()=>refresh(true),1200);
 })();
 </script>
