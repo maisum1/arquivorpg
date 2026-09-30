@@ -3192,6 +3192,7 @@ let filtroSubAtualAtaques = 'Todos';
     let isRevelado = false; let isHexatombe = false; let isExtremos = false; let isRestricao = false;
     let globalRevelado = false; let globalHexatombe = false; let globalExtremos = false; let globalRestricao = false;
     let prevHexatombeFinal = false; let unsubRit, unsubPod, unsubHab, unsubInv, unsubAtq;
+    window.__hexBaseline = null; window.__hexSubtractions = { vida: 0, san: 0, pe: 0 };
     
     function syncPressaoVisuais() { const eC = document.getElementById('pressao-atual-combate'); const eI = document.getElementById('pressao-atual-inv'); const t = window.valPressaoAtaques + window.valPressaoInventario; if (eC) eC.innerText = t; if (eI) eI.innerText = t; }
 
@@ -3648,6 +3649,7 @@ let filtroSubAtualAtaques = 'Todos';
             isRevelado = d_raw.revelado || false; isHexatombe = d_raw.hexatombe || false; isExtremos = d_raw.extremos || false; isRestricao = d_raw.restricao || false;
             const hF = isHexatombe || globalHexatombe; let d = d_raw;
             if (hF && d_raw.hexatombe_data) { d = { ...d_raw, ...d_raw.hexatombe_data }; d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig; d.origem = d_raw.origem; d.nivelCredito = d_raw.nivelCredito; d.fundoGastos = d_raw.fundoGastos; d.dinheiroEspecie = d_raw.dinheiroEspecie; d.patrimonioRecursos = d_raw.patrimonioRecursos; }
+            if (hF && d_raw.hexatombe_data) { window.__hexBaseline = d_raw.hexatombe_data.hexatombe_current_original || window.__hexBaseline; window.__hexSubtractions = d_raw.hexatombe_data.hexatombe_subtractions || window.__hexSubtractions; window.__hexResourceTracker = { vida: parseInt(d_raw.hexatombe_data.vidaAtual) || 0, san: parseInt(d_raw.hexatombe_data.sanAtual) || 0, pe: parseInt(d_raw.hexatombe_data.peAtual) || 0 }; }
 
             if (prevHexatombeFinal !== hF) {
                 let vN = parseInt(d_raw.vig) || 0; let vnN = parseInt(d_raw.von) || 0; let sN = parseInt(d_raw.sag) || 0; let nv = parseInt(d_raw.nivel) || 0; let nx = parseInt(d_raw.nex) || 0; let cl = d_raw.classe || "";
@@ -3656,13 +3658,21 @@ let filtroSubAtualAtaques = 'Todos';
                 // Eles viram a base daquele modo e só mudam se o jogador editar manualmente
                 // o máximo enquanto Hexatombe estiver ativo.
                 if (hF) {
-                    // Cada nova entrada em Hexatombe cria uma nova fotografia dos máximos
-                    // que estavam valendo na ficha normal naquele momento.
+                    // Fotografia do estado NORMAL no exato momento da entrada.
                     hD.hexatombe_max_original = {
                         vidaMax: d_raw.vidaMax !== undefined ? parseInt(d_raw.vidaMax) : null,
                         sanMax: d_raw.sanMax !== undefined ? parseInt(d_raw.sanMax) : null,
                         peMax: d_raw.peMax !== undefined ? parseInt(d_raw.peMax) : null
                     };
+                    hD.hexatombe_current_original = {
+                        vidaAtual: d_raw.vidaAtual !== undefined ? parseInt(d_raw.vidaAtual) : 0,
+                        sanAtual: d_raw.sanAtual !== undefined ? parseInt(d_raw.sanAtual) : 0,
+                        peAtual: d_raw.peAtual !== undefined ? parseInt(d_raw.peAtual) : 0
+                    };
+                    // Durante Hexatombe, acumulamos somente SUBTRAÇÕES.
+                    // Aumentos/cura feitos manualmente não são descontados na saída.
+                    hD.hexatombe_subtractions = { vida: 0, san: 0, pe: 0 };
+                    window.__hexBaseline = { ...hD.hexatombe_current_original }; window.__hexSubtractions = { vida: 0, san: 0, pe: 0 };
                 }
                 if (hF && hD.hexatombe_max_original) {
                     const hm = hD.hexatombe_max_original;
@@ -3676,9 +3686,9 @@ let filtroSubAtualAtaques = 'Todos';
                 let mNP = 2 + (2 * vN) + vnN + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mNP += 2; else if (cl === "Canalizador" && nv >= 2) mNP += 5;
                 let mHP = 2 + (2 * vH) + vnH + Math.floor(nx / 10); if (cl === "Modulador" && nv >= 2) mHP += 2; else if (cl === "Canalizador" && nv >= 2) mHP += 5;
                 let dV = mHV - mNV; let dS = mHS - mNS; let dP = mHP - mNP; let up = {};
-                if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; up.hexatombe_data = hD; }
-                else { let vH = parseInt(hD.vidaAtual) || 0; let sH = parseInt(hD.sanAtual) || 0; let pH = parseInt(hD.peAtual) || 0; let nV = vH - dV; if (dV > 0) { if(nV <= 0 && vH >= 1) nV = 1; else if (nV < 0) nV = 0; } else { if (nV < 0) nV = 0; } up.vidaAtual = nV; let nS = sH - dS; if (dS > 0) { if(nS <= 0 && sH >= 1) nS = 1; else if (nS < 0) nS = 0; } else { if (nS < 0) nS = 0; } up.sanAtual = nS; let nP = pH - dP; if(nP < 0) nP = 0; up.peAtual = nP; }
-                prevHexatombeFinal = hF; db.collection("fichas").doc(atual).update(up); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
+                if (hF) { let vA = parseInt(d_raw.vidaAtual) || 0; let sA = parseInt(d_raw.sanAtual) || 0; let pA = parseInt(d_raw.peAtual) || 0; hD.vidaAtual = vA + dV; hD.sanAtual = sA + dS; hD.peAtual = pA + dP; hD.hexatombe_subtractions = { vida: 0, san: 0, pe: 0 }; up.hexatombe_data = hD; window.__hexResourceTracker = { vida: hD.vidaAtual, san: hD.sanAtual, pe: hD.peAtual }; }
+                else { const baseC = hD.hexatombe_current_original || { vidaAtual: 0, sanAtual: 0, peAtual: 0 }; const sub = hD.hexatombe_subtractions || { vida: 0, san: 0, pe: 0 }; up.vidaAtual = Math.max(1, (parseInt(baseC.vidaAtual) || 0) - (parseInt(sub.vida) || 0)); up.sanAtual = Math.max(1, (parseInt(baseC.sanAtual) || 0) - (parseInt(sub.san) || 0)); up.peAtual = Math.max(1, (parseInt(baseC.peAtual) || 0) - (parseInt(sub.pe) || 0)); const hm = hD.hexatombe_max_original || {}; if (hm.vidaMax != null) up.vidaMax = parseInt(hm.vidaMax); if (hm.sanMax != null) up.sanMax = parseInt(hm.sanMax); if (hm.peMax != null) up.peMax = parseInt(hm.peMax); }
+                prevHexatombeFinal = hF; if (!hF) { window.__hexResourceTracker = null; window.__hexBaseline = null; window.__hexSubtractions = { vida: 0, san: 0, pe: 0 }; } db.collection("fichas").doc(atual).update(up); carregarRituais(); carregarPoderes(); carregarHabilidades(); carregarInventario(); carregarAtaques(); 
             }
 
             let vA = hF ? (d_raw.hexatombe_data?.vidaAtual ?? d_raw.vidaAtual) : d_raw.vidaAtual; let sA = hF ? (d_raw.hexatombe_data?.sanAtual ?? d_raw.sanAtual) : d_raw.sanAtual; let pA = hF ? (d_raw.hexatombe_data?.peAtual ?? d_raw.peAtual) : d_raw.peAtual;
@@ -3892,7 +3902,18 @@ let filtroSubAtualAtaques = 'Todos';
         let iS = parseInt(document.getElementById('san-atual').value); iS = isNaN(iS) ? 0 : iS;
         let iP = parseInt(document.getElementById('pe-atual').value); iP = isNaN(iP) ? 0 : iP;
 
-        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP; rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.fundoGastos = pl.fundoGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
+        if (hF) { rU.hexatombe_data = pl; rU.hexatombe_data.vidaAtual = iV; rU.hexatombe_data.sanAtual = iS; rU.hexatombe_data.peAtual = iP;
+            // Acumula somente quedas de PV/LUC/FÔL; aumentos não entram na conta.
+            if (!window.__hexResourceTracker) window.__hexResourceTracker = { vida: iV, san: iS, pe: iP };
+            const prev = window.__hexResourceTracker;
+            window.__hexSubtractions = window.__hexSubtractions || { vida: 0, san: 0, pe: 0 };
+            if (iV < prev.vida) window.__hexSubtractions.vida += prev.vida - iV;
+            if (iS < prev.san) window.__hexSubtractions.san += prev.san - iS;
+            if (iP < prev.pe) window.__hexSubtractions.pe += prev.pe - iP;
+            window.__hexResourceTracker = { vida: iV, san: iS, pe: iP };
+            rU.hexatombe_data.hexatombe_current_original = window.__hexBaseline;
+            rU.hexatombe_data.hexatombe_subtractions = { ...window.__hexSubtractions };
+            rU.agi = pl.agi; rU.for = pl.for; rU.sag = pl.sag; rU.von = pl.von; rU.vig = pl.vig; rU.pericias_hexa = pO; rU.origem = pl.origem; rU.nivelCredito = pl.nivelCredito; rU.fundoGastos = pl.fundoGastos; rU.dinheiroEspecie = pl.dinheiroEspecie; rU.patrimonioRecursos = pl.patrimonioRecursos; } 
         else { rU = { ...pl, ...rU }; rU.vidaAtual = iV; rU.sanAtual = iS; rU.peAtual = iP; rU.pericias = pO; }
         db.collection("fichas").doc(atual).update(rU); recalcularBases();
     }
