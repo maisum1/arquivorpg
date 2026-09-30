@@ -5361,9 +5361,9 @@ let filtroSubAtualAtaques = 'Todos';
     <i class="fq-rule r1"></i><i class="fq-rule r2"></i><i class="fq-rule r3"></i>
     <button class="fq-close" type="button" onclick="window.fecharFichaRapida()" aria-label="Fechar">×</button>
     <div class="fq-palette" aria-label="Cor secundária da ficha rápida" role="group">
-      <button class="green" type="button" data-fq-accent="green" aria-label="Verde" title="Verde"></button>
-      <button class="blue" type="button" data-fq-accent="blue" aria-label="Azul" title="Azul"></button>
       <button class="red" type="button" data-fq-accent="red" aria-label="Vermelho" title="Vermelho"></button>
+      <button class="blue" type="button" data-fq-accent="blue" aria-label="Azul" title="Azul"></button>
+      <button class="green" type="button" data-fq-accent="green" aria-label="Verde" title="Verde"></button>
     </div>
 
     <div class="fq-nameblock">
@@ -5435,14 +5435,19 @@ let filtroSubAtualAtaques = 'Todos';
 
   /* A cor secundária é independente do tema claro/escuro e fica salva no navegador. */
   const fqAccentKey = 'fichaRapidaCorSecundaria';
-  const fqAccents = ['green','blue','red'];
+  const fqAccents = ['red','blue','green'];
   function aplicarCorFichaRapida(cor, salvar=true){
-    if(!fqAccents.includes(cor)) cor='green';
+    if(!fqAccents.includes(cor)) cor='red';
     document.body.setAttribute('data-fq-accent',cor);
-    document.querySelectorAll('[data-fq-accent]').forEach(btn=>{
+    document.querySelectorAll('#ficha-rapida [data-fq-accent]').forEach(btn=>{
       btn.classList.toggle('active',btn.getAttribute('data-fq-accent')===cor);
     });
 
+    // A cor escolhida é uma preferência do usuário e deve sobreviver
+    // ao fechamento da Ficha Rápida, troca de ficha e recarregamento do site.
+    if(salvar){
+      try { localStorage.setItem(fqAccentKey, cor); } catch(e) {}
+    }
   }
 
   const main = id => $(id);
@@ -5836,9 +5841,16 @@ let filtroSubAtualAtaques = 'Todos';
   document.addEventListener('change',e=>{if(fqAberta&&!e.target.closest('#ficha-rapida'))setTimeout(()=>refresh(true),50);});
 
   document.querySelectorAll('#ficha-rapida [data-fq-accent]').forEach(btn=>{
-    btn.addEventListener('click',()=>aplicarCorFichaRapida(btn.getAttribute('data-fq-accent')));
+    btn.addEventListener('click',()=>aplicarCorFichaRapida(btn.getAttribute('data-fq-accent'),true));
   });
-  aplicarCorFichaRapida('red',false);
+
+  // Primeiro acesso: vermelho. Depois disso, recupera a última cor escolhida.
+  let fqCorSalva = 'red';
+  try {
+    const salva = localStorage.getItem(fqAccentKey);
+    if(fqAccents.includes(salva)) fqCorSalva = salva;
+  } catch(e) {}
+  aplicarCorFichaRapida(fqCorSalva,false);
 
   setTimeout(()=>refresh(true),1200);
 })();
