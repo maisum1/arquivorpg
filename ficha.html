@@ -1124,10 +1124,10 @@ body.modo-sobrevivencia.tema-escuro{
 .fq-resource-main span{font:500 14px/1 'Crimson Text',Georgia,serif;color:var(--fq-text-soft)}
 .fq-resource-main b{font:900 12px/1 'Crimson Text',Georgia,serif;color:var(--fq-paper-2)}
 .fq-resource-main input:focus{color:#fff!important}
-.fq-mini-controls{display:flex;gap:1px;margin-left:auto}
+.fq-mini-controls{display:flex;gap:5px;margin-left:auto;align-items:center}
 .fq-mini-controls button{
-  width:17px;height:17px;border:0;background:transparent;color:var(--fq-text-soft);
-  cursor:pointer;font:900 13px/1 Inter,sans-serif;padding:0;
+  width:15px;height:15px;border:0;background:transparent;color:var(--fq-text-soft);
+  cursor:pointer;font:900 12px/1 Inter,sans-serif;padding:0;
 }
 .fq-mini-controls button:hover{background:rgba(232,224,206,.08);color:#fff}
 
@@ -1163,6 +1163,7 @@ body.modo-sobrevivencia.tema-escuro{
   font:900 clamp(13px,1.5vw,18px)/1 'Crimson Text',Georgia,serif;
   margin-bottom:3px;
 }
+.fq-special-title{color:var(--fq-accent-red)!important}
 .fq-ability-desc{
   color:var(--fq-text-soft);
   font:italic clamp(9px,1vw,12px)/1.18 'Crimson Text',Georgia,serif;
@@ -1421,7 +1422,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 .fq-mini-controls{
   display:flex !important;
   flex-shrink:0 !important;
-  gap:3px !important;
+  gap:6px !important;
   margin-left:4px !important;
   position:relative !important;
   z-index:60 !important;
@@ -1430,16 +1431,16 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  width:20px !important;
-  height:20px !important;
-  min-width:20px !important;
-  min-height:20px !important;
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  min-height:18px !important;
   padding:0 !important;
   border:1px solid var(--fq-line) !important;
   border-radius:2px !important;
   background:rgba(0,0,0,.28) !important;
   color:var(--fq-paper) !important;
-  font:900 15px/20px Inter,sans-serif !important;
+  font:900 13px/18px Inter,sans-serif !important;
   opacity:1 !important;
   visibility:visible !important;
 }
@@ -6187,12 +6188,22 @@ let filtroSubAtualAtaques = 'Todos';
   function renderAbilities(){
     const box=$('fq-abilities-list');if(!box)return;
     const cards=[...document.querySelectorAll('#lista-habilidades .ritual-card')];
-    if(!cards.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
-    box.innerHTML=cards.slice(0,2).map(card=>{
+    const poderes=[...document.querySelectorAll('#lista-poderes .ritual-card')];
+    if(!cards.length && !poderes.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
+
+    const habilidadesHtml=cards.slice(0,2).map(card=>{
       const title=card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade';
       const desc=card.querySelector('textarea')?.value?.trim()||'';
       return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
     }).join('');
+
+    const poderesHtml=poderes.slice(0,2).map(card=>{
+      const title=card.querySelector('.card-header span')?.textContent?.trim()||'Vínculo / Especialização';
+      const desc=card.querySelector('textarea')?.value?.trim()||'';
+      return `<article class="fq-ability"><div class="fq-ability-name fq-special-title">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
+    }).join('');
+
+    box.innerHTML=habilidadesHtml+poderesHtml;
   }
 
   function renderStatus(){
