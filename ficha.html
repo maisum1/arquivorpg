@@ -721,9 +721,9 @@ body.modo-sobrevivencia .status-icon-item.ativo {
   --fq-accent-green:#718b58;
   --fq-accent-blue:#5f7f96;
   --fq-accent-red:#a9191e;
-  --fq-accent:var(--fq-accent-green);
-  --fq-accent-hi:#9dbb7d;
-  --fq-accent-rgb:113,139,88;
+  --fq-accent:var(--fq-accent-red);
+  --fq-accent-hi:#d13a38;
+  --fq-accent-rgb:169,25,30;
   --fq-accent-ink:#111;
   /* Compatibilidade com as regras antigas: todo o destaque passa pelo seletor de cor. */
   --fq-red:var(--fq-accent);
@@ -920,13 +920,13 @@ body.modo-sobrevivencia.tema-escuro{
 .fq-corner.br{right:7px;bottom:7px;border-right:2px solid var(--fq-muted);border-bottom:2px solid var(--fq-muted)}
 .fq-corner:after{
   content:"";position:absolute;width:7px;height:7px;background:var(--fq-red);
-  box-shadow:0 0 12px rgba(169,25,30,.5);
+  box-shadow:0 0 12px rgba(var(--fq-accent-rgb),.5);
 }
 .fq-corner.tl:after{left:-4px;top:-4px}.fq-corner.tr:after{right:-4px;top:-4px}
 .fq-corner.bl:after{left:-4px;bottom:-4px}.fq-corner.br:after{right:-4px;bottom:-4px}
 
 .fq-palette{
-  position:absolute;right:64px;top:35px;z-index:41;
+  position:absolute;right:7%;bottom:3.45%;z-index:41;
   display:flex;align-items:center;gap:5px;
   padding:3px 4px;
   border:1px solid var(--fq-line-soft);
@@ -1022,7 +1022,7 @@ body.modo-sobrevivencia.tema-escuro{
 }
 .fq-character:before{
   content:"";position:absolute;left:7%;right:7%;bottom:2%;height:72%;
-  background:radial-gradient(ellipse at 50% 70%,rgba(169,25,30,.20),transparent 68%);
+  background:radial-gradient(ellipse at 50% 70%,rgba(var(--fq-accent-rgb),.20),transparent 68%);
   filter:blur(18px);opacity:.85;z-index:-2;
 }
 .fq-character:after{
@@ -1062,7 +1062,7 @@ body.modo-sobrevivencia.tema-escuro{
 }
 .fq-label:before{
   content:"";display:inline-block;width:18px;height:3px;background:var(--fq-red);
-  box-shadow:7px 0 0 rgba(169,25,30,.35);
+  box-shadow:7px 0 0 rgba(var(--fq-accent-rgb),.35);
 }
 .fq-label:after{
   content:"";flex:1;height:1px;background:var(--fq-line);
@@ -1219,7 +1219,7 @@ body.modo-sobrevivencia.tema-escuro{
    ========================================================= */
 .fq-sheet:after{border-color:var(--fq-line)}
 .fq-sheet:before{mix-blend-mode:screen}
-.fq-corner.tl,.fq-corner.tr,.fq-corner.bl,.fq-corner.br{border-color:var(--fq-muted)}
+.fq-corner.tl,.fq-corner.tr,.fq-corner.bl,.fq-corner.br{border-color:var(--fq-accent);opacity:.72}
 .fq-close{color:var(--fq-paper)}
 .fq-quote,.fq-meta-line,.fq-resource-main span,.fq-resource-main b,.fq-mini-controls button,
 .fq-skill-attr,.fq-subskills,.fq-empty,.fq-ability-desc,.fq-status-label,.fq-defense span,.fq-action{color:var(--fq-text-soft)}
@@ -1230,6 +1230,32 @@ body.modo-sobrevivencia.tema-escuro{
 .fq-action{border-right-color:var(--fq-line)}
 .fq-action:first-child{border-left-color:var(--fq-line)}
 .fq-defense b{color:var(--fq-paper)}
+
+/* =========================================================
+   DESTAQUES — TODOS OS ELEMENTOS DA COR SECUNDÁRIA
+   A cor escolhida precisa atingir também os detalhes decorativos,
+   não apenas as etiquetas de PV/LUC/FÔL.
+   ========================================================= */
+.fq-corner.tl:after,.fq-corner.tr:after,.fq-corner.bl:after,.fq-corner.br:after{
+  background:var(--fq-accent);
+  box-shadow:0 0 12px rgba(var(--fq-accent-rgb),.5);
+}
+.fq-cross:before,.fq-cross:after{background:var(--fq-accent)}
+.fq-player,.fq-level b,.fq-skill-mark,.fq-action.primary{color:var(--fq-accent-hi)}
+.fq-character:before{background:radial-gradient(ellipse at 50% 70%,rgba(var(--fq-accent-rgb),.20),transparent 68%)}
+.fq-character:after{background:linear-gradient(90deg,transparent,var(--fq-accent),transparent)}
+.fq-label:before{
+  background:var(--fq-accent);
+  box-shadow:7px 0 0 rgba(var(--fq-accent-rgb),.35);
+}
+.fq-ability{border-left-color:var(--fq-accent)}
+.fq-skill-mark{color:var(--fq-accent-hi)}
+.fq-resource-tag{background:var(--fq-accent);border-color:rgba(var(--fq-accent-rgb),.55);color:var(--fq-accent-ink)}
+.fq-status-tag{background:rgba(var(--fq-accent-rgb),.82);border-color:rgba(var(--fq-accent-rgb),.55)}
+.fq-bigstat.vida{color:var(--fq-accent-hi)}
+.fq-rule.r1,.fq-rule.r2,.fq-rule.r3{
+  background:linear-gradient(90deg,transparent,rgba(var(--fq-accent-rgb),.38),transparent);
+}
 
 /* Modo claro: textura e retrato deixam de usar o efeito "screen" escuro. */
 body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) .fq-sheet:before{
@@ -1248,7 +1274,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 
 /* A paleta permanece discreta em telas pequenas. */
 @media(max-width:600px){
-  .fq-palette{right:36px;top:26px;gap:4px;padding:2px 3px}
+  .fq-palette{right:7%;bottom:4.9%;top:auto;gap:4px;padding:2px 3px}
   .fq-palette button{width:8px;height:8px}
 }
 
@@ -5416,9 +5442,7 @@ let filtroSubAtualAtaques = 'Todos';
     document.querySelectorAll('[data-fq-accent]').forEach(btn=>{
       btn.classList.toggle('active',btn.getAttribute('data-fq-accent')===cor);
     });
-    if(salvar){
-      try{localStorage.setItem(fqAccentKey,cor);}catch(e){}
-    }
+
   }
 
   const main = id => $(id);
@@ -5767,6 +5791,7 @@ let filtroSubAtualAtaques = 'Todos';
   function refresh(force){if(!fqAberta&&!force)return;renderProfile();renderAttrs();renderResources();renderSkills();renderAbilities();renderStatus();renderCombat();}
 
   window.abrirFichaRapida=function(){
+    aplicarCorFichaRapida('red',false);
     fqAberta=true;$('ficha-rapida')?.classList.add('open');$('fq-backdrop')?.classList.add('open');document.body.style.overflow='hidden';refresh(true);
     clearInterval(fqTimer);fqTimer=setInterval(()=>refresh(false),700);
   };
@@ -5813,11 +5838,7 @@ let filtroSubAtualAtaques = 'Todos';
   document.querySelectorAll('#ficha-rapida [data-fq-accent]').forEach(btn=>{
     btn.addEventListener('click',()=>aplicarCorFichaRapida(btn.getAttribute('data-fq-accent')));
   });
-  try{
-    aplicarCorFichaRapida(localStorage.getItem(fqAccentKey) || 'green',false);
-  }catch(e){
-    aplicarCorFichaRapida('green',false);
-  }
+  aplicarCorFichaRapida('red',false);
 
   setTimeout(()=>refresh(true),1200);
 })();
