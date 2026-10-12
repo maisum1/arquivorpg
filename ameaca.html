@@ -360,6 +360,7 @@
 .mini b{font:bold 18px 'Special Elite',monospace;padding:3px 0}
 .cons-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.cons-row input[type=range]{flex:1;min-width:140px}
 body.civil .bloco-stats{display:none}
+.pvctl{display:flex;gap:6px;align-items:center;margin:4px 0 10px;position:relative;z-index:2}.pvctl input{width:60px}.pvctl button{background:transparent;border:1px solid var(--op-ink);color:var(--op-ink);font:700 11px 'Inter',sans-serif;padding:6px 10px;cursor:pointer}
 .mesa{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;border:2px solid var(--op-ink);padding:8px 10px;margin-bottom:16px;position:relative;z-index:2;font:700 12px 'Inter',sans-serif}
 .mesa input{width:60px}.mesa button{background:transparent;border:1px solid var(--op-ink);color:var(--op-ink);font:700 11px 'Inter',sans-serif;padding:6px 10px;cursor:pointer}
 .mesa span.pv{display:flex;gap:6px;align-items:center}
@@ -408,7 +409,6 @@ body.civil .bloco-stats{display:none}
         <div data-s="mundana ocultista"><button id="btn-par" class="btn-add" style="margin:0" onclick="togglePar()"></button></div>
         <div data-s="mundana"><button id="btn-civil" class="btn-add" style="margin:0" onclick="toggleCivil()"></button></div></div>
     <div class="tier-row" id="papel-row" style="margin-bottom:16px"></div>
-    <div class="mesa bloco-stats"><span id="mesa-txt"></span><span class="pv"><button onclick="aplicaPV(-1)">DANO</button><input type="number" id="mesa-n" placeholder="0"><button onclick="aplicaPV(1)">CURA</button></span></div>
 
     <div class="book-header">
         <div style="width:100%;">
@@ -420,6 +420,9 @@ body.civil .bloco-stats{display:none}
 
     <div class="book-grid">
         <div class="col-stats bloco-stats">
+            <div data-s="criatura"><span class="lbl">GRAU DE CONSCIÊNCIA <small>— 0 a 100; define quais blocos a anomalia usa</small></span>
+            <div class="cons-row"><input type="number" id="consciencia" class="book-input save-auto" min="0" max="100" placeholder="0-100" style="width:70px" oninput="refresh()"><input type="range" id="cons-range" min="0" max="100" oninput="$('consciencia').value=this.value;updateField('consciencia',this.value);refresh()"><b id="cons-desc"></b></div>
+            <small id="cons-hint" style="opacity:.7"></small></div>
             <span class="lbl">CRIAÇÃO RÁPIDA <small>— 1) perfil  2) competência  3) montar; depois ajuste só o que importa</small></span>
             <div class="tier-row" id="perfil-row"></div>
             <div class="tier-row" id="comp-row" style="margin-top:6px"></div>
@@ -441,27 +444,26 @@ body.civil .bloco-stats{display:none}
             <div class="mini-grid">
                 <label class="mini"><span>DEFESA BASE</span><input type="number" id="defesa" class="book-input save-auto"></label>
                 <label class="mini"><span>DESLOCAMENTO</span><input id="deslocamento" class="book-input save-auto"></label>
-                <div class="mini"><span>ESQUIVA</span><b id="d-esq">-</b></div>
-                <div class="mini"><span>BLOQUEIO</span><b id="d-blq">-</b></div>
-                <div class="mini"><span>LIMIAR VD / DEC</span><b id="d-lim">-</b></div>
+                <div class="mini" id="m-esq"><span>ESQUIVA</span><b id="d-esq">-</b></div>
+                <div class="mini" id="m-blq"><span>BLOQUEIO</span><b id="d-blq">-</b></div>
+                <div class="mini" id="m-lim"><span>LIMIAR VD / DEC</span><b id="d-lim">-</b></div>
             </div>
 
             <div style="margin:10px 0 20px;">
                 <div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label">VITALIDADE</span><div class="resource-inputs"><input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()"><span style="opacity:.5">/</span><input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div></div>
-                    <button class="btn-add" data-s="criatura" style="margin:0 0 8px" onclick="sugerirPV()">↻ sugerir vitalidade pelo NA</button></div>
+                    <button class="btn-add" data-s="criatura" style="margin:0 0 8px" onclick="sugerirPV()">↻ sugerir vitalidade pelo NA</button>
+                    <div class="pvctl"><button onclick="aplicaPV(-1)">DANO</button><input type="number" id="mesa-n" placeholder="0"><button onclick="aplicaPV(1)">CURA</button></div></div>
                 <div data-s="mundana ocultista"><div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--san-purple);">LUCIDEZ</span><div class="resource-inputs"><input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')"><span style="opacity:.5">/</span><input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div></div></div>
-                <div data-s="criatura"><span class="stat-label" style="color:var(--san-purple);">CONSCIÊNCIA</span>
-                    <div class="cons-row"><input type="number" id="consciencia" class="book-input save-auto" min="0" max="100" placeholder="0-100" style="width:70px" oninput="refresh()"><input type="range" id="cons-range" min="0" max="100" oninput="$('consciencia').value=this.value;updateField('consciencia',this.value);refresh()"><b id="cons-desc"></b></div>
-                    <small style="opacity:.6">0 = sem cognição, só instinto · 100 = plena, tão capaz quanto um humano</small></div>
+                
                 <div data-s="ocultista criatura"><button id="btn-pe" class="btn-add" style="margin:10px 0 0" onclick="togglePE()"></button><div id="blk-pe" class="book-stat-row" style="flex-direction:column;gap:0;margin-top:10px"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--pe-orange);">ESFORÇO</span><div class="resource-inputs"><input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')"><span style="opacity:.5">/</span><input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div></div></div>
             </div>
 
             <div id="area-per">
                 <span class="lbl">PERÍCIAS ESSENCIAIS <small>— bônus 0 a 5; o total já soma o atributo (d20 + total)</small></span>
                 <div class="mini-grid" id="ess"></div>
-                <span class="lbl">OUTRAS PERÍCIAS <small>— liste só as que importam; o resto fica em +0 <span id="res-per"></span></small></span>
+                <div id="blk-outras"><span class="lbl">OUTRAS PERÍCIAS <small>— liste só as que importam; o resto fica em +0 <span id="res-per"></span></small></span>
                 <div class="chips" id="tags-pericias-npc"></div>
-                <button class="btn-add" style="margin-top:0" onclick="abrirPericias()">[+] ESCOLHER PERÍCIAS</button>
+                <button class="btn-add" style="margin-top:0" onclick="abrirPericias()">[+] ESCOLHER PERÍCIAS</button></div>
             </div>
 
             <div data-s="ocultista criatura">
@@ -469,6 +471,8 @@ body.civil .bloco-stats{display:none}
                 <div class="book-stat-row" style="margin-top:12px"><span class="stat-label">VULNERAB.:</span><input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhuma" style="flex:1;min-width:120px"></div>
                 <div class="book-stat-row"><span class="stat-label">RESISTÊNCIAS:</span><input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10..." style="flex:1;min-width:120px"></div>
                 <div class="book-stat-row"><span class="stat-label">IMUNIDADES:</span><input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex:1;min-width:120px"></div>
+                <div data-s="criatura"><span class="lbl">PRESENÇA PERTURBADORA <small>— opcional: dano mental de quem fica perto e a DT para resistir</small></span>
+                    <div class="mini-grid" style="grid-template-columns:2fr 1fr"><label class="mini"><span>DANO</span><input id="presenca-dano" class="book-input save-auto" placeholder="3d6 mental"></label><label class="mini"><span>DT (RESILIÊNCIA)</span><input type="number" id="presenca-dt" class="book-input save-auto" placeholder="12"></label></div></div>
             </div>
         </div>
 
@@ -487,13 +491,8 @@ body.civil .bloco-stats{display:none}
     </div>
     <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
 
-    <div class="section-header" style="margin-top:30px">ROTEIRO DO MESTRE</div>
-    <span class="lbl">OBJETIVO E COMPORTAMENTO <small>— o que quer e como age em cena</small></span>
-    <textarea id="comportamento" class="cris-textarea save-auto" placeholder="Quer proteger o local? Foge ao primeiro tiro? Mente? Ataca por instinto?" style="min-height:70px;background:var(--card-bg);padding:12px;border:1px solid var(--card-border);border-radius:2px;"></textarea>
-    <span class="lbl">O QUE SABE / SEGREDOS</span>
-    <textarea id="informacoes" class="cris-textarea save-auto" placeholder="Informações, pistas e segredos que pode revelar (e sob qual condição)..." style="min-height:70px;background:var(--card-bg);padding:12px;border:1px solid var(--card-border);border-radius:2px;"></textarea>
-    <div data-s="criatura"><span class="lbl">O QUE A TORNA PERIGOSA E COMO ENFRENTAR / EVITAR / ENFRAQUECER</span>
-    <textarea id="enfrentar" class="cris-textarea save-auto" placeholder="Condições de uso das habilidades, fraquezas, o que a afasta..." style="min-height:70px;background:var(--card-bg);padding:12px;border:1px solid var(--card-border);border-radius:2px;"></textarea></div>
+    <div id="blk-info"><div class="section-header" style="margin-top:30px">O QUE SABE / SEGREDOS</div>
+    <textarea id="informacoes" class="cris-textarea save-auto" placeholder="Informações, pistas e segredos que pode revelar (e sob qual condição)..." style="min-height:70px;background:var(--card-bg);padding:12px;border:1px solid var(--card-border);border-radius:2px;"></textarea></div>
 
     <div class="bloco-stats">
     <div class="section-header" style="margin-top:40px">AÇÕES</div>
@@ -516,7 +515,7 @@ body.civil .bloco-stats{display:none}
     </div>
 
     <div class="section-header" style="margin-top:40px;">NOTAS</div>
-    <textarea id="descricao" class="cris-textarea save-auto" placeholder="História, aparência, motivações, ganchos de aventura..." style="min-height:160px;background:var(--card-bg);padding:15px;border:1px solid var(--card-border);border-radius:2px;"></textarea>
+    <textarea id="descricao" class="cris-textarea save-auto" placeholder="História, aparência, objetivo, fraquezas, como enfrentar ou evitar, ganchos de aventura..." style="min-height:160px;background:var(--card-bg);padding:15px;border:1px solid var(--card-border);border-radius:2px;"></textarea>
 </div>
 
 <datalist id="dl-tipo"><option>Padrão</option><option>Movimento</option><option>Reação</option><option>Livre</option></datalist>
@@ -1398,8 +1397,8 @@ if (campanhaParam) {
     const ELEMS=['Sangue','Morte','Conhecimento','Energia','Medo'];
     const JUR_MIN=80;                       // criatura só ganha Juramento com Consciência >= isso
     const PV_CRIATURA=(na,vig)=>12+8*na+2*vig;   // SUGESTÃO (livro ainda não define criaturas) - ajuste aqui
-    const CONS=[[0,'Vegetativa'],[10,'Instintiva'],[30,'Animal'],[50,'Astuta'],[70,'Racional'],[90,'Plena (humana)']];
-    const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 CRIATURA PARANORMAL','COMPORTAMENTOS E TRAÇOS','ESPÉCIE / DESCRIÇÃO CURTA']};
+    const CONS=[[0,'Instintiva','Sem raciocínio: age por impulso. Só usa as perícias essenciais.'],[30,'Desenvolvida','Complexa, mas sem mente plenamente consciente. Pode ter perícias extras.'],[80,'Consciente','Raciocina, planeja e mente. Pode ter perícias extras, segredos e Juramento.']];
+    const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 ANOMALIA','HABILIDADES E COMPORTAMENTO','TIPO / DESCRIÇÃO CURTA']};
     let tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
     const num=id=>parseInt($(id).value)||0;
     const nvl=()=>Math.min(5,Math.max(0,num('na')));
@@ -1419,7 +1418,7 @@ if (campanhaParam) {
         $('na-row').innerHTML=[0,1,2,3,4,5].map(n=>`<button class="${n===nvl()?'on':''}" onclick="setNA(${n})">NA ${n}</button>`).join('');
         $('exp-row').innerHTML=EXPS[nvl()].map(e=>`<button class="${e===exp?'on':''}" onclick="setExp(${e})">${e}%</button>`).join('');
     }
-    function setNA(n){ $('na').value=n; updateField('na',n); if(!EXPS[n].includes(exp)){ exp=EXPS[n][0]; updateField('exp',exp); } renderNA(); calc(); }
+    function setNA(n){ $('na').value=n; updateField('na',n); if(tipoAtual!=='criatura'&&!EXPS[n].includes(exp)){ exp=EXPS[n][0]; updateField('exp',exp); } renderNA(); calc(); }
     function setExp(e){ exp=e; updateField('exp',e); renderNA(); calc(); }
 
     function setAuto(id,v){ const el=$(id); if(el.value!=v){ el.value=v; updateField(id,v); } }
@@ -1448,11 +1447,12 @@ if (campanhaParam) {
         $('saldo').hidden=cri; $('saldo').innerText=`Saldo de atributos: ${soma} / ${lim} (limite natural${tipoAtual==='ocultista'?' + transcendência':''})`; $('saldo').style.color=soma>lim?'var(--op-red)':'';
         const c=l=>l.filter(x=>x<=exp).length;
         $('evo').hidden=cri;
-        $('evo').innerHTML=`EVOLUÇÃO MUNDANA ${exp}%: <b>${10+4*num('sag')+2*num('von')+c(MARCOS.pp)}</b> pontos de perícia · <b>${c(MARCOS.grau)}</b> graus de treinamento · <b>${c(MARCOS.mae)}</b> traço(s) de maestria${exp>=5?' · traço e comportamento':''}<br><small>+ perícia principal +3 e secundária +1 da origem. Perícia por pontos vai até +2 (+1 custa 1, +2 custa 3); acima disso só com grau.</small>`;
-        const cv=Math.min(100,Math.max(0,num('consciencia'))); $('cons-range').value=cv; $('cons-desc').innerText=[...CONS].reverse().find(x=>cv>=x[0])[1];
+        $('evo').innerHTML=`EVOLUÇÃO ${exp}%: <b>${10+4*num('sag')+2*num('von')+c(MARCOS.pp)}</b> pts de perícia · <b>${c(MARCOS.grau)}</b> graus de treinamento · <b>${c(MARCOS.mae)}</b> traço(s) de maestria`;
+        const cv=Math.min(100,Math.max(0,num('consciencia'))); $('cons-range').value=cv; const gr=[...CONS].reverse().find(x=>cv>=x[0]); $('cons-desc').innerText=gr[1]; $('cons-hint').innerText=gr[2];
+        $('blk-outras').hidden=cri&&cv<CONS[1][0]; $('blk-info').hidden=cri&&cv<CONS[2][0];
+        ['m-esq','m-blq','m-lim'].forEach(i=>$(i).hidden=cri); $('exp-row').hidden=cri;
         $('blk-jur').hidden=!(tipoAtual==='ocultista'||(cri&&cv>=JUR_MIN));
         $('blk-pe').hidden=!usaPE; $('btn-pe').innerText=usaPE?'✔ Usa Esforço (canaliza energia)':'＋ Usa Esforço (canaliza energia)';
-        $('mesa-txt').innerText=`DEF ${num('defesa')} · ESQ ${num('defesa')+sk('Reflexos')} · BLQ ${num('defesa')+sk('Fortitude')} · INIC ${fmt(totalPer('Proatividade',sk('Proatividade')))} · VIT ${num('pv-atual')}/${pv}`;
         renderPer();
     }
 
@@ -1537,28 +1537,29 @@ if (campanhaParam) {
       ocultista:{cultista:{n:'Cultista',at:[0,1,0,1,1],main:'Ciências Ocultas',sec:'Intimidação',ess:['Resiliência','Fortitude'],arma:'FacaRitual'},
         ritualista:{n:'Ritualista',at:[0,-1,1,2,1],main:'Ciências Ocultas',sec:'Religião',ess:['Resiliência','Percepção'],arma:'FacaRitual'},
         sensitivo:{n:'Sensitivo',at:[1,-1,2,1,0],main:'Intuição',sec:'Furtividade',ess:['Percepção','Resiliência']}},
-      criatura:{bruto:{n:'Bruto',at:[-1,3,-2,1,3],main:'Briga',sec:'Atletismo',ess:['Fortitude'],cons:20,arma:{nome:'Golpe Brutal',alcance:'Corpo a corpo',tipo:'Impacto',pericia:'Briga',atributo:'FOR',bonus:0,dano:'@d8+FOR'}},
-        predador:{n:'Predador',at:[3,2,-1,0,2],main:'Briga',sec:'Furtividade',ess:['Reflexos','Percepção'],cons:40,arma:{nome:'Ataque Veloz',alcance:'Corpo a corpo',tipo:'Cortante',pericia:'Briga',atributo:'AGI',bonus:0,dano:'@d6+FOR'}},
-        ardiloso:{n:'Ardiloso',at:[2,0,3,3,1],main:'Ciências Ocultas',sec:'Intuição',ess:['Resiliência','Percepção'],cons:85,arma:{nome:'Investida Paranormal',alcance:'Curto',tipo:'Paranormal',pericia:'Ciências Ocultas',atributo:'VON',bonus:0,dano:'@d6'}}}
+      criatura:{bruta:{n:'Bruta',at:[-1,3,-2,0,3],ess:['Fortitude'],cons:15,arma:{nome:'Golpe Brutal',alcance:'Corpo a corpo',tipo:'Impacto',pericia:'Briga',atributo:'FOR',bonus:0,dano:'@d8+FOR'}},
+        predadora:{n:'Predadora',at:[3,2,-2,0,2],main:'Briga',sec:'Furtividade',ess:['Reflexos','Percepção'],cons:40,arma:{nome:'Ataque Veloz',alcance:'Corpo a corpo',tipo:'Cortante',pericia:'Briga',atributo:'AGI',bonus:0,dano:'@d6+FOR'}},
+        desenvolvida:{n:'Desenvolvida',at:[1,1,1,2,2],main:'Intimidação',sec:'Furtividade',ess:['Resiliência','Percepção'],cons:60,arma:{nome:'Golpe Paranormal',alcance:'Curto',tipo:'Paranormal',pericia:'Ciências Ocultas',atributo:'VON',bonus:0,dano:'@d6'}},
+        consciente:{n:'Consciente',at:[2,0,3,3,1],main:'Intuição',sec:'Persuasão',ess:['Resiliência','Percepção'],cons:90,arma:{nome:'Investida Paranormal',alcance:'Curto',tipo:'Paranormal',pericia:'Ciências Ocultas',atributo:'VON',bonus:0,dano:'@d6'}}}
     };
     function renderPerfil(){
         const A=ARQ[tipoAtual]||{};
         $('perfil-row').innerHTML=Object.keys(A).map(k=>`<button class="${k===perfil?'on':''}" onclick="setPerfil('${k}')">${A[k].n}</button>`).join('');
-        $('comp-row').innerHTML=COMP.map((c,i)=>`<button class="${i===comp?'on':''}" onclick="setComp(${i})">${c[0]}</button>`).join('');
+        $('comp-row').hidden=tipoAtual==='criatura'; $('comp-row').innerHTML=COMP.map((c,i)=>`<button class="${i===comp?'on':''}" onclick="setComp(${i})">${c[0]}</button>`).join('');
     }
     function setPerfil(k){ perfil=k; updateField('perfil',k); renderPerfil(); }
     function setComp(i){ comp=i; updateField('comp',i); renderPerfil(); }
     function montar(){
         const A=(ARQ[tipoAtual]||{})[perfil];
-        if(!A||comp<0){ alert('Escolha o perfil e a competência primeiro.'); return; }
-        if(!confirm(`Montar "${A.n}" (${COMP[comp][0]})? Isso sobrescreve NA, atributos e perícias.`)) return;
-        const na=COMP[comp][1], ex=COMP[comp][2];
-        $('na').value=na; updateField('na',na); exp=ex; updateField('exp',ex);
+        const cri=tipoAtual==='criatura'; if(!A||(!cri&&comp<0)){ alert('Escolha o perfil e a competência primeiro.'); return; }
+        if(!confirm(`Montar "${A.n}" (${cri?'NA '+nvl():COMP[comp][0]})? Isso sobrescreve NA, atributos e perícias.`)) return;
+        const na=cri?nvl():COMP[comp][1], ex=cri?0:COMP[comp][2], ci=cri?(na<=1?0:na<=3?1:2):comp;
+        $('na').value=na; updateField('na',na); if(!cri){ exp=ex; updateField('exp',ex); }
         let at=A.at.slice(); if(tipoAtual==='criatura') at=at.map(v=>v>0?v+Math.floor(na/2):v); if(tipoAtual==='ocultista') at[3]+=Math.floor(ex/30);
         ['agi','for','sag','von','vig'].forEach((id,i)=>{ $(id).value=at[i]; updateField(id,at[i]); });
-        PNPC=[]; const b=BON[comp];
+        PNPC=[]; const b=BON[ci];
         if(A.main) PNPC.push({n:A.main,v:b[0]}); if(A.sec) PNPC.push({n:A.sec,v:b[1]});
-        (A.ess||[]).forEach(n=>{ const p=PNPC.find(x=>x.n===n); if(p) p.v=Math.max(p.v,comp+1); else PNPC.push({n,v:comp+1}); });
+        (A.ess||[]).forEach(n=>{ const p=PNPC.find(x=>x.n===n); if(p) p.v=Math.max(p.v,ci+1); else PNPC.push({n,v:ci+1}); });
         salvarPer();
         if(A.cons!==undefined){ $('consciencia').value=A.cons; updateField('consciencia',A.cons); }
         renderNA(); calc(); if(tipoAtual==='criatura') sugerirPV();
