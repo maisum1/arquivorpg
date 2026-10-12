@@ -350,6 +350,15 @@
 #pk-busca{width:100%;box-sizing:border-box;margin-bottom:10px;font-size:16px}
 #pk-lista{max-height:50vh;overflow-y:auto;margin-bottom:12px}
 @media (max-width:900px){body{padding:0!important}.book-container{padding:20px 14px!important;border:none!important;border-radius:0!important}.book-grid{grid-template-columns:1fr;gap:10px}.col-art{order:-1}.portrait-container{width:170px;margin:0 auto 20px}.portrait{height:190px}.book-title{font-size:2rem;width:100%}.book-header{flex-wrap:wrap;gap:10px}.attributes-bar{flex-wrap:wrap;gap:24px 12px}.watermark-confidential{font-size:3rem}.book-input{font-size:16px}.voltar-btn{padding:8px 12px}}
+
+.tipo-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;position:relative;z-index:2}
+.tipo-badge{font:900 12px 'Inter',sans-serif;letter-spacing:1px;border:2px solid var(--op-ink);padding:8px 12px}
+.evo{font-size:12px;line-height:1.7;border:1px dotted var(--card-border);padding:8px 10px;margin:10px 0;position:relative;z-index:2}
+.bn{display:flex;align-items:center;gap:6px}.bn input{width:44px}.bn em{font:italic 12px 'Special Elite',monospace;opacity:.8}
+.chip em{font-size:11px;opacity:.8;font-style:normal}.chip input{width:34px}
+#saldo{font:700 11px 'Inter',sans-serif;margin:-6px 0 12px;position:relative;z-index:2}
+.mini b{font:bold 18px 'Special Elite',monospace;padding:3px 0}
+.cons-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.cons-row input[type=range]{flex:1;min-width:140px}
 </style>
 </head>
 <body>
@@ -391,52 +400,58 @@
     <div class="watermark-confidential">CONFIDENCIAL</div>
     <div class="doc-meta"><div>REGISTRO DE AMEAÇAS<br>DEPARTAMENTO DE AMEAÇAS PARANORMAIS</div><div class="barcode">*ARQUIVO-CONFIDENCIAL*</div></div>
 
-    <div class="tipo-switch" id="tipo-switch">
-        <button data-t="mundana" onclick="setTipo('mundana')">👤 HUMANO COMUM</button>
-        <button data-t="ocultista" onclick="setTipo('ocultista')">🕯️ HUMANO PARANORMAL</button>
-        <button data-t="criatura" onclick="setTipo('criatura')">🩸 CRIATURA</button>
-    </div>
+    <div class="tipo-bar"><span id="tipo-badge" class="tipo-badge"></span>
+        <div data-s="mundana ocultista"><button id="btn-par" class="btn-add" style="margin:0" onclick="togglePar()"></button></div></div>
 
     <div class="book-header">
         <div style="width:100%;">
             <input id="nome" class="book-input book-title save-auto" placeholder="NOME">
             <input id="tipo-criatura" class="book-input tipo-criatura save-auto">
         </div>
-        <div class="na-badge"><span class="na-label" id="na-label">NA</span><input type="number" id="na" class="na-input save-auto" placeholder="0"></div>
+        <div class="na-badge"><span class="na-label">NA</span><input type="number" id="na" class="na-input save-auto" placeholder="0" readonly></div>
     </div>
 
     <div class="book-grid">
         <div class="col-stats">
-            <span class="lbl">PADRÃO DE PODER <small>— toque para preencher tudo de uma vez, depois ajuste o que quiser</small></span>
-            <div class="tier-row" id="tier-row"></div>
+            <span class="lbl">NÍVEL DE AMEAÇA <small>— escolha o NA e depois a EXP; vida, defesa e deslocamento são calculados</small></span>
+            <div class="tier-row" id="na-row"></div>
+            <div class="tier-row" id="exp-row" style="margin-top:6px"></div>
+            <div class="evo" id="evo"></div>
 
-            <div class="attributes-bar" style="margin-bottom:10px">
+            <div class="attributes-bar" style="margin-bottom:14px">
                 <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi" class="book-input save-auto" placeholder="0"></div>
                 <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for" class="book-input save-auto" placeholder="0"></div>
                 <div class="attr-box"><span class="attr-label">SAG</span><input type="number" id="sag" class="book-input save-auto" placeholder="0"></div>
                 <div class="attr-box"><span class="attr-label">VON</span><input type="number" id="von" class="book-input save-auto" placeholder="0"></div>
                 <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig" class="book-input save-auto" placeholder="0"></div>
             </div>
+            <div id="saldo"></div>
 
             <div class="mini-grid">
-                <label class="mini"><span>DEFESA</span><input type="number" id="defesa" class="book-input save-auto" placeholder="20"></label>
-                <label class="mini"><span>FORTITUDE</span><input id="fortitude" class="book-input save-auto" placeholder="2d20+10"></label>
-                <label class="mini"><span>REFLEXOS</span><input id="reflexos" class="book-input save-auto" placeholder="2d20+5"></label>
-                <label class="mini"><span>VONTADE</span><input id="vontade" class="book-input save-auto" placeholder="2d20+5"></label>
-                <label class="mini"><span>PERCEPÇÃO</span><input id="percepcao" class="book-input save-auto" placeholder="2d20+10"></label>
-                <label class="mini"><span>INICIATIVA</span><input id="iniciativa" class="book-input save-auto" placeholder="2d20+5"></label>
-                <label class="mini"><span>DESLOCAM.</span><input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q"></label>
+                <label class="mini"><span>DEFESA BASE</span><input type="number" id="defesa" class="book-input save-auto"></label>
+                <label class="mini"><span>DESLOCAMENTO</span><input id="deslocamento" class="book-input save-auto"></label>
+                <div class="mini"><span>ESQUIVA</span><b id="d-esq">-</b></div>
+                <div class="mini"><span>BLOQUEIO</span><b id="d-blq">-</b></div>
+                <div class="mini"><span>LIMIAR VD / DEC</span><b id="d-lim">-</b></div>
             </div>
 
             <div style="margin:10px 0 20px;">
-                <div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label">PONTOS DE VIDA</span><div class="resource-inputs"><input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')"><span style="opacity:.5">/</span><input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div></div></div>
-                <div data-s="ocultista criatura"><div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--san-purple);">CONSCIÊNCIA</span><div class="resource-inputs"><input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')"><span style="opacity:.5">/</span><input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div></div>
-                <div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--pe-orange);">ESFORÇO</span><div class="resource-inputs"><input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')"><span style="opacity:.5">/</span><input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div></div></div>
+                <div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label">VITALIDADE</span><div class="resource-inputs"><input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')"><span style="opacity:.5">/</span><input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div></div>
+                    <button class="btn-add" data-s="criatura" style="margin:0 0 8px" onclick="sugerirPV()">↻ sugerir vitalidade pelo NA</button></div>
+                <div data-s="mundana ocultista"><div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--san-purple);">LUCIDEZ</span><div class="resource-inputs"><input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')"><span style="opacity:.5">/</span><input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div></div></div>
+                <div data-s="criatura"><span class="stat-label" style="color:var(--san-purple);">CONSCIÊNCIA</span>
+                    <div class="cons-row"><input type="number" id="consciencia" class="book-input save-auto" min="0" max="100" placeholder="0-100" style="width:70px" oninput="refresh()"><input type="range" id="cons-range" min="0" max="100" oninput="$('consciencia').value=this.value;updateField('consciencia',this.value);refresh()"><b id="cons-desc"></b></div>
+                    <small style="opacity:.6">0 = sem cognição, só instinto · 100 = plena, tão capaz quanto um humano</small></div>
+                <div data-s="ocultista criatura"><div class="book-stat-row" style="flex-direction:column;gap:0;margin-top:10px"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--pe-orange);">ESFORÇO</span><div class="resource-inputs"><input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')"><span style="opacity:.5">/</span><input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div></div></div>
             </div>
 
-            <span class="lbl">PERÍCIAS <small>— toque para escolher na lista; o valor ao lado é editável</small></span>
-            <div class="chips" id="tags-pericias-npc"></div>
-            <button class="btn-add" style="margin-top:0" onclick="abrirPericias()">[+] ESCOLHER PERÍCIAS</button>
+            <div id="area-per">
+                <span class="lbl">PERÍCIAS ESSENCIAIS <small>— bônus 0 a 5; o total já soma o atributo (d20 + total)</small></span>
+                <div class="mini-grid" id="ess"></div>
+                <span class="lbl">OUTRAS PERÍCIAS <small>— liste só as que importam; o resto fica em +0 <span id="res-per"></span></small></span>
+                <div class="chips" id="tags-pericias-npc"></div>
+                <button class="btn-add" style="margin-top:0" onclick="abrirPericias()">[+] ESCOLHER PERÍCIAS</button>
+            </div>
 
             <div data-s="ocultista criatura">
                 <span class="lbl">ELEMENTO</span><div class="elem-row" id="elem-row"></div>
@@ -469,11 +484,11 @@
     <div id="lista-habilidades"></div>
     <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button>
 
-    <div data-s="criatura">
+    <div id="blk-jur" hidden>
         <div class="section-header" style="margin-top:40px;">JURAMENTO RESTRITIVO</div>
         <div class="dynamic-item-highlight">
             <span class="sub-label">REGRA / JURAMENTO</span>
-            <textarea id="enigma" class="cris-textarea save-auto" placeholder="O que a criatura jurou ou é obrigada a cumprir..." style="min-height:60px"></textarea>
+            <textarea id="enigma" class="cris-textarea save-auto" placeholder="O que foi jurado e o que isso proíbe ou obriga..." style="min-height:60px"></textarea>
             <span class="sub-label" style="display:block;margin-top:12px">COMO QUEBRAR / FRAQUEZA</span>
             <textarea id="quebra" class="cris-textarea save-auto" placeholder="O que anula, enfraquece ou quebra o juramento..." style="min-height:60px"></textarea>
         </div>
@@ -604,7 +619,7 @@
             let obj = {}; 
             
             const isAtributo = ['agi','for','sag','von','vig'].includes(campo);
-            const isImageMeta = ['portrait','pX','pY','pZ','tipoAmeaca','tier'].includes(campo);
+            const isImageMeta = ['portrait','pX','pY','pZ','tipoAmeaca'].includes(campo);
 
             let valFormatado = valor;
             if (['pv-atual', 'pv-max', 'pc-atual', 'pc-max', 'pe-atual', 'pe-max', 'agi', 'for', 'sag', 'von', 'vig', 'na', 'defesa'].includes(campo)) {
@@ -677,9 +692,12 @@
 
             let d = d_raw;
             aplicarTipo(d.tipoAmeaca==='mundana'?'mundana':d.tipoAmeaca==='ocultista'?'ocultista':'criatura');
-            tier=d.tier||0; marcarTier(); marcarElem(d.elemento);
+            marcarElem(d.elemento);
+            if(!pendingUpdates['na'] && document.activeElement!==$('na')) $('na').value=d.na||0;
+            if(!pendingUpdates['exp']) exp=(d.exp!==undefined)?d.exp:EXPS[Math.min(5,Math.max(0,parseInt(d.na)||0))][0];
             const dm=(hexatombeFinal&&d_raw.hexatombe_data)?{...d_raw,...d_raw.hexatombe_data}:d_raw;
-            if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#tags-pericias-npc'))){ PNPC=dm.pericias_npc||(dm.pericias_mundanas||[]).map(n=>({n,v:'+10'})); renderPer(); }
+            if(!pendingUpdates['pericias_npc']) PNPC=normPer(dm);
+            setTimeout(()=>{renderNA();refresh();},0);
             if (hexatombeFinal && d_raw.hexatombe_data) { 
                 d = { ...d_raw, ...d_raw.hexatombe_data }; 
                 d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
@@ -1286,7 +1304,7 @@ if (campanhaParam) {
         };
 
     
-    // ======================= NOVA FICHA DE AMEAÇAS =======================
+    // ======================= NOVA FICHA DE AMEAÇAS (regras: Presença Oculta v1.2) =======================
     const bancoPericias = {
         "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas, redução de dano de queda e Escalar (usando Força)." },
         "Adestramento": { attr: "SAG", tipo: "pessoal", desc: "Lidar com animais, treinar, acalmar ou comandar feras." },
@@ -1349,42 +1367,70 @@ if (campanhaParam) {
     const $=id=>document.getElementById(id);
     const esc=s=>String(s==null?'':s).replace(/"/g,'&quot;');
     const nomesPericias=Object.keys(bancoPericias);
-    const TIPOS_HAB={mundana:'HABILIDADES E TÁTICAS',ocultista:'RITUAIS E PODERES',criatura:'COMPORTAMENTOS E TRAÇOS'};
-    const PLACE={mundana:'PROFISSÃO / FACÇÃO',ocultista:'CULTO / ORDEM / ORIGEM',criatura:'ESPÉCIE / DESCRIÇÃO CURTA'};
-    const TIERS=['Capanga','Comum','Veterano','Elite','Chefe'];
+    const ATR={AGI:'agi',FOR:'for',SAG:'sag',VON:'von',VIG:'vig'};
+    const ESS=['Fortitude','Reflexos','Resiliência','Percepção','Proatividade'];   // usadas em todo combate
+    const EXPS={0:[0,5,10],1:[15,20,25,30],2:[35,40,45,50],3:[55,60,65,70],4:[75,80,85,90],5:[95,99]};
+    const MARCOS={pp:[10,20,35,45,60,70,85,95],grau:[15,25,40,50,65,75,90,99],mae:[30,55,80]};
     const ELEMS=['Sangue','Morte','Conhecimento','Energia','Medo'];
-    let tier=0, PNPC=[], P={};
-
-    // >>> AJUSTE AQUI os números base de cada padrão de poder (t = 1 a 5) <<<
-    function valoresTier(t){
-        const forte=t, fraco=Math.max(0,t-1), pv=10+15*t, pc=5+5*t;
-        return { agi:forte, for:forte, sag:fraco, von:fraco, vig:forte,
-            'pv-max':pv,'pv-atual':pv,'pc-max':pc,'pc-atual':pc,'pe-max':pc,'pe-atual':pc,
-            defesa:10+2*t, fortitude:`2d20+${2*t+3}`, reflexos:`2d20+${2*t+3}`, vontade:`2d20+${2*t+3}`,
-            percepcao:`2d20+${2*t+3}`, iniciativa:`2d20+${t+3}`, na:t*20 };
-    }
-    const testeBase=()=>`2d20+${2*(tier||2)+5}`, danoBase=()=>`${tier||2}d8`;
+    const JUR_MIN=80;                       // criatura só ganha Juramento com Consciência >= isso
+    const PV_CRIATURA=(na,vig)=>12+8*na+2*vig;   // SUGESTÃO (livro ainda não define criaturas) - ajuste aqui
+    const CONS=[[0,'Vegetativa'],[10,'Instintiva'],[30,'Animal'],[50,'Astuta'],[70,'Racional'],[90,'Plena (humana)']];
+    const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 CRIATURA PARANORMAL','COMPORTAMENTOS E TRAÇOS','ESPÉCIE / DESCRIÇÃO CURTA']};
+    let tipoAtual='criatura', exp=0, PNPC=[], P={};
+    const num=id=>parseInt($(id).value)||0;
+    const nvl=()=>Math.min(5,Math.max(0,num('na')));
+    const normPer=d=>(d.pericias_npc||(d.pericias_mundanas||[]).map(n=>({n,v:1}))).map(p=>({n:p.n,v:Math.max(0,Math.min(5,parseInt(p.v)||0))}));
 
     function aplicarTipo(t){
-        document.body.dataset.t=t;
+        tipoAtual=t; document.body.dataset.t=t;
         document.querySelectorAll('[data-s]').forEach(e=>e.hidden=!e.dataset.s.split(' ').includes(t));
-        document.querySelectorAll('#tipo-switch button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
-        $('na-label').innerText=t==='mundana'?'NÍVEL':'NA';
-        $('tipo-criatura').placeholder=PLACE[t]; $('tit-hab').innerText=TIPOS_HAB[t];
+        $('tipo-badge').innerText=TIPOS[t][0]; $('tit-hab').innerText=TIPOS[t][1]; $('tipo-criatura').placeholder=TIPOS[t][2];
+        $('btn-par').innerText=t==='mundana'?'🕯️ Esse humano usa o paranormal':'↩ Voltar a humano comum';
     }
-    function setTipo(t){ aplicarTipo(t); updateField('tipoAmeaca',t); }
+    function togglePar(){ const t=tipoAtual==='mundana'?'ocultista':'mundana'; aplicarTipo(t); updateField('tipoAmeaca',t); calc(); }
 
-    $('tier-row').innerHTML=TIERS.map((n,i)=>`<button data-t="${i+1}" onclick="aplicarTier(${i+1})">${n}</button>`).join('');
+    function renderNA(){
+        $('na-row').innerHTML=[0,1,2,3,4,5].map(n=>`<button class="${n===nvl()?'on':''}" onclick="setNA(${n})">NA ${n}</button>`).join('');
+        $('exp-row').innerHTML=EXPS[nvl()].map(e=>`<button class="${e===exp?'on':''}" onclick="setExp(${e})">${e}%</button>`).join('');
+    }
+    function setNA(n){ $('na').value=n; updateField('na',n); if(!EXPS[n].includes(exp)){ exp=EXPS[n][0]; updateField('exp',exp); } renderNA(); calc(); }
+    function setExp(e){ exp=e; updateField('exp',e); renderNA(); calc(); }
+
+    function setAuto(id,v){ const el=$(id); if(el.value!=v){ el.value=v; updateField(id,v); } }
+    function setMax(r,v){ const mx=$(r+'-max'),at=$(r+'-atual'),antigo=mx.value,cheio=at.value===''||at.value===antigo;
+        if(String(v)!==antigo){ mx.value=v; updateField(r+'-max',v); if(cheio){ at.value=v; updateField(r+'-atual',v); } } atualizarVisualBarra(r); }
+    function sugerirPV(){ setMax('pv',PV_CRIATURA(nvl(),num('vig'))); refresh(); }
+
+    // grava valores derivados (só roda quando VOCÊ muda atributo / NA / EXP / tipo)
+    function calc(){
+        const na=nvl(), agi=num('agi'), vig=num('vig'), d=6+2*agi;
+        setAuto('defesa',10+agi+na); setAuto('deslocamento',`${d}m | ${Math.floor(d/1.5)}q`);
+        if(tipoAtual!=='criatura'){
+            setMax('pv',12+2*vig+2*na); setMax('pc',50+10*num('sag')+10*num('von'));
+            if(tipoAtual==='ocultista') setMax('pe',Math.max(1,5+2*vig+num('von')+Math.floor(exp/10)));
+        }
+        refresh();
+    }
+    ['agi','for','sag','von','vig'].forEach(i=>$(i).addEventListener('input',calc));
+
+    // só atualiza o que é exibido
+    function refresh(){
+        const cri=tipoAtual==='criatura', sk=n=>{const p=PNPC.find(x=>x.n===n);return p?p.v:0};
+        $('d-esq').innerText=num('defesa')+sk('Reflexos'); $('d-blq').innerText=num('defesa')+sk('Fortitude');
+        const pv=num('pv-max'); $('d-lim').innerText=`${Math.floor(pv/4)} / ${Math.floor(pv/2)}`;
+        const soma=['agi','for','sag','von','vig'].reduce((s,i)=>s+num(i),0), lim=3+(tipoAtual==='ocultista'?Math.floor(exp/30):0);
+        $('saldo').hidden=cri; $('saldo').innerText=`Saldo de atributos: ${soma} / ${lim} (limite natural${tipoAtual==='ocultista'?' + transcendência':''})`; $('saldo').style.color=soma>lim?'var(--op-red)':'';
+        const c=l=>l.filter(x=>x<=exp).length;
+        $('evo').hidden=cri;
+        $('evo').innerHTML=`EVOLUÇÃO MUNDANA ${exp}%: <b>${10+4*num('sag')+2*num('von')+c(MARCOS.pp)}</b> pontos de perícia · <b>${c(MARCOS.grau)}</b> graus de treinamento · <b>${c(MARCOS.mae)}</b> traço(s) de maestria${exp>=5?' · traço e comportamento':''}<br><small>+ perícia principal +3 e secundária +1 da origem. Perícia por pontos vai até +2 (+1 custa 1, +2 custa 3); acima disso só com grau.</small>`;
+        const cv=Math.min(100,Math.max(0,num('consciencia'))); $('cons-range').value=cv; $('cons-desc').innerText=[...CONS].reverse().find(x=>cv>=x[0])[1];
+        $('blk-jur').hidden=!(tipoAtual==='ocultista'||(cri&&cv>=JUR_MIN));
+        renderPer();
+    }
+
     $('elem-row').innerHTML=ELEMS.map(n=>`<button data-e="${n}" onclick="setElem('${n}')">${n}</button>`).join('');
-    function marcarTier(){ document.querySelectorAll('#tier-row button').forEach(b=>b.classList.toggle('on',+b.dataset.t===tier)); }
     function marcarElem(e){ document.querySelectorAll('#elem-row button').forEach(b=>b.classList.toggle('on',(b.dataset.e||'').toLowerCase()===String(e||'').toLowerCase())); }
     function setElem(n){ marcarElem(n); updateField('elemento',n); }
-    function aplicarTier(t){
-        if(!confirm(`Preencher com o padrão "${TIERS[t-1]}"? Isso sobrescreve atributos, vida, defesa e testes (você pode ajustar depois).`)) return;
-        tier=t; marcarTier(); updateField('tier',t);
-        Object.entries(valoresTier(t)).forEach(([id,v])=>{ const el=$(id); if(el){ el.value=v; updateField(id,v); } });
-        ['pv','pc','pe'].forEach(atualizarVisualBarra);
-    }
 
     // ---------- seletor genérico (lista com busca) ----------
     function abrirPicker(titulo,itens,multi,sel,done){
@@ -1401,27 +1447,44 @@ if (campanhaParam) {
     function fecharPicker(){ $('modal-pick').style.display='none'; }
 
     // ---------- perícias ----------
-    function renderPer(){
-        $('tags-pericias-npc').innerHTML=PNPC.map((p,i)=>`<span class="chip"><b>${p.n}</b><input value="${esc(p.v)}" onchange="PNPC[${i}].v=this.value;salvarPer()"><i onclick="PNPC.splice(${i},1);salvarPer();renderPer()">×</i></span>`).join('')||'<span class="vazio">Nenhuma perícia escolhida</span>';
+    const totalPer=(n,v)=>{ const at=(bancoPericias[n]||{}).attr; return (ATR[at]?num(ATR[at]):0)+(+v||0); };
+    const fmt=t=>'d20'+(t>=0?'+':'')+t;
+    function renderPer(force){
+        if(!force&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#area-per')) return;
+        const get=n=>(PNPC.find(p=>p.n===n)||{v:0}).v;
+        $('ess').innerHTML=ESS.map(n=>`<label class="mini"><span>${n.toUpperCase()} (${bancoPericias[n].attr})</span><div class="bn"><input class="book-input" type="number" min="0" max="5" value="${get(n)}" onchange="setBonus('${n}',this.value)"><em>${fmt(totalPer(n,get(n)))}</em></div></label>`).join('');
+        const outros=PNPC.filter(p=>!ESS.includes(p.n));
+        $('tags-pericias-npc').innerHTML=outros.map(p=>`<span class="chip"><b>${p.n}</b><input type="number" min="0" max="5" value="${p.v}" onchange="setBonus('${p.n}',this.value)"><em>${fmt(totalPer(p.n,p.v))}</em><i onclick="delPer('${p.n}')">×</i></span>`).join('')||'<span class="vazio">Nenhuma</span>';
+        $('res-per').innerText=`(${outros.length} listadas · soma dos bônus: ${PNPC.reduce((s,p)=>s+p.v,0)})`;
     }
     function salvarPer(){ updateField('pericias_npc',PNPC); }
+    function setBonus(n,v){ v=Math.max(0,Math.min(5,parseInt(v)||0)); const p=PNPC.find(x=>x.n===n); if(p)p.v=v; else PNPC.push({n,v}); salvarPer(); refresh(); renderPer(true); }
+    function delPer(n){ PNPC=PNPC.filter(p=>p.n!==n); salvarPer(); renderPer(true); refresh(); }
     function abrirPericias(){
-        abrirPicker('PERÍCIAS',nomesPericias.map(n=>({id:n,t:n,s:bancoPericias[n].attr||'-'})),true,PNPC.map(p=>p.n),lista=>{
-            PNPC=lista.map(n=>PNPC.find(p=>p.n===n)||{n,v:'+'+(2*(tier||2)+5)}); salvarPer(); renderPer();
+        const lista=nomesPericias.filter(n=>!ESS.includes(n));
+        abrirPicker('PERÍCIAS',lista.map(n=>({id:n,t:n,s:bancoPericias[n].attr||'-'})),true,PNPC.filter(p=>!ESS.includes(p.n)).map(p=>p.n),sel=>{
+            PNPC=PNPC.filter(p=>ESS.includes(p.n)||sel.includes(p.n)).concat(sel.filter(n=>!PNPC.find(p=>p.n===n)).map(n=>({n,v:2})));
+            salvarPer(); refresh(); renderPer(true);
         });
     }
 
     // ---------- armas / ações ----------
+    const baseSk=p=>String(p||'').split(' (')[0];
+    function calcTeste(o){ const sk=(PNPC.find(p=>p.n===baseSk(o.pericia))||{v:0}).v, at=ATR[o.atributo]?num(ATR[o.atributo]):0; return fmt(at+sk+(+o.bonus||0)); }
+    const calcDano=d=>String(d||'').replace(/\+FOR/,()=>{const f=num('for');return f>=0?'+'+f:String(f);});
     function abrirArmas(){
         const it=[{id:'__novo',t:'✏️ Ataque em branco',s:'preencher manualmente'}].concat(Object.keys(templatesAtaques).sort((a,b)=>templatesAtaques[a].nome.localeCompare(templatesAtaques[b].nome)).map(k=>{const a=templatesAtaques[k];return{id:k,t:a.nome,s:`${a.dano} · ${a.tipo} · ${a.alcance}`};}));
         abrirPicker('ARMAS E ATAQUES',it,false,[],id=>addAcao(id==='__novo'?null:templatesAtaques[id]));
     }
     async function addAcao(a){
         const path=(isHexatombe||globalHexatombe)?'hexa_acoes':'acoes';
-        await db.collection('ameacas').doc(atual).collection(path).add(a?{tipo:'Padrão',nome:a.nome,alcance:a.alcance,teste:testeBase(),dano:a.dano,efeitos:a.tipo?`Dano ${a.tipo}.`:''}:{tipo:'Padrão',nome:'Novo Ataque',alcance:'Corpo a corpo',teste:testeBase(),dano:danoBase(),efeitos:''});
+        const o=a?{tipo:'Padrão',nome:a.nome,alcance:a.alcance,dano:calcDano(a.dano),efeitos:a.tipo?`Dano ${a.tipo}.`:'',pericia:a.pericia||'',atributo:a.atributo||'',bonus:a.bonus||0}:{tipo:'Padrão',nome:'Novo Ataque',alcance:'Corpo a corpo',dano:'1d6',efeitos:'',pericia:'',atributo:'',bonus:0};
+        o.teste=a?calcTeste(o):'d20+0';
+        await db.collection('ameacas').doc(atual).collection(path).add(o);
     }
+    async function recalcAcao(id,path){ const r=db.collection('ameacas').doc(atual).collection(path).doc(id), s=await r.get(); if(s.exists) r.update({teste:calcTeste(s.data())}); }
     function renderAcao(id,d,path){
-        const u=(c)=>`onchange="updateSub('${id}','${path}','${c}',this.value)"`;
+        const u=c=>`onchange="updateSub('${id}','${path}','${c}',this.value)"`;
         return `<div class="dynamic-item-highlight"><button class="btn-del" onclick="removerSub('${id}','${path}')">[x]</button>
         <input class="book-input" list="dl-tipo" placeholder="Padrão" value="${esc(d.tipo)}" ${u('tipo')} style="width:80px;font-size:11px;text-transform:uppercase;font-weight:bold">
         <input class="book-input" placeholder="NOME DO ATAQUE" value="${esc(d.nome)}" ${u('nome')} style="font-family:'Crimson Text',serif;font-size:1.4rem;font-weight:bold;color:var(--op-red);width:70%;display:block;margin:6px 0">
@@ -1429,6 +1492,7 @@ if (campanhaParam) {
             <label class="mini"><span>TESTE</span><input class="book-input" value="${esc(d.teste)}" ${u('teste')}></label>
             <label class="mini"><span>DANO</span><input class="book-input" value="${esc(d.dano)}" ${u('dano')}></label>
             <label class="mini"><span>ALCANCE</span><input class="book-input" value="${esc(d.alcance)}" ${u('alcance')}></label></div>
+        ${d.pericia?`<span class="sub-label" style="cursor:pointer;font-size:11px" onclick="recalcAcao('${id}','${path}')">↻ recalcular teste (${esc(d.atributo)} + ${esc(baseSk(d.pericia))}${d.bonus?' + arma '+d.bonus:''})</span>`:''}
         <textarea class="cris-textarea" placeholder="Efeitos, crítico, condições..." ${u('efeitos')} style="min-height:40px;font-style:italic;border:none">${d.efeitos||''}</textarea></div>`;
     }
 </script>
