@@ -501,8 +501,9 @@ body.tema-escuro .base-card .btn-open:hover {
         <h3 style="border-color: var(--op-red); background: var(--op-red) !important; color: #fff !important;">TIPO DE ARQUIVO</h3>
         <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Selecione a classificação da ameaça a ser documentada.</p>
 
-        <button class="cris-btn-modal" onclick="criarNovaAmeaca('mundana')" style="border-color: var(--op-ink); color: var(--op-ink); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 👤 ] AMEAÇA MUNDANA (NPC Humano)</button>
-        <button class="cris-btn-modal" onclick="criarNovaAmeaca('anomala')" style="border-color: var(--op-red); color: var(--op-red); font-size: 12px; margin-bottom: 15px; width: 100%;">[ 🩸 ] ANOMALIA (Criatura Paranormal)</button>
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('mundana')" style="border-color: var(--op-ink); color: var(--op-ink); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 👤 ] HUMANO COMUM (NPC)</button>
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('ocultista')" style="border-color: var(--san-purple); color: var(--san-purple); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 🕯️ ] HUMANO PARANORMAL (usa rituais/poderes)</button>
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('criatura')" style="border-color: var(--op-red); color: var(--op-red); font-size: 12px; margin-bottom: 15px; width: 100%;">[ 🩸 ] CRIATURA PARANORMAL</button>
 
         <button onclick="toggleModal('modal-tipo-ameaca')" style="width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
@@ -1178,8 +1179,8 @@ body.tema-escuro .base-card .btn-open:hover {
             const user = auth.currentUser;
             const mNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
 
-            let nomePadrao = tipo === 'mundana' ? "NOVO NPC" : "ENTIDADE DESCONHECIDA";
-            let elementoPadrao = tipo === 'mundana' ? "Mundano" : "SANGUE";
+            let nomePadrao = tipo === 'mundana' ? "NOVO NPC" : (tipo === 'ocultista' ? "NOVO OCULTISTA" : "ENTIDADE DESCONHECIDA");
+            let elementoPadrao = tipo === 'mundana' ? "Mundano" : "Sangue";
 
             try {
                 if (document.getElementById('modal-tipo-ameaca').style.display === 'block') {
@@ -1225,7 +1226,7 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                         <div class="portrait-mini" style="border-color:var(--op-red);">${img}</div>
                         <div class="card-info">
                             <strong>${d.nome}</strong>
-                            <span class="stats-tag" style="color:var(--op-red);">NA ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</span>
+                            <span class="stats-tag" style="color:var(--op-red);">${d.tipoAmeaca==='mundana'?'👤 Humano · NÍV':d.tipoAmeaca==='ocultista'?'🕯️ Ocultista · NA':'🩸 Criatura · NA'} ${d.na || d.vd || 0} | ${d.elemento || 'Nenhum'}</span>
                             ${campInfo}
                         </div>
                     </div>
