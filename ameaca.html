@@ -329,71 +329,28 @@
         /* Cor dourada ativada apenas no Modo Escuro */
         body.tema-escuro #btn-toggle-iniciativa {background: var(--accent-gold) !important; color: #121212 !important; border-color: var(--accent-gold) !important;
 }
-@media (max-width: 900px) { 
-    body { padding: 0 !important; margin: 0; }
-    
-    .book-container { 
-        padding: 20px 15px !important; 
-        border: none !important; 
-        border-radius: 0 !important; 
-        width: 100%; 
-        box-sizing: border-box;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        column-gap: 15px;
-        row-gap: 15px;
-    }
-    .book-header, .book-grid { display: contents; }
 
-    .watermark-confidential { order: 1; grid-column: 1 / -1; }
-    .doc-meta { order: 2; grid-column: 1 / -1; margin-bottom: 0; }
-    
-    .book-header > div:first-child { 
-        order: 3; 
-        grid-column: 1 / -1; 
-        border-bottom: 2px solid var(--op-ink); 
-        padding-bottom: 10px;
-    }
-    .book-title { font-size: 2.2rem; width: 100%; }
-
-    .na-badge { 
-        order: 4; 
-        grid-column: 1; 
-        align-self: center; 
-        justify-self: center;
-        transform: scale(0.8) rotate(5deg); 
-        margin: 0;
-    }
-
-    .col-art { 
-        order: 5; 
-        grid-column: 2; 
-        width: 100%;
-        display: flex;
-        justify-content: flex-start; 
-    }
-    
-    .portrait-container { margin-bottom: 0; width: 150px; }
-    .portrait-container::before { transform: translateX(-50%) rotate(-3deg) scale(0.7); top: -6px; }
-    .portrait { height: 168px; width: 100%; }
-
-    .attributes-bar { order: 6; grid-column: 1 / -1; padding: 10px 0; margin-bottom: 5px; }
-    .col-stats { order: 7; grid-column: 1 / -1; }
-
-    input#fileInput, 
-    .section-header, 
-    #lista-acoes, 
-    .btn-add, 
-    #lista-habilidades, 
-    .dynamic-item-highlight, 
-    #descricao {
-        order: 8;
-        grid-column: 1 / -1;
-    }
-    
-    .section-header { margin: 20px 0 10px 0; }
-}
-    </style>
+[hidden]{display:none!important}
+.tipo-switch,.tier-row,.elem-row{display:flex;gap:6px;flex-wrap:wrap;position:relative;z-index:2}
+.tipo-switch{margin-bottom:18px}.tipo-switch button{flex:1;padding:12px 4px}
+.tipo-switch button,.tier-row button,.elem-row button{background:transparent;border:1px dashed var(--op-ink);color:var(--op-ink);font:700 11px 'Inter',sans-serif;cursor:pointer;border-radius:2px;padding:8px 10px}
+.tipo-switch button.on,.tier-row button.on,.elem-row button.on{background:var(--op-ink);color:var(--bg-paper)}
+.lbl{font:900 12px 'Inter',sans-serif;letter-spacing:1px;margin:18px 0 6px;position:relative;z-index:2;display:block}
+.lbl small{font-weight:400;opacity:.6;letter-spacing:0}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:10px;margin:14px 0;position:relative;z-index:2}
+.mini{display:flex;flex-direction:column}.mini span{font:900 10px 'Inter',sans-serif;letter-spacing:1px;opacity:.75}
+.mini input{width:100%;box-sizing:border-box;font-size:15px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;position:relative;z-index:2}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--op-ink);color:var(--bg-paper);padding:5px 8px;border-radius:2px;font:12px 'Special Elite',monospace}
+.chip input{width:48px;background:transparent;border:none;border-bottom:1px solid currentColor;color:inherit;text-align:center;font:inherit;outline:none}
+.chip i{cursor:pointer;opacity:.7;font-style:normal;padding:0 2px}
+.vazio{font-size:12px;opacity:.5}
+.pk-item{padding:11px 8px;border-bottom:1px dotted var(--card-border);cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.pk-item small{opacity:.65;text-align:right}.pk-item.on{background:var(--op-ink);color:var(--bg-paper)}
+#pk-busca{width:100%;box-sizing:border-box;margin-bottom:10px;font-size:16px}
+#pk-lista{max-height:50vh;overflow-y:auto;margin-bottom:12px}
+@media (max-width:900px){body{padding:0!important}.book-container{padding:20px 14px!important;border:none!important;border-radius:0!important}.book-grid{grid-template-columns:1fr;gap:10px}.col-art{order:-1}.portrait-container{width:170px;margin:0 auto 20px}.portrait{height:190px}.book-title{font-size:2rem;width:100%}.book-header{flex-wrap:wrap;gap:10px}.attributes-bar{flex-wrap:wrap;gap:24px 12px}.watermark-confidential{font-size:3rem}.book-input{font-size:16px}.voltar-btn{padding:8px 12px}}
+</style>
 </head>
 <body>
 
@@ -431,166 +388,108 @@
 <a href="index.html" class="voltar-btn">FECHAR ARQUIVO</a>
 
 <div class="book-container">
-    
     <div class="watermark-confidential">CONFIDENCIAL</div>
+    <div class="doc-meta"><div>REGISTRO DE AMEAÇAS<br>DEPARTAMENTO DE AMEAÇAS PARANORMAIS</div><div class="barcode">*ARQUIVO-CONFIDENCIAL*</div></div>
 
-    <div class="doc-meta">
-        <div>REGISTRO DE ANOMALIAS<br>DEPARTAMENTO DE AMEAÇAS PARANORMAIS</div>
-        <div class="barcode">*ARQUIVO-CONFIDENCIAL*</div>
+    <div class="tipo-switch" id="tipo-switch">
+        <button data-t="mundana" onclick="setTipo('mundana')">👤 HUMANO COMUM</button>
+        <button data-t="ocultista" onclick="setTipo('ocultista')">🕯️ HUMANO PARANORMAL</button>
+        <button data-t="criatura" onclick="setTipo('criatura')">🩸 CRIATURA</button>
     </div>
 
     <div class="book-header">
-        <div style="width: 100%;">
-            <input id="nome" class="book-input book-title save-auto" placeholder="NOME DA AMEAÇA">
-            <input id="tipo-criatura" class="book-input tipo-criatura save-auto" placeholder="CRIATURA - ELEMENTO">
+        <div style="width:100%;">
+            <input id="nome" class="book-input book-title save-auto" placeholder="NOME">
+            <input id="tipo-criatura" class="book-input tipo-criatura save-auto">
         </div>
-        <div class="na-badge">
-            <span class="na-label">NA</span>
-            <input type="number" id="na" class="na-input save-auto" placeholder="0">
-        </div>
-    </div>
-
-    <div class="attributes-bar">
-        <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi" class="book-input save-auto" placeholder="0"></div>
-        <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for" class="book-input save-auto" placeholder="0"></div>
-        <div class="attr-box"><span class="attr-label">SAG</span><input type="number" id="sag" class="book-input save-auto" placeholder="0"></div>
-        <div class="attr-box"><span class="attr-label">VON</span><input type="number" id="von" class="book-input save-auto" placeholder="0"></div>
-        <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig" class="book-input save-auto" placeholder="0"></div>
+        <div class="na-badge"><span class="na-label" id="na-label">NA</span><input type="number" id="na" class="na-input save-auto" placeholder="0"></div>
     </div>
 
     <div class="book-grid">
         <div class="col-stats">
-            
-            <div class="book-stat-row">
-                <span class="stat-label">SENTIDOS:</span> 
-                <span class="sub-label">Percepção</span> <input id="percepcao" class="book-input save-auto" placeholder="2d20+10" style="width: 100px;"> 
-                <span class="sub-label" style="margin-left: 10px;">Iniciativa</span> <input id="iniciativa" class="book-input save-auto" placeholder="2d20+5" style="width: 100px;">
-            </div>
-            
-            <div class="book-stat-row">
-                <span class="stat-label">DEFESA:</span> 
-                <span class="defesa-badge"><input type="number" id="defesa" class="book-input save-auto" placeholder="20"></span>
-                <span class="sub-label" style="margin-left: 10px;">Fortit.</span> <input id="fortitude" class="book-input save-auto" placeholder="2d20+10" style="width: 65px;"> 
-                <span class="sub-label" style="margin-left: 5px;">Reflex.</span> <input id="reflexos" class="book-input save-auto" placeholder="2d20+5" style="width: 65px;"> 
-                <span class="sub-label" style="margin-left: 5px;">Vont.</span> <input id="vontade" class="book-input save-auto" placeholder="2d20+5" style="width: 65px;">
+            <span class="lbl">PADRÃO DE PODER <small>— toque para preencher tudo de uma vez, depois ajuste o que quiser</small></span>
+            <div class="tier-row" id="tier-row"></div>
+
+            <div class="attributes-bar" style="margin-bottom:10px">
+                <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi" class="book-input save-auto" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">FOR</span><input type="number" id="for" class="book-input save-auto" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">SAG</span><input type="number" id="sag" class="book-input save-auto" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">VON</span><input type="number" id="von" class="book-input save-auto" placeholder="0"></div>
+                <div class="attr-box"><span class="attr-label">VIG</span><input type="number" id="vig" class="book-input save-auto" placeholder="0"></div>
             </div>
 
-            <div style="margin: 20px 0;">
-                <div class="book-stat-row" style="flex-direction: column; gap: 0;">
-                    <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
-                        <span class="stat-label">PONTOS DE VIDA</span>
-                        <div class="resource-inputs">
-                            <input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')">
-                            <span style="color:rgba(128,128,128,0.5);">/</span>
-                            <input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv')" style="color:rgba(128,128,128,0.5);">
-                        </div>
-                    </div>
-                    <div class="resource-block"><div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div></div>
-                </div>
-
-                <div class="book-stat-row" style="flex-direction: column; gap: 0;">
-                    <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
-                        <span class="stat-label" style="color:var(--san-purple);">CONSCIÊNCIA</span>
-                        <div class="resource-inputs">
-                            <input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')">
-                            <span style="color:rgba(128,128,128,0.5);">/</span>
-                            <input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="color:rgba(128,128,128,0.5);">
-                        </div>
-                    </div>
-                    <div class="resource-block"><div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div>
-                </div>
-
-                <div class="book-stat-row" style="flex-direction: column; gap: 0;">
-                    <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
-                        <span class="stat-label" style="color:var(--pe-orange);">ESFORÇO</span>
-                        <div class="resource-inputs">
-                            <input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')">
-                            <span style="color:rgba(128,128,128,0.5);">/</span>
-                            <input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="color:rgba(128,128,128,0.5);">
-                        </div>
-                    </div>
-                    <div class="resource-block"><div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div>
-                </div>
+            <div class="mini-grid">
+                <label class="mini"><span>DEFESA</span><input type="number" id="defesa" class="book-input save-auto" placeholder="20"></label>
+                <label class="mini"><span>FORTITUDE</span><input id="fortitude" class="book-input save-auto" placeholder="2d20+10"></label>
+                <label class="mini"><span>REFLEXOS</span><input id="reflexos" class="book-input save-auto" placeholder="2d20+5"></label>
+                <label class="mini"><span>VONTADE</span><input id="vontade" class="book-input save-auto" placeholder="2d20+5"></label>
+                <label class="mini"><span>PERCEPÇÃO</span><input id="percepcao" class="book-input save-auto" placeholder="2d20+10"></label>
+                <label class="mini"><span>INICIATIVA</span><input id="iniciativa" class="book-input save-auto" placeholder="2d20+5"></label>
+                <label class="mini"><span>DESLOCAM.</span><input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q"></label>
             </div>
 
-            <div class="book-stat-row">
-                <span class="stat-label">VULNERAB.:</span> 
-                <input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhum..." style="flex: 1;">
-            </div>
-            <div class="book-stat-row">
-                <span class="stat-label">RESISTÊNCIAS:</span> 
-                <input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10..." style="flex: 1;">
-            </div>
-            <div class="book-stat-row">
-                <span class="stat-label">IMUNIDADES:</span> 
-                <input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex: 1;">
+            <div style="margin:10px 0 20px;">
+                <div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label">PONTOS DE VIDA</span><div class="resource-inputs"><input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv')"><span style="opacity:.5">/</span><input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div></div></div>
+                <div data-s="ocultista criatura"><div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--san-purple);">CONSCIÊNCIA</span><div class="resource-inputs"><input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')"><span style="opacity:.5">/</span><input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div></div>
+                <div class="book-stat-row" style="flex-direction:column;gap:0;"><div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><span class="stat-label" style="color:var(--pe-orange);">ESFORÇO</span><div class="resource-inputs"><input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')"><span style="opacity:.5">/</span><input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')" style="opacity:.6"></div></div><div class="resource-block"><div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div></div></div>
             </div>
 
-            <div class="book-stat-row" style="margin-top: 15px; align-items: center;">
-                <span class="stat-label">PERÍCIAS:</span> 
-                <!-- O input livre some se for mundano -->
-                <input id="pericias" class="book-input save-auto anomalia-only" placeholder="Atletismo 4d20+15..." style="flex: 1;">
-                
-                <!-- O construtor de botões aparece se for mundano -->
-                <div class="mundana-only" style="flex: 1; gap: 5px; flex-wrap: wrap; align-items: center; display: none;">
-                    <div id="tags-pericias-npc" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>
-                    <button class="btn-add" style="margin: 0; padding: 4px 8px; font-size: 10px;" onclick="abrirModalPericiasNPC()">+ SELECIONAR PERÍCIAS</button>
-                </div>
-            </div>
-            
-            <div class="book-stat-row">
-                <span class="stat-label">DESLOCAMENTO:</span> 
-                <input id="deslocamento" class="book-input save-auto" placeholder="9m | 6q" style="width: 150px;">
+            <span class="lbl">PERÍCIAS <small>— toque para escolher na lista; o valor ao lado é editável</small></span>
+            <div class="chips" id="tags-pericias-npc"></div>
+            <button class="btn-add" style="margin-top:0" onclick="abrirPericias()">[+] ESCOLHER PERÍCIAS</button>
+
+            <div data-s="ocultista criatura">
+                <span class="lbl">ELEMENTO</span><div class="elem-row" id="elem-row"></div>
+                <div class="book-stat-row" style="margin-top:12px"><span class="stat-label">VULNERAB.:</span><input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhuma" style="flex:1;min-width:120px"></div>
+                <div class="book-stat-row"><span class="stat-label">RESISTÊNCIAS:</span><input id="resistencias" class="book-input save-auto" placeholder="Dano Físico 10..." style="flex:1;min-width:120px"></div>
+                <div class="book-stat-row"><span class="stat-label">IMUNIDADES:</span><input id="imunidades" class="book-input save-auto" placeholder="Condições..." style="flex:1;min-width:120px"></div>
             </div>
         </div>
 
         <div class="col-art">
             <div class="portrait-container">
                 <div class="portrait" onclick="document.getElementById('fileInput').click()">
-                    <img id="img-preview" src="" style="display:none; position: absolute; left: 0; top: 0;">
+                    <img id="img-preview" src="" style="display:none;position:absolute;left:0;top:0;">
                     <div id="img-placeholder" class="upload-hint">FOTO / ILUSTRAÇÃO</div>
                 </div>
-                <div style="opacity: 0.1; transition: 0.3s; margin-top: 5px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.1">
-                    <div style="display: flex; gap: 5px;">
-                        <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ', this.value)" style="width: 100%;">
-                        <input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pX', this.value)" style="width: 100%;">
-                        <input type="range" id="pY" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pY', this.value)" style="width: 100%;">
-                    </div>
-                </div>
+                <div style="opacity:.1;transition:.3s;margin-top:5px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.1"><div style="display:flex;gap:5px;">
+                    <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ',this.value)" style="width:100%;">
+                    <input type="range" id="pX" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pX',this.value)" style="width:100%;">
+                    <input type="range" id="pY" min="-50" max="150" step="0.5" value="50" oninput="ajustarFoto()" onchange="updateField('pY',this.value)" style="width:100%;"></div></div>
             </div>
         </div>
     </div>
-
     <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
 
-    <div class="section-header">AÇÕES DA ENTIDADE</div>
+    <div class="section-header">AÇÕES</div>
     <div id="lista-acoes"></div>
-    <button class="btn-add" onclick="addAcao()">[+] ANEXAR REGISTRO DE AÇÃO</button>
+    <button class="btn-add" onclick="abrirArmas()">[+] ADICIONAR ARMA / ATAQUE</button>
 
-    <div class="section-header" style="margin-top: 40px;">
-        <span class="anomalia-only">HABILIDADES E COMPORTAMENTOS</span>
-        <span class="mundana-only" style="display:none;">HABILIDADES E TÁTICAS</span>
-    </div>
+    <div class="section-header" id="tit-hab" style="margin-top:40px;">HABILIDADES</div>
     <div id="lista-habilidades"></div>
-    <button class="btn-add" onclick="addHabilidade()">[+] ANEXAR TRAÇO OBSERVADO</button>
+    <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button>
 
-    <div class="anomalia-only">
-        <div class="section-header" style="margin-top: 40px;">JURAMENTO RESTRITIVO</div>
+    <div data-s="criatura">
+        <div class="section-header" style="margin-top:40px;">JURAMENTO RESTRITIVO</div>
         <div class="dynamic-item-highlight">
-            <textarea id="enigma" class="cris-textarea save-auto" placeholder="Insira o texto sobre a o juramento restritivo e seus determinantes... [Acesso Restrito]" style="border: none;"></textarea>
+            <span class="sub-label">REGRA / JURAMENTO</span>
+            <textarea id="enigma" class="cris-textarea save-auto" placeholder="O que a criatura jurou ou é obrigada a cumprir..." style="min-height:60px"></textarea>
+            <span class="sub-label" style="display:block;margin-top:12px">COMO QUEBRAR / FRAQUEZA</span>
+            <textarea id="quebra" class="cris-textarea save-auto" placeholder="O que anula, enfraquece ou quebra o juramento..." style="min-height:60px"></textarea>
         </div>
     </div>
 
-    <div class="section-header" style="margin-top: 40px;">DOCUMENTAÇÃO E BIOLOGIA</div>
-    <textarea id="descricao" class="cris-textarea save-auto" placeholder="Insira o relatório de pesquisa detalhado da criatura, rastro paranormal, incidentes relacionados..." style="min-height: 250px; background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border); border-radius: 2px;"></textarea>
-
+    <div class="section-header" style="margin-top:40px;">NOTAS</div>
+    <textarea id="descricao" class="cris-textarea save-auto" placeholder="História, aparência, motivações, ganchos de aventura..." style="min-height:160px;background:var(--card-bg);padding:15px;border:1px solid var(--card-border);border-radius:2px;"></textarea>
 </div>
 
-    <div id="modal-pericias-npc" class="modal-padrao" style="max-height: 80vh; overflow-y: auto;">
-    <h3 style="margin-top: 0; margin-bottom: 20px; font-family: 'Crimson Text', serif; font-size: 20px; border-bottom: 1px dotted var(--card-border); padding-bottom: 10px;">SELECIONAR PERÍCIAS</h3>
-    <div id="lista-checkbox-pericias" style="display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 20px;"></div>
-    <button class="cris-btn-modal" onclick="salvarPericiasNPC()" style="background: var(--op-ink); color: var(--bg-paper); border: none;">SALVAR PERÍCIAS</button>
-    <button onclick="toggleElem('modal-pericias-npc')" style="margin-top:10px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">FECHAR PAINEL</button>
+<datalist id="dl-tipo"><option>Padrão</option><option>Movimento</option><option>Reação</option><option>Livre</option></datalist>
+<div id="modal-pick" class="modal-padrao" style="max-width:440px">
+    <h3 id="pk-titulo">ESCOLHER</h3>
+    <input id="pk-busca" class="rit-input" placeholder="Buscar..." oninput="pkRender()">
+    <div id="pk-lista"></div>
+    <button id="pk-ok" class="cris-btn-modal" onclick="pkOk()" style="background:var(--op-ink);color:var(--bg-paper);border:none">CONCLUIR</button>
+    <button onclick="fecharPicker()" style="margin-top:8px;width:100%;background:transparent;color:var(--cor-geral);border:none;padding:10px;cursor:pointer;font-weight:bold;font-size:11px">CANCELAR</button>
 </div>
 
 <script>
@@ -705,7 +604,7 @@
             let obj = {}; 
             
             const isAtributo = ['agi','for','sag','von','vig'].includes(campo);
-            const isImageMeta = ['portrait','pX','pY','pZ'].includes(campo);
+            const isImageMeta = ['portrait','pX','pY','pZ','tipoAmeaca','tier'].includes(campo);
 
             let valFormatado = valor;
             if (['pv-atual', 'pv-max', 'pc-atual', 'pc-max', 'pe-atual', 'pe-max', 'agi', 'for', 'sag', 'von', 'vig', 'na', 'defesa'].includes(campo)) {
@@ -777,18 +676,10 @@
             }
 
             let d = d_raw;
-            // LEITURA DO TIPO DE AMEAÇA
-            if(d.tipoAmeaca === 'mundana') {
-                document.body.classList.add('ameaca-mundana');
-                document.getElementById('tipo-criatura').placeholder = "PROFISSÃO / FACÇÃO";
-                document.getElementById('na').previousElementSibling.innerText = "NÍVEL"; 
-            } else {
-                document.body.classList.remove('ameaca-mundana');
-                document.getElementById('tipo-criatura').placeholder = "CRIATURA - ELEMENTO";
-                document.getElementById('na').previousElementSibling.innerText = "NA";
-            }
-            window.periciasNPC = d.pericias_mundanas || [];
-            renderizarTagsPericiasNPC();
+            aplicarTipo(d.tipoAmeaca==='mundana'?'mundana':d.tipoAmeaca==='ocultista'?'ocultista':'criatura');
+            tier=d.tier||0; marcarTier(); marcarElem(d.elemento);
+            const dm=(hexatombeFinal&&d_raw.hexatombe_data)?{...d_raw,...d_raw.hexatombe_data}:d_raw;
+            if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#tags-pericias-npc'))){ PNPC=dm.pericias_npc||(dm.pericias_mundanas||[]).map(n=>({n,v:'+10'})); renderPer(); }
             if (hexatombeFinal && d_raw.hexatombe_data) { 
                 d = { ...d_raw, ...d_raw.hexatombe_data }; 
                 d.agi = d_raw.agi; d.for = d_raw.for; d.sag = d_raw.sag; d.von = d_raw.von; d.vig = d_raw.vig;
@@ -1394,45 +1285,152 @@ if (campanhaParam) {
             }
         };
 
-    const listaCompletaPericias = ["Acrobacia", "Adestramento", "Artes", "Atletismo", "Atualidades", "Avaliação", "Balística", "Briga", "Ciências", "Ciências Ocultas", "Combate", "Crime", "Direção", "Direito", "Educação", "Engenharia", "Fortitude", "Furtividade", "Gastronomia", "Idiomas", "Intimidação", "Intuição", "Investigação", "Medicina", "Natação", "Percepção", "Persuasão", "Pilotagem", "Pontaria", "Proatividade", "Reflexos", "Religião", "Resiliência", "Sobrevivência", "Tecnologia"];
+    
+    // ======================= NOVA FICHA DE AMEAÇAS =======================
+    const bancoPericias = {
+        "Acrobacia": { attr: "AGI", tipo: "pessoal", desc: "Equilíbrio, saltos, cambalhotas, redução de dano de queda e Escalar (usando Força)." },
+        "Adestramento": { attr: "SAG", tipo: "pessoal", desc: "Lidar com animais, treinar, acalmar ou comandar feras." },
+        "Artes": { attr: "SAG", tipo: "pessoal", desc: "Expressão artística, música, pintura, atuação, etc." },
+        "Atletismo": { attr: "FOR", tipo: "pessoal", desc: "Correr, saltos em distância/altura e proezas físicas em geral." },
+        "Atualidades": { attr: "SAG", tipo: "pessoal", desc: "Conhecimentos gerais, política, cultura pop e eventos recentes." },
+        "Avaliação": { attr: "SAG", tipo: "profissao", desc: "Analisar documentos, itens antigos e saber usar bibliotecas." },
+        "Balística": { attr: "AGI", tipo: "profissao", subs: ["Pistolas", "Rifles", "Espingardas", "Artilharia"], desc: "Uso proficiente e manutenção de armas de fogo e artilharia pesada." },
+        "Briga": { attr: "FOR", tipo: "pessoal", desc: "Combate corpo a corpo desarmado e instintivo ou com armas improvisadas (caco de vidro, canivete, pequenas facas, etc.)." },
+        "Ciências": { attr: "SAG", tipo: "profissao", desc: "Biologia, química, física, matemática e astronomia." },
+        "Ciências Ocultas": { attr: "SAG", tipo: "profissao", desc: "Conhecimento místico sobre astrologia, alquimia, rituais, entidades e lendas. Historicamente proibido ou repudiado." },
+        "Combate": { attr: "FOR", tipo: "profissao", subs: ["Artes Marciais", "Armas Leves", "Armas Pesadas", "Armas Exóticas"], desc: "Domínio tático do confronto corpo a corpo. Engloba a execução de ataques letais e a leitura de inimigos e situações de perigo." },
+        "Crime": { attr: "AGI", tipo: "profissao", desc: "Abrir fechaduras, sabotagem, furtar objetos e ocultar rastros." },
+        "Direção": { attr: "AGI", tipo: "pessoal", desc: "Conduzir veículos terrestres comuns em situações de risco." },
+        "Direito": { attr: "SAG", tipo: "profissao", desc: "Conhecimento de leis, processos penais, burocracia e advocacia." },
+        "Educação": { attr: "SAG", tipo: "profissao", subs: ["Humanas", "Biológicas", "Exatas"], desc: "Formação acadêmica específica e conhecimentos teóricos aprofundados." },
+        "Engenharia": { attr: "SAG", tipo: "profissao", desc: "Construção, arquitetura, eletrônica e consertos complexos." },
+        "Fortitude": { attr: "VIG", tipo: "pessoal", desc: "Resistência a fadiga, doenças, venenos e dores físicas." },
+        "Furtividade": { attr: "AGI", tipo: "pessoal", desc: "Mover-se em silêncio, esconder-se e agir sem ser notado." },
+        "Gastronomia": { attr: "SAG", tipo: "profissao", desc: "Culinária, conservação de alimentos, identificação de toxinas e cortes precisos." },
+        "Idiomas": { attr: "SAG", tipo: "profissao", subsInputs: true, desc: "Compreender e falar outras línguas e dialetos." },
+        "Intuição": { attr: "SAG", tipo: "pessoal", desc: "Perceber sinais sutis, padrões e inconsistências antes mesmo da mente conseguir processá-los conscientemente." },
+        "Intimidação": { attr: "FOR", tipo: "pessoal", desc: "Usar de força, postura, presença ou ameaças verbais para coagir alguém a fazer o que deseja." },
+        "Investigação": { attr: "SAG", tipo: "pessoal", desc: "Procurar pistas, deduzir informações e analisar cenas." },
+        "Medicina": { attr: "SAG", tipo: "profissao", desc: "Primeiros socorros, cirurgias, tratar venenos e doenças." },
+        "Natação": { attr: "VIG", tipo: "pessoal", desc: "Nadar em condições adversas, prender o fôlego e mergulhar." },
+        "Percepção": { attr: "SAG", tipo: "pessoal", desc: "Notar detalhes ao redor, ouvir sons baixos e vigilância geral." },
+        "Persuasão": { attr: "SAG", tipo: "pessoal", desc: "Compreender e conduzir interações sociais, utilizando comunicação, comportamento e leitura das reações alheias para influenciar outras pessoas." },
+        "Pilotagem": { attr: "AGI", tipo: "profissao", subs: ["Esportiva", "Aérea", "Aquática", "Pesada"], desc: "Operação de veículos especiais, tratores, trens, barcos ou aeronaves." },
+        "Pontaria": { attr: "AGI", tipo: "pessoal", desc: "Arremesso de objetos, facas, granadas e precisão natural." },
+        "Proatividade": { attr: "AGI", tipo: "pessoal", subsInputs: false, desc: "A capacidade de perceber rapidamente uma oportunidade de ação e tomar a iniciativa antes que ela desapareça." },
+        "Reflexos": { attr: "AGI", tipo: "pessoal", desc: "Esquivar de ataques, reagir rápido e evitar perigos súbitos." },
+        "Religião": { attr: "SAG", tipo: "profissao", desc: "Conhecimento sobre dogmas, crenças, seitas e mitologia." },
+        "Sobrevivência": { attr: "SAG", tipo: "profissao", subs: ["Urbana", "Selva", "Deserto", "Polar"], desc: "Orientação, caça, encontrar abrigo e rastrear na natureza." },
+        "Tecnologia": { attr: "SAG", tipo: "profissao", desc: "Uso e reparo de computadores, eletrônicos e hackear sistemas." },
+        "Resiliência": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem em momentos de estresse." }
+    };
+    const templatesAtaques = { 
+        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Escopeta": { nome: "Escopeta", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Espingardas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
+        "Fuzil": { nome: "Fuzil de Assalto", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Longo" },
+        "Glock": { nome: "Glock", dano: "1d8", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Katana": { nome: "Katana", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Soco": { nome: "Soco (Ataque)", dano: "1+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "Submetralhadora": { nome: "Submetralhadora", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Taser": { nome: "Taser", dano: "1d4+Atordoado", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" }
+    };
+    const $=id=>document.getElementById(id);
+    const esc=s=>String(s==null?'':s).replace(/"/g,'&quot;');
+    const nomesPericias=Object.keys(bancoPericias);
+    const TIPOS_HAB={mundana:'HABILIDADES E TÁTICAS',ocultista:'RITUAIS E PODERES',criatura:'COMPORTAMENTOS E TRAÇOS'};
+    const PLACE={mundana:'PROFISSÃO / FACÇÃO',ocultista:'CULTO / ORDEM / ORIGEM',criatura:'ESPÉCIE / DESCRIÇÃO CURTA'};
+    const TIERS=['Capanga','Comum','Veterano','Elite','Chefe'];
+    const ELEMS=['Sangue','Morte','Conhecimento','Energia','Medo'];
+    let tier=0, PNPC=[], P={};
 
-    function abrirModalPericiasNPC() {
-        const container = document.getElementById('lista-checkbox-pericias');
-        container.innerHTML = '';
-        const selecionadas = window.periciasNPC || [];
+    // >>> AJUSTE AQUI os números base de cada padrão de poder (t = 1 a 5) <<<
+    function valoresTier(t){
+        const forte=t, fraco=Math.max(0,t-1), pv=10+15*t, pc=5+5*t;
+        return { agi:forte, for:forte, sag:fraco, von:fraco, vig:forte,
+            'pv-max':pv,'pv-atual':pv,'pc-max':pc,'pc-atual':pc,'pe-max':pc,'pe-atual':pc,
+            defesa:10+2*t, fortitude:`2d20+${2*t+3}`, reflexos:`2d20+${2*t+3}`, vontade:`2d20+${2*t+3}`,
+            percepcao:`2d20+${2*t+3}`, iniciativa:`2d20+${t+3}`, na:t*20 };
+    }
+    const testeBase=()=>`2d20+${2*(tier||2)+5}`, danoBase=()=>`${tier||2}d8`;
 
-        listaCompletaPericias.forEach(p => {
-            const checked = selecionadas.includes(p) ? 'checked' : '';
-            container.innerHTML += `<label style="font-family: 'Inter', sans-serif; font-size: 13px; cursor: pointer; color: var(--op-ink); display: flex; align-items: center; gap: 8px;"><input type="checkbox" value="${p}" class="chk-pericia-npc" ${checked}> ${p}</label>`;
+    function aplicarTipo(t){
+        document.body.dataset.t=t;
+        document.querySelectorAll('[data-s]').forEach(e=>e.hidden=!e.dataset.s.split(' ').includes(t));
+        document.querySelectorAll('#tipo-switch button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+        $('na-label').innerText=t==='mundana'?'NÍVEL':'NA';
+        $('tipo-criatura').placeholder=PLACE[t]; $('tit-hab').innerText=TIPOS_HAB[t];
+    }
+    function setTipo(t){ aplicarTipo(t); updateField('tipoAmeaca',t); }
+
+    $('tier-row').innerHTML=TIERS.map((n,i)=>`<button data-t="${i+1}" onclick="aplicarTier(${i+1})">${n}</button>`).join('');
+    $('elem-row').innerHTML=ELEMS.map(n=>`<button data-e="${n}" onclick="setElem('${n}')">${n}</button>`).join('');
+    function marcarTier(){ document.querySelectorAll('#tier-row button').forEach(b=>b.classList.toggle('on',+b.dataset.t===tier)); }
+    function marcarElem(e){ document.querySelectorAll('#elem-row button').forEach(b=>b.classList.toggle('on',(b.dataset.e||'').toLowerCase()===String(e||'').toLowerCase())); }
+    function setElem(n){ marcarElem(n); updateField('elemento',n); }
+    function aplicarTier(t){
+        if(!confirm(`Preencher com o padrão "${TIERS[t-1]}"? Isso sobrescreve atributos, vida, defesa e testes (você pode ajustar depois).`)) return;
+        tier=t; marcarTier(); updateField('tier',t);
+        Object.entries(valoresTier(t)).forEach(([id,v])=>{ const el=$(id); if(el){ el.value=v; updateField(id,v); } });
+        ['pv','pc','pe'].forEach(atualizarVisualBarra);
+    }
+
+    // ---------- seletor genérico (lista com busca) ----------
+    function abrirPicker(titulo,itens,multi,sel,done){
+        P={itens,multi,sel:new Set(sel),done}; $('pk-titulo').innerText=titulo; $('pk-busca').value=''; pkRender();
+        $('pk-ok').style.display=multi?'block':'none'; $('modal-pick').style.display='block';
+    }
+    function pkRender(){
+        const q=$('pk-busca').value.toLowerCase();
+        $('pk-lista').innerHTML=P.itens.filter(i=>(i.t+' '+i.s).toLowerCase().includes(q)).map(i=>`<div class="pk-item ${P.sel.has(i.id)?'on':''}" data-id="${esc(i.id)}"><b>${i.t}</b><small>${i.s}</small></div>`).join('')||'<div class="vazio">Nada encontrado</div>';
+        document.querySelectorAll('#pk-lista .pk-item').forEach(el=>el.onclick=()=>pkClick(el.dataset.id));
+    }
+    function pkClick(id){ if(P.multi){ P.sel.has(id)?P.sel.delete(id):P.sel.add(id); pkRender(); } else { fecharPicker(); P.done(id); } }
+    function pkOk(){ fecharPicker(); P.done([...P.sel]); }
+    function fecharPicker(){ $('modal-pick').style.display='none'; }
+
+    // ---------- perícias ----------
+    function renderPer(){
+        $('tags-pericias-npc').innerHTML=PNPC.map((p,i)=>`<span class="chip"><b>${p.n}</b><input value="${esc(p.v)}" onchange="PNPC[${i}].v=this.value;salvarPer()"><i onclick="PNPC.splice(${i},1);salvarPer();renderPer()">×</i></span>`).join('')||'<span class="vazio">Nenhuma perícia escolhida</span>';
+    }
+    function salvarPer(){ updateField('pericias_npc',PNPC); }
+    function abrirPericias(){
+        abrirPicker('PERÍCIAS',nomesPericias.map(n=>({id:n,t:n,s:bancoPericias[n].attr||'-'})),true,PNPC.map(p=>p.n),lista=>{
+            PNPC=lista.map(n=>PNPC.find(p=>p.n===n)||{n,v:'+'+(2*(tier||2)+5)}); salvarPer(); renderPer();
         });
-        toggleElem('modal-pericias-npc');
     }
 
-    function salvarPericiasNPC() {
-        const checkboxes = document.querySelectorAll('.chk-pericia-npc:checked');
-        const selecionadas = Array.from(checkboxes).map(c => c.value);
-        window.periciasNPC = selecionadas;
-        renderizarTagsPericiasNPC();
-        
-        // Salva de forma segura compatível com o Hexatombe
-        const hexatombeFinal = isHexatombe || globalHexatombe;
-        const path = hexatombeFinal ? "hexatombe_data.pericias_mundanas" : "pericias_mundanas";
-        let obj = {}; obj[path] = selecionadas;
-        db.collection("ameacas").doc(atual).update(obj);
-        
-        toggleElem('modal-pericias-npc');
+    // ---------- armas / ações ----------
+    function abrirArmas(){
+        const it=[{id:'__novo',t:'✏️ Ataque em branco',s:'preencher manualmente'}].concat(Object.keys(templatesAtaques).sort((a,b)=>templatesAtaques[a].nome.localeCompare(templatesAtaques[b].nome)).map(k=>{const a=templatesAtaques[k];return{id:k,t:a.nome,s:`${a.dano} · ${a.tipo} · ${a.alcance}`};}));
+        abrirPicker('ARMAS E ATAQUES',it,false,[],id=>addAcao(id==='__novo'?null:templatesAtaques[id]));
     }
-
-    function renderizarTagsPericiasNPC() {
-        const container = document.getElementById('tags-pericias-npc');
-        if(!container) return;
-        container.innerHTML = '';
-        const selecionadas = window.periciasNPC || [];
-        selecionadas.forEach(p => {
-            container.innerHTML += `<span style="background: var(--op-ink); color: var(--bg-paper); padding: 4px 8px; font-family: 'Special Elite', monospace; font-size: 11px; border-radius: 2px;">${p}</span>`;
-        });
+    async function addAcao(a){
+        const path=(isHexatombe||globalHexatombe)?'hexa_acoes':'acoes';
+        await db.collection('ameacas').doc(atual).collection(path).add(a?{tipo:'Padrão',nome:a.nome,alcance:a.alcance,teste:testeBase(),dano:a.dano,efeitos:a.tipo?`Dano ${a.tipo}.`:''}:{tipo:'Padrão',nome:'Novo Ataque',alcance:'Corpo a corpo',teste:testeBase(),dano:danoBase(),efeitos:''});
     }
-        // ==========================================
+    function renderAcao(id,d,path){
+        const u=(c)=>`onchange="updateSub('${id}','${path}','${c}',this.value)"`;
+        return `<div class="dynamic-item-highlight"><button class="btn-del" onclick="removerSub('${id}','${path}')">[x]</button>
+        <input class="book-input" list="dl-tipo" placeholder="Padrão" value="${esc(d.tipo)}" ${u('tipo')} style="width:80px;font-size:11px;text-transform:uppercase;font-weight:bold">
+        <input class="book-input" placeholder="NOME DO ATAQUE" value="${esc(d.nome)}" ${u('nome')} style="font-family:'Crimson Text',serif;font-size:1.4rem;font-weight:bold;color:var(--op-red);width:70%;display:block;margin:6px 0">
+        <div class="mini-grid" style="grid-template-columns:repeat(3,1fr);margin:8px 0">
+            <label class="mini"><span>TESTE</span><input class="book-input" value="${esc(d.teste)}" ${u('teste')}></label>
+            <label class="mini"><span>DANO</span><input class="book-input" value="${esc(d.dano)}" ${u('dano')}></label>
+            <label class="mini"><span>ALCANCE</span><input class="book-input" value="${esc(d.alcance)}" ${u('alcance')}></label></div>
+        <textarea class="cris-textarea" placeholder="Efeitos, crítico, condições..." ${u('efeitos')} style="min-height:40px;font-style:italic;border:none">${d.efeitos||''}</textarea></div>`;
+    }
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
     ⚔️ Iniciativa
