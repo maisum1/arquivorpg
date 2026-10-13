@@ -537,6 +537,7 @@ body.tema-escuro .base-card .btn-open:hover {
         
         <div id="menu-abas" style="margin-bottom: 30px; border-bottom: 1px dotted var(--card-border); padding-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
             <button id="btn-jog" class="tab-btn active" onclick="mudarAbaHub('jogador')">MINHAS PERSONAS</button> 
+            <button id="btn-npcs" class="tab-btn" style="display:none;" onclick="mudarAbaHub('npcs')">REGISTRO DE NPCs</button>
             <button id="btn-ameacas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('ameacas')">REGISTRO DE AMEAÇAS</button>
             <button id="btn-campanhas" class="tab-btn" style="display:none;" onclick="mudarAbaHub('campanhas')">CAMPANHAS</button>
             <button id="btn-mestre" class="tab-btn" style="display:none;" onclick="mudarAbaHub('mestre')">ARQUIVOS CONFIDENCIAIS</button>
@@ -549,6 +550,14 @@ body.tema-escuro .base-card .btn-open:hover {
 
             <div class="grid" id="lista-fichas"></div>
             <button class="btn-google" onclick="criarNovaFicha()" style="margin-top: 30px;">[+] ANEXAR NOVA PERSONA</button>
+        </div>
+
+        <div id="hub-npcs" class="conteudo-hub" style="display: none;">
+            <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
+                <button class="btn-google" style="border-color:var(--op-red);color:var(--op-red);margin-top:0;" onclick="toggleModal('modal-tipo-ameaca')">[+] REGISTRAR NPC</button>
+                <button class="btn-google" style="border-color:var(--san-purple);color:var(--san-purple);margin-top:0;" onclick="toggleModal('modal-clonar-ameaca')">[📥] CLONAR VIA LINK</button>
+            </div>
+            <div id="lista-npcs" class="grid" style="max-width:900px;margin:0 auto;"></div>
         </div>
 
         <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
@@ -687,6 +696,7 @@ body.tema-escuro .base-card .btn-open:hover {
             document.getElementById('hub-' + aba).style.display = 'block';
             if (aba === 'jogador') document.getElementById('btn-jog').classList.add('active');
             if (aba === 'ameacas') document.getElementById('btn-ameacas').classList.add('active');
+            if (aba === 'npcs') document.getElementById('btn-npcs').classList.add('active');
             if (aba === 'campanhas') document.getElementById('btn-campanhas').classList.add('active');
             if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
         }
@@ -794,6 +804,7 @@ body.tema-escuro .base-card .btn-open:hover {
                     document.getElementById('btn-manutencao').style.display = 'inline-block';
                     isMestre = true;
                     document.getElementById('btn-ameacas').style.display = 'inline-block';
+                    document.getElementById('btn-npcs').style.display = 'inline-block';
                     document.getElementById('btn-campanhas').style.display = 'inline-block';
                     document.getElementById('btn-mestre').style.display = 'inline-block';
                     listarAmeacas(user.uid); 
@@ -807,6 +818,7 @@ body.tema-escuro .base-card .btn-open:hover {
                         isMestre = docExisteEAtivo;
                         if (isMestre) {
                             document.getElementById('btn-ameacas').style.display = 'inline-block';
+                    document.getElementById('btn-npcs').style.display = 'inline-block';
                             document.getElementById('btn-campanhas').style.display = 'inline-block';
                             document.getElementById('btn-mestre').style.display = 'inline-block';
                             listarAmeacas(user.uid); 
@@ -814,6 +826,7 @@ body.tema-escuro .base-card .btn-open:hover {
                             if (typeof carregarMonitorMestre === 'function') carregarMonitorMestre();
                         } else {
                             document.getElementById('btn-ameacas').style.display = 'none';
+                            document.getElementById('btn-npcs').style.display = 'none';
                             document.getElementById('btn-campanhas').style.display = 'none';
                             document.getElementById('btn-mestre').style.display = 'none';
                         }
@@ -1237,17 +1250,22 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
         function listarAmeacas(uid) {
         db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
             const divAmeacas = document.getElementById("lista-ameacas");
-            if (divAmeacas && !document.getElementById('wrapper-ameacas-puras')) {
+            const divNpcs = document.getElementById("lista-npcs");
+            if (divAmeacas && !document.getElementById('wrapper-ameacas-personas')) {
                 divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
             }
             const wrapPuras = document.getElementById('wrapper-ameacas-puras');
             if(wrapPuras) wrapPuras.innerHTML = "";
-            
+            if(divNpcs) divNpcs.innerHTML = "";
             minhasAmeacasGlobais = [];
             snap.forEach(doc => {
-                const d = doc.data(); 
+                const d = doc.data();
                 minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
-                if(wrapPuras) wrapPuras.innerHTML += renderAmeacaCard(doc, 'hub');
+                if (d.tipoAmeaca === 'mundana') {
+                    if(divNpcs) divNpcs.innerHTML += renderAmeacaCard(doc, 'hub');
+                } else if(wrapPuras) {
+                    wrapPuras.innerHTML += renderAmeacaCard(doc, 'hub');
+                }
             });
         });
     }
