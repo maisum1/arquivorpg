@@ -498,13 +498,10 @@ body.tema-escuro .base-card .btn-open:hover {
     </div>
 
 <div id="modal-tipo-ameaca" class="modal-padrao" style="z-index: 10000000;">
-        <h3 style="border-color: var(--op-red); background: var(--op-red) !important; color: #fff !important;">TIPO DE ARQUIVO</h3>
-        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Selecione a classificação da ameaça a ser documentada.</p>
-
-        <button class="cris-btn-modal" onclick="criarNovaAmeaca('mundana')" style="border-color: var(--op-ink); color: var(--op-ink); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 👤 ] HUMANO COMUM (NPC)</button>
-        <button class="cris-btn-modal" onclick="criarNovaAmeaca('ocultista')" style="border-color: var(--san-purple); color: var(--san-purple); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 🕯️ ] HUMANO PARANORMAL (usa rituais/poderes)</button>
-        <button class="cris-btn-modal" onclick="criarNovaAmeaca('criatura')" style="border-color: var(--op-red); color: var(--op-red); font-size: 12px; margin-bottom: 15px; width: 100%;">[ 🩸 ] ANOMALIA (maldição / entidade paranormal)</button>
-
+        <h3 style="border-color: var(--op-red); background: var(--op-red) !important; color: #fff !important;">REGISTRAR AMEAÇA</h3>
+        <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Escolha o tipo de ameaça paranormal. NPCs humanos são registrados na aba própria.</p>
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('ocultista')" style="border-color: var(--san-purple); color: var(--san-purple); margin-bottom: 10px; font-size: 12px; width: 100%;">[ 🕯️ ] HUMANO PARANORMAL</button>
+        <button class="cris-btn-modal" onclick="criarNovaAmeaca('criatura')" style="border-color: var(--op-red); color: var(--op-red); font-size: 12px; margin-bottom: 15px; width: 100%;">[ 🩸 ] CRIATURA / ANOMALIA</button>
         <button onclick="toggleModal('modal-tipo-ameaca')" style="width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
     </div>
     
@@ -554,15 +551,15 @@ body.tema-escuro .base-card .btn-open:hover {
 
         <div id="hub-npcs" class="conteudo-hub" style="display: none;">
             <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
-                <button class="btn-google" style="border-color:var(--op-red);color:var(--op-red);margin-top:0;" onclick="toggleModal('modal-tipo-ameaca')">[+] REGISTRAR NPC</button>
+                <button class="btn-google" style="border-color:var(--op-red);color:var(--op-red);margin-top:0;" onclick="criarNovaAmeaca('mundana')">[+] REGISTRAR NPC</button>
                 <button class="btn-google" style="border-color:var(--san-purple);color:var(--san-purple);margin-top:0;" onclick="toggleModal('modal-clonar-ameaca')">[📥] CLONAR VIA LINK</button>
             </div>
             <div id="lista-npcs" class="grid" style="max-width:900px;margin:0 auto;"></div>
         </div>
-
+        
         <div id="hub-ameacas" class="conteudo-hub" style="display: none;">
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
-                <button class="btn-google" style="border-color: var(--op-red); color: var(--op-red); margin-top: 0;" onclick="toggleModal('modal-tipo-ameaca')">[+] REGISTRAR AMEAÇA / NPC</button>
+                <button class="btn-google" style="border-color: var(--op-red); color: var(--op-red); margin-top: 0;" onclick="toggleModal('modal-tipo-ameaca')">[+] REGISTRAR AMEAÇA</button>
                 <button class="btn-google" style="border-color: var(--san-purple); color: var(--san-purple); margin-top: 0;" onclick="toggleModal('modal-clonar-ameaca')">[📥] CLONAR VIA LINK</button>
             </div>
             <div id="lista-ameacas" class="grid" style="max-width: 900px; margin: 0 auto;"></div>
@@ -818,7 +815,7 @@ body.tema-escuro .base-card .btn-open:hover {
                         isMestre = docExisteEAtivo;
                         if (isMestre) {
                             document.getElementById('btn-ameacas').style.display = 'inline-block';
-                    document.getElementById('btn-npcs').style.display = 'inline-block';
+                            document.getElementById('btn-npcs').style.display = 'inline-block';
                             document.getElementById('btn-campanhas').style.display = 'inline-block';
                             document.getElementById('btn-mestre').style.display = 'inline-block';
                             listarAmeacas(user.uid); 
@@ -1192,7 +1189,7 @@ body.tema-escuro .base-card .btn-open:hover {
             const user = auth.currentUser;
             const mNome = window.nomeJogadorGlobal || (user.displayName ? user.displayName : user.email);
 
-            let nomePadrao = tipo === 'mundana' ? "NOVO NPC" : (tipo === 'ocultista' ? "NOVO OCULTISTA" : "ENTIDADE DESCONHECIDA");
+            let nomePadrao = tipo === 'mundana' ? "NOVO NPC" : (tipo === 'ocultista' ? "NOVO HUMANO PARANORMAL" : "NOVA CRIATURA");
             let elementoPadrao = tipo === 'mundana' ? "Mundano" : "Sangue";
 
             try {
@@ -1251,15 +1248,15 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
         db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
             const divAmeacas = document.getElementById("lista-ameacas");
             const divNpcs = document.getElementById("lista-npcs");
-            if (divAmeacas && !document.getElementById('wrapper-ameacas-personas')) {
+            if (divAmeacas && !document.getElementById('wrapper-ameacas-puras')) {
                 divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
             }
             const wrapPuras = document.getElementById('wrapper-ameacas-puras');
             if(wrapPuras) wrapPuras.innerHTML = "";
-            if(divNpcs) divNpcs.innerHTML = "";
+            
             minhasAmeacasGlobais = [];
             snap.forEach(doc => {
-                const d = doc.data();
+                const d = doc.data(); 
                 minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
                 if (d.tipoAmeaca === 'mundana') {
                     if(divNpcs) divNpcs.innerHTML += renderAmeacaCard(doc, 'hub');
