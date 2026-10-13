@@ -69,7 +69,6 @@
         body.tema-escuro .btn-add:hover { background: rgba(255,255,255,0.05); }
         
         body.tema-escuro .portrait-container::before { background: rgba(50,50,50,0.9); box-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        body.tema-escuro .portrait { background: #050505 !important; border-color: #1a1a1a !important; }
         
         body.tema-escuro .thin-bar-bg { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
         body.tema-escuro .book-input { color: var(--op-ink); border-bottom-color: rgba(255,255,255,0.2); }
@@ -118,7 +117,7 @@
         body.tema-hexatombe .dynamic-item-highlight { background: rgba(50,0,0,0.4) !important; border-color: #500 !important; border-left-color: #f00 !important; }
         body.tema-hexatombe .section-header { background: #ff0000 !important; color: #000 !important; text-shadow: none !important; border: none !important;}
         body.tema-hexatombe .watermark-confidential { color: rgba(255,0,0,0.08) !important; text-shadow: 0 0 10px rgba(255,0,0,0.5); border-color: rgba(255,0,0,0.08) !important;}
-        body.tema-hexatombe .portrait { filter: contrast(120%) sepia(30%) grayscale(50%); background: #111; border-color: #222; }
+        body.tema-hexatombe .portrait { filter: contrast(120%) sepia(30%) grayscale(50%); }
         body.tema-hexatombe .defesa-badge { border-color: #ff3333 !important; }
         body.tema-hexatombe .defesa-badge input { color: #fff !important; }
         body.tema-hexatombe .btn-add { border-color: #ff3333 !important; color: #ff3333 !important; text-shadow: 0 0 5px rgba(255,0,0,0.5); }
@@ -254,17 +253,18 @@
 
         .portrait-container { width: 100%; position: relative; margin-bottom: 30px;}
         .portrait-container::before {
-            content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg);
-            width: 120px; height: 35px; background: rgba(230,225,210,0.7);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 0 10px rgba(0,0,0,0.05); z-index: 10;
-            transition: background-color 0.15s ease, box-shadow 0.15s ease;
+            content: ""; position: absolute; top: -11px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+            width: 46%; max-width: 112px; min-width: 40px; height: 22px;
+            background: linear-gradient(180deg, rgba(238,230,203,.82), rgba(222,212,178,.7));
+            box-shadow: 0 1px 2px rgba(0,0,0,0.28); z-index: 10; pointer-events: none;
         }
-        .portrait { 
-            width: 100%; height: 380px; background: #e0e0e0; border: 5px solid #fff; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; 
-            overflow: hidden; position: relative; box-shadow: 3px 5px 15px rgba(0,0,0,0.4); 
-            transform: rotate(1.5deg); 
-            transition: background-color 0.15s ease, border-color 0.15s ease;
+        .portrait {
+            width: 100%; aspect-ratio: 4 / 5; background: #cfcabb; border: 8px solid var(--photo-frame, #f4f1e8);
+            border-radius: 0; box-sizing: border-box;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            overflow: hidden; position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,.35), 2px 5px 12px rgba(0,0,0,.38);
+            transform: rotate(-1.2deg);
         }
         .portrait img { width: 100%; height: 100%; object-fit: cover; }
         .upload-hint { position: absolute; color: #333; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; pointer-events: none; opacity: 0.8;}
@@ -301,7 +301,7 @@
         .modal-padrao h3 {
             background: var(--op-ink) !important;
             color: var(--bg-paper) !important; /* Texto cor de fundo no modo claro */
-            padding: 10px;f
+            padding: 10px;
             margin: -25px -25px 20px -25px;
             font-family: 'Crimson Text', serif;
             font-size: 20px;
@@ -349,7 +349,7 @@
 .pk-item small{opacity:.65;text-align:right}.pk-item.on{background:var(--op-ink);color:var(--bg-paper)}
 #pk-busca{width:100%;box-sizing:border-box;margin-bottom:10px;font-size:16px}
 #pk-lista{max-height:50vh;overflow-y:auto;margin-bottom:12px}
-@media (max-width:900px){body{padding:0!important}.book-container{padding:20px 14px!important;border:none!important;border-radius:0!important}.book-grid{grid-template-columns:1fr;gap:10px}.col-art{order:-1}.portrait-container{width:170px;margin:0 auto 20px}.portrait{height:190px}.book-title{font-size:2rem;width:100%}.book-header{flex-wrap:wrap;gap:10px}.attributes-bar{flex-wrap:wrap;gap:24px 12px}.watermark-confidential{font-size:3rem}.book-input{font-size:16px}.voltar-btn{padding:8px 12px}}
+@media (max-width:900px){body{padding:0!important}.book-container{padding:20px 14px!important;border:none!important;border-radius:0!important}.book-grid{grid-template-columns:1fr;gap:10px}.col-art{order:-1}.book-title{font-size:2rem;width:100%}.book-header{flex-wrap:wrap;gap:10px}.attributes-bar{flex-wrap:wrap;gap:24px 12px}.watermark-confidential{font-size:3rem}.book-input{font-size:16px}.voltar-btn{padding:8px 12px}}
 
 .tipo-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;position:relative;z-index:2}
 .tipo-badge{font:900 12px 'Inter',sans-serif;letter-spacing:1px;border:2px solid var(--op-ink);padding:8px 12px}
@@ -360,7 +360,8 @@
 .mini b{font:bold 18px 'Special Elite',monospace;padding:3px 0}
 .cons-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.cons-row input[type=range]{flex:1;min-width:140px}
 body.civil .bloco-stats{display:none}
-.pvctl{display:flex;gap:6px;align-items:center;justify-content:center;margin:4px 0 7px;position:relative;z-index:3}.pvctl input{width:48px;min-width:0;box-sizing:border-box;text-align:center;font:700 14px 'Courier Prime',monospace;padding:4px 2px;border:1px solid var(--card-border);background:transparent;color:var(--op-ink)}.pvctl button{cursor:pointer}
+
+
 .mesa{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;border:2px solid var(--op-ink);padding:8px 10px;margin-bottom:16px;position:relative;z-index:2;font:700 12px 'Inter',sans-serif}
 .mesa input{width:60px}.mesa button{background:transparent;border:1px solid var(--op-ink);color:var(--op-ink);font:700 11px 'Inter',sans-serif;padding:6px 10px;cursor:pointer}
 .mesa span.pv{display:flex;gap:6px;align-items:center}
@@ -370,24 +371,21 @@ body.civil .bloco-stats{display:none}
 .watermark-confidential,.doc-meta{display:none!important}
 .f2{position:relative;z-index:2}
 .f2 .topo{display:flex;gap:14px;align-items:center;margin-bottom:12px}
-.f2 .foto{flex:none;width:88px}
-.f2 .portrait-container{width:88px!important;margin:0!important}.f2 .portrait-container::before{display:none!important}
-.f2 .portrait{width:88px!important;height:88px!important;border-radius:12px!important;overflow:hidden;position:relative;cursor:pointer;border:2px solid var(--op-ink)!important}
-.f2 .portrait img{width:100%!important;height:100%!important;object-fit:cover}
-.f2 .upload-hint{font:700 9px 'Inter',sans-serif;text-align:center;opacity:.6;padding-top:34px;letter-spacing:1px}
+.f2 .foto{flex:none}
+.f2 .topo .portrait-container{margin:0}
 .f2 .nome-box{flex:1;min-width:0}
 .f2 .book-title{font-size:2.1rem!important;width:100%!important;letter-spacing:1px!important;line-height:1!important}
 .f2 .tipo-criatura{font-size:12px!important;margin-top:6px}
 .f2 .na-badge{transform:none!important;padding:2px 12px!important;border-width:3px!important;flex:none}
 .f2 .na-input{font-size:2rem!important;width:44px!important}
 .f2 .strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
-.f2 .tipo-badge{font:900 11px 'Inter',sans-serif;letter-spacing:1px;background:var(--op-ink);color:var(--bg-paper);padding:6px 10px;border-radius:20px}
-.f2 .pill{background:transparent;border:1px solid var(--card-border);color:var(--op-ink);font:700 11px 'Inter',sans-serif;padding:6px 12px;border-radius:20px;cursor:pointer}
+.f2 .tipo-badge{font:900 11px 'Inter',sans-serif;letter-spacing:1px;background:var(--op-ink);color:var(--bg-paper);padding:6px 10px;border-radius:2px}
+.f2 .pill{background:transparent;border:1px solid var(--card-border);color:var(--op-ink);font:700 11px 'Inter',sans-serif;padding:6px 12px;border-radius:2px;cursor:pointer}
 .f2 .seg{display:flex;gap:6px;flex-wrap:wrap;position:relative;z-index:2}
-.f2 .seg button{flex:1 1 auto;min-width:58px;padding:9px 10px;border:1px solid var(--card-border);background:transparent;color:var(--op-ink);border-radius:8px;font:700 12px 'Inter',sans-serif;cursor:pointer}
+.f2 .seg button{flex:1 1 auto;min-width:58px;padding:9px 10px;border:1px solid var(--card-border);background:transparent;color:var(--op-ink);border-radius:2px;font:700 12px 'Inter',sans-serif;cursor:pointer}
 .f2 .seg button.on{background:var(--op-ink);color:var(--bg-paper);border-color:var(--op-ink)}
 .f2 .seg.sm button{padding:5px 8px;font-size:11px;flex:0 0 auto}
-.f2 .card,.f2 details.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px;margin-bottom:14px;position:relative;z-index:2}
+.f2 .card,.f2 details.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:2px;padding:14px;margin-bottom:14px;position:relative;z-index:2}
 .f2 .card>h4,.f2 summary{margin:0 0 12px;font:900 11px 'Inter',sans-serif;letter-spacing:2px;color:var(--op-red);text-transform:uppercase;cursor:default}
 .f2 details>summary{cursor:pointer;margin:0;list-style:none}.f2 details[open]>summary{margin-bottom:12px}
 .f2 summary::-webkit-details-marker{display:none}.f2 summary::after{content:'▾';float:right;opacity:.6}
@@ -396,28 +394,27 @@ body.civil .bloco-stats{display:none}
 .f2 .passo small{font-weight:400;opacity:.65}
 .f2 .evo{font-size:12px;opacity:.75;margin-top:10px;border:none;padding:0}
 .f2 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:6px}
-.f2 .tile{border:1px solid var(--card-border);border-radius:8px;padding:10px;text-align:center}
+.f2 .tile{border:1px solid var(--card-border);border-radius:2px;padding:10px;text-align:center}
 .f2 .tile.wide{grid-column:1/-1}
 .f2 .tile>small{display:block;font:900 10px 'Inter',sans-serif;letter-spacing:1.5px;opacity:.7;margin-bottom:2px}
 .f2 .tile input{text-align:center;font:bold 24px 'Special Elite',monospace;width:100%;box-sizing:border-box;border-bottom:none}
 .f2 .tile .duo{display:flex;align-items:center;justify-content:center;gap:4px}.f2 .tile .duo input{width:78px}.f2 .tile .duo span{opacity:.5;font-size:20px}
 .f2 .tile .duo input:last-child{opacity:.6}
-.f2 .thin-bar-bg{height:8px;border-radius:4px;margin:6px 0 4px}.f2 .thin-bar-fill{border-radius:4px}
-.f2 .pvctl{justify-content:center;margin:6px 0 0}
+.f2 .thin-bar-bg{height:8px;border-radius:2px;margin:6px 0 4px}.f2 .thin-bar-fill{border-radius:2px}
 .f2 .attributes-bar{padding:24px 0 6px!important;margin:6px 0 0!important}
 .f2 .attr-box{width:56px!important;height:56px!important}.f2 .attr-box input{font-size:22px!important}.f2 .attr-label{background:transparent!important;top:-20px!important}
 .f2 #saldo{text-align:center;margin:10px 0 0;font-weight:400;opacity:.8}
 .f2 .derivados{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:12px;font:700 11px 'Inter',sans-serif;opacity:.8}.f2 .derivados b{font-size:14px;margin-left:3px}
 .f2 #ess{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px;margin:0 0 12px}
-.f2 #ess .mini{border:1px solid var(--card-border);border-radius:8px;padding:8px;text-align:center}
+.f2 #ess .mini{border:1px solid var(--card-border);border-radius:2px;padding:8px;text-align:center}
 .f2 #ess .mini span{font-size:9px}.f2 #ess .bn{justify-content:center}
 .f2 .sub{font:700 11px 'Inter',sans-serif;opacity:.7;margin:0 0 6px;display:block;letter-spacing:1px}
 .f2 .campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
-.f2 .dynamic-item-highlight{border-radius:8px!important;border-left-width:4px!important;padding:12px!important;margin-bottom:10px}
+.f2 .dynamic-item-highlight{border-radius:2px!important;border-left-width:4px!important;padding:12px!important;margin-bottom:10px}
 .f2 .btn-add{width:100%;margin-top:6px}
-.f2 textarea.cris-textarea{border:1px solid var(--card-border);border-radius:8px;padding:10px;background:transparent}
+.f2 textarea.cris-textarea{border:1px solid var(--card-border);border-radius:2px;padding:10px;background:transparent}
 .f2 .foto-aj summary{font:700 10px 'Inter',sans-serif;color:var(--cor-geral);letter-spacing:1px;cursor:pointer;margin:0;text-align:right;opacity:.6}
-@media (max-width:560px){.f2 .book-title{font-size:1.6rem!important}.f2 .foto,.f2 .portrait-container,.f2 .portrait{width:68px!important}.f2 .portrait{height:68px!important}.book-container{padding:16px 12px!important}}
+@media (max-width:560px){.f2 .book-title{font-size:1.6rem!important}.book-container{padding:16px 12px!important}}
 
 /* ajustes v2.1 */
 .f2 .tiles{display:flex!important;flex-wrap:wrap;gap:10px}
@@ -433,9 +430,9 @@ body.civil .bloco-stats{display:none}
 
 
 /* ===== A.R.Q.U.I.V.O. — ficha de entidade simplificada ===== */
-:root { --ui-radius:9px; --ui-space:14px; }
+:root { --ui-radius:2px; --ui-space:14px; }
 body { padding:24px 12px !important; }
-.book-container { max-width:960px !important; padding:30px clamp(16px,3vw,34px) !important; border-radius:8px !important; box-shadow:0 12px 35px rgba(0,0,0,.22) !important; }
+.book-container { max-width:960px !important; padding:30px clamp(16px,3vw,34px) !important; border-radius:2px !important; box-shadow:0 1px 0 rgba(255,255,255,.28) inset,0 2px 5px rgba(0,0,0,.4),0 18px 42px rgba(0,0,0,.45) !important; }
 .book-container:before,.book-container:after { pointer-events:none; }
 .watermark-confidential { font-size:clamp(3rem,8vw,7rem) !important; opacity:.55; }
 .f2 { position:relative; z-index:2; }
@@ -443,12 +440,10 @@ body { padding:24px 12px !important; }
 .f2 .nome-box { min-width:0; }
 .f2 .book-title { font-size:clamp(1.7rem,4vw,2.6rem) !important; letter-spacing:.02em !important; line-height:1.05 !important; }
 .f2 .tipo-criatura { font-size:12px !important; }
-.f2 .portrait-container,.f2 .portrait { border-radius:7px !important; }
-.f2 .portrait { box-shadow:0 5px 16px rgba(0,0,0,.12) !important; }
 .f2 .strip { display:flex; flex-wrap:wrap; gap:7px !important; align-items:center; margin:12px 0 16px !important; }
-.f2 .pill,.f2 .seg button,.f2 .btn-add,.f2 .pvctl button { border-radius:6px !important; }
+.f2 .pill,.f2 .seg button,.f2 .btn-add { border-radius:2px !important; }
 .f2 .card { margin:12px 0 !important; padding:15px !important; border:1px solid var(--card-border) !important; border-radius:var(--ui-radius) !important; background:var(--card-bg) !important; box-shadow:none !important; }
-.f2 .card h4 { margin:0 0 12px !important; padding-bottom:7px !important; border-bottom:1px solid var(--card-border) !important; font-size:12px !important; letter-spacing:.07em !important; }
+.f2 .card h4 { margin:-15px -15px 12px !important; padding:6px 12px !important; background:var(--op-ink) !important; color:var(--bg-paper) !important; font-size:12px !important; letter-spacing:.1em !important; }
 .f2 .card summary { cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:800; letter-spacing:.04em; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px; }
 .f2 .card summary::-webkit-details-marker { display:none; }
 .f2 .card summary:after { content:'+'; font-size:17px; color:var(--op-red); }
@@ -457,7 +452,7 @@ body { padding:24px 12px !important; }
 .f2 .setup-details[open] summary { margin-bottom:15px; }
 .f2 .setup-details summary small { color:var(--cor-geral); font-weight:400; letter-spacing:0; margin-left:auto; }
 .f2 .tiles { gap:10px !important; }
-.f2 .tile { border-radius:7px !important; padding:10px !important; min-width:0 !important; }
+.f2 .tile { border-radius:2px !important; padding:10px !important; min-width:0 !important; }
 .f2 .tile small,.f2 .sub { letter-spacing:.04em !important; line-height:1.5 !important; }
 .f2 .attributes-bar { gap:10px !important; justify-content:space-between !important; margin:14px 0 !important; }
 .f2 .attr-box { width:52px !important; height:52px !important; flex:0 1 52px !important; border-width:1px !important; box-shadow:none !important; }
@@ -468,15 +463,14 @@ body { padding:24px 12px !important; }
 .f2 .book-input { border-radius:2px; }
 .f2 .cris-textarea { min-height:65px !important; line-height:1.5 !important; }
 .f2 .btn-add { padding:8px 10px !important; font-size:10px !important; }
-.f2 .dynamic-item-highlight,.f2 .acao-item,.f2 .habilidade-item { border-radius:7px !important; box-shadow:none !important; }
+.f2 .dynamic-item-highlight,.f2 .acao-item,.f2 .habilidade-item { border-radius:2px !important; box-shadow:none !important; }
 .f2 #lista-acoes,.f2 #lista-habilidades { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:10px; }
 .f2 .foto-aj { font-size:11px; color:var(--cor-geral); }
 .f2 .foto-aj summary { cursor:pointer; }
 .f2 .na-badge { flex-shrink:0; }
 @media (min-width:901px) {
  .f2 .topo { display:grid !important; grid-template-columns:120px minmax(0,1fr) auto !important; }
- .f2 .foto,.f2 .portrait-container { width:120px !important; }
- .f2 .portrait { width:120px !important; height:135px !important; }
+ .f2 .topo .foto { width:120px; }
  .f2 .bloco-stats.combat-card .tiles { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); }
  .f2 .bloco-stats.combat-card .tile.wide { grid-column:span 2; }
 }
@@ -484,8 +478,7 @@ body { padding:24px 12px !important; }
  body { padding:8px 0 0 !important; }
  .book-container { margin-top:48px !important; padding:17px 13px !important; border-radius:0 !important; }
  .f2 .topo { display:grid !important; grid-template-columns:76px minmax(0,1fr) auto !important; gap:11px !important; }
- .f2 .foto,.f2 .portrait-container { width:76px !important; margin:0 !important; }
- .f2 .portrait { width:76px !important; height:88px !important; }
+ .f2 .topo .foto { width:76px; }
  .f2 .na-badge { transform:scale(.88); transform-origin:right center; }
  .f2 .attributes-bar { display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important; gap:6px !important; }
  .f2 .attr-box { width:auto !important; height:auto !important; min-width:0 !important; aspect-ratio:1; }
@@ -499,8 +492,7 @@ body { padding:24px 12px !important; }
 @media (max-width:420px) {
  .book-container { padding:14px 10px !important; }
  .f2 .topo { grid-template-columns:62px minmax(0,1fr) auto !important; gap:8px !important; }
- .f2 .foto,.f2 .portrait-container,.f2 .portrait { width:62px !important; }
- .f2 .portrait { height:72px !important; }
+ .f2 .topo .foto { width:62px; }
  .f2 .book-title { font-size:1.45rem !important; }
  .f2 .na-badge { transform:scale(.75); }
  .f2 .card { padding:10px !important; margin:9px 0 !important; }
@@ -509,11 +501,106 @@ body { padding:24px 12px !important; }
  .f2 #lista-acoes,.f2 #lista-habilidades { grid-template-columns:1fr; }
 }
 
+
+/* ===== A.R.Q.U.I.V.O. — arquivo físico, vitalidade e dossiê ===== */
+:root{--photo-frame:#f4f1e8}
+body.tema-escuro{--photo-frame:#cfcabb}
+body.tema-hexatombe{--photo-frame:#bfb3a6}
+.book-container::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 10% 6%,rgba(140,100,40,.12),transparent 42%),radial-gradient(ellipse at 92% 96%,rgba(110,80,30,.14),transparent 46%),repeating-linear-gradient(0deg,rgba(0,0,0,.012) 0 1px,transparent 1px 3px)}
+body.tema-escuro .book-container::before,body.tema-hexatombe .book-container::before{display:none}
+body.tema-escuro .na-badge,body.tema-hexatombe .na-badge{mix-blend-mode:normal}
+body.carregando .book-container{visibility:hidden}
+body.modo-criacao #dossie{display:none}
+body:not(.modo-criacao) .f2{display:none}
+.modo-barra{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--card-border);font:900 11px 'Inter',sans-serif;letter-spacing:.12em}
+
+/* controles de vitalidade: ‹ [quantidade] › */
+.tile.vit{padding:8px 10px!important;text-align:left}
+.vit-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.vit-top small{margin:0!important}
+.vit .duo{display:flex;align-items:center;gap:3px}
+.vit .duo input{width:50px!important;font:bold 17px 'Special Elite',monospace!important;text-align:center;padding:0!important}
+.vit-bar{position:relative;height:28px;margin-top:5px;border:1px solid var(--card-border);background:var(--card-bg);overflow:hidden}
+.vit-bar .thin-bar-fill{opacity:.45;border-radius:0}
+.pvctl{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:4px;height:100%}
+.pvctl .bar-btn{display:flex;align-items:center;justify-content:center;height:100%;padding:0 16px;font:400 24px/1 'Inter',sans-serif;opacity:.7;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;color:var(--op-ink)}
+.pvctl .bar-btn:active{opacity:1;transform:scale(1.12)}
+.pvctl .bar-btn:focus-visible{outline:2px solid var(--op-red);outline-offset:-2px}
+@media (hover:hover){.pvctl .bar-btn:hover{opacity:1;background:rgba(0,0,0,.12)}body.tema-escuro .pvctl .bar-btn:hover{background:rgba(255,255,255,.12)}}
+.pvctl input#mesa-n{width:48px!important;height:20px;box-sizing:border-box;margin:0;padding:0!important;text-align:center;font:bold 15px 'Special Elite',monospace!important;background:rgba(255,255,255,.4)!important;border:1px solid rgba(0,0,0,.35)!important;border-radius:0}
+body.tema-escuro .pvctl input#mesa-n{background:rgba(0,0,0,.35)!important;border-color:rgba(255,255,255,.3)!important;color:var(--op-ink)!important}
+.vit .duo input{color:var(--op-ink)}
+.vit-sug{margin-top:5px}
+.vit-sug .pill{padding:3px 8px!important;font-size:10px!important}
+#recursos{margin-bottom:8px}
+
+/* ===== dossiê (ficha concluída) ===== */
+.dossie{position:relative;z-index:2;font-family:'Courier Prime',monospace;color:var(--op-ink)}
+.d-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:0 34px;align-items:start}
+.d-esq,.d-dir{min-width:0}
+.d-head{display:flex;align-items:stretch;background:var(--op-ink);color:var(--bg-paper);box-shadow:3px 3px 0 rgba(0,0,0,.25);margin-bottom:8px}
+.d-head-main{flex:1;min-width:0;padding:9px 14px}
+.d-nome{display:block;font:900 1.7rem/1.05 'Crimson Text',serif;letter-spacing:.05em;text-transform:uppercase;overflow-wrap:anywhere}
+.d-sub{display:block;margin-top:4px;font:700 10px 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.d-sub:empty{display:none}
+.d-head .na-badge{transform:none;border:0;border-left:1px solid rgba(128,128,128,.5);background:transparent;mix-blend-mode:normal;opacity:1;color:var(--bg-paper);padding:4px 14px;flex-direction:row;gap:6px}
+.d-head .na-label{margin:0;font:900 12px 'Inter',sans-serif;letter-spacing:.1em}
+body .d-head .na-input{width:44px;color:var(--bg-paper);font:900 2.1rem 'Crimson Text',serif}
+body .d-head .na-input::placeholder{color:var(--bg-paper)!important}
+.d-tags{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin:0 0 12px;font:700 11px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.d-tag-hl{background:var(--op-red);color:#fff;padding:2px 7px}
+.d-sec{margin:0 0 12px}
+.d-bar{display:inline-block;margin:0 0 6px;padding:5px 26px 5px 12px;background:var(--op-ink);color:var(--bg-paper);font:900 13px/1 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;clip-path:polygon(0 0,100% 0,calc(100% - 9px) 100%,0 100%)}
+.d-sec>.d-bar{display:block;padding-right:12px}
+.d-ats{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;padding:2px 2px 0}
+.d-at{display:inline-flex;align-items:center;gap:6px}
+.d-at b{font:900 13px 'Inter',sans-serif;letter-spacing:.04em}
+.d-at i{font-style:normal;width:28px;height:28px;border-radius:50%;background:var(--op-ink);color:var(--bg-paper);display:flex;align-items:center;justify-content:center;font:900 16px 'Special Elite',monospace;box-shadow:0 0 0 2px var(--bg-paper),0 0 0 3px var(--op-ink)}
+.d-rec .tiles{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.d-rec .tile{flex:1 1 calc(50% - 8px);min-width:0;box-sizing:border-box;border:1px solid var(--card-border);padding:6px 8px;text-align:center}
+.d-rec .tile.wide{flex-basis:100%}
+.d-rec .tile>small,.d-rec .vit-top small{display:block;font:900 10px 'Inter',sans-serif;letter-spacing:.14em;opacity:.8}
+.d-rec .tile input{width:46px;text-align:center;font:bold 16px 'Special Elite',monospace;border-bottom:none}
+.d-rec .tile .duo{display:flex;align-items:center;justify-content:center;gap:3px}
+.d-rec .thin-bar-bg{height:6px;margin:4px 0 0}
+.d-rec .vit-sug{display:none}
+.d-kv{display:flex;gap:8px;margin:2px 0;font-size:13px;line-height:1.5}
+.d-kv b{flex:none;font:800 11px/1.7 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.d-def{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:start}
+.d-defl{display:flex;align-items:center;gap:8px}
+.d-big{font:900 20px 'Special Elite',monospace}
+.d-list{min-width:0}
+.d-list div{display:flex;justify-content:space-between;gap:10px;font:13px/1.55 'Special Elite',monospace}
+.d-list b{font:800 11px/1.8 'Inter',sans-serif;letter-spacing:.05em}
+.d-linha{display:flex;align-items:center;gap:10px;font:14px 'Special Elite',monospace}
+.d-chips{font:13px/1.7 'Special Elite',monospace}
+.d-acao{display:grid;grid-template-columns:58px minmax(0,1fr);gap:4px 10px;margin:0 0 9px;padding-top:6px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.45}
+.d-tipo{font:italic 13px 'Crimson Text',serif;text-transform:capitalize;opacity:.8}
+.d-nm{font:900 14px 'Inter',sans-serif;letter-spacing:.03em;text-transform:uppercase}
+.d-acao p,.d-hab p{margin:3px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.d-hab{margin:0 0 10px;font-size:13px;line-height:1.5}
+.d-foto .foto{width:100%}
+.d-foto .portrait-container{max-width:300px;margin:12px auto 22px}
+.d-notas{font:400 15px/1.6 'Crimson Text',serif;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 14px}
+.d-segredo{border:1px dashed var(--op-ink);padding:9px 12px;margin-top:6px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.d-segredo b{display:block;margin-bottom:3px;font:900 10px 'Inter',sans-serif;letter-spacing:.14em}
+body.tema-escuro .d-head,body.tema-escuro .d-bar{background:#222;color:var(--accent-gold)}
+body.tema-escuro .d-head .na-badge,body.tema-escuro .d-head .na-input{color:var(--accent-gold)}
+body.tema-escuro .d-head .na-input::placeholder{color:var(--accent-gold)!important}
+body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
+@media (max-width:700px){
+ .d-grid{grid-template-columns:1fr}
+ .d-esq,.d-dir{display:contents}
+ #d-head{order:1}#d-tags{order:2}.d-foto{order:3}#d-corpo-a{order:4}#slot-rec{order:5}#d-corpo-b{order:6}#d-texto{order:7}
+ .d-foto .portrait-container{width:190px;margin:8px auto 20px}
+ .d-nome{font-size:1.45rem}
+}
 </style>
 </head>
-<body>
+<body class="carregando">
 
 <input type="file" id="fileUploader" accept="image/*" style="display:none" onchange="processarArquivo(this)">
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
 
 <button class="btn-theme" onclick="alternarTema()" title="Alternar Modo Escuro/Claro">🌗</button>
 <button class="btn-config" onclick="toggleElem('modal-config')" title="Configurações">⚙️</button>
@@ -522,6 +609,8 @@ body { padding:24px 12px !important; }
             <h3>CONFIGURAÇÕES</h3>
             <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 20px; font-family: 'Inter', sans-serif;">Configurações exclusivas deste terminal de visualização.</p>
             
+            <button id="btn-modo" onclick="alternarModo()" class="cris-btn-modal" style="border-color: var(--op-red); color: var(--op-red); width: 100%; margin-bottom: 10px; border-width: 2px;">[ ✏️ ] REABRIR MODO DE CRIAÇÃO</button>
+
             <button onclick="const p = document.getElementById('sub-menu-livro'); p.style.display = p.style.display === 'none' ? 'block' : 'none';" class="cris-btn-modal" style="border-color: var(--op-ink); color: var(--op-ink); width: 100%; margin-bottom: 10px; border-width: 2px;">[ 📚 ] CONSULTAR LIVRO DO SISTEMA</button>
             
             <div id="sub-menu-livro" style="display: none; background: var(--card-bg); border: 1px dotted var(--card-border); padding: 10px; margin-bottom: 15px; border-radius: 2px;">
@@ -547,6 +636,7 @@ body { padding:24px 12px !important; }
 <a href="index.html" class="voltar-btn">FECHAR ARQUIVO</a>
 
 <div class="book-container"><div class="f2">
+    <div class="modo-barra"><span>MODO DE CRIAÇÃO</span><button type="button" class="pill" onclick="definirModo(false)">✔ CONCLUIR FICHA</button></div>
 
     <div class="topo">
         <div class="foto">
@@ -561,9 +651,8 @@ body { padding:24px 12px !important; }
             <input id="nome" class="book-input book-title save-auto" placeholder="NOME">
             <input id="tipo-criatura" class="book-input tipo-criatura save-auto">
         </div>
-        <div class="na-badge"><span class="na-label">NA</span><input type="number" id="na" class="na-input save-auto" placeholder="0" min="0" max="5" step="1" inputmode="numeric" aria-label="Nível de ameaça" onchange="setNA(this.value)"></div>
+        <div class="na-badge"><span class="na-label">NA</span><input type="number" id="na" class="na-input save-auto" placeholder="0" min="0" max="5"></div>
     </div>
-    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
     <details class="foto-aj" style="margin:-6px 0 10px"><summary>ajustar foto</summary>
         <div style="display:flex;gap:6px;margin-top:6px">
             <input type="range" id="pZ" min="0.1" max="5" step="0.01" value="1" oninput="ajustarFoto()" onchange="updateField('pZ',this.value)" style="flex:1">
@@ -595,20 +684,27 @@ body { padding:24px 12px !important; }
 
     <div class="card bloco-stats combat-card">
         <h4>Combate</h4>
-        <div class="tiles">
-            <div class="tile wide"><small>VITALIDADE</small>
-                <div class="duo"><input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()"><span>/</span><input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()"></div>
-                <div class="thin-bar-bg"><div id="bar-pv" class="thin-bar-fill"></div></div>
-                <div class="pvctl" aria-label="Ajustar vitalidade"><button type="button" class="pv-arrow pv-dano" onclick="event.stopPropagation(); aplicaPV(-1)" title="Aplicar dano" aria-label="Aplicar dano">←</button><input type="number" id="mesa-n" value="0" placeholder="0" min="0" step="1" inputmode="numeric" aria-label="Quantidade de vitalidade" title="Quantidade a alterar"><button type="button" class="pv-arrow pv-cura" onclick="event.stopPropagation(); aplicaPV(1)" title="Curar" aria-label="Curar">→</button></div>
-                <div data-s="criatura"><button class="pill" style="margin-top:8px" onclick="sugerirPV()">↻ sugerir vitalidade pelo NA</button></div></div>
-            <div class="tile"><small>DEFESA</small><input type="number" id="defesa" class="book-input save-auto"></div>
-            <div class="tile"><small>DESLOCAMENTO</small><input id="deslocamento" class="book-input save-auto" style="font-size:18px"></div>
+        <div id="home-rec"><div class="tiles" id="recursos">
+            <div class="tile wide vit" id="blk-vit">
+                <div class="vit-top"><small>VITALIDADE</small>
+                    <span class="duo"><input type="number" id="pv-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()"><span>/</span><input type="number" id="pv-max" class="book-input save-auto" oninput="atualizarVisualBarra('pv');refresh()"></span></div>
+                <div class="vit-bar"><div id="bar-pv" class="thin-bar-fill"></div>
+                    <div class="pvctl" role="group" aria-label="Ajustar vitalidade">
+                        <span class="bar-btn" role="button" tabindex="0" title="Dano (diminui a vitalidade)" aria-label="Aplicar dano" onclick="aplicaPV(-1,event)">&lsaquo;</span>
+                        <input type="number" id="mesa-n" value="0" min="0" inputmode="numeric" aria-label="Quantidade de pontos" onfocus="this.select()">
+                        <span class="bar-btn" role="button" tabindex="0" title="Cura (aumenta a vitalidade)" aria-label="Aplicar cura" onclick="aplicaPV(1,event)">&rsaquo;</span>
+                    </div></div>
+                <div class="vit-sug" data-s="criatura"><button type="button" class="pill" onclick="sugerirPV()">↻ sugerir vitalidade pelo NA</button></div></div>
             <div class="tile" data-s="mundana ocultista"><small>LUCIDEZ</small>
                 <div class="duo"><input type="number" id="pc-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pc')"><span>/</span><input type="number" id="pc-max" class="book-input save-auto" oninput="atualizarVisualBarra('pc')"></div>
                 <div class="thin-bar-bg"><div id="bar-pc" class="thin-bar-fill"></div></div></div>
             <div style="display:contents" data-s="ocultista criatura"><div class="tile" id="blk-pe"><small>ESFORÇO</small>
                 <div class="duo"><input type="number" id="pe-atual" class="book-input save-auto" oninput="atualizarVisualBarra('pe')"><span>/</span><input type="number" id="pe-max" class="book-input save-auto" oninput="atualizarVisualBarra('pe')"></div>
                 <div class="thin-bar-bg"><div id="bar-pe" class="thin-bar-fill"></div></div></div></div>
+        </div></div>
+        <div class="tiles">
+            <div class="tile"><small>DEFESA</small><input type="number" id="defesa" class="book-input save-auto"></div>
+            <div class="tile"><small>DESLOCAMENTO</small><input id="deslocamento" class="book-input save-auto" style="font-size:18px"></div>
         </div>
         <div class="attributes-bar">
             <div class="attr-box"><span class="attr-label">AGI</span><input type="number" id="agi" class="book-input save-auto" placeholder="0"></div>
@@ -640,6 +736,7 @@ body { padding:24px 12px !important; }
         <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button></div>
 
     <div data-s="ocultista criatura"><details class="card" open><summary>Paranormal</summary>
+        
         <div class="campos">
             <label class="mini"><span>VULNERABILIDADES</span><input id="vulnerabilidades" class="book-input save-auto" placeholder="Nenhuma"></label>
             <label class="mini"><span>RESISTÊNCIAS</span><input id="resistencias" class="book-input save-auto" placeholder="Dano físico 10..."></label>
@@ -657,7 +754,21 @@ body { padding:24px 12px !important; }
         <div id="blk-info"><span class="sub">O QUE SABE / SEGREDOS</span><textarea id="informacoes" class="cris-textarea save-auto" placeholder="Pistas e segredos que pode revelar (e sob qual condição)..." style="min-height:60px;margin-bottom:12px"></textarea></div>
         <span class="sub">NOTAS</span><textarea id="descricao" class="cris-textarea save-auto" placeholder="História, aparência, objetivo, fraquezas, como enfrentar ou evitar..." style="min-height:110px"></textarea>
     </details>
+</div>
+<div id="dossie" class="dossie"><div class="d-grid">
+  <div class="d-esq">
+    <header class="d-head" id="d-head"><div class="d-head-main"><span class="d-nome" id="d-nome"></span><span class="d-sub" id="d-sub"></span></div><div id="slot-na"></div></header>
+    <div class="d-tags" id="d-tags"></div>
+    <div id="d-corpo-a"></div>
+    <div id="slot-rec" class="d-rec"></div>
+    <div id="d-corpo-b"></div>
+  </div>
+  <div class="d-dir">
+    <div id="slot-foto" class="d-foto"></div>
+    <div id="d-texto"></div>
+  </div>
 </div></div>
+</div>
 
 <datalist id="dl-tipo"><option>Padrão</option><option>Movimento</option><option>Reação</option><option>Livre</option></datalist>
 <div id="modal-pick" class="modal-padrao" style="max-width:440px">
@@ -760,11 +871,13 @@ body { padding:24px 12px !important; }
         unsubAcoes = db.collection("ameacas").doc(atual).collection(pathAcoes).onSnapshot(snap => {
             const container = document.getElementById('lista-acoes'); container.innerHTML = "";
             snap.forEach(doc => { container.innerHTML += renderAcao(doc.id, doc.data(), pathAcoes); });
+            ACOES = snap.docs.map(x => x.data()); renderDossie();
         });
 
         unsubHabilidades = db.collection("ameacas").doc(atual).collection(pathHab).onSnapshot(snap => {
             const container = document.getElementById('lista-habilidades'); container.innerHTML = "";
             snap.forEach(doc => { container.innerHTML += renderHabilidade(doc.id, doc.data(), pathHab); });
+            HABS = snap.docs.map(x => x.data()); renderDossie();
         });
     }
 
@@ -888,6 +1001,7 @@ body { padding:24px 12px !important; }
 
             atualizarVisualBarra('pv'); atualizarVisualBarra('pc'); atualizarVisualBarra('pe');
             aplicarSegredosAmeaca();
+            iniciarModo(d); renderDossie();
 
             const urlParams = new URLSearchParams(window.location.search);
 const campanhaParam = urlParams.get('campanha') || (d.campanhasIds && d.campanhasIds[0]);
@@ -1538,7 +1652,7 @@ if (campanhaParam) {
     const PV_CRIATURA=(na,vig)=>12+8*na+2*vig;   // SUGESTÃO (livro ainda não define criaturas) - ajuste aqui
     const CONS=[[0,'Instintiva','Sem raciocínio: age por impulso. Só usa as perícias essenciais.'],[30,'Desenvolvida','Complexa, mas sem mente plenamente consciente. Pode ter perícias extras.'],[80,'Consciente','Raciocina, planeja e mente. Pode ter perícias extras, segredos e Juramento.']];
     const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 ANOMALIA','HABILIDADES E COMPORTAMENTO','TIPO / DESCRIÇÃO CURTA']};
-    let tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
+    let ACOES=[], HABS=[], tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
     const num=id=>parseInt($(id).value)||0;
     const nvl=()=>Math.min(5,Math.max(0,num('na')));
     const normPer=d=>(d.pericias_npc||(d.pericias_mundanas||[]).map(n=>({n,v:1}))).map(p=>({n:p.n,v:Math.max(0,Math.min(5,parseInt(p.v)||0))}));
@@ -1557,7 +1671,7 @@ if (campanhaParam) {
         $('na-row').innerHTML=[0,1,2,3,4,5].map(n=>`<button class="${n===nvl()?'on':''}" onclick="setNA(${n})">${n}</button>`).join('');
         $('exp-row').innerHTML=EXPS[nvl()].map(e=>`<button class="${e===exp?'on':''}" onclick="setExp(${e})">${e}%</button>`).join('');
     }
-    function setNA(n){ n=Math.max(0,Math.min(5,parseInt(n,10)||0)); $('na').value=n; updateField('na',n); if(tipoAtual!=='criatura'&&!EXPS[n].includes(exp)){ exp=EXPS[n][0]; updateField('exp',exp); } renderNA(); calc(); }
+    function setNA(n){ $('na').value=n; updateField('na',n); if(tipoAtual!=='criatura'&&!EXPS[n].includes(exp)){ exp=EXPS[n][0]; updateField('exp',exp); } renderNA(); calc(); }
     function setExp(e){ exp=e; updateField('exp',e); renderNA(); calc(); }
 
     function setAuto(id,v){ const el=$(id); if(el.value!=v){ el.value=v; updateField(id,v); } }
@@ -1592,9 +1706,8 @@ if (campanhaParam) {
         ['m-esq','m-blq','m-lim'].forEach(i=>$(i).hidden=cri); $('exp-row').hidden=cri;
         $('blk-jur').hidden=!(tipoAtual==='ocultista'||(cri&&cv>=JUR_MIN));
         $('blk-pe').hidden=!usaPE; $('btn-pe').innerText=usaPE?'✔ Usa Esforço':'＋ Usa Esforço';
-        renderPer();
+        renderPer(); renderDossie();
     }
-
 
     // ---------- seletor genérico (lista com busca) ----------
     function abrirPicker(titulo,itens,multi,sel,done){
@@ -1708,17 +1821,82 @@ if (campanhaParam) {
     function setPapel(k){ papel=k; updateField('papel',k); renderPapel(); }
     function togglePE(){ usaPE=!usaPE; updateField('usaPE',usaPE); if(usaPE&&tipoAtual==='ocultista') calc(); else refresh(); }
     function toggleCivil(){ modoCivil=!modoCivil; updateField('modoCivil',modoCivil); aplicarTipo(tipoAtual); }
-    function aplicaPV(s){
-        const campo=$('mesa-n');
-        const n=Math.max(0,parseInt(campo.value,10)||0);
-        const max=Math.max(0,num('pv-max'));
-        const atual=Math.max(0,num('pv-atual'));
-        const v=Math.max(0,Math.min(max,atual+(s*n)));
-        $('pv-atual').value=v;
-        updateField('pv-atual',v);
-        atualizarVisualBarra('pv');
-        campo.value='0';
-        refresh();
+    function aplicaPV(s,ev){
+        if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        const campo=$('mesa-n'), n=Math.abs(parseInt(campo.value))||0;
+        if(n){
+            const at=num('pv-atual'), mx=num('pv-max');
+            // dano: nunca abaixo de 0 | cura: nunca acima do máximo (sem reduzir quem já estiver acima, ex.: Hexatombe)
+            const v=s<0?Math.max(0,at-n):Math.min(Math.max(mx,at),at+n);
+            $('pv-atual').value=v; updateField('pv-atual',v); atualizarVisualBarra('pv'); refresh();
+        }
+        campo.value=0;
+    }
+    document.addEventListener('keydown',e=>{ const el=e.target; if((e.key==='Enter'||e.key===' ')&&el.classList&&el.classList.contains('bar-btn')){ e.preventDefault(); el.click(); } });
+
+    // ---------- NA editável ----------
+    $('na').addEventListener('input',renderNA);
+    $('na').addEventListener('change',()=>setNA(Math.max(0,Math.min(5,parseInt($('na').value)||0))));
+
+    // ---------- modo de criação x ficha concluída ----------
+    let modoCriacao=null;
+    const chaveModo=()=>'modoAmeaca_'+atual;
+    function iniciarModo(d){
+        if(modoCriacao!==null) return;
+        let s=null; try{ s=localStorage.getItem(chaveModo()); }catch(e){}
+        modoCriacao=s?(s==='criacao'):!(d&&d.nome);
+        aplicarModo();
+    }
+    function definirModo(c){
+        modoCriacao=!!c; try{ localStorage.setItem(chaveModo(),c?'criacao':'ficha'); }catch(e){}
+        aplicarModo(); const m=$('modal-config'); if(m) m.style.display='none'; window.scrollTo(0,0);
+    }
+    function alternarModo(){ definirModo(!modoCriacao); }
+    function aplicarModo(){
+        document.body.classList.toggle('modo-criacao',!!modoCriacao); document.body.classList.remove('carregando');
+        const topo=document.querySelector('.f2 .topo'), foto=document.querySelector('.foto'), na=document.querySelector('.na-badge'), rec=$('recursos');
+        if(modoCriacao){ topo.insertBefore(foto,topo.firstChild); topo.appendChild(na); $('home-rec').appendChild(rec); }
+        else { $('slot-foto').appendChild(foto); $('slot-na').appendChild(na); $('slot-rec').appendChild(rec); }
+        const b=$('btn-modo'); if(b) b.innerText=modoCriacao?'[ 📄 ] VER FICHA CONCLUÍDA':'[ ✏️ ] REABRIR MODO DE CRIAÇÃO';
+        ajustarFoto(); renderDossie();
+    }
+    try{ const s0=localStorage.getItem(chaveModo()); if(s0){ modoCriacao=(s0==='criacao'); aplicarModo(); } }catch(e){}
+    setTimeout(()=>{ if(modoCriacao===null) iniciarModo(null); },3500);
+
+    // ---------- dossiê: só aparece o que está preenchido ----------
+    const H=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const val=id=>($(id).value||'').trim();
+    const dSec=(tit,corpo)=>corpo?`<section class="d-sec"><h3 class="d-bar">${tit}</h3>${corpo}</section>`:'';
+    const dKv=(k,v)=>v?`<div class="d-kv"><b>${k}</b><span>${H(v)}</span></div>`:'';
+    function renderDossie(){
+        if(modoCriacao!==false) return;
+        const t=tipoAtual, cri=t==='criatura', civil=modoCivil&&t==='mundana';
+        const get=n=>(PNPC.find(p=>p.n===n)||{v:0}).v, pt=n=>fmt(totalPer(n,get(n)));
+        const cv=Math.min(100,Math.max(0,num('consciencia'))), gr=[...CONS].reverse().find(x=>cv>=x[0]);
+        $('d-nome').innerText=val('nome')||'SEM NOME'; $('d-sub').innerText=val('tipo-criatura');
+        const modelo=(ARQ[t]||{})[perfil], papelNome={hostil:'Hostil',neutro:'Neutro',aliado:'Aliado'}[papel]||'Hostil';
+        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`);
+        const ats=Object.keys(ATR).map(k=>`<span class="d-at"><b>${k}</b><i>${num(ATR[k])}</i></span>`).join('');
+        $('d-corpo-a').innerHTML=civil?'':dSec('Atributos',`<div class="d-ats">${ats}</div>`);
+        $('slot-rec').hidden=civil;
+        let b='';
+        if(!civil){
+            if(t!=='mundana') b+=`<div class="d-sec">${dKv('Resistências',val('resistencias'))}${dKv('Vulnerabilidades',val('vulnerabilidades'))}${dKv('Imunidades',val('imunidades'))}</div>`;
+            const ex=cri?'':`<div><b>ESQUIVA</b><span>${$('d-esq').innerText}</span></div><div><b>BLOQUEIO</b><span>${$('d-blq').innerText}</span></div><div><b>LIMIAR VD/DEC</b><span>${$('d-lim').innerText}</span></div>`;
+            b+=`<section class="d-sec d-def"><div class="d-defl"><h3 class="d-bar">DEFESA</h3><b class="d-big">${H(val('defesa')||0)}</b></div><div class="d-list"><div><b>FORTITUDE</b><span>${pt('Fortitude')}</span></div><div><b>REFLEXOS</b><span>${pt('Reflexos')}</span></div><div><b>RESILIÊNCIA</b><span>${pt('Resiliência')}</span></div>${ex}</div></section>`;
+            if(val('deslocamento')) b+=`<section class="d-sec"><div class="d-linha"><h3 class="d-bar">DESLOCAMENTO</h3><span>${H(val('deslocamento'))}</span></div></section>`;
+            b+=dSec('Combate',`<div class="d-list"><div><b>PERCEPÇÃO</b><span>${pt('Percepção')}</span></div><div><b>PROATIVIDADE</b><span>${pt('Proatividade')}</span></div></div>`);
+            const outras=PNPC.filter(p=>!ESS.includes(p.n));
+            if(!$('blk-outras').hidden&&outras.length) b+=dSec('Perícias',`<div class="d-chips">${outras.map(p=>`${H(p.n)} <b>${pt(p.n)}</b>`).join(' • ')}</div>`);
+            if(cri&&(val('presenca-dano')||val('presenca-dt'))) b+=dSec('Presença perturbadora',dKv('Dano mental',val('presenca-dano'))+dKv('DT (Resiliência)',val('presenca-dt')));
+            if(!$('blk-jur').hidden&&(val('enigma')||val('quebra'))) b+=dSec('Juramento restritivo',dKv('Regra',val('enigma'))+dKv('Como quebrar',val('quebra')));
+            if(ACOES.length) b+=dSec('Ações',ACOES.map(a=>`<div class="d-acao"><div class="d-tipo">${H(a.tipo||'Padrão')}</div><div><b class="d-nm">❖ ${H(a.nome)}</b>${dKv('Teste',a.teste)}${dKv('Dano',a.dano)}${dKv('Alcance',a.alcance)}${a.efeitos?`<p>${H(a.efeitos)}</p>`:''}</div></div>`).join(''));
+        }
+        if(HABS.length) b+=dSec(TIPOS[t][1],HABS.map(h=>`<div class="d-hab"><b class="d-nm">❖ ${H(h.nome)}</b>${h.descricao?`<p>${H(h.descricao)}</p>`:''}</div>`).join(''));
+        $('d-corpo-b').innerHTML=b;
+        let tx=val('descricao')?`<p class="d-notas">${H(val('descricao'))}</p>`:'';
+        if(!$('blk-info').hidden&&val('informacoes')) tx+=`<div class="d-segredo"><b>O QUE SABE / SEGREDOS</b>${H(val('informacoes'))}</div>`;
+        $('d-texto').innerHTML=tx;
     }
 </script>
     <button id="btn-toggle-iniciativa" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--card-border); padding: 12px 15px; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 0px rgba(0,0,0,0.3); border-radius: 2px; display: none; text-transform: uppercase; transition: 0.3s;" onclick="togglePainelIniciativa()">
@@ -1760,72 +1938,5 @@ if (campanhaParam) {
         </button>
     </div>
 </div>
-
-<style id="arquivo-ameaca-layout-final">
-/* Ficha como documento físico de investigação: papel, carimbos e campos editoriais. */
-body { background-color:#242321 !important; background-image:radial-gradient(rgba(255,255,255,.035) .7px,transparent .7px) !important; background-size:5px 5px !important; }
-.book-container { width:min(100%,1000px) !important; box-sizing:border-box !important; margin:28px auto 36px !important; padding:clamp(16px,3vw,34px) !important; border:1px solid #b7b0a1 !important; border-radius:0 !important; background-color:var(--bg-paper) !important; box-shadow:0 3px 0 rgba(0,0,0,.25),0 16px 42px rgba(0,0,0,.38) !important; }
-.book-container:before { inset:9px !important; border:1px solid rgba(90,80,65,.22) !important; pointer-events:none !important; }
-.f2 { position:relative; z-index:1; }
-.f2 .topo { display:grid !important; grid-template-columns:minmax(92px,145px) minmax(0,1fr) auto !important; gap:clamp(12px,2.5vw,24px) !important; align-items:center !important; padding-bottom:17px !important; border-bottom:2px solid var(--op-ink) !important; margin-bottom:14px !important; }
-.f2 .foto,.f2 .portrait-container { width:100% !important; min-width:0 !important; margin:0 !important; }
-.f2 .portrait-container { padding:5px !important; border:1px solid #aaa08e !important; background:#e8e1d2 !important; transform:rotate(-1deg); box-shadow:2px 3px 0 rgba(0,0,0,.17) !important; }
-.f2 .portrait-container:before { width:70px !important; height:19px !important; top:-8px !important; background:rgba(202,190,160,.72) !important; }
-.f2 .portrait { width:100% !important; height:clamp(105px,15vw,165px) !important; border:1px solid #b8b0a0 !important; border-radius:0 !important; box-shadow:none !important; transform:none !important; background:#d4d0c7 !important; }
-.f2 .portrait img { width:100% !important; height:100% !important; object-fit:cover !important; }
-.f2 .nome-box { min-width:0 !important; }
-.f2 .book-title { width:100% !important; max-width:100% !important; font-size:clamp(1.7rem,4.2vw,3.1rem) !important; line-height:1 !important; letter-spacing:.035em !important; overflow-wrap:anywhere !important; border-bottom:1px dotted var(--card-border) !important; padding-bottom:7px !important; }
-.f2 .tipo-criatura { margin-top:9px !important; padding:4px 0 !important; border-bottom:1px solid var(--op-red) !important; font-size:clamp(10px,1.5vw,13px) !important; letter-spacing:.08em !important; }
-.f2 .na-badge { transform:rotate(3deg) !important; min-width:68px !important; box-sizing:border-box !important; padding:7px 10px !important; border:3px double var(--op-red) !important; border-radius:0 !important; background:rgba(163,21,21,.045) !important; mix-blend-mode:normal !important; opacity:1 !important; }
-.f2 .na-label { font-size:11px !important; letter-spacing:.16em !important; }
-.f2 .na-input { width:64px !important; max-width:100% !important; font-size:clamp(1.8rem,3.5vw,2.5rem) !important; min-width:0 !important; }
-.f2 .strip { border-bottom:1px dashed var(--card-border) !important; padding:0 0 12px !important; margin:0 0 12px !important; }
-.f2 .card { border:1px solid var(--card-border) !important; border-radius:0 !important; box-shadow:2px 2px 0 rgba(0,0,0,.06) !important; padding:clamp(10px,1.7vw,16px) !important; margin:12px 0 !important; background:rgba(255,255,255,.13) !important; }
-.f2 .card h4,.f2 .card>summary { font-family:'Crimson Text',serif !important; font-size:14px !important; letter-spacing:.13em !important; border-bottom:1px solid var(--card-border) !important; padding:0 0 7px !important; margin:0 0 11px !important; }
-.f2 .tiles { gap:8px !important; }
-.f2 .tile { border:1px solid var(--card-border) !important; border-radius:0 !important; box-shadow:inset 0 0 0 1px rgba(255,255,255,.12) !important; padding:9px !important; }
-.f2 .tile>small { font-size:9px !important; letter-spacing:.12em !important; }
-.f2 .tile input { border-radius:0 !important; }
-.f2 .thin-bar-bg { height:6px !important; border-radius:0 !important; margin:4px 0 !important; }
-.f2 .thin-bar-fill { border-radius:0 !important; }
-.f2 .pvctl .pv-arrow { width:30px !important; height:28px !important; flex:0 0 30px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; padding:0 !important; border:1px solid var(--card-border) !important; border-radius:0 !important; background:transparent !important; color:var(--op-ink) !important; font:700 21px/1 'Inter',sans-serif !important; }
-.f2 .pvctl .pv-dano { color:var(--op-red) !important; border-color:var(--op-red) !important; }
-.f2 .pvctl .pv-cura { color:var(--san-purple) !important; border-color:var(--san-purple) !important; }
-.f2 .pvctl input { height:28px !important; font-size:14px !important; }
-.f2 .attributes-bar { border-top:1px dashed var(--card-border) !important; border-bottom:1px dashed var(--card-border) !important; padding:20px 0 10px !important; margin:12px 0 !important; }
-.f2 .attr-box { border-radius:0 !important; border:2px solid var(--op-ink) !important; box-shadow:none !important; }
-.f2 .attr-label { letter-spacing:.08em !important; }
-.f2 .dynamic-item-highlight { border-radius:0 !important; box-shadow:none !important; }
-.f2 .btn-add,.f2 .pill,.f2 .seg button { border-radius:0 !important; }
-.f2 input:focus,.f2 textarea:focus { outline:1px solid var(--op-red) !important; outline-offset:1px !important; }
-@media (max-width:600px) {
- body { padding:0 !important; }
- .book-container { width:100% !important; margin:0 auto 20px !important; padding:14px 12px !important; border-left:0 !important; border-right:0 !important; box-shadow:none !important; }
- .f2 .topo { grid-template-columns:76px minmax(0,1fr) auto !important; gap:10px !important; padding-bottom:12px !important; }
- .f2 .portrait-container { padding:3px !important; }
- .f2 .portrait { height:92px !important; }
- .f2 .portrait-container:before { width:48px !important; height:15px !important; top:-7px !important; }
- .f2 .book-title { font-size:clamp(1.25rem,6vw,1.8rem) !important; }
- .f2 .tipo-criatura { font-size:10px !important; }
- .f2 .na-badge { min-width:49px !important; padding:4px 3px !important; border-width:2px !important; }
- .f2 .na-input { width:45px !important; font-size:1.6rem !important; }
- .f2 .card { margin:9px 0 !important; padding:10px !important; }
- .f2 .tiles { gap:6px !important; }
- .f2 .tile { padding:7px 5px !important; }
- .f2 .tile input { font-size:20px !important; }
- .f2 .tile.wide { flex-basis:100% !important; }
- .f2 .attributes-bar { gap:5px !important; }
- .f2 .attr-box { min-width:0 !important; }
- .f2 .attr-label { font-size:8px !important; }
- .f2 .attr-box input { font-size:17px !important; }
-}
-@media (max-width:370px) {
- .f2 .topo { grid-template-columns:60px minmax(0,1fr) 45px !important; gap:7px !important; }
- .f2 .portrait { height:76px !important; }
- .f2 .book-title { font-size:1.18rem !important; }
- .f2 .na-input { width:40px !important; font-size:1.35rem !important; }
-}
-</style>
-
 </body>
 </html>
