@@ -629,6 +629,12 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
 .hab-custos label{display:flex;align-items:center;gap:6px;font:900 9px 'Inter',sans-serif;letter-spacing:.1em;color:var(--op-ink)}
 .hab-custos input{width:64px!important;text-align:center;font:14px 'Special Elite',monospace}
 .d-custo{margin-left:8px;font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red)}
+.d-fluxo:empty{display:none}
+.d-fluxo>.d-bar{display:block;padding-right:12px;margin-top:12px}
+.d-fluxo>.d-bar small{font-weight:700;opacity:.7;letter-spacing:.06em}
+#d-fluxo-d{margin-top:6px}
+.rit-dt select{background:transparent;border:1px dotted var(--card-border);color:var(--op-ink);font:13px 'Special Elite',monospace;padding:3px;max-width:190px}
+@media (max-width:700px){#d-fluxo-e{order:6}#d-fluxo-d{order:8}}
 </style>
 </head>
 <body class="carregando">
@@ -676,7 +682,7 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
         <div class="foto">
             <div class="portrait-container">
                 <div class="portrait" onclick="document.getElementById('fileInput').click()">
-                    <img id="img-preview" src="" style="display:none;position:absolute;left:0;top:0;">
+                    <img id="img-preview" src="" onload="ajustarFoto()" style="display:none;position:absolute;left:0;top:0;">
                     <div id="img-placeholder" class="upload-hint">+ FOTO</div>
                 </div>
             </div>
@@ -773,6 +779,7 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
     <div data-s="ocultista"><div class="card" id="blk-rit"><h4>Rituais</h4>
         <div class="rit-top">
             <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rit-btn" onclick="abrirBancoAnomalias()">+ LISTA</button><button type="button" class="rit-btn" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button></div>
+            <label class="rit-dt" id="grupo-arq" hidden>ARQUÉTIPO <select id="arquetipo" class="save-auto" onchange="calc()"><option value="">Indefinido</option><option value="Canalizador">Canalizador (+5 PE)</option><option value="Modulador">Modulador (+2 PE, +2 DT)</option></select></label>
             <div class="rit-dt">DT DE ANOMALIAS (10 + SAG + NA) <span>+</span> <input type="number" id="bonus-dt" class="save-auto" placeholder="Bônus"> <span>=</span> <span id="dt-val">10</span></div>
         </div>
         <div id="lista-rituais"></div></div></div>
@@ -798,16 +805,18 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
     </details>
 </div>
 <div id="dossie" class="dossie"><div class="d-grid">
-  <div class="d-esq">
+  <div class="d-esq" id="col-esq">
     <header class="d-head" id="d-head"><div class="d-head-main"><span class="d-nome" id="d-nome"></span><span class="d-sub" id="d-sub"></span></div><div id="slot-na"></div></header>
     <div class="d-tags" id="d-tags"></div>
     <div id="d-corpo-a"></div>
     <div id="slot-rec" class="d-rec"></div>
     <div id="d-corpo-b"></div>
+    <div id="d-fluxo-e" class="d-fluxo"></div>
   </div>
-  <div class="d-dir">
+  <div class="d-dir" id="col-dir">
     <div id="slot-foto" class="d-foto"></div>
     <div id="d-texto"></div>
+    <div id="d-fluxo-d" class="d-fluxo"></div>
   </div>
 </div></div>
 </div>
@@ -1155,7 +1164,19 @@ if (campanhaParam) {
             }; reader.readAsDataURL(input.files[0]);
         }
     }
-    function ajustarFoto() { const z = document.getElementById('pZ').value; const x = document.getElementById('pX').value; const y = document.getElementById('pY').value; const img = document.getElementById('img-preview'); img.style.objectPosition = `${x}% ${y}%`; img.style.transform = `scale(${z})`; }
+    // zoom 1 = a imagem preenche o quadro (cover); abaixo disso a imagem inteira vai aparecendo, com a moldura ao redor.
+    function ajustarFoto() {
+        const img = document.getElementById('img-preview'), box = img.parentElement;
+        const nw = img.naturalWidth, nh = img.naturalHeight, w = box.clientWidth, h = box.clientHeight;
+        if (!nw || !nh || !w || !h) return;
+        const zmin = Math.min(w / nw, h / nh) / Math.max(w / nw, h / nh); document.getElementById('pZ').min = Math.min(0.1, zmin).toFixed(3);
+        const z = parseFloat(document.getElementById('pZ').value) || 1, x = parseFloat(document.getElementById('pX').value), y = parseFloat(document.getElementById('pY').value);
+        const s = Math.max(w / nw, h / nh) * z, iw = nw * s, ih = nh * s;
+        img.style.objectFit = 'fill'; img.style.maxWidth = 'none'; img.style.transform = 'none';
+        img.style.width = iw + 'px'; img.style.height = ih + 'px';
+        img.style.left = ((w - iw) * (isNaN(x) ? 50 : x) / 100) + 'px'; img.style.top = ((h - ih) * (isNaN(y) ? 50 : y) / 100) + 'px';
+    }
+    new ResizeObserver(() => ajustarFoto()).observe(document.querySelector('.portrait'));
 
     // ==========================================
         // MOTOR GLOBAL DE MANUTENÇÃO (VERSÃO CORRIGIDA E SEGURA)
@@ -1728,7 +1749,7 @@ if (campanhaParam) {
     const PV_CRIATURA=(na,vig)=>12+8*na+2*vig;   // SUGESTÃO (livro ainda não define criaturas) - ajuste aqui
     const CONS=[[0,'Instintiva','Sem raciocínio: age por impulso. Só usa as perícias essenciais.'],[30,'Desenvolvida','Complexa, mas sem mente plenamente consciente. Pode ter perícias extras.'],[80,'Consciente','Raciocina, planeja e mente. Pode ter perícias extras, segredos e Juramento.']];
     const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 ANOMALIA','HABILIDADES E COMPORTAMENTO','TIPO / DESCRIÇÃO CURTA']};
-    let ACOES=[], HABS=[], RITS=[], tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
+    let ACOES=[], HABS=[], RITS=[], FLUXO=[], tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
     const num=id=>parseInt($(id).value)||0;
     const nvl=()=>Math.min(5,Math.max(0,num('na')));
     const normPer=d=>(d.pericias_npc||(d.pericias_mundanas||[]).map(n=>({n,v:1}))).map(p=>({n:p.n,v:Math.max(0,Math.min(5,parseInt(p.v)||0))}));
@@ -1765,7 +1786,7 @@ if (campanhaParam) {
         setAuto('defesa',10+agi+na); setAuto('deslocamento',`${d}m | ${Math.floor(d/1.5)}q`);
         if(tipoAtual!=='criatura'){
             setMax('pv',12+2*vig+2*na); setMax('pc',50+10*num('sag')+10*num('von'));
-            if(tipoAtual==='ocultista'&&usaPE) setMax('pe',Math.max(1,5+2*vig+num('von')+Math.floor(exp/10)));
+            if(tipoAtual==='ocultista'&&usaPE) setMax('pe',Math.max(1,5+2*vig+num('von')+Math.floor(exp/10)+arqPE()));
         }
         refresh();
     }
@@ -1787,7 +1808,7 @@ if (campanhaParam) {
         ['m-esq','m-blq','m-lim'].forEach(i=>$(i).hidden=cri); $('exp-row').hidden=cri;
         $('blk-jur').hidden=!(tipoAtual==='ocultista'||(cri&&cv>=JUR_MIN));
         $('blk-pe').hidden=!usaPE; $('btn-pe').innerText=usaPE?'✔ Usa Esforço':'＋ Usa Esforço';
-        renderPer(); calcDT(); renderDossie();
+        renderPer(); $('grupo-arq').hidden=!(tipoAtual==='ocultista'&&nvl()>=2); calcDT(); renderDossie();
     }
 
     // ---------- seletor genérico (lista com busca) ----------
@@ -1977,7 +1998,11 @@ if (campanhaParam) {
     db.collection("configuracoes").doc("sistema").onSnapshot(d => { ADMINS_LISTA = (d.exists && d.data().listaAdmins) || []; renderRituais(); });
     firebase.auth().onAuthStateChanged(() => renderRituais());
 
-    function dtAnomalias() { return 10 + num('sag') + nvl() + (parseInt($('bonus-dt').value) || 0); }
+    // Arquétipo (igual à ficha de personagem; o NÍVEL do jogador equivale ao NA): vale a partir de NA 2
+    const arqAtivo = () => (tipoAtual === 'ocultista' && nvl() >= 2) ? $('arquetipo').value : '';
+    const arqPE = () => ({ Canalizador: 5, Modulador: 2 })[arqAtivo()] || 0;
+    const arqDT = () => arqAtivo() === 'Modulador' ? 2 : 0;
+    function dtAnomalias() { return 10 + num('sag') + nvl() + arqDT() + (parseInt($('bonus-dt').value) || 0); }
     function calcDT() { $('dt-val').innerText = dtAnomalias(); }
     $('bonus-dt').addEventListener('input', calcDT);
 
@@ -2127,6 +2152,26 @@ if (campanhaParam) {
         abre ? menusAbertos.add('drit-' + id) : menusAbertos.delete('drit-' + id);
     }
 
+
+    // ---- "quebra de coluna": talentos e rituais fluem da coluna esquerda para o espaço sob a foto ----
+    function htmlFluxo(itens,continua){
+        let h='',ult=null;
+        itens.forEach((it,i)=>{ if(it.sec!==ult){ h+=`<h3 class="d-bar">${it.tit}${(i===0&&continua)?' <small>(cont.)</small>':''}</h3>`; ult=it.sec; } h+=it.fn(); });
+        return h;
+    }
+    function distribuirFluxo(){
+        const E=$('d-fluxo-e'), D=$('d-fluxo-d'); if(!E||!D) return;
+        const n=FLUXO.length;
+        const pinta=k=>{ E.innerHTML=htmlFluxo(FLUXO.slice(0,k),false); D.innerHTML=htmlFluxo(FLUXO.slice(k),k>0&&k<n&&FLUXO[k-1].sec===FLUXO[k].sec); };
+        let k=n; pinta(k);
+        if(!n||window.matchMedia('(max-width:700px)').matches||modoCriacao!==false) return;   // celular: coluna única
+        const alt=()=>Math.max($('col-esq').offsetHeight,$('col-dir').offsetHeight);
+        let melhor=alt();
+        while(k>0){ pinta(k-1); const a=alt(); if(a<melhor){ melhor=a; k--; } else { pinta(k); break; } }
+    }
+    let _rbf; window.addEventListener('resize',()=>{ clearTimeout(_rbf); _rbf=setTimeout(distribuirFluxo,150); });
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>distribuirFluxo());
+
     // ---------- dossiê: só aparece o que está preenchido ----------
     const H=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     const val=id=>($(id).value||'').trim();
@@ -2140,7 +2185,7 @@ if (campanhaParam) {
         const cv=Math.min(100,Math.max(0,num('consciencia'))), gr=[...CONS].reverse().find(x=>cv>=x[0]);
         $('d-nome').innerText=val('nome')||'SEM NOME'; $('d-sub').innerText=val('tipo-criatura');
         const modelo=(ARQ[t]||{})[perfil], papelNome={hostil:'Hostil',neutro:'Neutro',aliado:'Aliado'}[papel]||'Hostil';
-        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`);
+        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`);
         const ats=Object.keys(ATR).map(k=>`<span class="d-at"><b>${k}</b><i>${num(ATR[k])}</i></span>`).join('');
         $('d-corpo-a').innerHTML=civil?'':dSec('Atributos',`<div class="d-ats">${ats}</div>`);
         $('slot-rec').hidden=civil;
@@ -2157,9 +2202,14 @@ if (campanhaParam) {
             if(!$('blk-jur').hidden&&(val('enigma')||val('quebra'))) b+=dSec('Juramento restritivo',dKv('Regra',val('enigma'))+dKv('Como quebrar',val('quebra')));
             if(ACOES.length) b+=dSec('Ações',ACOES.map(a=>`<div class="d-acao"><div class="d-tipo">${H(a.tipo||'Padrão')}</div><div><b class="d-nm">❖ ${H(a.nome)}</b>${dKv('Teste',a.teste)}${dKv('Dano',a.dano)}${dKv('Alcance',a.alcance)}${a.efeitos?`<p>${H(a.efeitos)}</p>`:''}</div></div>`).join(''));
         }
-        if(t==='ocultista'&&RITS.length) b+=dSec('Rituais',dKv('DT de anomalias',String(dtAnomalias()))+RITS.map(({id,r})=>dRitual(id,ritView(r))).join(''));
-        if(HABS.length) b+=dSec(TIPOS[t][1],HABS.map(h=>`<div class="d-hab"><b class="d-nm">❖ ${H(h.nome)}</b>${fmtCustoTalento(h)?`<span class="d-custo">${H(fmtCustoTalento(h))}</span>`:''}${h.descricao?`<p>${H(h.descricao)}</p>`:''}</div>`).join(''));
-        $('d-corpo-b').innerHTML=b;
+        const fluxo=[];
+        HABS.forEach(h=>fluxo.push({sec:'hab',tit:TIPOS[t][1],fn:()=>`<div class="d-hab"><b class="d-nm">❖ ${H(h.nome)}</b>${fmtCustoTalento(h)?`<span class="d-custo">${H(fmtCustoTalento(h))}</span>`:''}${h.descricao?`<p>${H(h.descricao)}</p>`:''}</div>`}));
+        if(t==='ocultista'&&RITS.length){
+            fluxo.push({sec:'rit',tit:'Rituais',fn:()=>dKv('DT de anomalias',String(dtAnomalias()))});
+            RITS.forEach(({id,r})=>fluxo.push({sec:'rit',tit:'Rituais',fn:()=>dRitual(id,ritView(r))}));
+        }
+        FLUXO=fluxo;
+        $('d-corpo-b').innerHTML=b; distribuirFluxo();
         let tx=val('descricao')?`<p class="d-notas">${H(val('descricao'))}</p>`:'';
         if(!$('blk-info').hidden&&val('informacoes')) tx+=`<div class="d-segredo"><b>O QUE SABE / SEGREDOS</b>${H(val('informacoes'))}</div>`;
         $('d-texto').innerHTML=tx;
