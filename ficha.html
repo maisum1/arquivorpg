@@ -3197,7 +3197,7 @@ let filtroSubAtualAtaques = 'Todos';
             }
         }        else if (tipo === 'traco') { d = templatesTracos[val]; if(d) p.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`; }
         else if (tipo === 'espec') { d = templatesEspecializacoes[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
-        else if (tipo === 'anomalia') { d = templatesAnomalias[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
+        else if (tipo === 'anomalia') { d = templatesAnomalias[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}${d.preRequisitos ? '<br><strong>Pré-requisitos:</strong> ' + d.preRequisitos : ''}<br><strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'item') { d = templatesInventario[val]; if(d) p.innerHTML = `<strong>Categoria:</strong> ${d.categoria} | <strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'origem') { d = templatesOrigens[val]; if(d) p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${d.desc}</span><strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${d.p1} (+3), ${d.p2} (+1)<br><strong style="color:var(--op-red)">Nível de Crédito:</strong> ${d.ncBase}`; }
     }
@@ -4217,6 +4217,7 @@ let filtroSubAtualAtaques = 'Todos';
         </div>
         
         <div class="rit-grid-2">
+            <div class="rit-field" style="grid-column: span 2;"><span class="rit-label" style="color:${cor}">Pré-requisitos</span><input type="text" class="rit-input" placeholder="Ex: Compreensão Total de outro ritual, afinidade, item..." value="${rView.preRequisitos || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'preRequisitos', this.value, ${isBuffado})"></div>
             <div class="rit-field"><span class="rit-label" style="color:${cor}">Tempo de Execução</span><input type="text" class="rit-input" placeholder="Ex: Ação Padrão" value="${rView.tempoConjuracao || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'tempoConjuracao', this.value, ${isBuffado})"></div>
             <div class="rit-field"><span class="rit-label" style="color:${cor}">Alcance Operacional</span><input type="text" class="rit-input" placeholder="Ex: Curto" value="${rView.alcance || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alcance', this.value, ${isBuffado})"></div>
             <div class="rit-field"><span class="rit-label" style="color:${cor}">Alvo / Área Afetada</span><input type="text" class="rit-input" placeholder="Ex: 1 Ser" value="${rView.alvo || ''}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}', 'alvo', this.value, ${isBuffado})"></div>
@@ -4309,6 +4310,7 @@ let filtroSubAtualAtaques = 'Todos';
         }); 
     }
 
+    function fmtCustoTalento(h) { const f = (v, u) => { v = String(v == null ? '' : v).trim(); return v ? (/^\d+$/.test(v) ? v + ' ' + u : v) : ''; }; return [f(h.custoPf, 'PF'), f(h.custoPl, 'PL')].filter(Boolean).join(' • '); }
     function carregarHabilidades() { 
         if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
@@ -4321,10 +4323,11 @@ let filtroSubAtualAtaques = 'Todos';
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);">
                     <div class="card-header" onclick="toggleElem('hab-${id}')">
-                        <span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span>
+                        <span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span>${fmtCustoTalento(h) ? `<span class="hab-custo-tag" style="font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red);margin-left:auto">${fmtCustoTalento(h)}</span>` : ''}
                     </div>
                     <div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}">
                         <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold;">
+                        <div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Fôlego (PF)</span><input type="text" class="rit-input" placeholder="Ex: 2" value="${(h.custoPf || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPf', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Lucidez (PL)</span><input type="text" class="rit-input" placeholder="Ex: 1" value="${(h.custoPl || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPl', this.value)"></div></div>
                         <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
                         <div style="text-align:right; margin-top:10px;">
                             ${btnAdminCopy}
@@ -4477,7 +4480,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('rit-' + novaRef.id);
-        await novaRef.set({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
+        await novaRef.set({ nome: "Nova Anomalia", elemento: "Nenhum", preRequisitos: "", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
         setTimeout(() => { let el = document.getElementById('rit-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4493,7 +4496,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('hab-' + novaRef.id);
-        await novaRef.set({ nome: "Novo Traço", descricao: "" }); 
+        await novaRef.set({ nome: "Novo Traço", descricao: "", custoPf: "", custoPl: "" }); 
         setTimeout(() => { let el = document.getElementById('hab-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4620,7 +4623,7 @@ let filtroSubAtualAtaques = 'Todos';
                 const descBuffed = (r.buffed?.descricao || r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
                 const afinBuffed = (r.buffed?.afinidade || r.afinidade || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
 
-                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", afinidade: "${afinBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.buffed?.duracao || r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}", afinidade: "${afinBuffed}" } },`;
+                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", preRequisitos: "${(r.preRequisitos || '').replace(/"/g, '\\"')}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", afinidade: "${afinBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", preRequisitos: "${(r.buffed?.preRequisitos || r.preRequisitos || '').replace(/"/g, '\\"')}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.buffed?.duracao || r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}", afinidade: "${afinBuffed}" } },`;
 
                 await navigator.clipboard.writeText(template);
                 alert("✅ CÓDIGO COMPACTO EXPORTADO!\n\nEle foi copiado em formato de linha única para a sua Área de Transferência.\n\nLembre-se de salvar a imagem do símbolo separadamente e adicionar o link na propriedade 'simbolo'!");
@@ -4639,7 +4642,7 @@ let filtroSubAtualAtaques = 'Todos';
                 const h = doc.data();
                 const tracoId = h.nome ? h.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "") : 'NovoTraco';
                 const desc = (h.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
-                const template = `    "${tracoId}": { nome: "${h.nome || ''}", descricao: "${desc}" },`;
+                const template = `    "${tracoId}": { nome: "${h.nome || ''}", custoPf: "${h.custoPf || ''}", custoPl: "${h.custoPl || ''}", descricao: "${desc}" },`;
                 await navigator.clipboard.writeText(template);
                 alert("✅ TRAÇO EXPORTADO!\n\nCopiado em formato compacto de linha única para colar em 'templatesTracos'.");
             }
@@ -6201,7 +6204,7 @@ let filtroSubAtualAtaques = 'Todos';
     if(!cards.length && !poderes.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
 
     const habilidadesHtml=cards.slice(0,2).map(card=>{
-      const title=card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade';
+      const custoTag=card.querySelector('.hab-custo-tag')?.textContent?.trim(); const title=(card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade')+(custoTag?' ('+custoTag+')':'');
       const desc=card.querySelector('textarea')?.value?.trim()||'';
       return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
     }).join('');
@@ -6294,7 +6297,3 @@ let filtroSubAtualAtaques = 'Todos';
 
 </body>
 </html>
-
-
-
-
