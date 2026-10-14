@@ -1208,6 +1208,7 @@ body.tema-escuro .base-card .btn-open:hover {
                     nome: nomePadrao,
                     elemento: elementoPadrao,
                     tipoAmeaca: tipo,
+                    registro: (tipo === 'mundana' ? 'npc' : 'ameaca'),   // aba onde foi criada: define onde fica listada, mesmo que o tipo mude depois
                     na: 0,
                     pvAtual: 20, pvMax: 20,
                     pX: 50, pY: 50, pZ: 1,
@@ -1264,7 +1265,8 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
             snap.forEach(doc => {
                 const d = doc.data(); 
                 minhasAmeacasGlobais.push({ id: doc.id, nome: d.nome || "Entidade" });
-                if (d.tipoAmeaca === 'mundana') {
+                const ehNpc = d.registro ? d.registro === 'npc' : d.tipoAmeaca === 'mundana';   // fichas antigas (sem 'registro') seguem o tipo
+                if (ehNpc) {
                     if(divNpcs) divNpcs.innerHTML += renderAmeacaCard(doc, 'hub');
                 } else if(wrapPuras) {
                     wrapPuras.innerHTML += renderAmeacaCard(doc, 'hub');
