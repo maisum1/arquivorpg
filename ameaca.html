@@ -595,6 +595,36 @@ body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
  .d-foto .portrait-container{width:190px;margin:8px auto 20px}
  .d-nome{font-size:1.45rem}
 }
+
+/* ===== rituais (portado da ficha de personagem) ===== */
+.ritual-card{background:var(--card-bg);border:1px solid var(--card-border);border-left:5px solid var(--cor-geral);margin-bottom:10px}
+.ritual-card .card-header{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font:700 17px 'Crimson Text',serif;letter-spacing:2px;color:var(--op-ink)}
+.ritual-card .card-body{padding:14px;display:none;border-top:1px solid var(--card-border)}
+.rit-layout-top{display:flex;gap:15px;margin-bottom:15px;align-items:flex-start}
+.rit-symbol-box{width:80px;height:80px;border:1px dashed var(--card-border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.rit-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:15px;width:100%}
+.rit-field{display:flex;flex-direction:column}
+.rit-label{font:900 9px 'Inter',sans-serif;text-transform:uppercase;margin-bottom:3px;letter-spacing:1px;color:var(--op-ink)}
+.rit-input{background:transparent;border:none;border-bottom:1px dotted var(--card-border);color:var(--op-ink);font:16px 'Special Elite',monospace;outline:none;padding:3px 0;width:100%;box-sizing:border-box}
+.rit-input:focus{border-bottom:1px solid var(--op-red)}
+.rit-checkbox-row{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:15px;font:700 10px 'Inter',sans-serif;color:var(--op-ink);text-transform:uppercase;background:var(--card-bg);padding:10px;border:1px solid var(--card-border);letter-spacing:1px}
+.rit-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px dotted var(--card-border)}
+.rit-dt{display:flex;align-items:center;gap:8px;font:700 11px 'Inter',sans-serif;color:var(--cor-geral);padding:6px 12px;border:1px solid var(--card-border);background:var(--card-bg)}
+.rit-dt input{width:45px;background:transparent;border:1px dotted var(--card-border);color:var(--op-ink);font:14px 'Special Elite',monospace;text-align:center;outline:none;padding:3px}
+.rit-dt #dt-val{color:var(--op-ink);font:700 22px 'Special Elite',monospace}
+.rit-btn{background:rgba(0,0,0,.04);border:1px dashed var(--op-ink);color:var(--op-ink);padding:7px 12px;cursor:pointer;font:700 10px 'Courier Prime',monospace;text-transform:uppercase;letter-spacing:1px}
+.rit-btn.mestre{border-color:var(--san-purple);color:var(--san-purple)}
+.rit-btn.perigo{border-color:var(--op-red);color:var(--op-red)}
+body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
+.d-rit{border-left:4px solid var(--op-ink);margin:0 0 6px;background:rgba(0,0,0,.03)}
+.d-rit-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;font:900 14px 'Inter',sans-serif;letter-spacing:.03em;text-transform:uppercase;user-select:none;-webkit-user-select:none}
+.d-rit-h small{color:var(--op-red);font-size:10px;margin-left:4px}
+.d-rit-h i{font-style:normal;opacity:.6;transition:transform .15s}
+.d-rit.aberto .d-rit-h i{transform:rotate(90deg)}
+.d-rit-b{padding:6px 10px 10px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.5}
+.d-rit-b img{float:right;width:64px;height:64px;object-fit:cover;filter:grayscale(100%) contrast(150%);mix-blend-mode:multiply;margin:0 0 6px 8px;border:1px dashed var(--card-border)}
+.d-rit-b p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media (max-width:560px){.rit-grid-2{grid-template-columns:1fr;gap:10px}.rit-layout-top{flex-direction:column;align-items:center}}
 </style>
 </head>
 <body class="carregando">
@@ -736,6 +766,13 @@ body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
         <div id="lista-habilidades"></div>
         <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button></div>
 
+    <div data-s="ocultista"><div class="card" id="blk-rit"><h4>Rituais</h4>
+        <div class="rit-top">
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rit-btn" onclick="abrirBancoAnomalias()">+ LISTA</button><button type="button" class="rit-btn" onclick="novoRitual()">+ CRIAR REGISTRO MANUAL</button></div>
+            <div class="rit-dt">DT DE ANOMALIAS (10 + SAG + NA) <span>+</span> <input type="number" id="bonus-dt" class="save-auto" placeholder="Bônus"> <span>=</span> <span id="dt-val">10</span></div>
+        </div>
+        <div id="lista-rituais"></div></div></div>
+
     <div data-s="ocultista criatura"><details class="card" open><summary>Paranormal</summary>
         
         <div class="campos">
@@ -771,6 +808,22 @@ body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
 </div></div>
 </div>
 
+<input type="file" id="rit-file" accept="image/*" style="display:none" onchange="processarSimbolo(this)">
+<div id="modal-tpl-anomalia" class="modal-padrao" style="max-width:440px">
+    <h3 style="margin:0 0 12px">BANCO DE ANOMALIAS</h3>
+    <input type="text" class="rit-input" placeholder="Pesquisar anomalia..." onkeyup="filtrarBancoAnomalias(this)" style="margin-bottom:10px">
+    <select id="select-tpl-anomalia" size="6" onchange="previewAnomalia()" style="width:100%;margin-bottom:10px;background:var(--card-bg);color:var(--op-ink);border:1px solid var(--card-border);font:13px 'Special Elite',monospace"></select>
+    <div id="preview-anomalia" style="font:11px 'Special Elite',monospace;color:var(--cor-geral);margin-bottom:16px;min-height:40px"></div>
+    <div style="display:flex;gap:10px;justify-content:center"><button type="button" class="rit-btn" onclick="aplicarAnomalia()">APLICAR</button><button type="button" class="rit-btn" onclick="toggleElem('modal-tpl-anomalia')">CANCELAR</button></div>
+</div>
+<div id="rit-crop-modal" class="modal-padrao" style="max-width:340px;text-align:center">
+    <h3 style="margin:0 0 12px">REGISTRO DO SÍMBOLO</h3>
+    <div style="width:80px;height:80px;margin:0 auto 14px;overflow:hidden;position:relative;border:1px dashed var(--card-border)"><img id="rit-temp-img" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute;left:0;top:0"></div>
+    <label class="rit-label">Zoom</label><input type="range" id="rit-zoom" min="1" max="3" step="0.05" value="1" oninput="previewSimbolo()" style="width:100%">
+    <label class="rit-label">Horizontal</label><input type="range" id="rit-x" min="0" max="100" value="50" oninput="previewSimbolo()" style="width:100%">
+    <label class="rit-label">Vertical</label><input type="range" id="rit-y" min="0" max="100" value="50" oninput="previewSimbolo()" style="width:100%">
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:14px"><button type="button" class="rit-btn" onclick="confirmarSimbolo()">CONFIRMAR</button><button type="button" class="rit-btn" onclick="toggleElem('rit-crop-modal')">CANCELAR</button></div>
+</div>
 <datalist id="dl-tipo"><option>Padrão</option><option>Movimento</option><option>Reação</option><option>Livre</option></datalist>
 <div id="modal-pick" class="modal-padrao" style="max-width:440px">
     <h3 id="pk-titulo">ESCOLHER</h3>
@@ -810,7 +863,7 @@ body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
     let prevHexatombeFinal = false; 
     let isFirstLoad = true;
 
-    let unsubAcoes, unsubHabilidades;
+    let unsubAcoes, unsubHabilidades, unsubRit;
 
     function toggleElem(id) { 
         const b = document.getElementById(id); 
@@ -864,6 +917,7 @@ body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
     function carregarListas() {
         if (unsubAcoes) unsubAcoes();
         if (unsubHabilidades) unsubHabilidades();
+        if (unsubRit) unsubRit();
         
         const hexatombeFinal = isHexatombe || globalHexatombe;
         const pathAcoes = hexatombeFinal ? "hexa_acoes" : "acoes";
@@ -879,6 +933,11 @@ body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
             const container = document.getElementById('lista-habilidades'); container.innerHTML = "";
             snap.forEach(doc => { container.innerHTML += renderHabilidade(doc.id, doc.data(), pathHab); });
             HABS = snap.docs.map(x => x.data()); renderDossie();
+        });
+
+        unsubRit = refRit().onSnapshot(snap => {
+            RITS = snap.docs.map(x => ({ id: x.id, r: x.data() }));
+            renderRituais(); renderDossie();
         });
     }
 
@@ -1661,7 +1720,7 @@ if (campanhaParam) {
     const PV_CRIATURA=(na,vig)=>12+8*na+2*vig;   // SUGESTÃO (livro ainda não define criaturas) - ajuste aqui
     const CONS=[[0,'Instintiva','Sem raciocínio: age por impulso. Só usa as perícias essenciais.'],[30,'Desenvolvida','Complexa, mas sem mente plenamente consciente. Pode ter perícias extras.'],[80,'Consciente','Raciocina, planeja e mente. Pode ter perícias extras, segredos e Juramento.']];
     const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 ANOMALIA','HABILIDADES E COMPORTAMENTO','TIPO / DESCRIÇÃO CURTA']};
-    let ACOES=[], HABS=[], tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
+    let ACOES=[], HABS=[], RITS=[], tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
     const num=id=>parseInt($(id).value)||0;
     const nvl=()=>Math.min(5,Math.max(0,num('na')));
     const normPer=d=>(d.pericias_npc||(d.pericias_mundanas||[]).map(n=>({n,v:1}))).map(p=>({n:p.n,v:Math.max(0,Math.min(5,parseInt(p.v)||0))}));
@@ -1720,7 +1779,7 @@ if (campanhaParam) {
         ['m-esq','m-blq','m-lim'].forEach(i=>$(i).hidden=cri); $('exp-row').hidden=cri;
         $('blk-jur').hidden=!(tipoAtual==='ocultista'||(cri&&cv>=JUR_MIN));
         $('blk-pe').hidden=!usaPE; $('btn-pe').innerText=usaPE?'✔ Usa Esforço':'＋ Usa Esforço';
-        renderPer(); renderDossie();
+        renderPer(); calcDT(); renderDossie();
     }
 
     // ---------- seletor genérico (lista com busca) ----------
@@ -1892,6 +1951,174 @@ if (campanhaParam) {
     }
     setTimeout(()=>{ if(modoCriacao===null) iniciarModo(null); },3500);
 
+
+    // ======================================================================
+    // RITUAIS / ANOMALIAS — portado da ficha de personagem (campos, símbolo,
+    // banco, copiar/colar entre fichas e exportação para o GitHub)
+    // ======================================================================
+    const menusAbertos = new Set();
+    const templatesAnomalias = {
+        // Cole aqui as linhas exportadas pelo botão [ 📋 GITHUB ], no mesmo formato da ficha de personagem.
+    };
+    const COR_ELEM = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" };
+    let ADMINS_LISTA = [], ritIdSimbolo = '';
+    const pathRit = () => (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
+    function refRit() { return db.collection("ameacas").doc(atual).collection(pathRit()); }
+    const ehSuperAdmin = () => { const u = firebase.auth().currentUser; return !!u && u.email === "pedroacpr@gmail.com"; };
+    const ehMestre = () => { const u = firebase.auth().currentUser; return ehSuperAdmin() || (!!u && !!u.email && ADMINS_LISTA.includes(u.email.toLowerCase())); };
+    db.collection("configuracoes").doc("sistema").onSnapshot(d => { ADMINS_LISTA = (d.exists && d.data().listaAdmins) || []; renderRituais(); });
+    firebase.auth().onAuthStateChanged(() => renderRituais());
+
+    function dtAnomalias() { return 10 + num('sag') + nvl() + (parseInt($('bonus-dt').value) || 0); }
+    function calcDT() { $('dt-val').innerText = dtAnomalias(); }
+    $('bonus-dt').addEventListener('input', calcDT);
+
+    // quando "Compreensão Total" está marcada, vale a versão "buffed" do ritual
+    function ritView(r) {
+        return r.aprendido ? { ...r, ...(r.buffed || {}), primeiraConjuracao: r.buffed?.primeiraConjuracao ?? false, tempoAprendizado: r.buffed?.tempoAprendizado ?? r.tempoAprendizado ?? '' } : r;
+    }
+
+    function renderRituais() {
+        const c = $('lista-rituais'); if (!c) return;
+        const mestre = ehMestre(), superAdm = ehSuperAdmin(), afin = exp >= 50;
+        let h = mestre ? `<div style="margin-bottom:12px"><button type="button" class="rit-btn mestre" style="width:100%;padding:8px;font-weight:bold" onclick="colarRitualClipboard()">[ 📥 COLAR RITUAL DA ÁREA DE TRANSFERÊNCIA ]</button></div>` : '';
+        RITS.forEach(({ id, r }) => {
+            const buf = !!r.aprendido, v = ritView(r), cor = COR_ELEM[v.elemento] || "var(--op-ink)", aberto = menusAbertos.has('rit-' + id);
+            const campo = (rot, k, ph) => `<div class="rit-field"><span class="rit-label" style="color:${cor}">${rot}</span><input type="text" class="rit-input" placeholder="${ph}" value="${H(v[k] || '')}" onchange="updateRitualField('${id}','${k}',this.value,${buf})"></div>`;
+            h += `<div class="ritual-card" style="border-left-color:${cor}">
+    <div class="card-header" onclick="toggleRit('${id}')"><span style="color:${cor};font-weight:900">${H(v.nome || 'Nova Anomalia')} ${buf ? '<span style="color:var(--op-red);font-size:10px">[VERDADEIRO]</span>' : ''}</span></div>
+    <div class="card-body" id="rit-${id}" style="display:${aberto ? 'block' : 'none'}">
+        <div class="rit-layout-top">
+            <div class="rit-symbol-box" onclick="abrirSimbolo('${id}')">${v.simbolo ? `<img src="${v.simbolo}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${v.sX || 50}% ${v.sY || 50}%;transform:scale(${v.sZ || 1});position:absolute;top:0;left:0;filter:grayscale(100%) contrast(150%);mix-blend-mode:multiply">` : `<span style="text-align:center;font:700 9px 'Inter',sans-serif;color:var(--cor-geral)">REGISTRO<br>(Clique)</span>`}</div>
+            <div class="rit-grid-2"><div class="rit-field" style="grid-column:span 2"><span class="rit-label" style="color:${cor}">Identificação da Anomalia</span><input type="text" class="rit-input" placeholder="Nome do Ritual/Anomalia..." value="${H(v.nome || '')}" onchange="updateRitualField('${id}','nome',this.value,${buf})"></div></div>
+        </div>
+        <div class="rit-checkbox-row">
+            <label><input type="checkbox" ${buf ? 'checked' : ''} onchange="ritAprendido('${id}',this.checked)"> Compreensão Total</label>
+            <label><input type="checkbox" ${v.primeiraConjuracao ? 'checked' : ''} onchange="updateRitualField('${id}','primeiraConjuracao',this.checked,${buf})"> Manifestação Inédita</label>
+        </div>
+        <div class="rit-field" style="margin-bottom:12px;display:${v.primeiraConjuracao ? 'none' : 'block'}"><span class="rit-label" style="color:${cor}">Projeção de Estudo</span><input type="text" class="rit-input" placeholder="Ex: 2 semanas, 1 mês..." value="${H(v.tempoAprendizado || '')}" onchange="updateRitualField('${id}','tempoAprendizado',this.value,${buf})"></div>
+        <div class="rit-grid-2">${campo('Tempo de Execução', 'tempoConjuracao', 'Ex: Ação Padrão')}${campo('Alcance Operacional', 'alcance', 'Ex: Curto')}${campo('Alvo / Área Afetada', 'alvo', 'Ex: 1 Ser')}${campo('Estabilidade (Duração)', 'duracao', 'Ex: Cena')}</div>
+        <div class="rit-grid-2" style="margin-top:10px">${campo('Custo de Fôlego', 'custoPe', 'Ex: 1 PE')}${campo('Dano Mental (Lucidez)', 'custoSanidade', 'Ex: 1d4')}</div>
+        <div class="rit-field" style="margin-top:15px"><span class="rit-label" style="color:${cor}">Registro Detalhado</span><textarea class="cris-textarea" placeholder="Descreva as regras, testes e mecânicas da anomalia..." onchange="updateRitualField('${id}','descricao',this.value,${buf})">${H(v.descricao || '')}</textarea></div>
+        <div style="display:${afin ? 'block' : 'none'};margin-top:15px;padding:12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)"><span class="rit-label" style="font-weight:900">Sintoma de Exposição Avançada (Afinidade)</span><textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Descreva os efeitos da afinidade com esta anomalia..." onchange="updateRitualField('${id}','afinidade',this.value,${buf})">${H(v.afinidade || '')}</textarea></div>
+        <div style="text-align:right;margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+            ${mestre ? `<button type="button" class="rit-btn mestre" onclick="copiarRitualClipboard('${id}')" title="Copiar ritual para colar em outra ficha">[ 📋 COPIAR ]</button>` : ''}
+            ${superAdm ? `<button type="button" class="rit-btn mestre" onclick="copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : ''}
+            <button type="button" class="rit-btn perigo" onclick="removerRitual('${id}')">APAGAR REGISTRO</button>
+        </div>
+    </div></div>`;
+        });
+        c.innerHTML = h;
+    }
+    function toggleRit(id) { const b = $('rit-' + id); if (!b) return; const abre = b.style.display !== 'block'; b.style.display = abre ? 'block' : 'none'; abre ? menusAbertos.add('rit-' + id) : menusAbertos.delete('rit-' + id); }
+
+    async function novoRitual() {
+        const ref = refRit().doc(); menusAbertos.add('rit-' + ref.id);
+        await ref.set({ nome: "Nova Anomalia", elemento: "Nenhum", descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" });
+        setTimeout(() => { const el = $('rit-' + ref.id); if (el) el.parentElement.scrollIntoView({ behavior: "smooth", block: "center" }); }, 300);
+    }
+    // decide onde salvar: campo normal ou anexo "buffed" (Compreensão Total)
+    window.updateRitualField = async function (id, campo, valor, isBuffado) {
+        menusAbertos.add('rit-' + id);
+        const o = {}; if (isBuffado) o[`buffed.${campo}`] = valor; else o[campo] = valor;
+        await refRit().doc(id).update(o);
+    };
+    async function ritAprendido(id, marcado) { menusAbertos.add('rit-' + id); await refRit().doc(id).update({ aprendido: marcado }); }
+    async function removerRitual(id) { if (confirm("Remover este registro?")) { menusAbertos.delete('rit-' + id); await refRit().doc(id).delete(); } }
+
+    // ---- símbolo (imagem + enquadramento) ----
+    function abrirSimbolo(id) { ritIdSimbolo = id; $('rit-file').click(); }
+    function processarSimbolo(inp) {
+        if (!(inp.files && inp.files[0])) return;
+        const fr = new FileReader();
+        fr.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas'), cx = c.getContext('2d');
+                let r = Math.min(500 / img.width, 700 / img.height); if (r > 1) r = 1;
+                c.width = img.width * r; c.height = img.height * r;
+                cx.fillStyle = "#FFFFFF"; cx.fillRect(0, 0, c.width, c.height); cx.drawImage(img, 0, 0, c.width, c.height);
+                $('rit-temp-img').src = c.toDataURL('image/jpeg', 0.6);
+                $('rit-zoom').value = 1; $('rit-x').value = 50; $('rit-y').value = 50; previewSimbolo();
+                $('rit-crop-modal').style.display = 'block'; inp.value = "";
+            };
+            img.src = e.target.result;
+        };
+        fr.readAsDataURL(inp.files[0]);
+    }
+    function previewSimbolo() { const i = $('rit-temp-img'); i.style.objectPosition = `${$('rit-x').value}% ${$('rit-y').value}%`; i.style.transform = `scale(${$('rit-zoom').value})`; }
+    async function confirmarSimbolo() {
+        try { await refRit().doc(ritIdSimbolo).update({ simbolo: $('rit-temp-img').src, sX: $('rit-x').value, sY: $('rit-y').value, sZ: $('rit-zoom').value }); $('rit-crop-modal').style.display = 'none'; }
+        catch (e) { alert("Erro ao salvar o símbolo: " + e); }
+    }
+
+    // ---- banco de anomalias ----
+    function abrirBancoAnomalias() {
+        const s = $('select-tpl-anomalia'); s.innerHTML = '';
+        Object.keys(templatesAnomalias).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = `${templatesAnomalias[k].nome} (${templatesAnomalias[k].elemento})`; s.appendChild(o); });
+        if (!s.options.length) $('preview-anomalia').innerText = 'Banco vazio — exporte rituais com [ 📋 GITHUB ] e cole em templatesAnomalias.'; else $('preview-anomalia').innerText = '';
+        $('modal-tpl-anomalia').style.display = 'block';
+    }
+    function filtrarBancoAnomalias(inp) { const q = inp.value.toLowerCase(); [...$('select-tpl-anomalia').options].forEach(o => o.hidden = !o.textContent.toLowerCase().includes(q)); }
+    function previewAnomalia() { const d = templatesAnomalias[$('select-tpl-anomalia').value]; $('preview-anomalia').innerHTML = d ? `<strong>Elemento:</strong> ${H(d.elemento)}<br><strong>Efeito:</strong> ${H(d.descricao)}` : ''; }
+    async function aplicarAnomalia() {
+        const k = $('select-tpl-anomalia').value; if (!k || !templatesAnomalias[k]) return;
+        const ref = refRit().doc(); menusAbertos.add('rit-' + ref.id);
+        await ref.set(Object.assign({}, templatesAnomalias[k])); $('modal-tpl-anomalia').style.display = 'none';
+    }
+
+    // ---- copiar / colar entre fichas (mestres) e exportar para o site (super admin) ----
+    window.copiarRitualClipboard = async function (id) {
+        try {
+            const doc = await refRit().doc(id).get();
+            if (doc.exists) {
+                const data = doc.data();
+                await navigator.clipboard.writeText(JSON.stringify({ __tipo: "RITUAL_ARQUIVO", ...data }));
+                alert(`✅ RITUAL COPIADO!\n\nO ritual "${data.nome || 'Anomalia'}" foi copiado para sua Área de Transferência.\n\nAgora vá na ficha do NPC/Vilão onde deseja colocá-lo e clique no botão [ 📥 COLAR RITUAL ]!`);
+            }
+        } catch (e) { alert("Erro ao copiar ritual: " + e); }
+    };
+    window.colarRitualClipboard = async function () {
+        try {
+            let texto = "";
+            try { texto = await navigator.clipboard.readText(); } catch (err) { texto = prompt("Cole aqui o código do ritual copiado:"); }
+            if (!texto || !texto.trim()) return;
+            let obj; try { obj = JSON.parse(texto.trim()); } catch (e) { alert("❌ O conteúdo copiado não é um formato de ritual válido."); return; }
+            if (obj.__tipo !== "RITUAL_ARQUIVO" && !obj.nome) { alert("❌ O texto copiado não pertence ao sistema de anomalias."); return; }
+            delete obj.__tipo;
+            const ref = await refRit().add(obj); menusAbertos.add('rit-' + ref.id);
+            alert(`✅ RITUAL IMPORTADO COM SUCESSO!\n\nA anomalia "${obj.nome || 'Nova Anomalia'}" foi adicionada a esta ficha.`);
+        } catch (e) { alert("Erro ao colar ritual: " + e); }
+    };
+    window.copiarRitualParaSite = async function (id) {
+        try {
+            const doc = await refRit().doc(id).get();
+            if (!doc.exists) return;
+            const r = doc.data();
+            const ritId = r.nome ? r.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_anomalia';
+            const esc = s => (s || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+            const b = r.buffed || {};
+            const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${esc(r.descricao)}", afinidade: "${esc(r.afinidade)}", buffed: { nome: "${b.nome || r.nome || ''}", simbolo: "", tempoAprendizado: "${b.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${b.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${b.alcance || r.alcance || ''}", alvo: "${b.alvo || r.alvo || ''}", duracao: "${b.duracao || r.duracao || ''}", custoPe: "${b.custoPe || r.custoPe || ''}", custoSanidade: "${b.custoSanidade || r.custoSanidade || ''}", descricao: "${esc(b.descricao || r.descricao)}", afinidade: "${esc(b.afinidade || r.afinidade)}" } },`;
+            await navigator.clipboard.writeText(template);
+            alert("✅ CÓDIGO COMPACTO EXPORTADO!\n\nEle foi copiado em formato de linha única para a sua Área de Transferência.\n\nLembre-se de salvar a imagem do símbolo separadamente e adicionar o link na propriedade 'simbolo'!");
+        } catch (e) { alert("Erro ao copiar o código do ritual: " + e); }
+    };
+
+    // ---- visualização simplificada: só o nome; clique para expandir ----
+    function dRitual(id, v) {
+        const cor = COR_ELEM[v.elemento] || "var(--op-ink)", aberto = menusAbertos.has('drit-' + id);
+        const corpo = (v.simbolo ? `<img src="${v.simbolo}" alt="">` : '')
+            + dKv('Tempo de execução', v.tempoConjuracao) + dKv('Alcance operacional', v.alcance) + dKv('Alvo / área afetada', v.alvo)
+            + dKv('Estabilidade (duração)', v.duracao) + dKv('Custo de fôlego', v.custoPe) + dKv('Dano mental (lucidez)', v.custoSanidade)
+            + (v.descricao ? `<p>${H(v.descricao)}</p>` : '') + (exp >= 50 && v.afinidade ? `<p><em>${H(v.afinidade)}</em></p>` : '');
+        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="drit-w-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="toggleRitD('${id}')"><span style="color:${cor}">❖ ${H(v.nome || 'Nova Anomalia')}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}</span><i>▸</i></div><div class="d-rit-b" id="drit-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}</div></div>`;
+    }
+    function toggleRitD(id) {
+        const b = $('drit-' + id), w = $('drit-w-' + id); if (!b) return;
+        const abre = b.style.display !== 'block'; b.style.display = abre ? 'block' : 'none'; w.classList.toggle('aberto', abre);
+        abre ? menusAbertos.add('drit-' + id) : menusAbertos.delete('drit-' + id);
+    }
+
     // ---------- dossiê: só aparece o que está preenchido ----------
     const H=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     const val=id=>($(id).value||'').trim();
@@ -1921,6 +2148,7 @@ if (campanhaParam) {
             if(!$('blk-jur').hidden&&(val('enigma')||val('quebra'))) b+=dSec('Juramento restritivo',dKv('Regra',val('enigma'))+dKv('Como quebrar',val('quebra')));
             if(ACOES.length) b+=dSec('Ações',ACOES.map(a=>`<div class="d-acao"><div class="d-tipo">${H(a.tipo||'Padrão')}</div><div><b class="d-nm">❖ ${H(a.nome)}</b>${dKv('Teste',a.teste)}${dKv('Dano',a.dano)}${dKv('Alcance',a.alcance)}${a.efeitos?`<p>${H(a.efeitos)}</p>`:''}</div></div>`).join(''));
         }
+        if(t==='ocultista'&&RITS.length) b+=dSec('Rituais',dKv('DT de anomalias',String(dtAnomalias()))+RITS.map(({id,r})=>dRitual(id,ritView(r))).join(''));
         if(HABS.length) b+=dSec(TIPOS[t][1],HABS.map(h=>`<div class="d-hab"><b class="d-nm">❖ ${H(h.nome)}</b>${h.descricao?`<p>${H(h.descricao)}</p>`:''}</div>`).join(''));
         $('d-corpo-b').innerHTML=b;
         let tx=val('descricao')?`<p class="d-notas">${H(val('descricao'))}</p>`:'';
