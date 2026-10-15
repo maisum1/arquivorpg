@@ -1221,8 +1221,11 @@ body.tema-escuro .base-card .btn-open:hover {
         }
 
         // mesmo enquadramento da ficha: zoom 1 = preenche o quadro; abaixo disso aparece o resto da imagem
+        // as abas do hub ficam escondidas (tamanho 0) enquanto os cards são desenhados: reajusta quando o quadro ganha tamanho
+        const roFotoHub = new ResizeObserver(es => es.forEach(e => { const i = e.target.querySelector('img[data-pz]'); if (i) ajustarFotoHub(i); }));
         function ajustarFotoHub(img) {
             const box = img.parentElement, nw = img.naturalWidth, nh = img.naturalHeight, w = box.clientWidth, h = box.clientHeight;
+            roFotoHub.observe(box);
             if (!nw || !nh || !w || !h) return;
             const z = parseFloat(img.dataset.pz) || 1, x = parseFloat(img.dataset.px), y = parseFloat(img.dataset.py);
             const s = Math.max(w / nw, h / nh) * z, iw = nw * s, ih = nh * s;
