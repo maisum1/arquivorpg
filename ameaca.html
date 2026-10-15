@@ -179,13 +179,14 @@
         .book-title { font-family: 'Crimson Text', serif; font-size: 3.2rem; font-weight: 900; color: var(--op-ink); text-transform: uppercase; width: 80%; letter-spacing: 2px; margin: 0; line-height: 0.9; border: none; background: transparent !important;}
         .tipo-criatura { font-family: 'Courier Prime', monospace; font-weight: bold; font-size: 14px; color: var(--op-red); text-transform: uppercase; letter-spacing: 1px; display: block; width: 100%; border: none;}
 
-        .na-badge { 
-            border: 4px solid var(--op-red); color: var(--op-red); 
-            padding: 5px 15px; transform: rotate(5deg); opacity: 0.9;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(163, 21, 21, 0.03); mix-blend-mode: multiply;
+        .na-badge {
+            position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--op-red); border: 3px solid currentColor; border-radius: 3px; padding: 3px 16px 4px;
+            transform: rotate(-6deg); opacity: 0.92; background: transparent; mix-blend-mode: multiply;
+            filter: url(#carimbo);   /* tinta falhada + borda irregular, definido no <svg> logo após o <body> */
         }
-        .na-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 1px; margin-bottom: -5px; }
+        .na-badge::before { content: ""; position: absolute; inset: 3px; border: 1px solid currentColor; border-radius: 1px; pointer-events: none; }
+        .na-label { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: .35em; padding-left: .35em; margin-bottom: -4px; }
         .na-input { width: 60px; background: transparent; border: none; color: var(--op-red); text-align: center; font-size: 2.5rem; font-weight: 900; outline: none; font-family: 'Inter', sans-serif;}
         /* Placeholder vermelho específico para o NA */
         .na-input::placeholder { color: var(--op-red) !important; opacity: 0.6 !important; /* Deixa um pouco translúcido para manter cara de placeholder */ }
@@ -376,7 +377,7 @@ body.civil .bloco-stats{display:none}
 .f2 .nome-box{flex:1;min-width:0}
 .f2 .book-title{font-size:2.1rem!important;width:100%!important;letter-spacing:1px!important;line-height:1!important}
 .f2 .tipo-criatura{font-size:12px!important;margin-top:6px}
-.f2 .na-badge{transform:none!important;padding:2px 12px!important;border-width:3px!important;flex:none}
+.f2 .na-badge{padding:2px 14px!important;flex:none}
 .f2 .na-input{font-size:2rem!important;width:44px!important}
 .f2 .strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
 .f2 .tipo-badge{font:900 11px 'Inter',sans-serif;letter-spacing:1px;background:var(--op-ink);color:var(--bg-paper);padding:6px 10px;border-radius:2px}
@@ -479,7 +480,7 @@ body { padding:24px 12px !important; }
  .book-container { margin-top:48px !important; padding:17px 13px !important; border-radius:0 !important; }
  .f2 .topo { display:grid !important; grid-template-columns:76px minmax(0,1fr) auto !important; gap:11px !important; }
  .f2 .topo .foto { width:76px; }
- .f2 .na-badge { transform:scale(.88); transform-origin:right center; }
+ .f2 .na-badge { transform:rotate(-6deg) scale(.88); transform-origin:right center; }
  .f2 .attributes-bar { display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important; gap:6px !important; }
  .f2 .attr-box { width:auto !important; height:auto !important; min-width:0 !important; aspect-ratio:1; }
  .f2 .attr-label { font-size:9px !important; }
@@ -494,7 +495,7 @@ body { padding:24px 12px !important; }
  .f2 .topo { grid-template-columns:62px minmax(0,1fr) auto !important; gap:8px !important; }
  .f2 .topo .foto { width:62px; }
  .f2 .book-title { font-size:1.45rem !important; }
- .f2 .na-badge { transform:scale(.75); }
+ .f2 .na-badge { transform:rotate(-6deg) scale(.75); }
  .f2 .card { padding:10px !important; margin:9px 0 !important; }
  .f2 .attr-label { font-size:8px !important; }
  .f2 .attr-box input { font-size:16px !important; }
@@ -538,15 +539,12 @@ body.tema-escuro .pvctl input#mesa-n{background:rgba(0,0,0,.35)!important;border
 .dossie{position:relative;z-index:2;font-family:'Courier Prime',monospace;color:var(--op-ink)}
 .d-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:0 34px;align-items:start}
 .d-esq,.d-dir{min-width:0}
-.d-head{display:flex;align-items:stretch;background:var(--op-ink);color:var(--bg-paper);box-shadow:3px 3px 0 rgba(0,0,0,.25);margin-bottom:8px}
-.d-head-main{flex:1;min-width:0;padding:9px 14px}
+.d-head{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+.d-head-main{flex:1;min-width:0;padding:9px 14px;background:var(--op-ink);color:var(--bg-paper);box-shadow:3px 3px 0 rgba(0,0,0,.25)}
+.d-head .na-badge{flex:none;margin-right:6px}
 .d-nome{display:block;font:900 1.7rem/1.05 'Crimson Text',serif;letter-spacing:.05em;text-transform:uppercase;overflow-wrap:anywhere}
 .d-sub{display:block;margin-top:4px;font:700 10px 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
 .d-sub:empty{display:none}
-.d-head .na-badge{transform:none;border:0;border-left:1px solid rgba(128,128,128,.5);background:transparent;mix-blend-mode:normal;opacity:1;color:var(--bg-paper);padding:4px 14px;flex-direction:row;gap:6px}
-.d-head .na-label{margin:0;font:900 12px 'Inter',sans-serif;letter-spacing:.1em}
-body .d-head .na-input{width:44px;color:var(--bg-paper);font:900 2.1rem 'Crimson Text',serif}
-body .d-head .na-input::placeholder{color:var(--bg-paper)!important}
 .d-tags{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin:0 0 12px;font:700 11px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase}
 .d-tag-hl{background:var(--op-red);color:#fff;padding:2px 7px}
 .d-sec{margin:0 0 12px}
@@ -584,9 +582,7 @@ body .d-head .na-input::placeholder{color:var(--bg-paper)!important}
 .d-notas{font:400 15px/1.6 'Crimson Text',serif;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 14px}
 .d-segredo{border:1px dashed var(--op-ink);padding:9px 12px;margin-top:6px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .d-segredo b{display:block;margin-bottom:3px;font:900 10px 'Inter',sans-serif;letter-spacing:.14em}
-body.tema-escuro .d-head,body.tema-escuro .d-bar{background:#222;color:var(--accent-gold)}
-body.tema-escuro .d-head .na-badge,body.tema-escuro .d-head .na-input{color:var(--accent-gold)}
-body.tema-escuro .d-head .na-input::placeholder{color:var(--accent-gold)!important}
+body.tema-escuro .d-head-main,body.tema-escuro .d-bar{background:#222;color:var(--accent-gold)}
 body.tema-escuro .d-at i{background:#222;color:var(--accent-gold)}
 @media (max-width:700px){
  .d-grid{grid-template-columns:1fr}
@@ -638,6 +634,15 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
 </style>
 </head>
 <body class="carregando">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <filter id="carimbo" x="-6%" y="-6%" width="112%" height="112%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="ruido"/>
+        <feColorMatrix in="ruido" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.4" result="falhas"/>
+        <feComposite in="SourceGraphic" in2="falhas" operator="in" result="tinta"/>
+        <feTurbulence type="turbulence" baseFrequency="0.035" numOctaves="2" seed="7" result="onda"/>
+        <feDisplacementMap in="tinta" in2="onda" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+</defs></svg>
 
 <input type="file" id="fileUploader" accept="image/*" style="display:none" onchange="processarArquivo(this)">
 <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="converterImagem(this)">
@@ -972,7 +977,7 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
             let obj = {}; 
             
             const isAtributo = ['agi','for','sag','von','vig'].includes(campo);
-            const isImageMeta = ['portrait','pX','pY','pZ','tipoAmeaca','fichaConcluida'].includes(campo);
+            const isImageMeta = ['portrait','pX','pY','pZ','tipoAmeaca','fichaConcluida','papel'].includes(campo);
 
             let valFormatado = valor;
             if (['pv-atual', 'pv-max', 'pc-atual', 'pc-max', 'pe-atual', 'pe-max', 'agi', 'for', 'sag', 'von', 'vig', 'na', 'defesa'].includes(campo)) {
