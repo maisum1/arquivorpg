@@ -1054,7 +1054,7 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
             if(!pendingUpdates['exp']) exp=(d.exp!==undefined)?d.exp:EXPS[Math.min(5,Math.max(0,parseInt(d.na)||0))][0];
             const dm=(hexatombeFinal&&d_raw.hexatombe_data)?{...d_raw,...d_raw.hexatombe_data}:d_raw;
             if(!pendingUpdates['pericias_npc']) PNPC=normPer(dm);
-            papel=d.papel||'hostil'; if(!pendingUpdates['perfil']) perfil=LEGADO_PERFIL[d.perfil]||d.perfil||''; if(!pendingUpdates['comp']) comp=(d.comp!==undefined)?d.comp:-1;
+            papel=d.papel||(d.tipoAmeaca==='mundana'?'neutro':'hostil'); if(!pendingUpdates['perfil']) perfil=LEGADO_PERFIL[d.perfil]||d.perfil||''; if(!pendingUpdates['comp']) comp=(d.comp!==undefined)?d.comp:-1;
             usaPE=(d.usaPE!==undefined)?d.usaPE:(d.tipoAmeaca==='ocultista'); modoCivil=!!d.modoCivil;
             aplicarTipo(tipoAtual);
             setTimeout(()=>{renderNA();renderPapel();refresh();},0);
@@ -2177,6 +2177,12 @@ if (campanhaParam) {
     let _rbf; window.addEventListener('resize',()=>{ clearTimeout(_rbf); _rbf=setTimeout(distribuirFluxo,150); });
     if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>distribuirFluxo());
 
+    // mesma classificação do hub: NPC | Bestiário | Acervo Humanoide (criatura com consciência >= 80 também é Acervo)
+    function categoriaFicha() {
+        const t = tipoAtual, papelOk = (papel || (t === 'mundana' ? 'neutro' : 'hostil'));
+        if (t !== 'criatura' && papelOk !== 'hostil') return 'NPC';
+        return (t === 'criatura' && num('consciencia') < 80) ? 'Bestiário' : 'Acervo Humanoide';
+    }
     // ---------- dossiê: só aparece o que está preenchido ----------
     const H=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     const val=id=>($(id).value||'').trim();
@@ -2190,7 +2196,7 @@ if (campanhaParam) {
         const cv=Math.min(100,Math.max(0,num('consciencia'))), gr=[...CONS].reverse().find(x=>cv>=x[0]);
         $('d-nome').innerText=val('nome')||'SEM NOME'; $('d-sub').innerText=val('tipo-criatura');
         const modelo=(ARQ[t]||{})[perfil], papelNome={hostil:'Hostil',neutro:'Neutro',aliado:'Aliado'}[papel]||'Hostil';
-        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`);
+        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+`<span>• ${categoriaFicha()}</span>`+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`);
         const ats=Object.keys(ATR).map(k=>`<span class="d-at"><b>${k}</b><i>${num(ATR[k])}</i></span>`).join('');
         $('d-corpo-a').innerHTML=civil?'':dSec('Atributos',`<div class="d-ats">${ats}</div>`);
         $('slot-rec').hidden=civil;
