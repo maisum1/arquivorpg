@@ -667,6 +667,13 @@ body.tema-escuro .base-card .btn-open:hover {
             const sub = (t === 'criatura' && (parseInt(d.consciencia) || 0) < CONSC_ACERVO) ? 'bestiario' : 'acervo';
             return { npc, sub };
         }
+        // lista da aba Ameaças do hub: junta as ameaças (snapshot de 'ameacas') e as personas transferidas (snapshot de 'fichas')
+        let hubAmeacaItens = [], hubPersonasHtml = [];
+        function renderHubAmeacas() {
+            const divAmeacas = document.getElementById('lista-ameacas'); if (!divAmeacas) return;
+            if (!document.getElementById('wrapper-ameacas-puras')) divAmeacas.innerHTML = `<div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
+            document.getElementById('wrapper-ameacas-puras').innerHTML = htmlSecoesAmeacas(hubAmeacaItens, 'hub', true, false, hubPersonasHtml);
+        }
         const secAbertas = {};   // lembra o que o usuário abriu/fechou entre atualizações
         const SECOES_AMEACA = {
             npc: ['NPCs', 'humanos não hostis'],
@@ -674,13 +681,14 @@ body.tema-escuro .base-card .btn-open:hover {
             acervo: ['Acervo Humanoide', 'humanos, humanos paranormais e criaturas complexas']
         };
         // itens: [{doc, sub, npc}] -> HTML agrupado em seções recolhíveis (vazias não aparecem)
-        function htmlSecoesAmeacas(itens, ctx, abertaPadrao, incluirNpcs) {
+        function htmlSecoesAmeacas(itens, ctx, abertaPadrao, incluirNpcs, extrasAcervo = []) {
             const chaves = incluirNpcs ? ['npc', 'bestiario', 'acervo'] : ['bestiario', 'acervo'];
             return chaves.map(ch => {
                 const lista = itens.filter(i => ch === 'npc' ? i.npc : (!i.npc && i.sub === ch));
-                if (!lista.length) return '';
+                const extras = ch === 'acervo' ? extrasAcervo : [];   // personas transferidas (HTML pronto) ficam no Acervo Humanoide
+                if (!lista.length && !extras.length) return '';
                 const k = ctx + ':' + ch, aberta = (k in secAbertas) ? secAbertas[k] : abertaPadrao;
-                return `<details class="hub-sec" ${aberta ? 'open' : ''} ontoggle="secAbertas['${k}']=this.open"><summary><span class="sec-tit">${SECOES_AMEACA[ch][0]}<small>${SECOES_AMEACA[ch][1]}</small></span><span class="cnt">${lista.length}</span></summary><div class="grid">${lista.map(i => renderAmeacaCard(i.doc, ctx === 'hub' ? 'hub' : ctx)).join('')}</div></details>`;
+                return `<details class="hub-sec" ${aberta ? 'open' : ''} ontoggle="secAbertas['${k}']=this.open"><summary><span class="sec-tit">${SECOES_AMEACA[ch][0]}<small>${SECOES_AMEACA[ch][1]}</small></span><span class="cnt">${lista.length + extras.length}</span></summary><div class="grid">${lista.map(i => renderAmeacaCard(i.doc, ctx === 'hub' ? 'hub' : ctx)).join('')}${extras.join('')}</div></details>`;
             }).join('');
         }
         let minhasFichasGlobais = [];
@@ -1062,8 +1070,7 @@ body.tema-escuro .base-card .btn-open:hover {
             if (divAmeacas && !document.getElementById('wrapper-ameacas-personas')) {
                 divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
             }
-            const wrapPersonas = document.getElementById('wrapper-ameacas-personas');
-            if(wrapPersonas) wrapPersonas.innerHTML = "";
+            const personasAmeaca = [];   // personas transferidas para Ameaças: entram no Acervo Humanoide
 
             let count = 0;
 
@@ -1074,7 +1081,7 @@ body.tema-escuro .base-card .btn-open:hover {
                 minhasFichasGlobais.push({ id: docId, nome: docData.nome || 'Persona Desconhecida' });
                 
                 if (docData.isNpcAmeaca) {
-                    if (wrapPersonas) wrapPersonas.innerHTML += renderFichaMonitorCard(doc, 'monitor');
+                    personasAmeaca.push(renderFichaMonitorCard(doc, 'monitor'));
                 } else {
                     count++;
                     const dataRegistroTexto = formatarDataRegistro(docData.createdAt);
@@ -1102,6 +1109,8 @@ body.tema-escuro .base-card .btn-open:hover {
                 }
             });
             
+            hubPersonasHtml = personasAmeaca; renderHubAmeacas();
+
             const elemContador = document.getElementById('contador-personas');
             if (elemContador) elemContador.innerText = `Personas: ${count}`;
         });
@@ -1326,7 +1335,7 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                 (c.npc ? npcs : ameacas).push({ doc, sub: c.sub, npc: c.npc });
             });
             if (divNpcs) divNpcs.innerHTML = npcs.map(i => renderAmeacaCard(i.doc, 'hub')).join('');
-            if (wrapPuras) wrapPuras.innerHTML = htmlSecoesAmeacas(ameacas, 'hub', true, false);
+            hubAmeacaItens = ameacas; renderHubAmeacas();
         });
     }
 
