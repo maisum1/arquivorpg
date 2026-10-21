@@ -631,9 +631,14 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
 #d-fluxo-d{margin-top:6px}
 .rit-dt select{background:transparent;border:1px dotted var(--card-border);color:var(--op-ink);font:13px 'Special Elite',monospace;padding:3px;max-width:190px}
 @media (max-width:700px){#d-fluxo-e{order:6}#d-fluxo-d{order:8}}
+.somente-leitura-aviso{display:none}
+body.somente-leitura [onclick*="modal-config"], body.somente-leitura .modo-barra { display: none !important; }
+body.somente-leitura .pvctl, body.somente-leitura .portrait, body.somente-leitura .na-badge { pointer-events: none; }
+body.somente-leitura::after { content: "👁️ SOMENTE VISUALIZAÇÃO"; position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 3000; padding: 5px 12px; background: rgba(0,0,0,.78); color: #fff; font: 700 10px 'Inter', sans-serif; letter-spacing: .12em; pointer-events: none; }
 </style>
 </head>
 <body class="carregando">
+<script>if(new URLSearchParams(location.search).get("view")==="true") document.body.classList.add("somente-leitura");</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
     <filter id="carimbo" x="-6%" y="-6%" width="112%" height="112%">
         <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="ruido"/>
@@ -872,7 +877,7 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
         appId: "1:758802032764:web:40467e15fdc24c570081f9"
     };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const db = firebase.firestore(); const urlParams = new URLSearchParams(window.location.search); const atual = urlParams.get('id');
+    const db = firebase.firestore(); const urlParams = new URLSearchParams(window.location.search); const atual = urlParams.get('id'); const SOMENTE_LEITURA = urlParams.get('view') === 'true';   // link de "apenas visualização"
 
     if(!atual) { window.location.href = "index.html"; }
 
@@ -964,6 +969,7 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
 
     const filaCampos = {};
     function updateField(campo, valor) {
+        if (SOMENTE_LEITURA) return;
         clearTimeout(timeouts[campo]);
         pendingUpdates[campo] = true;
         filaCampos[campo] = valor; salvarRascunho(campo, valor);
@@ -1932,6 +1938,7 @@ if (campanhaParam) {
     function togglePE(){ usaPE=!usaPE; updateField('usaPE',usaPE); if(usaPE&&tipoAtual==='ocultista') calc(); else refresh(); }
     function toggleCivil(){ modoCivil=!modoCivil; updateField('modoCivil',modoCivil); aplicarTipo(tipoAtual); }
     function aplicaPV(s,ev){
+        if(SOMENTE_LEITURA) return;
         if(ev){ ev.preventDefault(); ev.stopPropagation(); }
         const campo=$('mesa-n'), n=Math.abs(parseInt(campo.value))||0;
         if(n){
@@ -1965,11 +1972,13 @@ if (campanhaParam) {
     let modoCriacao=null, modoFinal=false;
     function iniciarModo(d){
         if(modoFinal) return;
+        if(SOMENTE_LEITURA){ modoFinal=true; modoCriacao=false; aplicarModo(); return; }   // visualização: sempre o dossiê
         if(d){ modoFinal=true; restaurarRascunho(); } else if(modoCriacao!==null) return;
         modoCriacao=!(d&&d.fichaConcluida);
         aplicarModo();
     }
     function definirModo(c){
+        if(SOMENTE_LEITURA) return;
         modoFinal=true; modoCriacao=!!c;
         if(!c) updateField('fichaConcluida',true);
         aplicarModo(); const m=$('modal-config'); if(m) m.style.display='none'; window.scrollTo(0,0);
@@ -1981,6 +1990,7 @@ if (campanhaParam) {
         if(modoCriacao){ topo.insertBefore(foto,topo.firstChild); topo.appendChild(na); $('home-rec').appendChild(rec); }
         else { $('slot-foto').appendChild(foto); $('slot-na').appendChild(na); $('slot-rec').appendChild(rec); }
         const b=$('btn-modo'); if(b) b.innerText=modoCriacao?'[ 📄 ] VER FICHA CONCLUÍDA':'[ ✏️ ] REABRIR MODO DE CRIAÇÃO';
+        if(SOMENTE_LEITURA) document.querySelectorAll('#slot-rec input, #slot-na input, #mesa-n').forEach(i=>i.readOnly=true);
         ajustarFoto(); renderDossie();
     }
     setTimeout(()=>{ if(modoCriacao===null) iniciarModo(null); },3500);
