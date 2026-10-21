@@ -2537,11 +2537,11 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
     <section style="position: relative; z-index: 2;">
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
-            <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
-            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E ESPEC.</button>
-            <button class="tab-btn" id="tab-anomalias" onclick="mudarAba('rituais')" style="display: none;">ANOMALIAS</button>
-            <button class="tab-btn" onclick="mudarAba('inventario')">ARQUIVO E ITENS</button>
             <button class="tab-btn" onclick="mudarAba('background')">PERFIL PSICOLÓGICO</button>
+            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E ESPEC.</button>
+            <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
+            <button class="tab-btn" onclick="mudarAba('inventario')">ARQUIVO E ITENS</button>
+            <button class="tab-btn" id="tab-anomalias" onclick="mudarAba('rituais')" style="display: none;">ANOMALIAS</button>
         </nav>
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
@@ -2707,6 +2707,10 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 
         <div id="aba-background" class="tab-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">RESIDÊNCIA</span><input type="text" id="bgResidencia" class="rit-input" maxlength="60" onchange="salvarFicha()" placeholder="Cidade / bairro atual"></div>
+                    <div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">LOCAL DE NASCIMENTO</span><input type="text" id="bgNascimento" class="rit-input" maxlength="60" onchange="salvarFicha()" placeholder="Cidade / país de origem"></div>
+                </div>
                 <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">DESCRIÇÃO PESSOAL</label><textarea id="bgDescricao" class="cris-textarea" onchange="salvarFicha()" placeholder="Aparência, primeiras impressões..."></textarea></div>
                 <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">IDEOLOGIA E CRENÇAS</label><textarea id="bgIdeologia" class="cris-textarea" onchange="salvarFicha()" placeholder="No que acredita, convicções..."></textarea></div>
                 <div class="bg-section"><label class="section-header" style="font-size: 12px; letter-spacing: 1px; padding: 4px 8px; margin-bottom: 10px;">PESSOAS SIGNIFICATIVAS</label><textarea id="bgPessoas" class="cris-textarea" onchange="salvarFicha()" placeholder="Familiares, amigos, inimigos..."></textarea></div>
@@ -3850,7 +3854,7 @@ let filtroSubAtualAtaques = 'Todos';
                 }
             }
 
-            document.getElementById('bgDescricao').value = d_raw.bgDescricao || ""; document.getElementById('bgIdeologia').value = d_raw.bgIdeologia || ""; document.getElementById('bgPessoas').value = d_raw.bgPessoas || ""; document.getElementById('bgLocais').value = d_raw.bgLocais || ""; document.getElementById('bgPosses').value = d_raw.bgPosses || ""; document.getElementById('bgTracos').value = d_raw.bgTracos || ""; document.getElementById('bgCicatrizes').value = d_raw.bgCicatrizes || ""; document.getElementById('bgFobias').value = d_raw.bgFobias || ""; document.getElementById('bgEncontros').value = d_raw.bgEncontros || ""; document.getElementById('campanhaId-config').value = d_raw.campanhaId || "";
+            document.getElementById('bgDescricao').value = d_raw.bgDescricao || ""; document.getElementById('bgIdeologia').value = d_raw.bgIdeologia || ""; document.getElementById('bgPessoas').value = d_raw.bgPessoas || ""; document.getElementById('bgLocais').value = d_raw.bgLocais || ""; document.getElementById('bgPosses').value = d_raw.bgPosses || ""; document.getElementById('bgTracos').value = d_raw.bgTracos || ""; document.getElementById('bgCicatrizes').value = d_raw.bgCicatrizes || ""; document.getElementById('bgFobias').value = d_raw.bgFobias || ""; document.getElementById('bgEncontros').value = d_raw.bgEncontros || ""; document.getElementById('bgResidencia').value = d_raw.bgResidencia || ""; document.getElementById('bgNascimento').value = d_raw.bgNascimento || ""; document.getElementById('campanhaId-config').value = d_raw.campanhaId || "";
 
             recalcularBases(); atualizarStatusVisual('vida'); atualizarStatusVisual('san'); atualizarStatusVisual('pe'); aplicarStatusVisual(); aplicarSegredosUI(); aplicarModoSobrevivenciaVisuais(doc.data().modoSobrevivencia);
             
@@ -3926,7 +3930,7 @@ let filtroSubAtualAtaques = 'Todos';
             campanhaId: document.getElementById('campanhaId-config').value
         };
         
-        let bgData = { bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value };
+        let bgData = { bgDescricao: document.getElementById('bgDescricao').value, bgIdeologia: document.getElementById('bgIdeologia').value, bgPessoas: document.getElementById('bgPessoas').value, bgLocais: document.getElementById('bgLocais').value, bgPosses: document.getElementById('bgPosses').value, bgTracos: document.getElementById('bgTracos').value, bgCicatrizes: document.getElementById('bgCicatrizes').value, bgFobias: document.getElementById('bgFobias').value, bgEncontros: document.getElementById('bgEncontros').value, bgResidencia: document.getElementById('bgResidencia').value, bgNascimento: document.getElementById('bgNascimento').value };
 
         let rU = { hexatombe: isHexatombe, restricao: isRestricao, ...bgData, campanhaId: pl.campanhaId };
         
@@ -5777,6 +5781,8 @@ let filtroSubAtualAtaques = 'Todos';
       <div class="fq-level">NÍVEL <b id="fq-nivel">0</b></div>
       <div class="fq-meta-line" id="fq-classe">—</div>
       <div class="fq-meta-line" id="fq-idade">—</div>
+      <div class="fq-meta-line fq-loc" id="fq-residencia" style="display:none"></div>
+      <div class="fq-meta-line fq-loc" id="fq-nascimento" style="display:none"></div>
       <div class="fq-meta-line" id="fq-nex-wrap" style="display:none">EXP <b id="fq-nex">—</b></div>
     </div>
 
@@ -5827,6 +5833,7 @@ let filtroSubAtualAtaques = 'Todos';
     </nav>
   </div>
 </aside>
+<style id="fq-loc-css">.fq-loc{max-width:24ch;margin-left:auto;margin-top:3px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}</style>
 <script id="ficha-rapida-js">
 (function(){
   "use strict";
@@ -6119,6 +6126,10 @@ let filtroSubAtualAtaques = 'Todos';
     $('fq-nome').textContent=name;$('fq-origem').textContent=origem;
     $('fq-classe').textContent=classe ? classe.toUpperCase() : '—';
     $('fq-idade').textContent=idade!=='—' ? 'IDADE '+idade : '';
+    [['fq-residencia','RES.','bgResidencia'],['fq-nascimento','NASC.','bgNascimento']].forEach(([id,pref,campo])=>{
+      const v=(main(campo)?.value||'').trim(), e=$(id);
+      e.style.display=v?'':'none'; e.textContent=v?pref+' '+v:'';
+    });
     $('fq-nivel').textContent=nivel;
     const jogador=($('label-nome-jogador')?.textContent||'JOGADOR(A): —').replace(/\s+/g,' ').trim();
     $('fq-jogador').textContent=jogador;
