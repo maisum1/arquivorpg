@@ -540,6 +540,7 @@ body.tema-escuro .base-card .btn-open:hover {
         <h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">COMPARTILHAR ARQUIVO</h3>
         <p style="font-size: 11px; color: var(--cor-geral); margin-bottom: 15px; font-family: 'Inter', sans-serif;">Escolha qual o nível de acesso você quer dar ao enviar este link.</p>
         <input type="hidden" id="link-ficha-id-copy">
+        <input type="hidden" id="link-tipo-copy" value="ficha">
         <button class="btn-google" onclick="executarCopiaLink('view')" style="width: 100%; border-color: var(--san-purple); color: var(--san-purple); margin-bottom: 10px;">[ 👁️ ] APENAS VISUALIZAÇÃO</button>
         <button class="btn-google" onclick="executarCopiaLink('edit')" style="width: 100%; border-color: var(--op-red); color: var(--op-red);">[ ✍️ ] PERMITIR EDIÇÃO / POSSE</button>
         <button onclick="toggleModal('modal-copiar-link')" style="margin-top:15px; width:100%; background:transparent; color:var(--cor-geral); border:none; padding:10px; cursor:pointer; font-weight:bold; letter-spacing: 1px; font-family: 'Inter', sans-serif; font-size: 11px;">CANCELAR</button>
@@ -774,17 +775,20 @@ body.tema-escuro .base-card .btn-open:hover {
             }
         }
 
-        function abrirModalCopiarLink(id) {
+        function abrirModalCopiarLink(id, tipo) {
             document.getElementById('link-ficha-id-copy').value = id;
+            document.getElementById('link-tipo-copy').value = tipo || 'ficha';   // 'ficha' (persona) ou 'ameaca' (ameaça / NPC)
             toggleModal('modal-copiar-link');
         }
 
         function executarCopiaLink(modo) {
             const id = document.getElementById('link-ficha-id-copy').value;
-            let url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + 'ficha.html?id=' + id;
+            const ehAmeaca = document.getElementById('link-tipo-copy').value === 'ameaca';
+            let url = window.location.origin + window.location.pathname.replace(/index\.html.*/, '') + (ehAmeaca ? 'ameaca.html' : 'ficha.html') + '?id=' + id;
             if (modo === 'view') { url += '&view=true'; }
             navigator.clipboard.writeText(url);
-            alert(modo === 'view' ? 'Link de VISUALIZAÇÃO copiado! Quem receber NÃO poderá editar a ficha.' : 'Link de EDIÇÃO copiado! Quem receber poderá assumir a ficha.');
+            alert(modo === 'view' ? ('Link de VISUALIZAÇÃO copiado! Quem receber NÃO poderá editar ' + (ehAmeaca ? 'a ficha de ameaça.' : 'a ficha.'))
+                                   : (ehAmeaca ? 'Link de EDIÇÃO copiado! Quem receber poderá abrir e editar a ficha de ameaça (e clonar pela aba "Clonar via Link").' : 'Link de EDIÇÃO copiado! Quem receber poderá assumir a ficha.'));
             toggleModal('modal-copiar-link');
         }
         
@@ -1170,7 +1174,7 @@ body.tema-escuro .base-card .btn-open:hover {
             html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'fichas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ficha</button>';
             
         } else if (tipo === 'ameaca') {
-            html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\')">🔗 Compartilhar Link</button>';
+            html += '<button class="dropdown-item" onclick="abrirModalCopiarLink(\'' + id + '\', \'ameaca\')">🔗 Compartilhar Link</button>';
             
             if (extraContext === 'campanha' && typeof desvincularDocumento === 'function') {
                 html += '<button class="dropdown-item" style="color:var(--san-purple);" onclick="desvincularDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🔌 Desvincular</button>';
@@ -1378,7 +1382,7 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                 data.campanhasIds = []; 
                 
                 let novoRef = await db.collection("ameacas").add(data);
-                const cols = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca"];
+                const cols = ["acoes", "habilidades_ameaca", "hexa_acoes", "hexa_habilidades_ameaca", "rituais", "hexa_rituais"];
                 for(let c of cols) { let subSnap = await db.collection("ameacas").doc(idExtraido).collection(c).get(); for(let doc of subSnap.docs) { await db.collection("ameacas").doc(novoRef.id).collection(c).doc(doc.id).set(doc.data()); } }
                 alert("Ameaça Replicada!"); toggleModal('modal-clonar-ameaca'); document.getElementById('input-link-clone').value = ""; document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM";
             } catch(e) { document.getElementById('btn-clonar-action').innerText = "CLONAR PARA MIM"; }
