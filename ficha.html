@@ -712,6 +712,19 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 .rit-ajuda th,.rit-ajuda td{border:1px solid var(--card-border);padding:3px 8px;text-align:left;font-size:11px}
 .rit-ajuda p{margin:6px 0}
 @media (max-width:560px){.rit-grid-3{grid-template-columns:1fr 1fr}}
+
+/* ===== ritual concluído (mesmo visual do dossiê da ficha de ameaça) ===== */
+.d-rit{border-left:4px solid var(--op-ink);margin:0 0 6px;background:rgba(0,0,0,.03)}
+.d-rit-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;font:900 14px 'Inter',sans-serif;letter-spacing:.03em;text-transform:uppercase;user-select:none;-webkit-user-select:none}
+.d-rit-h small{color:var(--op-red);font-size:10px;margin-left:4px}
+.d-rit-h i{font-style:normal;opacity:.6;transition:transform .15s}
+.d-rit.aberto .d-rit-h i{transform:rotate(90deg)}
+.d-rit-b{padding:6px 10px 10px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.5}
+.d-rit-b img{float:right;width:64px;height:64px;object-fit:cover;filter:grayscale(100%) contrast(150%);mix-blend-mode:multiply;margin:0 0 6px 8px;border:1px dashed var(--card-border)}
+.d-rit-b p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.d-kv{display:flex;gap:8px;margin:2px 0;font-size:13px;line-height:1.5}
+.d-kv b{flex:none;font:800 11px/1.7 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.d-custo{margin-left:8px;font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red);text-transform:none}
 </style>
 
     
@@ -4165,8 +4178,7 @@ let filtroSubAtualAtaques = 'Todos';
     };   // "falha" = metade do tempo-base, arredondada para cima (em dias)
     const MODALIDADES = {
         ritual:      { nome: 'Ritual estruturado', curto: 'Ritual',      dica: 'envolve preparação, símbolos, componentes ou etapas' },
-        conjuracao:  { nome: 'Conjuração direta',  curto: 'Conjuração',  dica: 'efeito específico aprendido, sem exigir estrutura preparada' },
-        canalizacao: { nome: 'Canalização',        curto: 'Canalização', dica: 'direciona energia para alimentar, intensificar ou sustentar uma ação ou fenômeno' }
+        conjuracao:  { nome: 'Conjuração direta',  curto: 'Conjuração',  dica: 'efeito específico aprendido, sem exigir estrutura preparada' }
     };
     const ritEsc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const ritOpcoesComplex = sel => '<option value="">— escolher —</option>' + Object.keys(COMPLEXIDADES).map(k => `<option value="${k}" ${sel === k ? 'selected' : ''}>${COMPLEXIDADES[k].nome}</option>`).join('');
@@ -4213,15 +4225,16 @@ let filtroSubAtualAtaques = 'Todos';
         </div>
         <div class="rit-grid-2">
             ${campo('Pré-requisitos', 'preRequisitos', 'Grau de Ocultismo, conhecimentos, componentes...', true)}
-            ${esp ? '' : campo('Projeção de estudo', 'tempoAprendizado', comp ? comp.base : 'Ex: 2 semanas', true)}
+            ${(esp || !pend) ? '' : campo('Projeção de estudo', 'tempoAprendizado', comp ? comp.base : 'Ex: 2 semanas', true)}
         </div>
         <div class="rit-sec">EXECUÇÃO</div>
         <div class="rit-grid-3">
             ${campo('Tempo', 'tempoConjuracao', 'Ex: Ação Padrão')}${campo('Alcance', 'alcance', 'Ex: Curto')}${campo('Alvo / Área', 'alvo', 'Ex: 1 Ser')}
-            ${campo('Duração', 'duracao', 'Ex: Cena')}${campo('Custo de Fôlego', 'custoPe', 'Ex: 1 PE')}${campo('Dano mental', 'custoSanidade', 'Ex: 1d4')}
+            ${campo('Duração', 'duracao', 'Ex: Cena')}${campo('Custo de Fôlego (PF)', 'custoPe', 'Ex: 2')}${campo('Dano mental / Lucidez (PL)', 'custoSanidade', 'Ex: 1d4')}
+            ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
         </div>
         <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Registro detalhado</span><textarea class="cris-textarea" placeholder="Regras, testes e mecânicas do efeito..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${buf})">${E(v.descricao)}</textarea></label>
-        <div style="display:${afin ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
+        <div style="display:${(afin && r.aprendido) ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
             <span class="rit-label" style="font-weight:900">Efeito da afinidade</span>
             <textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Como a afinidade modifica este ritual (não concede conhecimento nem domínio)..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','afinidade',this.value,${buf})">${E(v.afinidade)}</textarea>
         </div>
@@ -4229,12 +4242,37 @@ let filtroSubAtualAtaques = 'Todos';
     </div>
 </div>`;
     }
+
+    // ---- custos (PF / PL / adicional) e visualização simplificada do ritual concluído ----
+    const ritFmtCusto = (x, u) => { x = String(x == null ? '' : x).trim(); if (!x) return ''; return /^\d+(d\d+)?([+-]\d+)?$/i.test(x) ? x + ' ' + u : x; };
+    const ritCustoTxt = v => [ritFmtCusto(v.custoPe, 'PF'), ritFmtCusto(v.custoSanidade, 'PL'), String(v.custoAdicional || '').trim()].filter(Boolean).join(' • ');
+    // o = { id, v (versão em vigor, com os marcadores do ritual), cor, aberto, afin (NEX/EXP >= 50), extra (botões) }
+    function ritViewHTML(o) {
+        const { id, v, cor, aberto, afin, extra } = o, E = ritEsc, comp = COMPLEXIDADES[v.complexidade], mod = MODALIDADES[v.modalidade];
+        const pend = !!v.primeiraExecucao, esp = (v.espontanea !== undefined) ? !!v.espontanea : !!v.primeiraConjuracao, custo = ritCustoTxt(v);
+        const kv = (k, x) => x ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
+        const corpo = (v.simbolo ? `<img src="${v.simbolo}" alt="">` : '')
+            + kv('Complexidade', comp ? `${comp.nome} (DT ${comp.dt})` : '') + kv('Modalidade', mod && mod.nome) + kv('Pré-requisitos', v.preRequisitos)
+            + ((pend && !esp) ? kv('Projeção de estudo', v.tempoAprendizado) + (comp ? kv('1ª execução', `Ocultismo contra DT ${comp.dt}${v.minidesafio ? ' (+5 do minidesafio)' : ''}`) : '') : '')
+            + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
+            + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
+            + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
+            + ((afin && v.aprendido && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><i>▸</i></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
+    }
+    function ritToggleV(id) {
+        const b = document.getElementById('rvb-' + id), w = document.getElementById('rv-' + id); if (!b) return;
+        const abre = b.style.display !== 'block'; b.style.display = abre ? 'block' : 'none'; w.classList.toggle('aberto', abre);
+        abre ? menusAbertos.add('rv-' + id) : menusAbertos.delete('rv-' + id);
+    }
+    window.ritToggleV = ritToggleV;
+
     const RIT_AJUDA = `<details class="rit-ajuda"><summary>ℹ️ Como funciona o aprendizado</summary><div>
         <table><tr><th>Complexidade</th><th>DT da 1ª execução</th><th>Estudo-base</th></tr>${Object.keys(COMPLEXIDADES).map(k => `<tr><td>${COMPLEXIDADES[k].nome}</td><td>${COMPLEXIDADES[k].dt}</td><td>${COMPLEXIDADES[k].base}</td></tr>`).join('')}</table>
         <p><b>1.</b> Ter uma fonte utilizável e cumprir os pré-requisitos. <b>2.</b> Dedicar o tempo de estudo. <b>3.</b> Na primeira execução controlada, teste de Ocultismo contra a DT.</p>
         <p><b>Sucesso:</b> domina a execução básica, sem repetir o teste em condições normais. <b>Falha:</b> prática adicional de metade do tempo-base (arredondada para cima) antes de tentar de novo. <b>Falha crítica:</b> consequência adicional (regra geral de falhas críticas e riscos do ritual).</p>
         <p><b>Minidesafio (opcional):</b> acertar dá +5 na primeira execução; não substitui o teste nem dispensa pré-requisitos.</p>
-        <p><b>Modalidades:</b> Ritual estruturado (Rituais), Conjuração direta (Especializações) e Canalização (Talentos) — indicam <i>como</i> o efeito é executado; a complexidade define a dificuldade.</p>
+        <p><b>Modalidades:</b> Ritual estruturado (Rituais) e Conjuração direta (Especializações) — indicam <i>como</i> o efeito é executado; a complexidade define a dificuldade.</p>
         <p>Fórmula incompleta ou alterada pode ter efeitos limitados ou perigosos — passar no teste não corrige o que falta. Afinidade pode modificar o efeito, mas não concede domínio. Manifestação espontânea não é primeira execução e não ensina a repetir o fenômeno.</p>
     </div></details>`;
 
@@ -4292,8 +4330,15 @@ let filtroSubAtualAtaques = 'Todos';
                 // Botão do GitHub (Exclusivo pedroacpr@gmail.com)
                 const btnGithubCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : '';
 
+                // ritual concluído: visualização simplificada (igual ao dossiê da ficha de ameaça)
+                if (r.concluido !== false) {
+                    c.innerHTML += ritViewHTML({ id, v: rView, cor, aberto: menusAbertos.has('rv-' + id), afin: nexAtual >= 50,
+                        extra: `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritEditar('${id}')">✎ EDITAR</button>` + btnMestreCopy + btnGithubCopy });
+                    return;
+                }
+                const btnConcluir = `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritConcluir('${id}')">✔ CONCLUIR RITUAL</button>`;
                 const btnApagar = `<button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>`;
-                c.innerHTML += ritCardHTML({ id, r, v: rView, buf: isBuffado, cor, aberto: iO, afin: nexAtual >= 50, btns: btnMestreCopy + btnGithubCopy + btnApagar,
+                c.innerHTML += ritCardHTML({ id, r, v: rView, buf: isBuffado, cor, aberto: iO, afin: nexAtual >= 50, btns: btnConcluir + btnMestreCopy + btnGithubCopy + btnApagar,
                     toggleJs: `toggleElem('rit-${id}')`, symbolJs: `abrirUpload('ritual', '${id}')` });
             }); 
         }); 
@@ -4530,7 +4575,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('rit-' + novaRef.id);
-        await novaRef.set({ nome: "Nova Anomalia", elemento: "Nenhum", preRequisitos: "", complexidade: "", modalidade: "ritual", primeiraExecucao: true, minidesafio: false, incompleto: false, espontanea: false, descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
+        await novaRef.set({ nome: "Nova Anomalia", elemento: "Nenhum", preRequisitos: "", custoAdicional: "", concluido: false, complexidade: "", modalidade: "ritual", primeiraExecucao: true, minidesafio: false, incompleto: false, espontanea: false, descricao: "", aprendido: false, primeiraConjuracao: false, tempoAprendizado: "", tempoConjuracao: "", alcance: "", alvo: "", duracao: "", custoPe: "", custoSanidade: "", simbolo: "" }); 
         setTimeout(() => { let el = document.getElementById('rit-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4580,6 +4625,7 @@ let filtroSubAtualAtaques = 'Todos';
         if (c === 'rituais') { d = Object.assign({}, templatesAnomalias[ch]); prefix = 'rit-'; }
         if (c === 'inventario') { d = Object.assign({}, templatesInventario[ch]); prefix = 'inv-'; }
         if (c === 'rituais' && d && d.primeiraExecucao === undefined) d.primeiraExecucao = true;   // ritual novo: primeira execução ainda pendente
+        if (c === 'rituais' && d && d.concluido === undefined) d.concluido = true;   // do banco já vem pronto: aparece na visualização simplificada
         
         if (d && Object.keys(d).length > 0) { 
             let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
@@ -4653,6 +4699,9 @@ let filtroSubAtualAtaques = 'Todos';
     window.updateRitualField = (id, campo, valor, isBuffado) => window.updateRitualFields(id, { [campo]: valor }, isBuffado);
     // escolher a complexidade já preenche o tempo de estudo com o tempo-base da tabela
     window.ritMudarComplexidade = (id, val, isBuffado) => { const c = COMPLEXIDADES[val]; return window.updateRitualFields(id, c ? { complexidade: val, tempoAprendizado: c.base } : { complexidade: val }, isBuffado); };
+    const ritRefDoc = id => db.collection("fichas").doc(atual).collection((isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais").doc(id);
+    window.ritConcluir = async function(id) { menusAbertos.delete('rv-' + id); await ritRefDoc(id).update({ concluido: true }); };
+    window.ritEditar = async function(id) { menusAbertos.add('rit-' + id); await ritRefDoc(id).update({ concluido: false }); };
     window.ritAprendido = async function(id, marcado) {
         menusAbertos.add('rit-' + id);
         await db.collection("fichas").doc(atual).collection((isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais").doc(id).update({ aprendido: marcado });
@@ -4673,7 +4722,7 @@ let filtroSubAtualAtaques = 'Todos';
                 const descBuffed = (r.buffed?.descricao || r.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
                 const afinBuffed = (r.buffed?.afinidade || r.afinidade || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
 
-                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", complexidade: "${r.complexidade || ''}", modalidade: "${r.modalidade || 'ritual'}", preRequisitos: "${(r.preRequisitos || '').replace(/"/g, '\\"')}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", afinidade: "${afinBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", complexidade: "${r.buffed?.complexidade || r.complexidade || ''}", modalidade: "${r.buffed?.modalidade || r.modalidade || 'ritual'}", preRequisitos: "${(r.buffed?.preRequisitos || r.preRequisitos || '').replace(/"/g, '\\"')}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.buffed?.duracao || r.duracao || ''}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}", afinidade: "${afinBuffed}" } },`;
+                const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", complexidade: "${r.complexidade || ''}", modalidade: "${r.modalidade || 'ritual'}", preRequisitos: "${(r.preRequisitos || '').replace(/"/g, '\\"')}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", custoAdicional: "${String(r.custoAdicional || '').replace(/"/g, '\\"')}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", descricao: "${descBase}", afinidade: "${afinBase}", buffed: { nome: "${r.buffed?.nome || r.nome || ''}", complexidade: "${r.buffed?.complexidade || r.complexidade || ''}", modalidade: "${r.buffed?.modalidade || r.modalidade || 'ritual'}", preRequisitos: "${(r.buffed?.preRequisitos || r.preRequisitos || '').replace(/"/g, '\\"')}", simbolo: "", tempoAprendizado: "${r.buffed?.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.buffed?.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${r.buffed?.alcance || r.alcance || ''}", alvo: "${r.buffed?.alvo || r.alvo || ''}", duracao: "${r.buffed?.duracao || r.duracao || ''}", custoAdicional: "${String((r.buffed || {}).custoAdicional || r.custoAdicional || '').replace(/"/g, '\\"')}", custoPe: "${r.buffed?.custoPe || r.custoPe || ''}", custoSanidade: "${r.buffed?.custoSanidade || r.custoSanidade || ''}", descricao: "${descBuffed}", afinidade: "${afinBuffed}" } },`;
 
                 await navigator.clipboard.writeText(template);
                 alert("✅ CÓDIGO COMPACTO EXPORTADO!\n\nEle foi copiado em formato de linha única para a sua Área de Transferência.\n\nLembre-se de salvar a imagem do símbolo separadamente e adicionar o link na propriedade 'simbolo'!");
