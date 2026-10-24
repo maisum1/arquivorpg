@@ -5910,6 +5910,8 @@ let filtroSubAtualAtaques = 'Todos';
     <section class="fq-block fq-abilities">
       <div class="fq-label" id="fq-abil-label">HABILIDADES</div>
       <div id="fq-abilities-list"></div>
+      <div class="fq-label" id="fq-anom-label" hidden>ANOMALIAS</div>
+      <div id="fq-anomalias-list" hidden></div>
     </section>
 
     <section class="fq-status">
@@ -5932,7 +5934,13 @@ let filtroSubAtualAtaques = 'Todos';
     </nav>
   </div>
 </aside>
-<style id="fq-loc-css">.fq-abilities{overflow-y:auto !important;scrollbar-width:thin}.fq-abilities .fq-ability-name small{font-size:.6em;letter-spacing:.04em}.fq-loc{max-width:24ch;margin-left:auto;margin-top:3px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}</style>
+<style id="fq-loc-css">.fq-abilities .fq-ability-name small{font-size:.6em;letter-spacing:.04em}
+.fq-abilities .fq-label + div + .fq-label{margin-top:8px}
+.fq-abilities.fq-compact .fq-ability-desc{display:none}
+.fq-abilities.fq-compact .fq-ability{margin-bottom:5px}
+.fq-abilities.fq-scroll{overflow-y:auto !important;scrollbar-width:thin}
+/* celular: sobe o bloco para o espaço livre ao lado do braço, logo abaixo de PV/LUC/FÔL */
+@media (max-width:600px){.fq-abilities{top:38% !important;max-height:45% !important}}.fq-loc{max-width:24ch;margin-left:auto;margin-top:3px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}</style>
 <script id="ficha-rapida-js">
 (function(){
   "use strict";
@@ -6308,28 +6316,37 @@ let filtroSubAtualAtaques = 'Todos';
   }
 
   function renderAbilities(){
-    const box=$('fq-abilities-list');if(!box)return;
-    const cards=[...document.querySelectorAll('#lista-habilidades .ritual-card')];
-    const poderes=[...document.querySelectorAll('#lista-poderes .ritual-card')];
-    const rits=(window.__ritFq||[]).slice(0,6);
-    const lbl=$('fq-abil-label'); if(lbl) lbl.textContent=rits.length?'HABILIDADES E ANOMALIAS':'HABILIDADES';
-    if(!cards.length && !poderes.length && !rits.length){box.innerHTML='<div class="fq-empty">Nenhuma habilidade registrada.</div>';return;}
-
-    const habilidadesHtml=cards.slice(0,2).map(card=>{
+    const box=$('fq-abilities-list'),boxA=$('fq-anomalias-list'),lblA=$('fq-anom-label');if(!box)return;
+    const cards=[...document.querySelectorAll('#lista-habilidades .ritual-card')].slice(0,6);
+    const poderes=[...document.querySelectorAll('#lista-poderes .ritual-card')].slice(0,4);
+    const rits=(window.__ritFq||[]).slice(0,8);
+    const habilidadesHtml=cards.map(card=>{
       const custoTag=card.querySelector('.hab-custo-tag')?.textContent?.trim(); const title=(card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade')+(custoTag?' ('+custoTag+')':'');
       const desc=card.querySelector('textarea')?.value?.trim()||'';
       return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
     }).join('');
-
-    const poderesHtml=poderes.slice(0,2).map(card=>{
+    const poderesHtml=poderes.map(card=>{
       const title=card.querySelector('.card-header span')?.textContent?.trim()||'Vínculo / Especialização';
       const desc=card.querySelector('textarea')?.value?.trim()||'';
       return `<article class="fq-ability"><div class="fq-ability-name fq-special-title">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
     }).join('');
-
     const anomaliasHtml=rits.map(r=>`<article class="fq-ability"><div class="fq-ability-name fq-special-title">${esc(r.nome||'Anomalia')}${r.verdadeiro?' <small>[VERDADEIRO]</small>':''}</div><div class="fq-ability-desc">${esc([r.comp?'Compl. '+r.comp:'',r.mod,r.custo].filter(Boolean).join(' · ')||'Sem detalhes.')}</div></article>`).join('');
-    box.innerHTML=habilidadesHtml+poderesHtml+anomaliasHtml;
+    box.innerHTML=(habilidadesHtml+poderesHtml)||'<div class="fq-empty">Nenhuma habilidade registrada.</div>';
+    if(boxA){boxA.innerHTML=anomaliasHtml;boxA.hidden=!rits.length;} if(lblA)lblA.hidden=!rits.length;
+    fitAbilities();
   }
+  // Se não couber: 1º) só os nomes; 2º) só então barra de rolagem lateral (última opção).
+  let fqAbSig='';
+  function fitAbilities(force){
+    const sec=document.querySelector('.fq-abilities'); if(!sec||!sec.clientHeight) return;
+    const sig=sec.textContent+'|'+sec.clientWidth+'x'+sec.clientHeight; if(!force&&sig===fqAbSig) return; fqAbSig=sig;
+    sec.classList.remove('fq-compact','fq-scroll');
+    const cabe=()=>sec.scrollHeight<=sec.clientHeight+1;
+    if(cabe()) return;
+    sec.classList.add('fq-compact'); if(cabe()) return;
+    sec.classList.add('fq-scroll');
+  }
+  window.addEventListener('resize',()=>fitAbilities(true));
 
   function renderStatus(){
     const box=$('fq-status-list');if(!box)return;
