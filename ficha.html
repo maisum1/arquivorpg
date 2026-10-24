@@ -4363,11 +4363,12 @@ let filtroSubAtualAtaques = 'Todos';
             snap.forEach(doc => { 
                 const po = doc.data(); const id = doc.id; const iO = menusAbertos.has('pod-' + id); const cor = cE[po.elemento] || "var(--op-ink)"; 
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarEspecializacaoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+                const ehVinc = po.tipoPoder === 'vinculo', custoTxt = fmtCustoTalento(po);
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
     <div class="card-header" onclick="toggleElem('pod-${id}')">
-        <span style="color:${cor}; font-weight:900">${po.nome || 'Especialização'}</span>
-        <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:${cor}; display:none;">${(po.elemento || 'Geral').toUpperCase()}</span>
+        <span style="color:${cor}; font-weight:900">${po.nome || (ehVinc ? 'Vínculo' : 'Especialização')}</span>
+        <span class="rit-badges">${custoTxt ? `<span class="hab-custo-tag" style="font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red)">${custoTxt}</span>` : ''}<span class="rit-badge">${ehVinc ? 'Vínculo' : 'Especialização'}</span></span>
     </div>
     <div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}">
         <div class="rit-grid-2" style="margin-bottom:10px;">
@@ -4387,13 +4388,15 @@ let filtroSubAtualAtaques = 'Todos';
                 </select>
             </div>
         </div>
-        <div class="rit-grid-2" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:${cor}">Complexidade</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'complexidade', this.value)">${ritOpcoesComplex(po.complexidade)}</select></label><div class="rit-info" style="margin:0;align-self:end">${ritInfoComplex(po.complexidade)}</div></div>
+        <div class="rit-grid-2" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:${cor}">Tipo</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'tipoPoder', this.value)"><option value="especializacao" ${ehVinc ? '' : 'selected'}>Especialização</option><option value="vinculo" ${ehVinc ? 'selected' : ''}>Vínculo</option></select></label><div class="rit-info" style="margin:0;align-self:end">${ehVinc ? 'Pacto com uma entidade: defina a condição e o efeito.' : 'Habilidade aprendida: custos e descrição.'}</div></div>
+        <div class="rit-grid-3" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego (PF)</span><input type="text" class="rit-input" placeholder="Ex: 2" value="${(po.custoPf || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'custoPf', this.value)"></label><label class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Lucidez (PL)</span><input type="text" class="rit-input" placeholder="Ex: 1" value="${(po.custoPl || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'custoPl', this.value)"></label><label class="rit-field"><span class="rit-label" style="color:${cor}">Custo adicional</span><input type="text" class="rit-input" placeholder="Ex: 1 vela, sangue..." value="${(po.custoAdicional || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'custoAdicional', this.value)"></label></div>
         <div class="rit-field">
             <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
             <textarea class="cris-textarea" placeholder="Descreva as regras, mecânicas e bônus..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'descricao', this.value)">${po.descricao || ""}</textarea>
         </div>
+        ${ehVinc ? `<div class="rit-field" style="margin-top:10px;"><span class="rit-label" style="color:${cor}">Condição</span><textarea class="cris-textarea" style="height:60px" placeholder="O que a entidade exige / quando o pacto vale..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'condicao', this.value)">${po.condicao || ''}</textarea></div><div class="rit-field" style="margin-top:10px;"><span class="rit-label" style="color:${cor}">Efeito</span><textarea class="cris-textarea" style="height:60px" placeholder="O que o pacto concede ou impõe..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'efeito', this.value)">${po.efeito || ''}</textarea></div>` : ''}
         
-        <div style="display: ${displayAfinidade}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
+        <div style="display: ${(displayAfinidade === 'block' && po.afinidade) ? 'block' : 'none'}; margin-top:15px; padding:15px; border:1px solid var(--card-border); background:rgba(0,0,0,0.03); border-radius: 2px;">
             <span class="rit-label" style="color:var(--op-ink); font-weight:900;">Sintoma de Exposição Avançada (Afinidade)</span>
             <textarea class="cris-textarea" style="height:50px; border:none; background:transparent; padding:0; margin-top:5px; font-style:italic;" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'afinidade', this.value)" placeholder="Descreva os efeitos...">${po.afinidade || ""}</textarea>
         </div>
@@ -4408,7 +4411,7 @@ let filtroSubAtualAtaques = 'Todos';
         }); 
     }
 
-    function fmtCustoTalento(h) { const f = (v, u) => { v = String(v == null ? '' : v).trim(); return v ? (/^\d+$/.test(v) ? v + ' ' + u : v) : ''; }; return [f(h.custoPf, 'PF'), f(h.custoPl, 'PL')].filter(Boolean).join(' • '); }
+    function fmtCustoTalento(h) { const f = (v, u) => { v = String(v == null ? '' : v).trim(); return v ? (/^\d+$/.test(v) ? v + ' ' + u : v) : ''; }; return [f(h.custoPf, 'PF'), f(h.custoPl, 'PL'), String(h.custoAdicional || '').trim()].filter(Boolean).join(' • '); }
     function carregarHabilidades() { 
         if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
@@ -4425,7 +4428,7 @@ let filtroSubAtualAtaques = 'Todos';
                     </div>
                     <div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}">
                         <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold;">
-                        <div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Fôlego (PF)</span><input type="text" class="rit-input" placeholder="Ex: 2" value="${(h.custoPf || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPf', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Lucidez (PL)</span><input type="text" class="rit-input" placeholder="Ex: 1" value="${(h.custoPl || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPl', this.value)"></div></div>
+                        <div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Fôlego (PF)</span><input type="text" class="rit-input" placeholder="Ex: 2" value="${(h.custoPf || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPf', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Lucidez (PL)</span><input type="text" class="rit-input" placeholder="Ex: 1" value="${(h.custoPl || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPl', this.value)"></div><div class="rit-field" style="grid-column: span 2;"><span class="rit-label" style="color:var(--op-ink)">Custo adicional</span><input type="text" class="rit-input" placeholder="Ex: 1 vela, sangue de animal..." value="${(h.custoAdicional || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoAdicional', this.value)"></div></div>
                         <div class="rit-grid-2" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Complexidade</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'complexidade', this.value)">${ritOpcoesComplex(h.complexidade)}</select></label><div class="rit-info" style="margin:0;align-self:end">${ritInfoComplex(h.complexidade)}</div></div>
                         <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
                         <div style="text-align:right; margin-top:10px;">
@@ -4587,7 +4590,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('pod-' + novaRef.id);
-        await novaRef.set({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", descricao: "", afinidade: "" }); 
+        await novaRef.set({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", tipoPoder: "especializacao", custoPf: "", custoPl: "", custoAdicional: "", condicao: "", efeito: "", descricao: "", afinidade: "" }); 
         setTimeout(() => { let el = document.getElementById('pod-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4595,7 +4598,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('hab-' + novaRef.id);
-        await novaRef.set({ nome: "Novo Traço", descricao: "", custoPf: "", custoPl: "" }); 
+        await novaRef.set({ nome: "Novo Traço", descricao: "", custoPf: "", custoPl: "", custoAdicional: "" }); 
         setTimeout(() => { let el = document.getElementById('hab-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4762,7 +4765,8 @@ let filtroSubAtualAtaques = 'Todos';
                 const podId = po.nome ? po.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_especializacao';
                 const desc = (po.descricao || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
                 const afin = (po.afinidade || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
-                const template = `    "${podId}": { nome: "${po.nome || ''}", elemento: "${po.elemento || 'Geral'}", descricao: "${desc}", afinidade: "${afin}" },`;
+                const esc2 = s => String(s || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                const template = `    "${podId}": { nome: "${po.nome || ''}", elemento: "${po.elemento || 'Geral'}", tipoPoder: "${po.tipoPoder || 'especializacao'}", custoPf: "${esc2(po.custoPf)}", custoPl: "${esc2(po.custoPl)}", custoAdicional: "${esc2(po.custoAdicional)}", condicao: "${esc2(po.condicao)}", efeito: "${esc2(po.efeito)}", descricao: "${desc}", afinidade: "${afin}" },`;
                 await navigator.clipboard.writeText(template);
                 alert("✅ ESPECIALIZAÇÃO EXPORTADA!\n\nCopiada em formato compacto de linha única para colar em 'templatesEspecializacoes'.");
             }
@@ -6330,7 +6334,7 @@ let filtroSubAtualAtaques = 'Todos';
       return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
     }).join('');
     const poderesHtml=poderes.map(card=>{
-      const title=card.querySelector('.card-header span')?.textContent?.trim()||'Vínculo / Especialização';
+      const custoPod=card.querySelector('.hab-custo-tag')?.textContent?.trim(); const title=(card.querySelector('.card-header span')?.textContent?.trim()||'Vínculo / Especialização')+(custoPod?' ('+custoPod+')':'');
       const desc=card.querySelector('textarea')?.value?.trim()||'';
       return `<article class="fq-ability"><div class="fq-ability-name fq-special-title">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
     }).join('');
