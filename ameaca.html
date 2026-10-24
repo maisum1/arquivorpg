@@ -616,6 +616,8 @@ body.tema-escuro .rit-btn{background:rgba(255,255,255,.04)}
 .d-rit-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;font:900 14px 'Inter',sans-serif;letter-spacing:.03em;text-transform:uppercase;user-select:none;-webkit-user-select:none}
 .d-rit-h small{color:var(--op-red);font-size:10px;margin-left:4px}
 .d-rit-h i{font-style:normal;opacity:.6;transition:transform .15s}
+.d-rit-dir{display:flex;align-items:center;gap:8px;flex:none}
+.d-rit-h>span:first-child{min-width:0;overflow-wrap:anywhere}
 .d-rit.aberto .d-rit-h i{transform:rotate(90deg)}
 .d-rit-b{padding:6px 10px 10px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.5}
 .d-rit-b img{float:right;width:64px;height:64px;object-fit:cover;filter:grayscale(100%) contrast(150%);mix-blend-mode:multiply;margin:0 0 6px 8px;border:1px dashed var(--card-border)}
@@ -2056,11 +2058,11 @@ if (campanhaParam) {
     // SISTEMA DE RITUAIS — complexidade (DT e estudo automáticos), modalidade e marcadores
     // ======================================================================
     const COMPLEXIDADES = {
-        I:   { nome: 'I — Simples',     dt: 10, base: '3 dias',    falha: '2 dias' },
+        I:   { nome: 'I — Simples',     dt: 8, base: '3 dias',    falha: '2 dias' },
         II:  { nome: 'II — Moderada',   dt: 12, base: '2 semanas', falha: '1 semana' },
-        III: { nome: 'III — Complexa',  dt: 15, base: '1 mês',     falha: '15 dias' },
-        IV:  { nome: 'IV — Elevada',    dt: 18, base: '3 meses',   falha: '45 dias' },
-        V:   { nome: 'V — Excepcional', dt: 22, base: '1 ano',     falha: '183 dias (≈ 6 meses)' }
+        III: { nome: 'III — Complexa',  dt: 16, base: '1 mês',     falha: '15 dias' },
+        IV:  { nome: 'IV — Elevada',    dt: 20, base: '3 meses',   falha: '45 dias' },
+        V:   { nome: 'V — Excepcional', dt: 24, base: '1 ano',     falha: '183 dias (≈ 6 meses)' }
     };   // "falha" = metade do tempo-base, arredondada para cima (em dias)
     const MODALIDADES = {
         ritual:      { nome: 'Ritual estruturado', curto: 'Ritual',      dica: 'envolve preparação, símbolos, componentes ou etapas' },
@@ -2134,17 +2136,17 @@ if (campanhaParam) {
     const ritCustoTxt = v => [ritFmtCusto(v.custoPe, 'PF'), ritFmtCusto(v.custoSanidade, 'PL'), String(v.custoAdicional || '').trim()].filter(Boolean).join(' • ');
     // o = { id, v (versão em vigor, com os marcadores do ritual), cor, aberto, afin (NEX/EXP >= 50), extra (botões) }
     function ritViewHTML(o) {
-        const { id, v, cor, aberto, afin, extra } = o, E = ritEsc, comp = COMPLEXIDADES[v.complexidade], mod = MODALIDADES[v.modalidade];
+        const { id, v, cor, aberto, afin, extra } = o, E = ritEsc, comp = COMPLEXIDADES[v.complexidade], modk = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual', mod = MODALIDADES[modk];
         const pend = !!v.primeiraExecucao, esp = (v.espontanea !== undefined) ? !!v.espontanea : !!v.primeiraConjuracao, custo = ritCustoTxt(v);
         const kv = (k, x) => x ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
         const corpo = (v.simbolo ? `<img src="${v.simbolo}" alt="">` : '')
-            + kv('Complexidade', comp ? `${comp.nome} (DT ${comp.dt})` : '') + kv('Modalidade', mod && mod.nome) + kv('Pré-requisitos', v.preRequisitos)
+            + kv('Complexidade', comp ? `${comp.nome} (DT ${comp.dt})` : '') + kv('Pré-requisitos', v.preRequisitos)
             + ((pend && !esp) ? kv('Projeção de estudo', v.tempoAprendizado) + (comp ? kv('1ª execução', `Ocultismo contra DT ${comp.dt}${v.minidesafio ? ' (+5 do minidesafio)' : ''}`) : '') : '')
             + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
             + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
             + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
             + ((afin && v.aprendido && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
-        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><i>▸</i></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
+        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     }
     function ritToggleV(id) {
         const b = document.getElementById('rvb-' + id), w = document.getElementById('rv-' + id); if (!b) return;
