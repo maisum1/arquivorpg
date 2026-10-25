@@ -4206,7 +4206,7 @@ let filtroSubAtualAtaques = 'Todos';
             + (inc ? '<span class="rit-badge alerta">Incompleto</span>' : '')
             + (pend ? '<span class="rit-badge alerta">1ª exec.</span>' : '')
             + (esp ? '<span class="rit-badge">Espontâneo</span>' : '')
-            + (tem ? '<span class="rit-badge">Afinidade</span>' : '');
+            + ((tem && afin) ? '<span class="rit-badge">Afinidade</span>' : '');
         return `<div class="ritual-card" style="border-left-color:${cor}">
     <div class="card-header" onclick="${toggleJs}"><span style="color:${cor};font-weight:900">${E(v.nome) || 'Nova Anomalia'}</span><span class="rit-badges">${badges}</span></div>
     <div class="card-body" id="rit-${id}" style="display:${aberto ? 'block' : 'none'}">
@@ -4225,7 +4225,7 @@ let filtroSubAtualAtaques = 'Todos';
             <label class="rit-chip${r.aprendido ? ' on' : ''}" title="O personagem compreendeu completamente o ritual"><input type="checkbox" ${r.aprendido ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritAprendido('${id}',this.checked)">Compreensão total (Verdadeiro)</label>
             ${marca('incompleto', inc, 'Incompleto / alterado', 'Etapas, informações ou componentes ausentes ou modificados')}
             ${marca('espontanea', esp, 'Manifestação espontânea', 'Fenômeno sem conhecimento ou execução deliberada; diferente da primeira execução controlada')}
-            ${marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade. O texto continua salvo mesmo desmarcado')}
+            ${afin ? marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade. O texto continua salvo mesmo desmarcado') : ''}
         </div>
         <div class="rit-grid-2">
             ${campo('Pré-requisitos', 'preRequisitos', 'Grau de Ocultismo, conhecimentos, componentes...', true)}
@@ -4238,7 +4238,7 @@ let filtroSubAtualAtaques = 'Todos';
             ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
         </div>
         <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Registro detalhado</span><textarea class="cris-textarea" placeholder="Regras, testes e mecânicas do efeito..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${buf})">${E(v.descricao)}</textarea></label>
-        <div style="display:${tem ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
+        <div style="display:${(tem && afin) ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
             <span class="rit-label" style="font-weight:900">Efeito da afinidade</span>
             <textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Como a afinidade modifica este ritual (não concede conhecimento nem domínio)..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','afinidade',this.value,${buf})">${E(v.afinidade)}</textarea>
         </div>
@@ -4261,7 +4261,7 @@ let filtroSubAtualAtaques = 'Todos';
             + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
             + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
             + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
-            + ((v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+            + ((afin && v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
         return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     }
     function ritToggleV(id) {
@@ -5612,7 +5612,10 @@ let filtroSubAtualAtaques = 'Todos';
             const pr = parseInt(v.pressao) || 0, bn = parseInt(v.bonus) || 0, mun = String(v.municao || '').trim();
             nome = v.nome || 'Ataque'; custo = [v.dano, v.tipo].filter(Boolean).join(' ') + (pr ? ' • Pressão ' + pr : '');
             badges = `<span class="rit-badges"><span class="rit-badge">${E(v.categoria || getAtaqueCat(v))}</span></span>`;
-            corpo = kv('Perícia', v.pericia) + kv('Atributo', v.atributo) + kv('Bônus de ataque', bn ? (bn > 0 ? '+' + bn : bn) : '') + kv('Alcance', v.alcance) + kv('Munição', (mun && mun !== '-') ? mun : '');
+            const temMun = (mun && mun !== '-') || (v.categoria || getAtaqueCat(v)) === 'À Distância';
+            // munição fica editável direto na visualização (sem entrar no modo de edição)
+            const campoMun = temMun ? `<div class="d-kv"><b>Munição</b><input type="text" class="rit-input" style="width:110px;font-size:13px" placeholder="Ex: 12/12" value="${E(mun === '-' ? '' : mun)}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>` : '';
+            corpo = kv('Perícia', v.pericia) + kv('Atributo', v.atributo) + kv('Bônus de ataque', bn ? (bn > 0 ? '+' + bn : bn) : '') + kv('Alcance', v.alcance) + campoMun;
         } else if (col === 'inventario') {
             const pr = parseInt(v.pressao) || 0, q = parseInt(v.quantidade), qq = isNaN(q) ? 1 : q;
             nome = v.nome || 'Item'; custo = [qq > 1 ? '×' + qq : '', (pr * qq) ? 'Pressão ' + (pr * qq) : ''].filter(Boolean).join(' • ');
