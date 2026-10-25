@@ -811,7 +811,8 @@ body.somente-leitura::after { content: "👁️ SOMENTE VISUALIZAÇÃO"; positio
 
     <div class="card"><h4 id="tit-hab">Habilidades</h4>
         <div id="lista-habilidades"></div>
-        <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button></div>
+        <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button>
+        <button class="btn-add" onclick="colarHabilidadeClipboard()" title="Cola um traço, talento, vínculo ou especialização copiado na ficha de personagem">[ 📥 COLAR DA ÁREA DE TRANSFERÊNCIA ]</button></div>
 
     <div data-s="ocultista"><div class="card" id="blk-rit"><h4>Rituais</h4>
         <div class="rit-top">
@@ -1178,6 +1179,25 @@ if (campanhaParam) {
         await db.collection("ameacas").doc(atual).collection(path).add({ nome: "Novo Comportamento", descricao: "", custoPf: "", custoPl: "", custoAdicional: "" }); 
     }
     
+    // Cola traços/talentos (TALENTO_ARQUIVO) e vínculos/especializações (PODER_ARQUIVO) copiados na ficha de personagem.
+    // Vira uma habilidade da ameaça: nome, descrição e custos (condição e efeito do vínculo entram no texto).
+    async function colarHabilidadeClipboard() {
+        try {
+            let texto = "";
+            try { texto = await navigator.clipboard.readText(); } catch (err) { texto = prompt("Cole aqui o código copiado:"); }
+            if (!texto || !texto.trim()) return;
+            let o; try { o = JSON.parse(texto.trim()); } catch (e) { alert("❌ O conteúdo copiado não é um formato válido."); return; }
+            if (o.__tipo !== 'TALENTO_ARQUIVO' && o.__tipo !== 'PODER_ARQUIVO') { alert("❌ Copie um traço, talento, vínculo ou especialização na ficha de personagem e cole aqui."); return; }
+            const partes = [];
+            if (o.condicao) partes.push('Condição: ' + o.condicao);
+            if (o.efeito) partes.push('Efeito: ' + o.efeito);
+            if (o.descricao) partes.push(o.descricao);
+            const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca";
+            await db.collection("ameacas").doc(atual).collection(path).add({ nome: o.nome || "Habilidade", descricao: partes.join('\n\n'), custoPf: o.custoPf || "", custoPl: o.custoPl || "", custoAdicional: o.custoAdicional || "" });
+            alert(`✅ IMPORTADO COM SUCESSO!\n\n"${o.nome || 'Habilidade'}" foi adicionada às habilidades desta ameaça.`);
+        } catch (e) { alert("Erro ao colar: " + e); }
+    }
+
     function renderHabilidade(id, data, path) { 
         return `
         <div class="dynamic-item-highlight">
@@ -2093,7 +2113,7 @@ if (campanhaParam) {
             + (inc ? '<span class="rit-badge alerta">Incompleto</span>' : '')
             + (pend ? '<span class="rit-badge alerta">1ª exec.</span>' : '')
             + (esp ? '<span class="rit-badge">Espontâneo</span>' : '')
-            + (tem ? '<span class="rit-badge">Afinidade</span>' : '');
+            + ((tem && afin) ? '<span class="rit-badge">Afinidade</span>' : '');
         return `<div class="ritual-card" style="border-left-color:${cor}">
     <div class="card-header" onclick="${toggleJs}"><span style="color:${cor};font-weight:900">${E(v.nome) || 'Nova Anomalia'}</span><span class="rit-badges">${badges}</span></div>
     <div class="card-body" id="rit-${id}" style="display:${aberto ? 'block' : 'none'}">
@@ -2112,7 +2132,7 @@ if (campanhaParam) {
             <label class="rit-chip${r.aprendido ? ' on' : ''}" title="O personagem compreendeu completamente o ritual"><input type="checkbox" ${r.aprendido ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritAprendido('${id}',this.checked)">Compreensão total (Verdadeiro)</label>
             ${marca('incompleto', inc, 'Incompleto / alterado', 'Etapas, informações ou componentes ausentes ou modificados')}
             ${marca('espontanea', esp, 'Manifestação espontânea', 'Fenômeno sem conhecimento ou execução deliberada; diferente da primeira execução controlada')}
-            ${marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade. O texto continua salvo mesmo desmarcado')}
+            ${afin ? marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade. O texto continua salvo mesmo desmarcado') : ''}
         </div>
         <div class="rit-grid-2">
             ${campo('Pré-requisitos', 'preRequisitos', 'Grau de Ocultismo, conhecimentos, componentes...', true)}
@@ -2125,7 +2145,7 @@ if (campanhaParam) {
             ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
         </div>
         <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Registro detalhado</span><textarea class="cris-textarea" placeholder="Regras, testes e mecânicas do efeito..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${buf})">${E(v.descricao)}</textarea></label>
-        <div style="display:${tem ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
+        <div style="display:${(tem && afin) ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
             <span class="rit-label" style="font-weight:900">Efeito da afinidade</span>
             <textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Como a afinidade modifica este ritual (não concede conhecimento nem domínio)..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','afinidade',this.value,${buf})">${E(v.afinidade)}</textarea>
         </div>
@@ -2148,7 +2168,7 @@ if (campanhaParam) {
             + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
             + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
             + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
-            + ((v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+            + ((afin && v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
         return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     }
     function ritToggleV(id) {
