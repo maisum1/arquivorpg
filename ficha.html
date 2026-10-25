@@ -4469,7 +4469,10 @@ let filtroSubAtualAtaques = 'Todos';
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarAtaqueParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
                 // CARD PRINCIPAL NA ABA COMBATE
-                l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-alcance="${a.alcance || ''}" data-pericia="${a.pericia || ''}" style="border-left-color: var(--op-ink);">
+                if (a.concluido !== false) {   // concluída: visualização simplificada (mantém classe e data-* para os filtros)
+                    l.innerHTML += subViewHTML({ col: 'ataques', id, v: a, cor: 'var(--op-ink)', aberto: menusAbertos.has('sv-ataques-' + id), cls: 'ataque-card',
+                        attrs: `data-categoria="${cat}" data-alcance="${a.alcance || ''}" data-pericia="${a.pericia || ''}"`, extra: subBtnEditar('ataques', id) + btnAdminCopy });
+                } else l.innerHTML += `<div class="ritual-card ataque-card" data-categoria="${cat}" data-alcance="${a.alcance || ''}" data-pericia="${a.pericia || ''}" style="border-left-color: var(--op-ink);">
                     <div class="card-header" onclick="toggleElem('atq-${id}')">
                         <span style="color:var(--op-ink); font-weight:900">${a.nome || 'Ataque'}</span>
                         <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif; color:var(--op-ink);">Dano: ${a.dano || '-'} | Pressão: ${a.pressao || 0}</span>
@@ -4504,7 +4507,7 @@ let filtroSubAtualAtaques = 'Todos';
                             <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
                         </div>
                         <div style="text-align:right; margin-top:10px;">
-                            ${btnAdminCopy}
+                            ${subBtnConcluir('ataques', id)}${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
                         </div>
                     </div>
@@ -4552,7 +4555,10 @@ let filtroSubAtualAtaques = 'Todos';
                 let cat = i.categoria || 'Geral'; 
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarItemParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
 
-                c.innerHTML += `<div class="ritual-card item-card" data-categoria="${cat}" style="border-left-color: var(--cor-geral);">
+                if (i.concluido !== false) {   // concluído: visualização simplificada
+                    c.innerHTML += subViewHTML({ col: 'inventario', id, v: i, cor: 'var(--op-ink)', aberto: menusAbertos.has('sv-inventario-' + id), cls: 'item-card', attrs: `data-categoria="${cat}"`,
+                        extra: subBtnEditar('inventario', id) + `<button class="cris-btn" style="border-color:var(--san-purple) !important; color:var(--san-purple) !important; margin-right:5px; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferencia('${id}', 'inventario')">TRANSFERIR ITEM</button>` + btnAdminCopy });
+                } else c.innerHTML += `<div class="ritual-card item-card" data-categoria="${cat}" style="border-left-color: var(--cor-geral);">
     <div class="card-header" onclick="toggleElem('inv-${id}')">
         <span style="color:var(--op-ink); font-weight:900">${i.nome || 'Item Não Identificado'}</span>
         <span style="font-size:10px; opacity:0.6; font-family:'Inter', sans-serif;">${cat} | Qtd: ${q} | Pressão: ${pr*q}</span>
@@ -4581,7 +4587,7 @@ let filtroSubAtualAtaques = 'Todos';
             <textarea class="cris-textarea" placeholder="Detalhes adicionais, regras ou características do item..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'inventario', 'descricao', this.value)">${i.descricao || ""}</textarea>
         </div>
         <div style="text-align:right; margin-top:10px; display: flex; justify-content: flex-end; gap: 10px;">
-            ${btnAdminCopy}
+            ${subBtnConcluir('inventario', id)}${btnAdminCopy}
             <button class="cris-btn" style="border-color:var(--san-purple) !important; color:var(--san-purple) !important; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferencia('${id}', 'inventario')">TRANSFERIR ITEM</button>
             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'inventario')">DESCARTAR ITEM</button>
         </div>
@@ -4623,7 +4629,7 @@ let filtroSubAtualAtaques = 'Todos';
         menusAbertos.add('inv-' + novaRef.id);
         const btnTodos = document.querySelector('#filtros-inventario .btn-filtro');
         if(btnTodos) setFiltroInventario('Todos', btnTodos);
-        await novaRef.set({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "" }); 
+        await novaRef.set({ nome: "Novo Item", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "", concluido: false }); 
         setTimeout(() => { let el = document.getElementById('inv-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4633,7 +4639,7 @@ let filtroSubAtualAtaques = 'Todos';
         menusAbertos.add('atq-' + novaRef.id);
         const btnTodos = document.querySelector('#filtros-ataques .btn-filtro');
         if(btnTodos) setFiltroAtaques('Todos', btnTodos);
-        await novaRef.set({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" }); 
+        await novaRef.set({ nome: "Nova Arma", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve", concluido: false }); 
         setTimeout(() => { let el = document.getElementById('atq-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
 
@@ -4647,7 +4653,7 @@ let filtroSubAtualAtaques = 'Todos';
         if (c === 'rituais') { d = Object.assign({}, templatesAnomalias[ch]); prefix = 'rit-'; }
         if (c === 'inventario') { d = Object.assign({}, templatesInventario[ch]); prefix = 'inv-'; }
         if (c === 'rituais' && d && d.primeiraExecucao === undefined) d.primeiraExecucao = true;   // ritual novo: primeira execução ainda pendente
-        if ((c === 'rituais' || c === 'habilidades' || c === 'poderes') && d && d.concluido === undefined) d.concluido = true;   // do banco já vem pronto: aparece na visualização simplificada
+        if (['rituais', 'habilidades', 'poderes', 'ataques', 'inventario'].includes(c) && d && d.concluido === undefined) d.concluido = true;   // do banco já vem pronto: aparece na visualização simplificada
         
         if (d && Object.keys(d).length > 0) { 
             let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
@@ -5590,7 +5596,7 @@ let filtroSubAtualAtaques = 'Todos';
     const subBtnEditar = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subEditar('${col}','${id}')">✎ EDITAR</button>`;
     const subBtnConcluir = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subConcluir('${col}','${id}')">✔ CONCLUIR</button>`;
     window.subConcluir = async (col, id) => { menusAbertos.delete('sv-' + col + '-' + id); await subRef(col, id).update({ concluido: true }); };
-    window.subEditar = async (col, id) => { menusAbertos.add((col === 'poderes' ? 'pod-' : 'hab-') + id); await subRef(col, id).update({ concluido: false }); };
+    window.subEditar = async (col, id) => { menusAbertos.add(({ poderes: 'pod-', habilidades: 'hab-', ataques: 'atq-', inventario: 'inv-' })[col] + id); await subRef(col, id).update({ concluido: false }); };
     function subToggleV(key) {
         const b = document.getElementById('svb-' + key), w = document.getElementById('sv-' + key); if (!b) return;
         const abre = b.style.display !== 'block'; b.style.display = abre ? 'block' : 'none'; w.classList.toggle('aberto', abre);
@@ -5599,13 +5605,27 @@ let filtroSubAtualAtaques = 'Todos';
     window.subToggleV = subToggleV;
     // visualização simplificada (mesmo visual das anomalias concluídas)
     function subViewHTML(o) {
-        const { col, id, v, cor, aberto, extra } = o, E = ritEsc, key = col + '-' + id, custo = fmtCustoTalento(v);
-        const ehPod = col === 'poderes', vinc = ehPod && v.tipoPoder === 'vinculo', comp = COMPLEXIDADES[v.complexidade];
-        const kv = (k, x) => x ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
-        const badges = ehPod ? `<span class="rit-badges">${(vinc && comp) ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge">${vinc ? 'Vínculo' : 'Especialização'}</span></span>` : '';
-        const nexOk = (parseInt(document.getElementById('nex-personagem')?.value) || 0) >= 50;
-        const corpo = (vinc ? kv('Condição', v.condicao) + kv('Efeito', v.efeito) : '') + (v.descricao ? `<p>${E(v.descricao)}</p>` : '') + ((ehPod && nexOk && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
-        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="sv-${key}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="subToggleV('${key}')"><span style="color:${cor}">❖ ${E(v.nome) || (ehPod ? (vinc ? 'Vínculo' : 'Especialização') : 'Traço')}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir">${badges}<i>▸</i></span></div><div class="d-rit-b" id="svb-${key}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
+        const { col, id, v, cor, aberto, extra } = o, E = ritEsc, key = col + '-' + id;
+        const kv = (k, x) => (x !== undefined && x !== null && String(x).trim() !== '') ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
+        let nome, custo = '', badges = '', corpo = '';
+        if (col === 'ataques') {
+            const pr = parseInt(v.pressao) || 0, bn = parseInt(v.bonus) || 0, mun = String(v.municao || '').trim();
+            nome = v.nome || 'Ataque'; custo = [v.dano, v.tipo].filter(Boolean).join(' ') + (pr ? ' • Pressão ' + pr : '');
+            badges = `<span class="rit-badges"><span class="rit-badge">${E(v.categoria || getAtaqueCat(v))}</span></span>`;
+            corpo = kv('Perícia', v.pericia) + kv('Atributo', v.atributo) + kv('Bônus de ataque', bn ? (bn > 0 ? '+' + bn : bn) : '') + kv('Alcance', v.alcance) + kv('Munição', (mun && mun !== '-') ? mun : '');
+        } else if (col === 'inventario') {
+            const pr = parseInt(v.pressao) || 0, q = parseInt(v.quantidade), qq = isNaN(q) ? 1 : q;
+            nome = v.nome || 'Item'; custo = [qq > 1 ? '×' + qq : '', (pr * qq) ? 'Pressão ' + (pr * qq) : ''].filter(Boolean).join(' • ');
+            badges = `<span class="rit-badges"><span class="rit-badge">${E(v.categoria || 'Geral')}</span></span>`;
+            corpo = kv('Quantidade', qq > 1 ? qq : '') + kv('Pressão (unidade)', pr || '') + (v.descricao ? `<p>${E(v.descricao)}</p>` : '');
+        } else {
+            const ehPod = col === 'poderes', vinc = ehPod && v.tipoPoder === 'vinculo', comp = COMPLEXIDADES[v.complexidade];
+            const nexOk = (parseInt(document.getElementById('nex-personagem')?.value) || 0) >= 50;
+            nome = v.nome || (ehPod ? (vinc ? 'Vínculo' : 'Especialização') : 'Traço'); custo = fmtCustoTalento(v);
+            badges = ehPod ? `<span class="rit-badges">${(vinc && comp) ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge">${vinc ? 'Vínculo' : 'Especialização'}</span></span>` : '';
+            corpo = (vinc ? kv('Condição', v.condicao) + kv('Efeito', v.efeito) : '') + (v.descricao ? `<p>${E(v.descricao)}</p>` : '') + ((ehPod && nexOk && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+        }
+        return `<div class="d-rit${aberto ? ' aberto' : ''}${o.cls ? ' ' + o.cls : ''}" id="sv-${key}" ${o.attrs || ''} style="border-left-color:${cor}"><div class="d-rit-h" onclick="subToggleV('${key}')"><span style="color:${cor}">❖ ${E(nome)}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir">${badges}<i>▸</i></span></div><div class="d-rit-b" id="svb-${key}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     }
     window.copiarSubClipboard = async function(col, id) {
         try {
