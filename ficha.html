@@ -4190,7 +4190,7 @@ let filtroSubAtualAtaques = 'Todos';
     function ritCardHTML(o) {
         const { id, r, v, buf, cor, aberto, afin, btns, toggleJs, symbolJs } = o, E = ritEsc;
         const comp = COMPLEXIDADES[v.complexidade], mod = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual';
-        const pend = !!r.primeiraExecucao, mini = !!r.minidesafio, inc = !!r.incompleto;
+        const pend = !!r.primeiraExecucao, mini = !!r.minidesafio, inc = !!r.incompleto, tem = !!r.temAfinidade;
         const esp = (r.espontanea !== undefined) ? !!r.espontanea : !!v.primeiraConjuracao;   // "Manifestação Inédita" antiga = espontânea
         const campo = (rot, k, ph, cheio) => `<label class="rit-field${cheio ? ' full' : ''}"><span class="rit-label" style="color:${cor}">${rot}</span><input type="text" class="rit-input" placeholder="${ph}" value="${E(v[k])}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','${k}',this.value,${buf})"></label>`;
         const marca = (k, on, txt, dica) => `<label class="rit-chip${on ? ' on' : ''}" title="${dica}"><input type="checkbox" ${on ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','${k}',this.checked,false)">${txt}</label>`;
@@ -4205,7 +4205,8 @@ let filtroSubAtualAtaques = 'Todos';
             + (r.aprendido ? '<span class="rit-badge alerta">Verdadeiro</span>' : '')
             + (inc ? '<span class="rit-badge alerta">Incompleto</span>' : '')
             + (pend ? '<span class="rit-badge alerta">1ª exec.</span>' : '')
-            + (esp ? '<span class="rit-badge">Espontâneo</span>' : '');
+            + (esp ? '<span class="rit-badge">Espontâneo</span>' : '')
+            + (tem ? '<span class="rit-badge">Afinidade</span>' : '');
         return `<div class="ritual-card" style="border-left-color:${cor}">
     <div class="card-header" onclick="${toggleJs}"><span style="color:${cor};font-weight:900">${E(v.nome) || 'Nova Anomalia'}</span><span class="rit-badges">${badges}</span></div>
     <div class="card-body" id="rit-${id}" style="display:${aberto ? 'block' : 'none'}">
@@ -4224,6 +4225,7 @@ let filtroSubAtualAtaques = 'Todos';
             <label class="rit-chip${r.aprendido ? ' on' : ''}" title="O personagem compreendeu completamente o ritual"><input type="checkbox" ${r.aprendido ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritAprendido('${id}',this.checked)">Compreensão total (Verdadeiro)</label>
             ${marca('incompleto', inc, 'Incompleto / alterado', 'Etapas, informações ou componentes ausentes ou modificados')}
             ${marca('espontanea', esp, 'Manifestação espontânea', 'Fenômeno sem conhecimento ou execução deliberada; diferente da primeira execução controlada')}
+            ${marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade. O texto continua salvo mesmo desmarcado')}
         </div>
         <div class="rit-grid-2">
             ${campo('Pré-requisitos', 'preRequisitos', 'Grau de Ocultismo, conhecimentos, componentes...', true)}
@@ -4236,7 +4238,7 @@ let filtroSubAtualAtaques = 'Todos';
             ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
         </div>
         <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Registro detalhado</span><textarea class="cris-textarea" placeholder="Regras, testes e mecânicas do efeito..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${buf})">${E(v.descricao)}</textarea></label>
-        <div style="display:${(afin && r.aprendido) ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
+        <div style="display:${tem ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
             <span class="rit-label" style="font-weight:900">Efeito da afinidade</span>
             <textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Como a afinidade modifica este ritual (não concede conhecimento nem domínio)..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','afinidade',this.value,${buf})">${E(v.afinidade)}</textarea>
         </div>
@@ -4259,7 +4261,7 @@ let filtroSubAtualAtaques = 'Todos';
             + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
             + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
             + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
-            + ((afin && v.aprendido && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+            + ((v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
         return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${v.aprendido ? '<small>[VERDADEIRO]</small>' : ''}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     }
     function ritToggleV(id) {
@@ -4275,7 +4277,7 @@ let filtroSubAtualAtaques = 'Todos';
         <p><b>Sucesso:</b> domina a execução básica, sem repetir o teste em condições normais. <b>Falha:</b> prática adicional de metade do tempo-base (arredondada para cima) antes de tentar de novo. <b>Falha crítica:</b> consequência adicional (regra geral de falhas críticas e riscos do ritual).</p>
         <p><b>Minidesafio (opcional):</b> acertar dá +5 na primeira execução; não substitui o teste nem dispensa pré-requisitos.</p>
         <p><b>Modalidades:</b> Ritual estruturado (Rituais) e Conjuração direta (Especializações) — indicam <i>como</i> o efeito é executado; a complexidade define a dificuldade.</p>
-        <p>Fórmula incompleta ou alterada pode ter efeitos limitados ou perigosos — passar no teste não corrige o que falta. Afinidade pode modificar o efeito, mas não concede domínio. Manifestação espontânea não é primeira execução e não ensina a repetir o fenômeno.</p>
+        <p>Fórmula incompleta ou alterada pode ter efeitos limitados ou perigosos — passar no teste não corrige o que falta. Afinidade pode modificar o efeito, mas não concede domínio (marque “Tenho afinidade” para exibir o efeito; o texto fica salvo mesmo desmarcado). Manifestação espontânea não é primeira execução e não ensina a repetir o fenômeno.</p>
     </div></details>`;
 
     function carregarRituais() { 
@@ -4351,7 +4353,7 @@ let filtroSubAtualAtaques = 'Todos';
     function carregarPoderes() { 
         if(unsubPod) unsubPod(); const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; 
         unsubPod = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
-            const c = document.getElementById('lista-poderes'); c.innerHTML = ""; 
+            const c = document.getElementById('lista-poderes'); window.__podFq = []; c.innerHTML = ehMestreFicha() ? subBtnColar('poderes') : ""; 
             const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Geral": "var(--op-ink)", "Nenhum": "var(--op-ink)" }; 
             const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
 
@@ -4364,11 +4366,18 @@ let filtroSubAtualAtaques = 'Todos';
                 const po = doc.data(); const id = doc.id; const iO = menusAbertos.has('pod-' + id); const cor = cE[po.elemento] || "var(--op-ink)"; 
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarEspecializacaoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
                 const ehVinc = po.tipoPoder === 'vinculo', custoTxt = fmtCustoTalento(po);
+                const btnCopiar = subBtnCopiar('poderes', id);
+                window.__podFq.push({ nome: po.nome || (ehVinc ? 'Vínculo' : 'Especialização'), custo: custoTxt, desc: po.descricao || po.efeito || '' });
+                if (po.concluido !== false) {   // concluído: visualização simplificada
+                    c.innerHTML += subViewHTML({ col: 'poderes', id, v: po, cor, aberto: menusAbertos.has('sv-poderes-' + id), extra: subBtnEditar('poderes', id) + btnCopiar + btnAdminCopy });
+                    return;
+                }
+                const btnConcluir = subBtnConcluir('poderes', id);
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: ${cor}">
     <div class="card-header" onclick="toggleElem('pod-${id}')">
         <span style="color:${cor}; font-weight:900">${po.nome || (ehVinc ? 'Vínculo' : 'Especialização')}</span>
-        <span class="rit-badges">${custoTxt ? `<span class="hab-custo-tag" style="font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red)">${custoTxt}</span>` : ''}<span class="rit-badge">${ehVinc ? 'Vínculo' : 'Especialização'}</span></span>
+        <span class="rit-badges">${custoTxt ? `<span class="hab-custo-tag" style="font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red)">${custoTxt}</span>` : ''}${(ehVinc && COMPLEXIDADES[po.complexidade]) ? `<span class="rit-badge" title="${COMPLEXIDADES[po.complexidade].nome}">${po.complexidade}</span>` : ''}<span class="rit-badge">${ehVinc ? 'Vínculo' : 'Especialização'}</span></span>
     </div>
     <div class="card-body" id="pod-${id}" style="display:${iO ? 'block' : 'none'}">
         <div class="rit-grid-2" style="margin-bottom:10px;">
@@ -4388,7 +4397,7 @@ let filtroSubAtualAtaques = 'Todos';
                 </select>
             </div>
         </div>
-        <div class="rit-grid-2" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:${cor}">Tipo</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'tipoPoder', this.value)"><option value="especializacao" ${ehVinc ? '' : 'selected'}>Especialização</option><option value="vinculo" ${ehVinc ? 'selected' : ''}>Vínculo</option></select></label><div class="rit-info" style="margin:0;align-self:end">${ehVinc ? 'Pacto com uma entidade: defina a condição e o efeito.' : 'Habilidade aprendida: custos e descrição.'}</div></div>
+        <div class="rit-grid-2" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:${cor}">Tipo</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'tipoPoder', this.value)"><option value="especializacao" ${ehVinc ? '' : 'selected'}>Especialização</option><option value="vinculo" ${ehVinc ? 'selected' : ''}>Vínculo</option></select></label>${ehVinc ? `<label class="rit-field"><span class="rit-label" style="color:${cor}">Grau (custo-recompensa)</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'complexidade', this.value)">${ritOpcoesComplex(po.complexidade)}</select></label>` : `<div class="rit-info" style="margin:0;align-self:end">Habilidade aprendida: custos e descrição.</div>`}</div>
         <div class="rit-grid-3" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Fôlego (PF)</span><input type="text" class="rit-input" placeholder="Ex: 2" value="${(po.custoPf || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'custoPf', this.value)"></label><label class="rit-field"><span class="rit-label" style="color:${cor}">Custo de Lucidez (PL)</span><input type="text" class="rit-input" placeholder="Ex: 1" value="${(po.custoPl || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'custoPl', this.value)"></label><label class="rit-field"><span class="rit-label" style="color:${cor}">Custo adicional</span><input type="text" class="rit-input" placeholder="Ex: 1 vela, sangue..." value="${(po.custoAdicional || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'poderes', 'custoAdicional', this.value)"></label></div>
         <div class="rit-field">
             <span class="rit-label" style="color:${cor}">Descrição do Arquivo</span>
@@ -4402,7 +4411,7 @@ let filtroSubAtualAtaques = 'Todos';
         </div>
         
         <div style="text-align:right; margin-top:10px;">
-            ${btnAdminCopy}
+            ${btnConcluir}${btnCopiar}${btnAdminCopy}
             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'poderes')">APAGAR REGISTRO</button>
         </div>
     </div>
@@ -4415,12 +4424,19 @@ let filtroSubAtualAtaques = 'Todos';
     function carregarHabilidades() { 
         if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
-            const c = document.getElementById('lista-habilidades'); c.innerHTML = ""; 
+            const c = document.getElementById('lista-habilidades'); window.__habFq = []; c.innerHTML = ehMestreFicha() ? subBtnColar('habilidades') : ""; 
             const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
 
             snap.forEach(doc => { 
                 const h = doc.data(); const id = doc.id; const iO = menusAbertos.has('hab-' + id); 
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarTracoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
+                const btnCopiar = subBtnCopiar('habilidades', id);
+                window.__habFq.push({ nome: h.nome || 'Traço', custo: fmtCustoTalento(h), desc: h.descricao || '' });
+                if (h.concluido !== false) {   // concluído: visualização simplificada
+                    c.innerHTML += subViewHTML({ col: 'habilidades', id, v: h, cor: 'var(--op-ink)', aberto: menusAbertos.has('sv-habilidades-' + id), extra: subBtnEditar('habilidades', id) + btnCopiar + btnAdminCopy });
+                    return;
+                }
+                const btnConcluir = subBtnConcluir('habilidades', id);
 
                 c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);">
                     <div class="card-header" onclick="toggleElem('hab-${id}')">
@@ -4429,10 +4445,9 @@ let filtroSubAtualAtaques = 'Todos';
                     <div class="card-body" id="hab-${id}" style="display:${iO ? 'block' : 'none'}">
                         <input type="text" class="treino-select" value="${h.nome || ''}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'nome', this.value)" style="width:100%; text-align:left; padding:5px; margin-bottom:10px; border: none; border-bottom: 1px dotted var(--card-border); font-family: 'Special Elite', monospace; font-size: 16px; font-weight: bold;">
                         <div class="rit-grid-2" style="margin-bottom:10px;"><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Fôlego (PF)</span><input type="text" class="rit-input" placeholder="Ex: 2" value="${(h.custoPf || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPf', this.value)"></div><div class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Custo de Lucidez (PL)</span><input type="text" class="rit-input" placeholder="Ex: 1" value="${(h.custoPl || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoPl', this.value)"></div><div class="rit-field" style="grid-column: span 2;"><span class="rit-label" style="color:var(--op-ink)">Custo adicional</span><input type="text" class="rit-input" placeholder="Ex: 1 vela, sangue de animal..." value="${(h.custoAdicional || '').toString().replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'custoAdicional', this.value)"></div></div>
-                        <div class="rit-grid-2" style="margin-bottom:10px;"><label class="rit-field"><span class="rit-label" style="color:var(--op-ink)">Complexidade</span><select class="rit-input" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'habilidades', 'complexidade', this.value)">${ritOpcoesComplex(h.complexidade)}</select></label><div class="rit-info" style="margin:0;align-self:end">${ritInfoComplex(h.complexidade)}</div></div>
                         <textarea class="cris-textarea" onclick="event.stopPropagation()" placeholder="Descrição..." onchange="updateSub('${id}', 'habilidades', 'descricao', this.value)">${h.descricao || ""}</textarea>
                         <div style="text-align:right; margin-top:10px;">
-                            ${btnAdminCopy}
+                            ${btnConcluir}${btnCopiar}${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'habilidades')">APAGAR REGISTRO</button>
                         </div>
                     </div>
@@ -4590,7 +4605,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_poderes" : "poderes"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('pod-' + novaRef.id);
-        await novaRef.set({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", tipoPoder: "especializacao", custoPf: "", custoPl: "", custoAdicional: "", condicao: "", efeito: "", descricao: "", afinidade: "" }); 
+        await novaRef.set({ nome: "Novo Vínc./Especialização", elemento: "Nenhum", tipoPoder: "especializacao", custoPf: "", custoPl: "", custoAdicional: "", condicao: "", efeito: "", descricao: "", afinidade: "", concluido: false }); 
         setTimeout(() => { let el = document.getElementById('pod-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4598,7 +4613,7 @@ let filtroSubAtualAtaques = 'Todos';
         const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
         menusAbertos.add('hab-' + novaRef.id);
-        await novaRef.set({ nome: "Novo Traço", descricao: "", custoPf: "", custoPl: "", custoAdicional: "" }); 
+        await novaRef.set({ nome: "Novo Traço", descricao: "", custoPf: "", custoPl: "", custoAdicional: "", concluido: false }); 
         setTimeout(() => { let el = document.getElementById('hab-' + novaRef.id); if(el) el.parentElement.scrollIntoView({behavior: "smooth", block: "center"}); }, 300);
     }
     
@@ -4632,7 +4647,7 @@ let filtroSubAtualAtaques = 'Todos';
         if (c === 'rituais') { d = Object.assign({}, templatesAnomalias[ch]); prefix = 'rit-'; }
         if (c === 'inventario') { d = Object.assign({}, templatesInventario[ch]); prefix = 'inv-'; }
         if (c === 'rituais' && d && d.primeiraExecucao === undefined) d.primeiraExecucao = true;   // ritual novo: primeira execução ainda pendente
-        if (c === 'rituais' && d && d.concluido === undefined) d.concluido = true;   // do banco já vem pronto: aparece na visualização simplificada
+        if ((c === 'rituais' || c === 'habilidades' || c === 'poderes') && d && d.concluido === undefined) d.concluido = true;   // do banco já vem pronto: aparece na visualização simplificada
         
         if (d && Object.keys(d).length > 0) { 
             let novaRef = db.collection("fichas").doc(atual).collection(p).doc();
@@ -5561,6 +5576,59 @@ let filtroSubAtualAtaques = 'Todos';
     // ==========================================
 
     // 1. Copia todos os dados do ritual para a Área de Transferência (Ctrl + C)
+
+    // ======================================================================
+    // Traços, talentos, vínculos e especializações: visualização simplificada,
+    // edição/conclusão e copiar/colar (igual às anomalias)
+    // ======================================================================
+    const ehMestreFicha = () => { const u = firebase.auth().currentUser; return !!u && (u.email === "pedroacpr@gmail.com" || (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao)); };
+    const subPath = col => (isHexatombe || globalHexatombe) ? 'hexa_' + col : col;
+    const subRef = (col, id) => db.collection("fichas").doc(atual).collection(subPath(col)).doc(id);
+    const SUB_TAGS = { habilidades: ['TALENTO_ARQUIVO', 'traço/talento', 'COLAR TRAÇO / TALENTO'], poderes: ['PODER_ARQUIVO', 'vínculo/especialização', 'COLAR VÍNCULO / ESPECIALIZAÇÃO'] };
+    const subBtnColar = col => `<div style="margin-bottom: 12px; text-align: center;"><button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); font-weight:bold; width: 100%; padding: 8px;" onclick="window.colarSubClipboard('${col}')">[ 📥 ${SUB_TAGS[col][2]} DA ÁREA DE TRANSFERÊNCIA ]</button></div>`;
+    const subBtnCopiar = (col, id) => ehMestreFicha() ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarSubClipboard('${col}','${id}')">[ 📋 COPIAR ]</button>` : '';
+    const subBtnEditar = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subEditar('${col}','${id}')">✎ EDITAR</button>`;
+    const subBtnConcluir = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subConcluir('${col}','${id}')">✔ CONCLUIR</button>`;
+    window.subConcluir = async (col, id) => { menusAbertos.delete('sv-' + col + '-' + id); await subRef(col, id).update({ concluido: true }); };
+    window.subEditar = async (col, id) => { menusAbertos.add((col === 'poderes' ? 'pod-' : 'hab-') + id); await subRef(col, id).update({ concluido: false }); };
+    function subToggleV(key) {
+        const b = document.getElementById('svb-' + key), w = document.getElementById('sv-' + key); if (!b) return;
+        const abre = b.style.display !== 'block'; b.style.display = abre ? 'block' : 'none'; w.classList.toggle('aberto', abre);
+        abre ? menusAbertos.add('sv-' + key) : menusAbertos.delete('sv-' + key);
+    }
+    window.subToggleV = subToggleV;
+    // visualização simplificada (mesmo visual das anomalias concluídas)
+    function subViewHTML(o) {
+        const { col, id, v, cor, aberto, extra } = o, E = ritEsc, key = col + '-' + id, custo = fmtCustoTalento(v);
+        const ehPod = col === 'poderes', vinc = ehPod && v.tipoPoder === 'vinculo', comp = COMPLEXIDADES[v.complexidade];
+        const kv = (k, x) => x ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
+        const badges = ehPod ? `<span class="rit-badges">${(vinc && comp) ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge">${vinc ? 'Vínculo' : 'Especialização'}</span></span>` : '';
+        const nexOk = (parseInt(document.getElementById('nex-personagem')?.value) || 0) >= 50;
+        const corpo = (vinc ? kv('Condição', v.condicao) + kv('Efeito', v.efeito) : '') + (v.descricao ? `<p>${E(v.descricao)}</p>` : '') + ((ehPod && nexOk && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="sv-${key}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="subToggleV('${key}')"><span style="color:${cor}">❖ ${E(v.nome) || (ehPod ? (vinc ? 'Vínculo' : 'Especialização') : 'Traço')}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir">${badges}<i>▸</i></span></div><div class="d-rit-b" id="svb-${key}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
+    }
+    window.copiarSubClipboard = async function(col, id) {
+        try {
+            const doc = await subRef(col, id).get();
+            if (!doc.exists) return;
+            const data = doc.data();
+            await navigator.clipboard.writeText(JSON.stringify({ __tipo: SUB_TAGS[col][0], ...data }));
+            alert(`✅ COPIADO!\n\n"${data.nome || SUB_TAGS[col][1]}" foi copiado para sua Área de Transferência.\n\nAbra a ficha onde deseja colocá-lo e use o botão [ 📥 ${SUB_TAGS[col][2]} ].`);
+        } catch(e) { alert("Erro ao copiar: " + e); }
+    };
+    window.colarSubClipboard = async function(col) {
+        try {
+            let texto = "";
+            try { texto = await navigator.clipboard.readText(); } catch(err) { texto = prompt("Cole aqui o código copiado:"); }
+            if (!texto || !texto.trim()) return;
+            let obj; try { obj = JSON.parse(texto.trim()); } catch(e) { alert("❌ O conteúdo copiado não é um formato válido."); return; }
+            if (obj.__tipo !== SUB_TAGS[col][0]) { alert("❌ O que foi copiado não é um(a) " + SUB_TAGS[col][1] + ". Cole na lista correspondente."); return; }
+            delete obj.__tipo; if (obj.concluido === undefined) obj.concluido = true;
+            await db.collection("fichas").doc(atual).collection(subPath(col)).add(obj);
+            alert(`✅ IMPORTADO COM SUCESSO!\n\n"${obj.nome || SUB_TAGS[col][1]}" foi adicionado a esta ficha.`);
+        } catch(e) { alert("Erro ao colar: " + e); }
+    };
+
     window.copiarRitualClipboard = async function(id) {
         const path = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
         try {
@@ -6325,19 +6393,10 @@ let filtroSubAtualAtaques = 'Todos';
 
   function renderAbilities(){
     const box=$('fq-abilities-list'),boxA=$('fq-anomalias-list'),lblA=$('fq-anom-label');if(!box)return;
-    const cards=[...document.querySelectorAll('#lista-habilidades .ritual-card')].slice(0,6);
-    const poderes=[...document.querySelectorAll('#lista-poderes .ritual-card')].slice(0,4);
-    const rits=(window.__ritFq||[]).slice(0,8);
-    const habilidadesHtml=cards.map(card=>{
-      const custoTag=card.querySelector('.hab-custo-tag')?.textContent?.trim(); const title=(card.querySelector('.card-header span')?.textContent?.trim()||'Habilidade')+(custoTag?' ('+custoTag+')':'');
-      const desc=card.querySelector('textarea')?.value?.trim()||'';
-      return `<article class="fq-ability"><div class="fq-ability-name">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
-    }).join('');
-    const poderesHtml=poderes.map(card=>{
-      const custoPod=card.querySelector('.hab-custo-tag')?.textContent?.trim(); const title=(card.querySelector('.card-header span')?.textContent?.trim()||'Vínculo / Especialização')+(custoPod?' ('+custoPod+')':'');
-      const desc=card.querySelector('textarea')?.value?.trim()||'';
-      return `<article class="fq-ability"><div class="fq-ability-name fq-special-title">${esc(title)}</div><div class="fq-ability-desc">${esc(desc||'Sem descrição.')}</div></article>`;
-    }).join('');
+    const cards=(window.__habFq||[]).slice(0,6), poderes=(window.__podFq||[]).slice(0,4), rits=(window.__ritFq||[]).slice(0,8);
+    const mkAb=(x,esp)=>`<article class="fq-ability"><div class="fq-ability-name${esp?' fq-special-title':''}">${esc(x.nome+(x.custo?' ('+x.custo+')':''))}</div><div class="fq-ability-desc">${esc(x.desc||'Sem descrição.')}</div></article>`;
+    const habilidadesHtml=cards.map(x=>mkAb(x,false)).join('');
+    const poderesHtml=poderes.map(x=>mkAb(x,true)).join('');
     const anomaliasHtml=rits.map(r=>`<article class="fq-ability"><div class="fq-ability-name fq-special-title">${esc(r.nome||'Anomalia')}${r.verdadeiro?' <small>[VERDADEIRO]</small>':''}</div><div class="fq-ability-desc">${esc([r.comp?'Compl. '+r.comp:'',r.mod,r.custo].filter(Boolean).join(' · ')||'Sem detalhes.')}</div></article>`).join('');
     box.innerHTML=(habilidadesHtml+poderesHtml)||'<div class="fq-empty">Nenhuma habilidade registrada.</div>';
     if(boxA){boxA.innerHTML=anomaliasHtml;boxA.hidden=!rits.length;} if(lblA)lblA.hidden=!rits.length;
