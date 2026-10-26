@@ -277,6 +277,9 @@
         }
         .btn-del { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--op-red); cursor: pointer; font-weight: bold; font-family:'Inter'; transition: 0.2s; font-size: 16px; opacity: 0.4;}
         .btn-del:hover { opacity: 1; transform: scale(1.2);}
+        .btn-copy-hab { right: 44px; color: var(--op-ink); font-size: 13px; padding-top: 2px; }
+        .dynamic-item-highlight .btn-del { z-index: 5; }
+        .dynamic-item-highlight .hab-nome { padding-right: 84px !important; }
 
         .btn-add { 
             display: block; width: fit-content; text-align: left;
@@ -1198,11 +1201,23 @@ if (campanhaParam) {
         } catch (e) { alert("Erro ao colar: " + e); }
     }
 
+    // Copia a habilidade no mesmo formato dos traços/talentos da ficha de personagem (TALENTO_ARQUIVO)
+    async function copiarHabilidadeClipboard(id, path) {
+        try {
+            const doc = await db.collection("ameacas").doc(atual).collection(path).doc(id).get();
+            if (!doc.exists) return;
+            const d = doc.data();
+            await navigator.clipboard.writeText(JSON.stringify({ __tipo: 'TALENTO_ARQUIVO', nome: d.nome || '', descricao: d.descricao || '', custoPf: d.custoPf || '', custoPl: d.custoPl || '', custoAdicional: d.custoAdicional || '' }));
+            alert(`✅ COPIADO!\n\n"${d.nome || 'Habilidade'}" foi copiado para sua Área de Transferência.\n\nCole em outra ameaça com [ 📥 COLAR ] ou na ficha de personagem (Traços e Talentos).`);
+        } catch (e) { alert("Erro ao copiar: " + e); }
+    }
+
     function renderHabilidade(id, data, path) { 
         return `
         <div class="dynamic-item-highlight">
             <button class="btn-del" onclick="removerSub('${id}', '${path}')">[x]</button>
-            <input class="book-input" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-ink); width: 85%; display:block; margin-bottom: 5px; letter-spacing: 1px;">
+            <button class="btn-del btn-copy-hab" title="Copiar esta habilidade (cole em outra ameaça ou na ficha de personagem)" onclick="copiarHabilidadeClipboard('${id}', '${path}')">[📋]</button>
+            <input class="book-input hab-nome" placeholder="NOME DO TRAÇO" value="${data.nome || ''}" onchange="updateSub('${id}','${path}','nome',this.value)" style="font-family: 'Crimson Text', serif; font-size: 1.4rem; font-weight: bold; color: var(--op-ink); width: 85%; display:block; margin-bottom: 5px; letter-spacing: 1px;">
             <div class="hab-custos">
                 <label>CUSTO PF <input class="book-input" placeholder="Ex: 2" value="${(data.custoPf || '').toString().replace(/"/g, '&quot;')}" onchange="updateSub('${id}','${path}','custoPf',this.value)"></label>
                 <label>CUSTO PL <input class="book-input" placeholder="Ex: 1" value="${(data.custoPl || '').toString().replace(/"/g, '&quot;')}" onchange="updateSub('${id}','${path}','custoPl',this.value)"></label>
