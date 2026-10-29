@@ -727,6 +727,35 @@ body.modo-sobrevivencia .status-icon-item.ativo {
 .d-kv{display:flex;gap:8px;margin:2px 0;font-size:13px;line-height:1.5}
 .d-kv b{flex:none;font:800 11px/1.7 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase}
 .d-custo{margin-left:8px;font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red);text-transform:none}
+
+/* ===== O chamado (novo grau de exposição) ===== */
+#chamado-overlay{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(58,0,4,.55) 0%,rgba(0,0,0,.9) 72%);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:chFade .7s ease both}
+#chamado-overlay.saindo{animation:chSai .35s ease forwards}
+.chamado-card{width:min(380px,calc(100% - 36px));text-align:center;color:#ebe5d8;font-family:'Crimson Text',serif;padding:30px 22px 22px;animation:chSobe .9s ease both}
+.chamado-anel{width:54px;height:54px;margin:0 auto 18px;border-radius:50%;border:1px solid rgba(200,48,48,.7);display:flex;align-items:center;justify-content:center;font-size:17px;color:#d24444;box-shadow:0 0 24px rgba(200,48,48,.32),inset 0 0 14px rgba(200,48,48,.22);animation:chPulso 3.4s ease-in-out infinite}
+.chamado-tit{font:700 10px 'Inter',sans-serif;letter-spacing:.42em;color:#bdb6a8;text-transform:uppercase}
+.chamado-nivel{font-weight:600;font-size:46px;line-height:1;margin:10px 0 2px;color:#f4efe3}
+.chamado-nivel small{display:block;font:700 9px 'Inter',sans-serif;letter-spacing:.4em;color:#d24444;margin-bottom:6px}
+.chamado-texto{font-style:italic;font-size:16px;line-height:1.5;opacity:.82;margin:12px 4px 22px}
+.chamado-op{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:10px 8px;background:transparent;color:inherit;border:1px solid rgba(235,229,216,.22);font:700 11px 'Inter',sans-serif;letter-spacing:.22em;cursor:pointer;transition:border-color .25s,background .25s}
+.chamado-op small{display:block;margin-top:3px;font:italic 400 13px 'Crimson Text',serif;letter-spacing:0;text-transform:none;opacity:.62}
+.chamado-op.principal{border-color:rgba(210,68,68,.65)}
+.chamado-op:hover,.chamado-op:focus-visible{border-color:#d24444;background:rgba(210,68,68,.12);outline:none}
+@keyframes chFade{from{opacity:0}to{opacity:1}}
+@keyframes chSai{to{opacity:0}}
+@keyframes chSobe{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes chPulso{0%,100%{box-shadow:0 0 20px rgba(200,48,48,.25),inset 0 0 12px rgba(200,48,48,.18)}50%{box-shadow:0 0 34px rgba(200,48,48,.5),inset 0 0 18px rgba(200,48,48,.32)}}
+@media (prefers-reduced-motion:reduce){#chamado-overlay,.chamado-card,.chamado-anel{animation:none!important}}
+/* trilha discreta dos chamados (no bloco de exposição) */
+.chamados-trilha{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;max-width:150px;margin-top:3px;line-height:1;font-size:9px;opacity:.7}
+.chamados-trilha:empty{display:none}
+.ch-marca{cursor:help}
+.ch-atendido{color:var(--op-red)}
+.ch-ignorado{color:var(--op-ink);opacity:.8}
+.ch-adiado{color:var(--op-red);animation:chPulsoTxt 2.4s ease-in-out infinite}
+.ch-perdido{color:var(--op-ink);opacity:.4}
+@keyframes chPulsoTxt{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.ch-adiado{animation:none}}
 </style>
 
     
@@ -2451,6 +2480,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
                         <label>EXPOSIÇÃO</label>
                         <select id="nex-personagem" onchange="mudouNex()" style="font-size: 16px;"></select>
+                        <div id="chamados-trilha" class="chamados-trilha"></div>
                     </div>
                     <div style="width: 1px; background: var(--card-border); height: 80%; align-self: center;"></div>
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px;">
@@ -2925,10 +2955,97 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
         if(event && event.currentTarget) event.currentTarget.classList.add('active'); 
     }
 
+
+    // ======================================================================
+    // NOME DO JOGADOR (perfil do dono) + O CHAMADO (a cada novo grau de EXP)
+    // ======================================================================
+    const _nomesUsuarios = {};
+    async function nomeDoUsuario(uid) {
+        if (!uid) return '';
+        if (_nomesUsuarios[uid] !== undefined) return _nomesUsuarios[uid];
+        try { const s = await db.collection("usuarios").doc(uid).get(); _nomesUsuarios[uid] = (s.exists && s.data().nomeJogador) || ''; } catch (e) { _nomesUsuarios[uid] = ''; }
+        return _nomesUsuarios[uid];
+    }
+    async function resolverNomeDono(d) {
+        const n = await nomeDoUsuario(d.dono), cu = auth.currentUser;
+        if (n && n !== d.nomeJogador && cu && cu.uid === d.dono) db.collection("fichas").doc(atual).update({ nomeJogador: n }).catch(() => {});   // mantém o nome do hub nas listas
+        return n;
+    }
+
+    const NIVEIS_EXP = []; for (let i = 5; i <= 95; i += 5) NIVEIS_EXP.push(i); NIVEIS_EXP.push(99, 100);
+    const CHAMADO_FRASES = [
+        'Algo do outro lado se inclina na sua direção. O chamado é baixo, quase uma lembrança.',
+        'O ar muda por um instante. Alguma coisa sabe o seu nome e espera uma resposta.',
+        'Um sussurro sem origem. Você pode escutar, ou pode fingir que não ouviu.',
+        'A presença se aproxima, paciente. Ela pode não esperar por muito tempo.'
+    ];
+    const CHAMADO_STATUS = {
+        atendido: { g: '◆', t: 'atendeu ao chamado' },
+        ignorado: { g: '◇', t: 'ignorou o chamado' },
+        adiado:   { g: '✦', t: 'chamado em espera (clique para responder)' },
+        perdido:  { g: '✕', t: 'perdeu o chamado' }
+    };
+    let chamadoAberto = false, chamadoDados = {};
+
+    function renderTrilhaChamados(d) {
+        const el = document.getElementById('chamados-trilha'); if (!el) return;
+        const mapa = d.chamados || {};
+        const dono = auth.currentUser && d.dono === auth.currentUser.uid;
+        el.innerHTML = Object.keys(mapa).map(Number).sort((a, b) => a - b).map(l => {
+            const s = mapa[l], c = CHAMADO_STATUS[s]; if (!c) return '';
+            return `<span class="ch-marca ch-${s}" title="EXP ${l}% — ${c.t}" ${(s === 'adiado' && dono) ? `onclick="abrirChamado(${l}, true)" style="cursor:pointer"` : ''}>${c.g}</span>`;
+        }).join('');
+    }
+
+    function checarChamado(d) {
+        chamadoDados = d;
+        renderTrilhaChamados(d);
+        if (!(isRevelado || globalRevelado)) return;                        // só quando a exposição está revelada ao jogador
+        const cu = auth.currentUser; if (!cu || d.dono !== cu.uid) return;   // só para quem é o dono da ficha
+        const nex = parseInt(d.nex) || 0;
+        if (d.chamadoUltimo === undefined) { db.collection("fichas").doc(atual).update({ chamadoUltimo: nex }).catch(() => {}); return; }   // fichas existentes: ponto de partida silencioso
+        const pend = NIVEIS_EXP.filter(l => l > d.chamadoUltimo && l <= nex);
+        if (pend.length && !chamadoAberto) abrirChamado(pend[pend.length - 1], false, pend.slice(0, -1));
+    }
+
+    // nivel = grau atual do chamado | reabrir = responder um chamado que ficou em espera | puladosAntes = graus que passaram sem resposta
+    function abrirChamado(nivel, reabrir, puladosAntes) {
+        if (chamadoAberto) return; chamadoAberto = true;
+        const frase = CHAMADO_FRASES[(nivel / 5 | 0) % CHAMADO_FRASES.length];
+        const ov = document.createElement('div'); ov.id = 'chamado-overlay'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'O chamado');
+        ov.innerHTML = `<div class="chamado-card">
+            <div class="chamado-anel">✦</div>
+            <div class="chamado-tit">${reabrir ? 'O chamado ainda espera' : 'Você sente o chamado'}</div>
+            <div class="chamado-nivel"><small>EXPOSIÇÃO</small>${nivel}%</div>
+            <p class="chamado-texto">${frase}</p>
+            <button class="chamado-op principal" data-r="atendido">ATENDER<small>ceder ao que chama</small></button>
+            <button class="chamado-op" data-r="ignorado">IGNORAR<small>dar as costas</small></button>
+            ${reabrir ? '<button class="chamado-op" data-r="fechar">FECHAR<small>decidir mais tarde</small></button>' : '<button class="chamado-op" data-r="adiado">DEIXAR PARA DEPOIS<small>arriscar adiar — pode se perder quando o próximo chamado vier</small></button>'}
+        </div>`;
+        document.body.appendChild(ov);
+        ov.querySelector('.principal').focus();
+        ov.querySelectorAll('.chamado-op').forEach(b => b.onclick = async () => {
+            const r = b.dataset.r;
+            ov.classList.add('saindo');
+            if (r !== 'fechar') {
+                const up = {}, mapa = chamadoDados.chamados || {};
+                up['chamados.' + nivel] = r;
+                if (!reabrir) {
+                    up.chamadoUltimo = nivel;
+                    (puladosAntes || []).forEach(l => { up['chamados.' + l] = 'perdido'; });                      // graus que passaram direto
+                    Object.keys(mapa).forEach(l => { if (mapa[l] === 'adiado' && Number(l) < nivel) up['chamados.' + l] = 'perdido'; });   // o que ficou em espera se perdeu
+                }
+                try { await db.collection("fichas").doc(atual).update(up); } catch (e) { console.warn(e); }
+            }
+            setTimeout(() => { ov.remove(); chamadoAberto = false; }, 350);
+        });
+    }
+    window.abrirChamado = abrirChamado;
+
     function assumirPosse() { 
         if(confirm("Transferir a posse desta ficha?")) { 
             const u = auth.currentUser; 
-            db.collection("fichas").doc(atual).update({ dono: u.uid, nomeJogador: u.displayName || u.email }).then(() => { 
+            nomeDoUsuario(u.uid).then(nm => db.collection("fichas").doc(atual).update({ dono: u.uid, nomeJogador: nm || u.displayName || u.email })).then(() => { 
                 alert("Você agora é o proprietário!"); document.getElementById('btn-assumir-posse').style.display = 'none'; 
             }); 
         } 
@@ -3774,7 +3891,9 @@ let filtroSubAtualAtaques = 'Todos';
             if (document.activeElement !== document.getElementById('san-max') && d.sanMax !== undefined) { document.getElementById('san-max').value = d.sanMax; if (!hF) document.getElementById('san-max').dataset.preserveManualMax = '1'; }
             if (document.activeElement !== document.getElementById('pe-max') && d.peMax !== undefined) { document.getElementById('pe-max').value = d.peMax; if (!hF) document.getElementById('pe-max').dataset.preserveManualMax = '1'; }
             
-            document.getElementById('label-nome-jogador').innerText = `JOGADOR(A): ${d_raw.nomeJogador || 'DESCONHECIDO'}`;
+            const lblNJ = document.getElementById('label-nome-jogador');
+            lblNJ.innerText = `JOGADOR(A): ${d_raw.nomeJogador || 'DESCONHECIDO'}`;
+            resolverNomeDono(d_raw).then(n => { if (n) lblNJ.innerText = `JOGADOR(A): ${n}`; });   // nome atual do perfil do dono (o editado no hub)
             document.getElementById('nome-personagem').value = d.nome || ""; document.getElementById('origem-personagem').value = d.origem || ""; document.getElementById('classe-personagem').value = d.classe || ""; document.getElementById('idade-personagem').value = d.idade || 0;
             if (d.portrait) { const img = document.getElementById('display-portrait'); img.src = d.portrait; img.style.display = 'block'; img.style.objectPosition = `${d.pX || 50}% ${d.pY || 50}%`; img.style.transform = `scale(${d.pZ || 1})`; document.getElementById('label-portrait').style.display = 'none'; }
             ['agi','for','sag','von','vig'].forEach(a => { if(document.getElementById(`attr-${a}`)) { if (a === 'von') document.getElementById(`attr-von`).value = d.von !== undefined ? d.von : (d.pre !== undefined ? d.pre : 0); else if (a === 'sag') document.getElementById(`attr-sag`).value = d.sag !== undefined ? d.sag : (d.int !== undefined ? d.int : 0); else document.getElementById(`attr-${a}`).value = d[a] !== undefined ? d[a] : 0; } });
@@ -3907,6 +4026,7 @@ let filtroSubAtualAtaques = 'Todos';
             }
             // =============================
 
+            checarChamado(d_raw);
         }); // Fecha o onSnapshot
     } // Fecha a function carregarFicha()
 
