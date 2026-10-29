@@ -964,6 +964,13 @@ body.tema-escuro .base-card .btn-open:hover {
             const user = auth.currentUser;
             if(novoNome && user) {
                 await db.collection("usuarios").doc(user.uid).set({ nomeJogador: novoNome }, { merge: true });
+                window.nomeJogadorGlobal = novoNome;
+                try {   // propaga o novo nome para as fichas que são minhas
+                    const minhas = await db.collection("fichas").where("dono", "==", user.uid).get();
+                    let batch = db.batch(), n = 0;
+                    for (const d of minhas.docs) { batch.update(d.ref, { nomeJogador: novoNome }); if (++n % 400 === 0) { await batch.commit(); batch = db.batch(); } }
+                    await batch.commit();
+                } catch (e) { console.warn("Não foi possível atualizar o nome nas fichas:", e); }
                 toggleModal('modal-config'); alert("Identificação salva!");
             }
         }
@@ -1745,6 +1752,7 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                     ...dadosOriginais,
                     nome: novoNome,
                     dono: currentUser ? currentUser.uid : dadosOriginais.dono,
+                    nomeJogador: currentUser ? (window.nomeJogadorGlobal || currentUser.displayName || currentUser.email) : dadosOriginais.nomeJogador,   // a cópia é minha: leva o meu nome
                     campanhaId: null,      
                     campanhaNome: null,    
                     campanhaOculta: null,  
