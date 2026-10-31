@@ -529,13 +529,20 @@ $('edallc').onclick=()=>{if(!confirm('Usar esta cor em TODAS as setas deste RPG?
 function arrowId(col){const id='ar'+col.replace(/[^0-9a-f]/gi,'');if(!svg.querySelector('#'+id)){const m=svg.querySelector('#ar').cloneNode(true);m.id=id;m.querySelector('path').setAttribute('fill',col);svg.querySelector('defs').append(m)}return id}
 function edgeGeom(a,b,sty){const acx=a.x+a.w/2,acy=a.y+a.h/2,bcx=b.x+b.w/2,bcy=b.y+b.h/2;
  if(sty!=='side'&&sty!=='elbow'){const[x1,y1]=edgePt(a,bcx,bcy),[x2,y2]=edgePt(b,acx,acy);return{d:`M${x1} ${y1}L${x2} ${y2}`,at:t=>[x1+(x2-x1)*t,y1+(y2-y1)*t]}}
- const dx=bcx-acx,dy=bcy-acy,hor=Math.abs(dx)/((a.w+b.w)/2||1)>=Math.abs(dy)/((a.h+b.h)/2||1);let ax,ay,bx,by,sx=0,sy=0;
- if(hor){sx=dx>=0?1:-1;ax=sx>0?a.x+a.w:a.x;ay=acy;bx=sx>0?b.x:b.x+b.w;by=bcy}else{sy=dy>=0?1:-1;ay=sy>0?a.y+a.h:a.y;ax=acx;by=sy>0?b.y:b.y+b.h;bx=bcx}
- if(sty==='side'){const dist=Math.hypot(bx-ax,by-ay),c=Math.max(40,Math.min(140,dist/2.2)),c1=[ax+sx*c,ay+sy*c],c2=[bx-sx*c,by-sy*c];
-  return{d:`M${ax} ${ay}C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${bx} ${by}`,at:t=>{const u=1-t;return[u*u*u*ax+3*u*u*t*c1[0]+3*u*t*t*c2[0]+t*t*t*bx,u*u*u*ay+3*u*u*t*c1[1]+3*u*t*t*c2[1]+t*t*t*by]}}}
- const pts=hor?[[ax,ay],[(ax+bx)/2,ay],[(ax+bx)/2,by],[bx,by]]:[[ax,ay],[ax,(ay+by)/2],[bx,(ay+by)/2],[bx,by]],seg=[];let tot=0;
- for(let i=0;i<3;i++){const l=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);seg.push(l);tot+=l}
- return{d:'M'+pts.map(q=>q.join(' ')).join('L'),at:t=>{let r=t*tot;for(let i=0;i<3;i++){if(r<=seg[i]||i===2){const f=seg[i]?Math.min(1,r/seg[i]):0;return[pts[i][0]+(pts[i+1][0]-pts[i][0])*f,pts[i][1]+(pts[i+1][1]-pts[i][1])*f]}r-=seg[i]}return pts[3]}}}
+ /* testa as 4 bordas de saída x 4 bordas de chegada e fica com o caminho que não atravessa as duas caixas (bordas "livres") */
+ const SD=[[1,0],[-1,0],[0,1],[0,-1]],anc=(r,d)=>d[0]>0?[r.x+r.w,r.y+r.h/2]:d[0]<0?[r.x,r.y+r.h/2]:d[1]>0?[r.x+r.w/2,r.y+r.h]:[r.x+r.w/2,r.y],
+ inside=(p,r)=>p[0]>r.x+1&&p[0]<r.x+r.w-1&&p[1]>r.y+1&&p[1]<r.y+r.h-1;let best=null;
+ for(const sa of SD)for(const sb of SD){const A=anc(a,sa),B=anc(b,sb);let pts=[],at,d;
+  if(sty==='side'){const dist=Math.hypot(B[0]-A[0],B[1]-A[1]),c=Math.max(40,Math.min(150,dist/2)),c1=[A[0]+sa[0]*c,A[1]+sa[1]*c],c2=[B[0]+sb[0]*c,B[1]+sb[1]*c];
+   const f=t=>{const u=1-t;return[u*u*u*A[0]+3*u*u*t*c1[0]+3*u*t*t*c2[0]+t*t*t*B[0],u*u*u*A[1]+3*u*u*t*c1[1]+3*u*t*t*c2[1]+t*t*t*B[1]]};
+   for(let i=0;i<=24;i++)pts.push(f(i/24));at=f;d=`M${A[0]} ${A[1]}C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${B[0]} ${B[1]}`}
+  else{const st=24,p1=[A[0]+sa[0]*st,A[1]+sa[1]*st],p2=[B[0]+sb[0]*st,B[1]+sb[1]*st],cor=sa[0]?[p1[0],p2[1]]:[p2[0],p1[1]],P0=[A,p1,cor,p2,B],sg=[];let tot=0;
+   for(let i=0;i<4;i++){const l=Math.hypot(P0[i+1][0]-P0[i][0],P0[i+1][1]-P0[i][1]);sg.push(l);tot+=l;for(let k=0;k<8;k++){const t=k/8;pts.push([P0[i][0]+(P0[i+1][0]-P0[i][0])*t,P0[i][1]+(P0[i+1][1]-P0[i][1])*t])}}pts.push(B);
+   at=t=>{let r=t*tot;for(let i=0;i<4;i++){if(r<=sg[i]||i===3){const f=sg[i]?Math.min(1,r/sg[i]):0;return[P0[i][0]+(P0[i+1][0]-P0[i][0])*f,P0[i][1]+(P0[i+1][1]-P0[i][1])*f]}r-=sg[i]}return B};
+   d='M'+P0.map(q=>q.join(' ')).join('L')}
+  let len=0,bad=0;for(let i=0;i<pts.length;i++){if(i)len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);if(i>0&&i<pts.length-1&&(inside(pts[i],a)||inside(pts[i],b)))bad++}
+  const sc=bad*1000+len;if(!best||sc<best.sc)best={sc,d,at}}
+ return best}
 function syncDOM(){world.querySelectorAll('.node').forEach(e=>{const n=nodeById(e.dataset.id);if(n){e.style.left=n.x+'px';e.style.top=n.y+'px'}});drawEdges()}
 
 /* ===== espaço físico: nada se sobrepõe ===== */
@@ -901,7 +908,7 @@ $('plib').onclick=()=>{const n=cur();libOpen(n&&n.lib)};
 /* ===== comandos globais ===== */
 const cmdDlg=document.createElement('dialog');cmdDlg.id='cmddlg';
 cmdDlg.innerHTML='<div class="lh"><b>⌨ Comandos globais</b><button type="button" id="cmdx">✕</button></div><div class="ld"><input id="cmdin" placeholder="Ex.: apague todos os eventos" autocomplete="off"><div class="lchips" id="cmdsug"></div><small>Funciona em toda a campanha. Escreva «nesta camada» para limitar à camada aberta. Ações: apagar, selecionar, travar, destravar, tamanho (mini, pequeno, normal, grande, enorme), agrupar. Tipos: eventos, personagens, lugares, pistas, notas, imagens. O Ctrl+Z desfaz.</small><button type="button" id="cmdgo">Executar</button></div>';
-document.body.append(cmdDlg);
+document.body.append(cmdDlg);const APP_VER='setas-2';console.log('Versão do site:',APP_VER);{const sm=document.createElement('small');sm.textContent='Versão do site: '+APP_VER;cmdDlg.querySelector('.ld').append(sm)}
 ['apague todos os eventos','selecione todos os personagens','agrupe todos os personagens nesta camada','trave todos os lugares','tamanho grande para todos os lugares','apague todas as notas nesta camada'].forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>{$('cmdin').value=t;$('cmdin').focus()};$('cmdsug').append(b)});
 function cmdRun(txt){const t=lnorm(txt),p=P(),TW=[['evento','evento'],['personagem','personagem'],['npc','personagem'],['lugar','lugar'],['local','lugar'],['pista','pista'],['nota','nota'],['imagem','imagem'],['foto','imagem']];
  let ty=null;for(const[w,k]of TW)if(t.includes(w)){ty=k;break}
