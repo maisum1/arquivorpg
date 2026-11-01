@@ -2,65 +2,219 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Portrait Transparente</title>
+    <title>A.R.Q.U.I.V.O. - Portrait OBS</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;0,700;1,400&family=Inter:wght@700;800;900&family=Special+Elite&display=swap');
         
-        /* FORÇA TRANSPARÊNCIA TOTAL NO NAVEGADOR E NO OBS */
+        :root {
+            --obs-paper: #e8e0ce;
+            --obs-ink: #141413;
+            --obs-red: #9e0b0f;
+            --obs-red-hi: #d13a38;
+            --obs-san: #5f7f96;
+            --obs-pe: #b59a69;
+            --obs-border: rgba(232, 224, 206, 0.28);
+        }
+
+        /* TRANSPARÊNCIA TOTAL PARA O OBS */
         html, body { 
-            margin: 0; padding: 0; overflow: hidden; 
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
             background: none !important; 
             background-color: transparent !important;
+            user-select: none;
         }
 
         #main-wrapper { 
-            display: flex; flex-direction: row; align-items: flex-end; 
-            padding: 20px; gap: 25px; 
+            display: inline-flex;
+            flex-direction: row;
+            align-items: flex-end; 
+            padding: 24px 30px;
+            gap: 0; 
             background: transparent !important;
+            position: relative;
         }
         
-        /* CAIXA DO PORTRAIT (Proporção 1 : 1.4) */
+        /* MOLDURA DO RETRATO */
         #image-frame { 
             position: relative; 
-            width: 250px; 
-            height: 350px; 
+            width: 240px; 
+            height: 330px; 
             overflow: hidden; 
             background: transparent !important;
             border: none;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        /* Linha sutil de base estilo Ordem Paranormal 2 */
+        #image-frame::after {
+            content: "";
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--obs-red-hi), transparent);
+            box-shadow: 0 0 12px rgba(158, 11, 15, 0.7);
+            z-index: 5;
         }
         
         #personagem-img { 
             position: absolute; 
-            left: 0; top: 0;
+            left: 0;
+            top: 0;
             width: 100%; 
             height: 100%; 
-            object-fit: cover; /* Mantém a proporção sem distorcer */
+            object-fit: cover;
             background: transparent !important;
-            transition: transform 0.3s ease-out, object-position 0.3s ease-out;
-            /* O Filtro drop-shadow não cria fundo preto, diferente de box-shadow */
-            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
+            transition: transform 0.35s ease-out, object-position 0.35s ease-out, filter 0.35s ease;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.85));
         }
 
-        /* TEXTOS */
-        #stats-container { display: flex; flex-direction: column; margin-left: -40px; position: relative; z-index: 10; pointer-events: none; }
-        #nome-val { font-size: 40px; text-transform: uppercase; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 8px #ff0000, 0 0 8px #ff0000; font-family: 'Special Elite'; margin-bottom: 5px; }
-        #vida-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 8px #ff0000, 0 0 8px #ff0000; margin-left: 15px; }
-        #san-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 8px #0066ff, 0 0 8px #0066ff; margin-left: 30px; }
-        #pe-container { position: absolute; bottom: 10px; left: 10px; font-size: 40px; color: #f5e6fc; text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 8px #cc66ff, 0 0 8px #cc66ff; z-index: 10; font-family: 'Special Elite'; }
+        /* Estados visuais sutis no retrato */
+        body.estado-Machucado #personagem-img {
+            filter: drop-shadow(0 0 14px rgba(158, 11, 15, 0.75)) contrast(1.06);
+        }
+        body.estado-Enlouquecendo #personagem-img {
+            filter: drop-shadow(0 0 14px rgba(95, 127, 150, 0.8)) saturate(0.65) contrast(1.1);
+        }
+        body.estado-Morto #personagem-img {
+            filter: grayscale(100%) contrast(1.15) brightness(0.7) drop-shadow(0 6px 16px rgba(0,0,0,0.95));
+        }
+
+        /* SELO DE FÔLEGO (PE / PF) DISCRETO NO CANTO DO RETRATO */
+        #pe-container { 
+            position: absolute; 
+            bottom: 12px; 
+            left: 12px; 
+            z-index: 10; 
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            padding: 3px 9px;
+            background: rgba(14, 14, 13, 0.82);
+            border: 1px solid rgba(181, 154, 105, 0.45);
+            border-left: 3px solid var(--obs-pe);
+            border-radius: 2px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+        }
+        #pe-label {
+            font: 900 9px/1 'Inter', sans-serif;
+            letter-spacing: 1.2px;
+            color: var(--obs-pe);
+            text-transform: uppercase;
+        }
+        #pe-val {
+            font: 700 22px/1 'Crimson Text', serif;
+            color: var(--obs-paper);
+        }
+
+        /* BLOCO DE INFORMAÇÕES EDITORIAL (Direita do Retrato) */
+        #stats-container { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end;
+            margin-left: -14px; 
+            margin-bottom: 10px;
+            padding: 12px 18px 12px 24px;
+            background: linear-gradient(90deg, rgba(14, 14, 13, 0.88) 0%, rgba(14, 14, 13, 0.72) 85%, transparent 100%);
+            border-left: 3px solid var(--obs-red);
+            border-top: 1px solid rgba(232, 224, 206, 0.14);
+            border-bottom: 1px solid rgba(232, 224, 206, 0.14);
+            position: relative; 
+            z-index: 10; 
+            pointer-events: none;
+            min-width: 195px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+        }
+
+        /* PRIMEIRO NOME EM DESTAQUE EDITORIAL */
+        #nome-val { 
+            font: 700 38px/0.92 'Crimson Text', Georgia, serif; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+            color: var(--obs-paper); 
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95); 
+            margin-bottom: 10px;
+            white-space: nowrap;
+        }
+
+        /* LINHAS DE STATUS (PV e LUC) */
+        .obs-stat-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .obs-stat-tag {
+            font: 900 10px/1 'Inter', sans-serif;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            min-width: 30px;
+            padding: 3px 5px;
+            text-align: center;
+            border-radius: 1px;
+        }
+        .obs-stat-tag.pv {
+            background: var(--obs-red);
+            color: #fff;
+        }
+        .obs-stat-tag.san {
+            background: var(--obs-san);
+            color: #111;
+        }
+        .obs-stat-val {
+            font: 700 30px/0.95 'Crimson Text', Georgia, serif;
+            color: var(--obs-paper);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+            letter-spacing: 0.5px;
+        }
+        .obs-stat-val small {
+            font-size: 0.62em;
+            color: rgba(232, 224, 206, 0.58);
+            font-weight: 600;
+            margin-left: 2px;
+        }
+
+        /* TAG DE CONDIÇÃO ATIVA (Opcional, só aparece se houver condição) */
+        #condicao-obs {
+            display: none;
+            margin-top: 8px;
+            font: 900 9px/1 'Inter', sans-serif;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #fff;
+            background: rgba(158, 11, 15, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 3px 7px;
+            align-self: flex-start;
+        }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
         <div id="image-frame">
-            <img id="personagem-img" src="">
-            <div id="pe-container"><span id="pe-val">0</span></div>
+            <img id="personagem-img" src="" alt="">
+            <div id="pe-container">
+                <span id="pe-label">PF</span>
+                <span id="pe-val">0</span>
+            </div>
         </div>
         <div id="stats-container">
             <div id="nome-val">...</div>
-            <div id="vida-text">0/0</div>
-            <div id="san-text">0/0</div>
+            <div class="obs-stat-row">
+                <span class="obs-stat-tag pv">PV</span>
+                <div id="vida-text" class="obs-stat-val">0<small>/0</small></div>
+            </div>
+            <div class="obs-stat-row">
+                <span class="obs-stat-tag san">LUC</span>
+                <div id="san-text" class="obs-stat-val">0<small>/0</small></div>
+            </div>
+            <div id="condicao-obs"></div>
         </div>
     </div>
 
@@ -73,39 +227,79 @@
             messagingSenderId: "758802032764",
             appId: "1:758802032764:web:40467e15fdc24c570081f9"
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const id = new URLSearchParams(window.location.search).get('id');
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        // Por padrão mostra apenas o PRIMEIRO NOME. Para forçar nome completo, use &full=1 na URL.
+        const mostrarNomeCompleto = params.get('full') === '1';
+
+        let globalHexatombe = false;
+        db.collection("configuracoes").doc("globais").onSnapshot(doc => {
+            if (doc.exists) globalHexatombe = !!doc.data().hexatombe;
+        });
+
+        function extrairPrimeiroNome(nomeCompleto) {
+            const limpo = String(nomeCompleto || "Persona").trim();
+            if (!limpo) return "Persona";
+            return mostrarNomeCompleto ? limpo : (limpo.split(/\s+/)[0] || limpo);
+        }
 
         if (id) {
             db.collection("fichas").doc(id).onSnapshot(doc => {
-                const d = doc.data();
-                if(!d) return;
+                const raw = doc.data();
+                if (!raw) return;
 
-                document.getElementById('nome-val').innerText = d.nome || "Persona";
-                document.getElementById('pe-val').innerText = d.peAtual || 0;
-                document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
-                document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
+                const emHexa = !!(raw.hexatombe || globalHexatombe);
+                const d = (emHexa && raw.hexatombe_data) ? { ...raw, ...raw.hexatombe_data } : raw;
 
+                const vAt = emHexa ? (raw.hexatombe_data?.vidaAtual ?? raw.vidaAtual ?? 0) : (raw.vidaAtual ?? 0);
+                const sAt = emHexa ? (raw.hexatombe_data?.sanAtual ?? raw.sanAtual ?? 0) : (raw.sanAtual ?? 0);
+                const pAt = emHexa ? (raw.hexatombe_data?.peAtual ?? raw.peAtual ?? 0) : (raw.peAtual ?? 0);
+                const vMax = d.vidaMax ?? 1;
+                const sMax = d.sanMax ?? 1;
+
+                document.getElementById('nome-val').innerText = extrairPrimeiroNome(d.nome);
+                document.getElementById('pe-val').innerText = pAt;
+                document.getElementById('vida-text').innerHTML = `${vAt}<small>/${vMax}</small>`;
+                document.getElementById('san-text').innerHTML = `${sAt}<small>/${sMax}</small>`;
+
+                // Estado do retrato
                 let estado = "Normal";
-                if (d.vidaAtual <= 0) estado = "Morto";
-                else if (d.sanAtual <= 0) estado = "Enlouquecendo";
-                else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
+                if (vAt <= 0) estado = "Morto";
+                else if (sAt <= 0) estado = "Enlouquecendo";
+                else if ((vAt / Math.max(1, vMax)) <= 0.5) estado = "Machucado";
 
-                const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait;
+                document.body.className = `estado-${estado}`;
+
+                // Exibe condições ativas se houver
+                const condEl = document.getElementById('condicao-obs');
+                const listaCond = Array.isArray(d.statusAcumulados) && d.statusAcumulados.length
+                    ? d.statusAcumulados
+                    : (d.statusPersonagem && d.statusPersonagem !== 'Normal' ? [d.statusPersonagem] : []);
+                if (vAt <= 0) {
+                    condEl.style.display = 'inline-block';
+                    condEl.innerText = 'ESTADO CRÍTICO';
+                } else if (sAt <= 0) {
+                    condEl.style.display = 'inline-block';
+                    condEl.innerText = 'COLAPSO MENTAL';
+                } else if (listaCond.length) {
+                    condEl.style.display = 'inline-block';
+                    condEl.innerText = listaCond.join(' • ');
+                } else {
+                    condEl.style.display = 'none';
+                }
+
+                const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait || raw.portrait;
                 const imgEl = document.getElementById('personagem-img');
-                
-                if(imgFinal && imgEl.src !== imgFinal) {
+                if (imgFinal && imgEl.src !== imgFinal) {
                     imgEl.src = imgFinal;
                 }
 
-                // VALORES SALVOS NA FICHA
-                const zoom = d["p"+estado+"Zoom"] || d.pZ || 1;
-                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : 50;
-                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : 50;
+                const zoom = d["p" + estado + "Zoom"] || d.pZ || raw.pZ || 1;
+                const x = d["p" + estado + "X"] !== undefined ? d["p" + estado + "X"] : (d.pX ?? raw.pX ?? 50);
+                const y = d["p" + estado + "Y"] !== undefined ? d["p" + estado + "Y"] : (d.pY ?? raw.pY ?? 50);
 
-                // APLICANDO O RECORTE PROPORCIONAL
-                // Usar porcentagem no object-position garante que não corte as bordas (como a direita)
                 imgEl.style.objectPosition = `${x}% ${y}%`;
                 imgEl.style.transform = `scale(${zoom})`;
             });
