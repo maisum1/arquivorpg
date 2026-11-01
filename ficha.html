@@ -6639,11 +6639,13 @@ let filtroSubAtualAtaques = 'Todos';
 })();
 </script>
 <!-- ======================================================================
-     MÓDULO A.R.Q.U.I.V.O. v2 — DESPOLUIÇÃO VISUAL + RASTREADORES DE CENA
-     Cole imediatamente antes de </body> no seu ficha.html
+     MÓDULO A.R.Q.U.I.V.O. v2.5 — FICHA RÁPIDA (VIGÍLIA) + CONFIGS + CENA
+     Substitua o bloco anterior antes de </body> no seu ficha.html
      ====================================================================== -->
 <style id="arquivo-v2-clean-ui">
-    /* 1. Refinamento Geral de Espaçamento e Bordas (Menos ruído de linhas tracejadas) */
+    /* =========================================================
+       1. ESTRUTURA GERAL E ABAS DA FICHA COMPLETA
+       ========================================================= */
     .grid-container {
         gap: 44px !important;
         padding: 32px 44px !important;
@@ -6652,7 +6654,6 @@ let filtroSubAtualAtaques = 'Todos';
         .grid-container { padding: 14px 12px !important; gap: 20px !important; }
     }
 
-    /* Abas limpas em linha contínua estilo pasta de arquivo */
     .tabs-nav {
         display: flex !important;
         flex-wrap: wrap !important;
@@ -6672,11 +6673,152 @@ let filtroSubAtualAtaques = 'Todos';
         letter-spacing: 1px !important;
         box-shadow: none !important;
     }
-    .tabs-nav .tab-btn.active {
-        transform: translateY(1px);
-    }
+    .tabs-nav .tab-btn.active { transform: translateY(1px); }
 
-    /* 2. Perícias Estilo "A Vigília / Dossiê" (Modo Leitura Limpa vs Modo Edição) */
+    /* =========================================================
+       2. MENU DE CONFIGURAÇÕES (#modal-config) LIMPO E ORGANIZADO
+       ========================================================= */
+    #modal-config.modal-padrao {
+        max-width: 420px !important;
+        padding: 22px 24px !important;
+        border: 1px solid var(--card-border) !important;
+        border-top: 4px solid var(--op-ink) !important;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.85) !important;
+    }
+    body.tema-escuro #modal-config.modal-padrao {
+        background: #161615 !important;
+        border-top-color: var(--accent-gold) !important;
+    }
+    .cfg-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 10px;
+        margin-bottom: 16px;
+    }
+    .cfg-header h3 {
+        margin: 0 !important;
+        font: 900 18px/1 'Crimson Text', serif !important;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--op-ink) !important;
+        background: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    body.tema-escuro .cfg-header h3 { color: var(--accent-gold) !important; }
+    .cfg-close-x {
+        background: none;
+        border: none;
+        color: var(--cor-geral);
+        font-size: 20px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 2px 6px;
+    }
+    .cfg-close-x:hover { color: var(--op-red); }
+
+    .cfg-section {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 2px;
+        padding: 12px;
+        margin-bottom: 12px;
+        text-align: left;
+    }
+    .cfg-section-title {
+        font: 900 9.5px/1 'Inter', sans-serif;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--cor-geral);
+        margin-bottom: 10px;
+        display: block;
+    }
+    .cfg-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .cfg-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 9px 10px;
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--op-ink);
+        font: 800 10px/1.2 'Inter', sans-serif;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: 0.16s ease;
+    }
+    .cfg-btn:hover {
+        background: var(--card-hover);
+        border-color: var(--op-ink);
+    }
+    .cfg-btn.accent {
+        border-color: var(--san-purple);
+        color: var(--san-purple);
+    }
+    .cfg-btn.danger {
+        border-color: var(--op-red);
+        color: var(--op-red);
+    }
+    .cfg-details {
+        border: 1px solid var(--card-border);
+        background: var(--card-bg);
+        border-radius: 2px;
+        margin-bottom: 10px;
+        padding: 10px 12px;
+    }
+    .cfg-details > summary {
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font: 800 10.5px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--op-ink);
+    }
+    .cfg-details > summary::-webkit-details-marker { display: none; }
+    .cfg-details > summary::after { content: '▸'; opacity: 0.6; transition: transform 0.15s; }
+    .cfg-details[open] > summary::after { transform: rotate(90deg); }
+    .cfg-details-body {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .cfg-input-inline {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+    .cfg-input-inline input {
+        flex: 1;
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--op-ink);
+        font: 13px 'Special Elite', monospace;
+        padding: 7px 10px;
+        border-radius: 2px;
+        outline: none;
+    }
+    .cfg-input-inline input:focus { border-color: var(--op-red); }
+
+    /* =========================================================
+       3. PERÍCIAS NA FICHA COMPLETA (Leitura Limpa vs Edição)
+       ========================================================= */
     .pericias-toolbar {
         display: flex;
         justify-content: space-between;
@@ -6706,7 +6848,6 @@ let filtroSubAtualAtaques = 'Todos';
     .arq-pill-btn.active { background: var(--op-ink); color: var(--bg-paper); border-color: var(--op-ink); }
     body.tema-escuro .arq-pill-btn.active { background: var(--accent-gold); color: #121211; border-color: var(--accent-gold); }
 
-    /* Quando NÃO está em modo de edição de perícias, simplifica a tabela para leitura imediata */
     body:not(.pericias-edit-mode) .pericia-header {
         grid-template-columns: 1fr auto 42px !important;
     }
@@ -6720,10 +6861,9 @@ let filtroSubAtualAtaques = 'Todos';
         border-bottom: 1px solid rgba(128,128,128,0.12) !important;
         border-radius: 2px;
     }
-    /* Esconde os selects/inputs crus no modo leitura e mostra os badges limpos estilo OP2 */
     body:not(.pericias-edit-mode) .pericia-row > select,
     body:not(.pericias-edit-mode) .pericia-row > input,
-    body:not(.pericias-edit-mode) .pericia-row > div {
+    body:not(.pericias-edit-mode) .pericia-row > div:not(.vigilia-Formula-badge) {
         display: none !important;
     }
     .vigilia-Formula-badge {
@@ -6750,8 +6890,8 @@ let filtroSubAtualAtaques = 'Todos';
         background: rgba(128,128,128,0.15);
         color: var(--cor-geral);
     }
-    .vg-chip-tr.tr-12 { background: rgba(102, 82, 53, 0.75); color: #fff; }
-    .vg-chip-tr.tr-34 { background: rgba(43, 58, 74, 0.85); color: #fff; }
+    .vg-chip-tr.tr-12 { background: rgba(102, 82, 53, 0.78); color: #fff; }
+    .vg-chip-tr.tr-34 { background: rgba(43, 58, 74, 0.88); color: #fff; }
     .vg-chip-tr.tr-5  { background: var(--op-red); color: #fff; }
     .vg-chip-attr {
         font: 800 9px 'Inter', sans-serif;
@@ -6760,19 +6900,13 @@ let filtroSubAtualAtaques = 'Todos';
         min-width: 34px;
         text-align: left;
     }
+    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga { opacity: 0.5; }
+    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga:hover { opacity: 1; }
+    body.filtrar-apenas-treinadas:not(.pericias-edit-mode) .pericia-row.pericia-leiga { display: none !important; }
 
-    /* Atenua perícias leigas (+0) no modo leitura para destacar o que o personagem sabe fazer */
-    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga {
-        opacity: 0.52;
-    }
-    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga:hover {
-        opacity: 1;
-    }
-    body.filtrar-apenas-treinadas:not(.pericias-edit-mode) .pericia-row.pericia-leiga {
-        display: none !important;
-    }
-
-    /* 3. Painel Universal de Marcadores de Cena / Condições / Gatilhos (Executor, Analista, etc.) */
+    /* =========================================================
+       4. PAINEL UNIVERSAL DE MARCADORES DE CENA (Executor, etc.)
+       ========================================================= */
     .scene-trackers-box {
         margin-top: 18px;
         background: var(--card-bg);
@@ -6795,17 +6929,13 @@ let filtroSubAtualAtaques = 'Todos';
         text-transform: uppercase;
         color: var(--op-ink);
     }
-    .tracker-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
+    .tracker-list { display: flex; flex-direction: column; gap: 7px; }
     .tracker-card {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
-        padding: 7px 10px;
+        padding: 6px 10px;
         background: rgba(0,0,0,0.03);
         border: 1px solid var(--card-border);
         border-radius: 2px;
@@ -6813,13 +6943,12 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .tracker-card.ready {
         border-color: var(--op-red);
-        background: rgba(158, 11, 15, 0.09);
+        background: rgba(158, 11, 15, 0.11);
     }
     .tracker-info { min-width: 0; flex: 1; }
     .tracker-name {
         font: 700 13px 'Crimson Text', serif;
         color: var(--op-ink);
-        letter-spacing: 0.4px;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -6839,23 +6968,17 @@ let filtroSubAtualAtaques = 'Todos';
         color: #fff;
         cursor: pointer;
     }
-    .tracker-pips {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+    .tracker-pips { display: flex; align-items: center; gap: 5px; }
     .tracker-pip {
-        width: 15px;
-        height: 15px;
+        width: 14px;
+        height: 14px;
         border-radius: 50%;
         border: 1.5px solid var(--op-ink);
         background: transparent;
         cursor: pointer;
         transition: 0.15s;
     }
-    .tracker-pip.on {
-        background: var(--op-ink);
-    }
+    .tracker-pip.on { background: var(--op-ink); }
     .tracker-card.ready .tracker-pip.on {
         background: var(--op-red);
         border-color: var(--op-red);
@@ -6872,7 +6995,9 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .tracker-del:hover { opacity: 1; color: var(--op-red); }
 
-    /* 4. Mapa Corporal Recolhível em Acordeão Tático */
+    /* =========================================================
+       5. ANATOMIA EM ACORDEÃO TÁTICO
+       ========================================================= */
     .anatomia-wrapper {
         border: 1px solid var(--card-border);
         background: var(--card-bg);
@@ -6893,13 +7018,7 @@ let filtroSubAtualAtaques = 'Todos';
         color: var(--op-ink);
     }
     .anatomia-wrapper > summary::-webkit-details-marker { display: none; }
-    .anatomia-resumo-chips {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        align-items: center;
-        font-size: 10px;
-    }
+    .anatomia-resumo-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .anat-chip {
         padding: 2px 7px;
         border-radius: 2px;
@@ -6908,28 +7027,482 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .anat-chip.lesionado { border-color: var(--op-red); color: var(--op-red); background: rgba(158,11,15,0.1); }
     .anat-chip.decepado { text-decoration: line-through; opacity: 0.6; }
+
+    /* =========================================================
+       6. FICHA RÁPIDA REFORMULADA — ESTILO "A VIGÍLIA" (OP2)
+          Sem ruído visual, sem linhas cruzando o retrato, intuitiva
+       ========================================================= */
+    #fq-open {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 9990;
+        border: 1px solid var(--fq-border);
+        background: var(--fq-panel);
+        color: var(--fq-paper);
+        padding: 11px 16px;
+        cursor: pointer;
+        font: 900 10.5px/1 'Inter', sans-serif;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        border-left: 3px solid var(--fq-accent);
+        transition: 0.18s ease;
+    }
+    #fq-open:hover { transform: translateY(-2px); border-color: var(--fq-accent-hi); }
+
+    /* Desativa ruídos decorativos antigos na Ficha Rápida */
+    .fq-rule, .fq-cross, .fq-corner, .fq-sheet::after { display: none !important; }
+
+    .fq-sheet.fq-vigilia {
+        width: min(1060px, 96vw) !important;
+        height: min(680px, 92vh) !important;
+        aspect-ratio: auto !important;
+        display: grid !important;
+        grid-template-columns: 1.15fr 0.95fr 0.95fr !important;
+        grid-template-rows: auto auto 1fr auto !important;
+        gap: 14px 24px !important;
+        padding: 26px 30px 20px 30px !important;
+        box-sizing: border-box !important;
+        border: 1px solid var(--fq-border) !important;
+        border-top: 3px solid var(--fq-accent) !important;
+    }
+
+    /* Cabeçalho da Ficha Rápida (Colunas 1 e 2) */
+    .fqv-header {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 1px solid var(--fq-line);
+        padding-bottom: 10px;
+        gap: 16px;
+        z-index: 10;
+    }
+    .fqv-title-box { min-width: 0; }
+    .fqv-name {
+        font: 700 clamp(28px, 3.6vw, 44px)/0.92 'Crimson Text', Georgia, serif;
+        color: var(--fq-paper);
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .fqv-sub {
+        margin-top: 4px;
+        font: 800 10.5px/1.2 'Inter', sans-serif;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--fq-text-soft);
+    }
+    .fqv-sub b { color: var(--fq-accent-hi); }
+
+    .fqv-meta-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .fqv-def-pills {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .fqv-def-pill {
+        padding: 4px 8px;
+        border: 1px solid var(--fq-line);
+        background: rgba(0,0,0,0.18);
+        font: 800 9.5px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--fq-text-soft);
+    }
+    .fqv-def-pill b {
+        font: 700 15px/1 'Crimson Text', serif;
+        color: var(--fq-paper);
+        margin-left: 4px;
+    }
+
+    /* Linha Superior de Status: Atributos à esquerda (Col 1) + Recursos à direita (Col 2) */
+    .fqv-attrs-box {
+        grid-column: 1;
+        grid-row: 2;
+        z-index: 10;
+    }
+    .fqv-section-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font: 900 9.5px/1 'Inter', sans-serif;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: var(--fq-text-soft);
+        margin-bottom: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--fq-line-soft);
+    }
+    .fqv-attrs-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+    .fqv-attr-Diamond {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 4px;
+        border: 1px solid var(--fq-line);
+        background: rgba(0,0,0,0.16);
+        border-radius: 2px;
+    }
+    .fqv-attr-Diamond span {
+        font: 900 8.5px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        color: var(--fq-text-soft);
+        margin-bottom: 3px;
+    }
+    .fqv-attr-Diamond input {
+        width: 100%;
+        border: none !important;
+        background: transparent !important;
+        text-align: center;
+        font: 700 22px/1 'Crimson Text', Georgia, serif;
+        color: var(--fq-paper) !important;
+        outline: none;
+        padding: 0;
+    }
+
+    /* Recursos estilo "A Vigília" (PV, LUC, FÔL com barra limpa e controles discretos) */
+    .fqv-vitals-box {
+        grid-column: 2;
+        grid-row: 2;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        justify-content: center;
+    }
+    .fqv-vital-row {
+        display: grid;
+        grid-template-columns: 38px 1fr auto;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px;
+        background: rgba(0,0,0,0.16);
+        border: 1px solid var(--fq-line-soft);
+        border-left: 3px solid var(--fq-accent);
+    }
+    .fqv-vital-row.san { border-left-color: var(--fq-accent-blue); }
+    .fqv-vital-row.pe  { border-left-color: var(--fq-gold); }
+    .fqv-vital-tag {
+        font: 900 10px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        color: var(--fq-paper);
+    }
+    .fqv-vital-nums {
+        display: flex;
+        align-items: baseline;
+        gap: 3px;
+        font: 700 24px/0.9 'Crimson Text', serif;
+        color: var(--fq-paper);
+    }
+    .fqv-vital-nums input {
+        width: 42px;
+        background: transparent !important;
+        border: none !important;
+        color: var(--fq-paper) !important;
+        font: inherit;
+        text-align: right;
+        outline: none;
+        padding: 0;
+    }
+    .fqv-vital-nums small {
+        font-size: 14px;
+        color: var(--fq-text-soft);
+    }
+    .fqv-vital-btns {
+        display: flex;
+        gap: 4px;
+    }
+    .fqv-vital-btns button {
+        width: 22px;
+        height: 22px;
+        border: 1px solid var(--fq-line);
+        background: transparent;
+        color: var(--fq-paper);
+        font: 900 12px/1 'Inter', sans-serif;
+        cursor: pointer;
+        border-radius: 2px;
+    }
+    .fqv-vital-btns button:hover { background: var(--fq-accent); color: #fff; border-color: var(--fq-accent); }
+
+    /* Perícias em 2 Colunas Limpas (Col 1, Row 3) — Estilo Ordem Paranormal 2 */
+    .fqv-skills-panel {
+        grid-column: 1;
+        grid-row: 3;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+    .fqv-skills-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px 14px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .fqv-skill-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 3.5px 0;
+        border-bottom: 1px dotted var(--fq-line-soft);
+        min-width: 0;
+    }
+    .fqv-skill-name {
+        font: 700 12.5px/1.1 'Crimson Text', Georgia, serif;
+        text-transform: uppercase;
+        color: var(--fq-paper);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .fqv-skill-Formula {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+    .fqv-pill-tr {
+        font: 900 9px/1 'Inter', sans-serif;
+        padding: 2px 5px;
+        border-radius: 2px;
+        background: rgba(255,255,255,0.08);
+        color: var(--fq-text-soft);
+    }
+    .fqv-pill-tr.t12 { background: #665235; color: #fff; }
+    .fqv-pill-tr.t34 { background: #2b3a4a; color: #fff; }
+    .fqv-pill-tr.t5  { background: var(--fq-accent-red); color: #fff; }
+    .fqv-pill-tot {
+        font: 900 14px/1 'Crimson Text', serif;
+        color: var(--fq-accent-hi);
+        min-width: 20px;
+        text-align: right;
+    }
+
+    /* Coluna Central (Col 2, Row 3): Gatilhos de Cena + Armas + Traços Resumidos */
+    .fqv-tactical-panel {
+        grid-column: 2;
+        grid-row: 3;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .fqv-compact-item {
+        padding: 6px 9px;
+        border-left: 2px solid var(--fq-accent);
+        background: rgba(0,0,0,0.16);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .fqv-compact-item strong {
+        font: 700 13.5px/1.1 'Crimson Text', serif;
+        color: var(--fq-paper);
+    }
+    .fqv-compact-item span {
+        font: 800 9.5px/1 'Inter', sans-serif;
+        color: var(--fq-accent-hi);
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    /* Retrato Grande à Direita (Col 3, Rows 1-3) — Igual à foto de referência */
+    .fqv-portrait-col {
+        grid-column: 3;
+        grid-row: 1 / 4;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        overflow: hidden;
+        border-left: 1px solid var(--fq-line-soft);
+        padding-left: 10px;
+    }
+    .fqv-portrait-col img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 20%;
+        filter: contrast(1.04) drop-shadow(0 12px 24px rgba(0,0,0,0.65));
+    }
+    .fqv-status-floating {
+        position: absolute;
+        left: 18px;
+        bottom: 12px;
+        right: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        z-index: 12;
+    }
+
+    /* Rodapé de Navegação Rápida (Row 4) */
+    .fqv-footer {
+        grid-column: 1 / -1;
+        grid-row: 4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--fq-line);
+        padding-top: 10px;
+        gap: 10px;
+        z-index: 15;
+    }
+    .fqv-nav-btns {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    .fqv-nav-btn {
+        background: transparent;
+        border: 1px solid var(--fq-line);
+        color: var(--fq-text-soft);
+        padding: 5px 10px;
+        font: 800 9px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .fqv-nav-btn:hover, .fqv-nav-btn.primary {
+        border-color: var(--fq-accent);
+        color: var(--fq-paper);
+    }
+
+    @media (max-width: 860px) {
+        .fq-sheet.fq-vigilia {
+            grid-template-columns: 1fr !important;
+            grid-template-rows: auto !important;
+            height: 94dvh !important;
+            overflow-y: auto !important;
+            padding: 18px 16px !important;
+        }
+        .fqv-header, .fqv-attrs-box, .fqv-vitals-box, .fqv-skills-panel, .fqv-tactical-panel, .fqv-portrait-col, .fqv-footer {
+            grid-column: 1 !important;
+            grid-row: auto !important;
+        }
+        .fqv-portrait-col {
+            height: 220px;
+            order: -1;
+            border-left: none;
+            border-bottom: 1px solid var(--fq-line);
+            padding-left: 0;
+        }
+        .fqv-skills-list { max-height: 210px; }
+    }
 </style>
 
 <script id="arquivo-v2-clean-logic">
 (function() {
     // =========================================================================
-    // 1. PRIMEIRO NOME AUTOMÁTICO (Ficha Rápida / Cabeçalho / OBS)
+    // 1. PRIMEIRO NOME AUTOMÁTICO & COPIAR LINK OBS
     // =========================================================================
     window.obterPrimeiroNomePersona = function(nome) {
         const txt = String(nome || '').trim();
         return txt ? txt.split(/\s+/)[0] : 'PERSONA';
     };
 
-    // Sobrescreve copiarLinkOBS para já incluir ?shortName=1 por padrão
-    const oldCopiarOBS = window.copiarLinkOBS;
-    window.copiarLinkOBS = function() {
-        const url = `${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}&shortName=1`;
+    window.copiarLinkOBS = function(usarNomeCompleto) {
+        const base = window.location.href.split('ficha.html')[0];
+        const sufixo = usarNomeCompleto ? '&full=1' : '';
+        const url = `${base}portrait.html?id=${atual}${sufixo}`;
         navigator.clipboard.writeText(url);
-        alert("Link do Portrait (OBS com Primeiro Nome) copiado!");
+        alert(usarNomeCompleto ? "Link do Portrait OBS (Nome Completo) copiado!" : "Link do Portrait OBS (Apenas 1º Nome) copiado!");
     };
 
     // =========================================================================
-    // 2. BARRA DE FILTRO E VISUALIZAÇÃO LIMPA DE PERÍCIAS (Estilo OP2 Vigília)
+    // 2. RECONSTRUÇÃO DO MODAL DE CONFIGURAÇÕES (#modal-config)
+    // =========================================================================
+    function reconstruirModalConfig() {
+        const modal = document.getElementById('modal-config');
+        if (!modal || modal.dataset.v2Rebuilt === '1') return;
+        modal.dataset.v2Rebuilt = '1';
+
+        const campAtual = document.getElementById('campanhaId-config')?.value || '';
+
+        modal.innerHTML = `
+            <div class="cfg-header">
+                <h3>⚙️ CONFIGURAÇÕES</h3>
+                <button type="button" class="cfg-close-x" onclick="toggleElem('modal-config')" title="Fechar">×</button>
+            </div>
+
+            <div class="cfg-section">
+                <span class="cfg-section-title">APARÊNCIA & MODO DE OPERAÇÃO</span>
+                <div class="cfg-grid-2" style="margin-bottom:8px;">
+                    <button type="button" class="cfg-btn" onclick="alternarTema()">🌗 Alternar Tema</button>
+                    <button type="button" class="cfg-btn accent" onclick="toggleElem('modal-config'); window.ativarModoCriacao(true);">🛠️ Modo Criação</button>
+                </div>
+                <button type="button" id="btn-modo-sobrevivencia" class="cfg-btn desativado" onclick="if(typeof toggleModoSobrevivencia==='function') toggleModoSobrevivencia()">
+                    🌲 Modo Sobrevivência: Desligado
+                </button>
+            </div>
+
+            <div class="cfg-section">
+                <span class="cfg-section-title">VINCULAR À CAMPANHA (CÓDIGO DO MESTRE)</span>
+                <div class="cfg-input-inline">
+                    <input type="text" id="campanhaId-config" placeholder="Ex: AB12CD" value="${campAtual}" onchange="vincularCampanhaPelaFicha(this.value)">
+                    <button type="button" class="cfg-btn" style="width:auto; padding:8px 12px;" onclick="vincularCampanhaPelaFicha(document.getElementById('campanhaId-config').value)">SINTONIZAR</button>
+                </div>
+            </div>
+
+            <details class="cfg-details">
+                <summary>🎥 TRANSMISSÃO & PORTRAIT (OBS)</summary>
+                <div class="cfg-details-body">
+                    <div class="cfg-grid-2">
+                        <button type="button" class="cfg-btn" onclick="copiarLinkOBS(false)">📋 Link OBS (1º Nome)</button>
+                        <button type="button" class="cfg-btn" onclick="copiarLinkOBS(true)">📋 Link OBS (Completo)</button>
+                    </div>
+                    <div class="cfg-grid-2">
+                        <button type="button" class="cfg-btn" onclick="abrirUpload('Normal')">📷 Foto Padrão</button>
+                        <button type="button" class="cfg-btn danger" onclick="abrirUpload('Machucado')">🩸 Foto &lt; 50% PV</button>
+                        <button type="button" class="cfg-btn accent" onclick="abrirUpload('Enlouquecendo')">🌀 Foto 0 LUC</button>
+                        <button type="button" class="cfg-btn" onclick="abrirUpload('Morto')">💀 Foto 0 PV</button>
+                    </div>
+                </div>
+            </details>
+
+            <details class="cfg-details">
+                <summary>📚 LIVRO DO SISTEMA & TERMINAL</summary>
+                <div class="cfg-details-body">
+                    <div class="cfg-grid-2">
+                        <button type="button" class="cfg-btn" onclick="window.open('https://online.fliphtml5.com/zhbar/vhvf/', '_blank')">📖 Livro FlipHTML5</button>
+                        <button type="button" class="cfg-btn" onclick="window.open('https://drive.google.com/file/d/1aMXmBlD0t5PXk6VpLbtt0sOJuE2j7KlD/view?usp=drive_link', '_blank')">📄 Livro em PDF</button>
+                    </div>
+                    <div class="cfg-input-inline" style="margin-top:4px;">
+                        <input type="password" id="input-cheat" placeholder="Comando de terminal...">
+                        <button type="button" class="cfg-btn" style="width:auto; padding:8px 12px;" onclick="verificarCheat()">EXECUTAR</button>
+                    </div>
+                </div>
+            </details>
+
+            <button type="button" class="cfg-btn" style="margin-top:6px; opacity:0.75;" onclick="toggleElem('modal-config')">FECHAR PAINEL</button>
+        `;
+    }
+
+    // =========================================================================
+    // 3. PERÍCIAS NA FICHA COMPLETA (Filtro + Badges Estilo Vigília)
     // =========================================================================
     function instalarBarraPericias() {
         const abaPericias = document.getElementById('aba-pericias');
@@ -6978,10 +7551,8 @@ let filtroSubAtualAtaques = 'Todos';
             if (!badge) {
                 badge = document.createElement('div');
                 badge.className = 'vigilia-Formula-badge';
-                badge.title = 'Clique para editar ou ver detalhes';
                 badge.onclick = () => toggleDescricao(p);
-                const lastChild = row.lastElementChild;
-                row.insertBefore(badge, lastChild);
+                row.insertBefore(badge, row.lastElementChild);
             }
 
             const attrSel = document.getElementById(`attr-${p}`);
@@ -6989,9 +7560,7 @@ let filtroSubAtualAtaques = 'Todos';
             const treinoSel = document.getElementById(`treino-${p}`);
             const baseTreinoSel = document.getElementById(`base-treino-${p}`);
 
-            let treinoVal = 0;
-            let ehTreinado = false;
-
+            let treinoVal = 0, ehTreinado = false;
             if (treinoSel) {
                 treinoVal = parseInt(treinoSel.value) || 0;
                 ehTreinado = treinoVal > 0;
@@ -7005,21 +7574,17 @@ let filtroSubAtualAtaques = 'Todos';
             }
 
             row.classList.toggle('pericia-leiga', !ehTreinado);
-
-            let classeCor = '';
-            if (treinoVal === 1 || treinoVal === 2) classeCor = 'tr-12';
-            else if (treinoVal === 3 || treinoVal === 4) classeCor = 'tr-34';
-            else if (treinoVal >= 5) classeCor = 'tr-5';
-
+            let classeCor = treinoVal >= 5 ? 'tr-5' : (treinoVal >= 3 ? 'tr-34' : (treinoVal >= 1 ? 'tr-12' : ''));
             const txtTreino = treinoSel ? `+${treinoVal}` : (ehTreinado ? `❖ +${treinoVal}` : 'Leigo');
             badge.innerHTML = `<span class="vg-chip-tr ${classeCor}">${txtTreino}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
         });
     }
 
     // =========================================================================
-    // 3. SISTEMA UNIVERSAL DE RASTREADORES / GATILHOS DE CENA (Executor, etc.)
+    // 4. RASTREADORES / GATILHOS DE CENA (Executor, Analista, Custom)
     // =========================================================================
     let rastreadoresCena = [];
+    window.getRastreadoresCena = () => rastreadoresCena;
 
     function instalarPainelRastreadores() {
         const colEsq = document.querySelector('#grid-container > section:first-child');
@@ -7032,8 +7597,8 @@ let filtroSubAtualAtaques = 'Todos';
             <div class="scene-trackers-header">
                 <span class="scene-trackers-title">⚡ MARCADORES DE CENA & GATILHOS</span>
                 <div style="display:flex; gap:4px;">
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('executor')" title="Adiciona o contador automático do traço Executor">+ Executor</button>
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('analista')" title="Adiciona bônus de observação do Analista">+ Analista</button>
+                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('executor')">+ Executor</button>
+                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('analista')">+ Analista</button>
                     <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.criarRastreadorCustom()">+ Novo</button>
                 </div>
             </div>
@@ -7052,20 +7617,22 @@ let filtroSubAtualAtaques = 'Todos';
         if (tipo === 'executor') {
             rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Executor (Falhas)', atual: 0, max: 2, efeito: '+1 no Próximo Teste' });
         } else if (tipo === 'analista') {
-            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista (Alvo Observado)', atual: 1, max: 1, efeito: '+1d3 nos Testes na Cena' });
+            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista (Alvo)', atual: 1, max: 1, efeito: '+1d3 nos Testes' });
         }
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
+        atualizarFichaRapidaVigilia();
     };
 
     window.criarRastreadorCustom = function() {
-        const nome = prompt("Nome do marcador / habilidade (ex: Executor, Favor, Munição Especial, Rodadas):");
+        const nome = prompt("Nome do marcador / habilidade (ex: Executor, Favor, Cargas, Rodadas):");
         if (!nome || !nome.trim()) return;
-        const max = Math.max(1, Math.min(10, parseInt(prompt("Quantidade de marcas/cargas necessárias (1 a 10):", "2")) || 2));
-        const efeito = prompt("Bônus ou lembrete quando completar (ex: +1 no próximo teste):", "Ativo") || "Ativo";
+        const max = Math.max(1, Math.min(10, parseInt(prompt("Quantidade de marcas necessárias (1 a 10):", "2")) || 2));
+        const efeito = prompt("Bônus ou efeito quando completar (ex: +1 no próximo teste):", "Ativo") || "Ativo";
         rastreadoresCena.push({ id: Date.now().toString(36), nome: nome.trim(), atual: 0, max, efeito: efeito.trim() });
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
+        atualizarFichaRapidaVigilia();
     };
 
     window.clicarPipRastreador = function(id, indice) {
@@ -7074,6 +7641,7 @@ let filtroSubAtualAtaques = 'Todos';
         item.atual = (item.atual === indice) ? indice - 1 : indice;
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
+        atualizarFichaRapidaVigilia();
     };
 
     window.zerarRastreador = function(id) {
@@ -7082,46 +7650,372 @@ let filtroSubAtualAtaques = 'Todos';
         item.atual = 0;
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
+        atualizarFichaRapidaVigilia();
     };
 
     window.removerRastreador = function(id) {
         rastreadoresCena = rastreadoresCena.filter(r => r.id !== id);
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
+        atualizarFichaRapidaVigilia();
     };
 
-    function renderizarRastreadores() {
-        const cont = document.getElementById('lista-rastreadores-cena');
-        if (!cont) return;
+    function htmlListaRastreadores() {
         if (!rastreadoresCena.length) {
-            cont.innerHTML = `<div style="font-size:11px; color:var(--cor-geral); font-style:italic; text-align:center; padding:4px 0;">Nenhum gatilho ativo. Use "+ Executor" ou "+ Novo" para rastrear falhas, cargas ou bônus temporários sem anotar na mão.</div>`;
-            return;
+            return `<div style="font-size:10.5px; color:var(--cor-geral); font-style:italic; padding:3px 0;">Sem marcadores ativos. Use "+ Executor" ou "+ Novo".</div>`;
         }
-        cont.innerHTML = rastreadoresCena.map(r => {
+        return rastreadoresCena.map(r => {
             const pronto = r.atual >= r.max;
             let pips = '';
             for (let i = 1; i <= r.max; i++) {
-                pips += `<span class="tracker-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})" title="Marca ${i}/${r.max}"></span>`;
+                pips += `<span class="tracker-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})"></span>`;
             }
             return `
                 <div class="tracker-card ${pronto ? 'ready' : ''}">
                     <div class="tracker-info">
                         <div class="tracker-name">
                             <span>${r.nome}</span>
-                            <span class="tracker-effect-badge" onclick="${pronto ? `window.zerarRastreador('${r.id}')` : ''}" title="${pronto ? 'Clique para consumir e zerar o contador' : 'Complete as marcas para ativar'}">
-                                ${pronto ? `⚡ PRONTO: ${r.efeito} (USAR ↻)` : `${r.atual}/${r.max} → ${r.efeito}`}
+                            <span class="tracker-effect-badge" onclick="${pronto ? `window.zerarRastreador('${r.id}')` : ''}">
+                                ${pronto ? `⚡ ${r.efeito} (USAR ↻)` : `${r.atual}/${r.max} → ${r.efeito}`}
                             </span>
                         </div>
                     </div>
                     <div class="tracker-pips">${pips}</div>
-                    <button class="tracker-del" onclick="window.removerRastreador('${r.id}')" title="Remover marcador">×</button>
+                    <button class="tracker-del" onclick="window.removerRastreador('${r.id}')">×</button>
                 </div>
             `;
         }).join('');
     }
 
+    function renderizarRastreadores() {
+        const cont = document.getElementById('lista-rastreadores-cena');
+        if (cont) cont.innerHTML = htmlListaRastreadores();
+    }
+
     // =========================================================================
-    // 4. ANATOMIA RECOLHÍVEL COM CHIPS DE RESUMO EM COMBATE
+    // 5. FICHA RÁPIDA REFORMULADA (ESTILO "A VIGÍLIA" — ORDEM PARANORMAL 2)
+    // =========================================================================
+    let fqMostrarTodasPericias = false;
+
+    function instalarFichaRapidaVigilia() {
+        let btnOpen = document.getElementById('fq-open');
+        if (!btnOpen) {
+            btnOpen = document.createElement('button');
+            btnOpen.id = 'fq-open';
+            btnOpen.type = 'button';
+            btnOpen.innerText = '⚡ FICHA RÁPIDA';
+            btnOpen.onclick = () => window.abrirFichaRapidaVigilia(true);
+            document.body.appendChild(btnOpen);
+        } else {
+            btnOpen.onclick = () => window.abrirFichaRapidaVigilia(true);
+        }
+
+        let backdrop = document.getElementById('fq-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'fq-backdrop';
+            backdrop.onclick = () => window.abrirFichaRapidaVigilia(false);
+            document.body.appendChild(backdrop);
+        }
+
+        let modal = document.getElementById('ficha-rapida');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'ficha-rapida';
+            document.body.appendChild(modal);
+        }
+
+        const corSalva = localStorage.getItem('fq_accent_color') || 'red';
+        document.body.setAttribute('data-fq-accent', corSalva);
+
+        modal.innerHTML = `
+            <div class="fq-sheet fq-vigilia" onclick="event.stopPropagation()">
+                <button type="button" class="fq-close" onclick="window.abrirFichaRapidaVigilia(false)" title="Fechar (Esc)">×</button>
+
+                <!-- CABEÇALHO -->
+                <header class="fqv-header">
+                    <div class="fqv-title-box">
+                        <h2 class="fqv-name" id="fqv-nome">PERSONA</h2>
+                        <div class="fqv-sub" id="fqv-sub">ORIGEM • NÍVEL 0</div>
+                    </div>
+                    <div class="fqv-meta-right">
+                        <div class="fqv-def-pills">
+                            <span class="fqv-def-pill">DEF <b id="fqv-def">10</b></span>
+                            <span class="fqv-def-pill">BLQ <b id="fqv-blq">10</b></span>
+                            <span class="fqv-def-pill">ESQ <b id="fqv-esq">10</b></span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- ATRIBUTOS (COL 1, ROW 2) -->
+                <section class="fqv-attrs-box">
+                    <div class="fqv-section-label"><span>ATRIBUTOS</span></div>
+                    <div class="fqv-attrs-grid">
+                        <div class="fqv-attr-Diamond"><span>AGI</span><input type="number" id="fqv-attr-agi" onchange="window.syncAttrFromFq('agi', this.value)"></div>
+                        <div class="fqv-attr-Diamond"><span>FOR</span><input type="number" id="fqv-attr-for" onchange="window.syncAttrFromFq('for', this.value)"></div>
+                        <div class="fqv-attr-Diamond"><span>SAG</span><input type="number" id="fqv-attr-sag" onchange="window.syncAttrFromFq('sag', this.value)"></div>
+                        <div class="fqv-attr-Diamond"><span>VON</span><input type="number" id="fqv-attr-von" onchange="window.syncAttrFromFq('von', this.value)"></div>
+                        <div class="fqv-attr-Diamond"><span>VIG</span><input type="number" id="fqv-attr-vig" onchange="window.syncAttrFromFq('vig', this.value)"></div>
+                    </div>
+                </section>
+
+                <!-- RECURSOS VITAIS (COL 2, ROW 2) -->
+                <section class="fqv-vitals-box">
+                    <div class="fqv-vital-row pv">
+                        <span class="fqv-vital-tag">PV</span>
+                        <div class="fqv-vital-nums">
+                            <input type="number" id="fqv-vida-at" onchange="window.syncVitalFromFq('vida', this.value)">
+                            <small>/ <span id="fqv-vida-max">12</span></small>
+                        </div>
+                        <div class="fqv-vital-btns">
+                            <button type="button" onclick="ajustar('vida', -1); setTimeout(window.atualizarFichaRapidaVigilia, 40)">−</button>
+                            <button type="button" onclick="ajustar('vida', 1); setTimeout(window.atualizarFichaRapidaVigilia, 40)">+</button>
+                        </div>
+                    </div>
+                    <div class="fqv-vital-row san">
+                        <span class="fqv-vital-tag">LUC</span>
+                        <div class="fqv-vital-nums">
+                            <input type="number" id="fqv-san-at" onchange="window.syncVitalFromFq('san', this.value)">
+                            <small>/ <span id="fqv-san-max">50</span></small>
+                        </div>
+                        <div class="fqv-vital-btns">
+                            <button type="button" onclick="ajustar('san', -1); setTimeout(window.atualizarFichaRapidaVigilia, 40)">−</button>
+                            <button type="button" onclick="ajustar('san', 1); setTimeout(window.atualizarFichaRapidaVigilia, 40)">+</button>
+                        </div>
+                    </div>
+                    <div class="fqv-vital-row pe">
+                        <span class="fqv-vital-tag">FÔL</span>
+                        <div class="fqv-vital-nums">
+                            <input type="number" id="fqv-pe-at" onchange="window.syncVitalFromFq('pe', this.value)">
+                            <small>/ <span id="fqv-pe-max">5</span></small>
+                        </div>
+                        <div class="fqv-vital-btns">
+                            <button type="button" onclick="ajustar('pe', -1); setTimeout(window.atualizarFichaRapidaVigilia, 40)">−</button>
+                            <button type="button" onclick="ajustar('pe', 1); setTimeout(window.atualizarFichaRapidaVigilia, 40)">+</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PERÍCIAS ESTILO VIGÍLIA (COL 1, ROW 3) -->
+                <section class="fqv-skills-panel">
+                    <div class="fqv-section-label">
+                        <span>PERÍCIAS</span>
+                        <button type="button" id="fqv-btn-toggle-skills" class="fqv-nav-btn" style="padding:2px 6px; font-size:8px;" onclick="window.toggleTodasPericiasFq()">MOSTRAR TODAS</button>
+                    </div>
+                    <div id="fqv-skills-list" class="fqv-skills-list"></div>
+                </section>
+
+                <!-- PAINEL TÁTICO: GATILHOS DE CENA + ARMAS + TRAÇOS (COL 2, ROW 3) -->
+                <section class="fqv-tactical-panel">
+                    <div>
+                        <div class="fqv-section-label">
+                            <span>GATILHOS & MARCADORES</span>
+                            <button type="button" class="fqv-nav-btn" style="padding:2px 6px; font-size:8px;" onclick="window.adicionarRastreadorPreset('executor')">+ EXECUTOR</button>
+                        </div>
+                        <div id="fqv-trackers-list" class="tracker-list"></div>
+                    </div>
+                    <div>
+                        <div class="fqv-section-label"><span>ARMAS & HABILIDADES</span></div>
+                        <div id="fqv-abilities-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+                    </div>
+                </section>
+
+                <!-- RETRATO LATERAL DIREITO (COL 3, ROWS 1-3) -->
+                <aside class="fqv-portrait-col">
+                    <img id="fqv-portrait-img" src="" alt="">
+                    <div id="fqv-status-tags" class="fqv-status-floating"></div>
+                </aside>
+
+                <!-- RODAPÉ DE ATALHOS E COR SECUNDÁRIA -->
+                <footer class="fqv-footer">
+                    <div class="fqv-nav-btns">
+                        <button type="button" class="fqv-nav-btn primary" onclick="window.irParaAbaFq('pericias')">PERÍCIAS</button>
+                        <button type="button" class="fqv-nav-btn" onclick="window.irParaAbaFq('combate')">COMBATE</button>
+                        <button type="button" class="fqv-nav-btn" onclick="window.irParaAbaFq('tracos')">TRAÇOS</button>
+                        <button type="button" class="fqv-nav-btn" onclick="window.irParaAbaFq('inventario')">ITENS</button>
+                        <button type="button" class="fqv-nav-btn" id="fqv-btn-rituais" style="display:none;" onclick="window.irParaAbaFq('rituais')">ANOMALIAS</button>
+                    </div>
+                    <div class="fq-palette" style="position:static;">
+                        <button type="button" class="red" onclick="window.setCorFq('red')" title="Destaque Carmesim"></button>
+                        <button type="button" class="green" onclick="window.setCorFq('green')" title="Destaque Musgo"></button>
+                        <button type="button" class="blue" onclick="window.setCorFq('blue')" title="Destaque Acinzentado"></button>
+                    </div>
+                </footer>
+            </div>
+        `;
+    }
+
+    window.setCorFq = function(cor) {
+        document.body.setAttribute('data-fq-accent', cor);
+        localStorage.setItem('fq_accent_color', cor);
+    };
+
+    window.toggleTodasPericiasFq = function() {
+        fqMostrarTodasPericias = !fqMostrarTodasPericias;
+        const btn = document.getElementById('fqv-btn-toggle-skills');
+        if (btn) btn.innerText = fqMostrarTodasPericias ? 'SÓ TREINADAS' : 'MOSTRAR TODAS';
+        atualizarFichaRapidaVigilia();
+    };
+
+    window.abrirFichaRapidaVigilia = function(abrir) {
+        const modal = document.getElementById('ficha-rapida');
+        const backdrop = document.getElementById('fq-backdrop');
+        if (!modal || !backdrop) return;
+        if (abrir) {
+            atualizarFichaRapidaVigilia();
+            modal.classList.add('open');
+            backdrop.classList.add('open');
+        } else {
+            modal.classList.remove('open');
+            backdrop.classList.remove('open');
+        }
+    };
+
+    window.irParaAbaFq = function(aba) {
+        window.abrirFichaRapidaVigilia(false);
+        const btn = document.querySelector(`.tabs-nav .tab-btn[onclick*="'${aba}'"]`);
+        if (btn) btn.click();
+    };
+
+    window.syncAttrFromFq = function(attr, val) {
+        const inp = document.getElementById(`attr-${attr}`);
+        if (inp) {
+            inp.value = val;
+            alterarAtributoOuNivel();
+            setTimeout(atualizarFichaRapidaVigilia, 60);
+        }
+    };
+
+    window.syncVitalFromFq = function(tipo, val) {
+        const inp = document.getElementById(`${tipo}-atual`);
+        if (inp) {
+            inp.value = val;
+            atualizarStatusVisual(tipo);
+            salvarFicha();
+            setTimeout(atualizarFichaRapidaVigilia, 60);
+        }
+    };
+
+    window.atualizarFichaRapidaVigilia = function() {
+        if (!document.getElementById('fqv-nome')) return;
+
+        const nomeCompleto = document.getElementById('nome-personagem')?.value || 'PERSONA';
+        const primeiroNome = window.obterPrimeiroNomePersona(nomeCompleto);
+        const origem = document.getElementById('origem-personagem')?.value || 'Sem Origem';
+        const nivel = document.getElementById('nivel-personagem')?.value || '0';
+        const nex = document.getElementById('nex-personagem')?.value || '5%';
+        const despertado = (typeof isRevelado !== 'undefined' && isRevelado) || (typeof globalRevelado !== 'undefined' && globalRevelado);
+
+        document.getElementById('fqv-nome').innerText = primeiroNome;
+        document.getElementById('fqv-nome').title = nomeCompleto;
+        document.getElementById('fqv-sub').innerHTML = `${origem} • NÍVEL ${nivel}${despertado ? ` • <b>EXP ${nex}</b>` : ''}`;
+
+        document.getElementById('fqv-def').innerText = document.getElementById('display-defesa')?.innerText || '10';
+        document.getElementById('fqv-blq').innerText = document.getElementById('display-bloqueio')?.innerText || '10';
+        document.getElementById('fqv-esq').innerText = document.getElementById('display-esquiva')?.innerText || '10';
+
+        ['agi','for','sag','von','vig'].forEach(a => {
+            const el = document.getElementById(`fqv-attr-${a}`);
+            if (el) el.value = document.getElementById(`attr-${a}`)?.value || 0;
+        });
+
+        ['vida','san','pe'].forEach(t => {
+            const at = document.getElementById(`fqv-${t}-at`);
+            const mx = document.getElementById(`fqv-${t}-max`);
+            if (at) at.value = document.getElementById(`${t}-atual`)?.value || 0;
+            if (mx) mx.innerText = document.getElementById(`${t}-max`)?.value || 0;
+        });
+
+        // Retrato na Ficha Rápida
+        const portSrc = document.getElementById('display-portrait')?.src || '';
+        const fqImg = document.getElementById('fqv-portrait-img');
+        if (fqImg) {
+            fqImg.src = portSrc;
+            fqImg.style.display = portSrc ? 'block' : 'none';
+        }
+
+        // Condições ativas sobre o retrato
+        const stCont = document.getElementById('fqv-status-tags');
+        if (stCont) {
+            const conds = Array.isArray(window.statusAcumulados) ? window.statusAcumulados : [];
+            stCont.innerHTML = conds.map(c => `<span class="fq-status-tag">${c}</span>`).join('');
+        }
+
+        // Perícias na Ficha Rápida
+        const skCont = document.getElementById('fqv-skills-list');
+        if (skCont && typeof nomesPericias !== 'undefined') {
+            const itens = [];
+            nomesPericias.forEach(p => {
+                const attrNome = document.getElementById(`attr-${p}`)?.value || bancoPericias[p]?.attr || 'SAG';
+                const trSel = document.getElementById(`treino-${p}`);
+                const baseSel = document.getElementById(`base-treino-${p}`);
+
+                if (trSel) {
+                    const tr = parseInt(trSel.value) || 0;
+                    const tot = parseInt(document.getElementById(`total-${p}`)?.innerText) || 0;
+                    if (fqMostrarTodasPericias || tr > 0) {
+                        const cls = tr >= 5 ? 't5' : (tr >= 3 ? 't34' : (tr >= 1 ? 't12' : ''));
+                        itens.push(`
+                            <div class="fqv-skill-item">
+                                <span class="fqv-skill-name" title="${p} (${attrNome})">${p}</span>
+                                <span class="fqv-skill-Formula">
+                                    <span class="fqv-pill-tr ${cls}">+${tr} ${attrNome}</span>
+                                    <span class="fqv-pill-tot">${tot >= 0 ? '+' + tot : tot}</span>
+                                </span>
+                            </div>
+                        `);
+                    }
+                } else if (baseSel) {
+                    const subs = bancoPericias[p]?.subs || [];
+                    subs.forEach((sNome, idx) => {
+                        const st = parseInt(document.getElementById(`sub-treino-${p}-${idx}`)?.value) || 0;
+                        const stot = parseInt(document.getElementById(`sub-total-${p}-${idx}`)?.innerText) || 0;
+                        if (fqMostrarTodasPericias || st > 0) {
+                            const cls = st >= 5 ? 't5' : (st >= 3 ? 't34' : (st >= 1 ? 't12' : ''));
+                            itens.push(`
+                                <div class="fqv-skill-item">
+                                    <span class="fqv-skill-name" title="${p}: ${sNome}">${sNome}</span>
+                                    <span class="fqv-skill-Formula">
+                                        <span class="fqv-pill-tr ${cls}">+${st} ${attrNome}</span>
+                                        <span class="fqv-pill-tot">${stot >= 0 ? '+' + stot : stot}</span>
+                                    </span>
+                                </div>
+                            `);
+                        }
+                    });
+                }
+            });
+            skCont.innerHTML = itens.length ? itens.join('') : `<div class="fq-empty">Nenhuma perícia treinada ainda. Clique em "MOSTRAR TODAS".</div>`;
+        }
+
+        // Marcadores de Cena na Ficha Rápida
+        const trkCont = document.getElementById('fqv-trackers-list');
+        if (trkCont) trkCont.innerHTML = htmlListaRastreadores();
+
+        // Armas e Traços na Ficha Rápida (apenas títulos e custos/danos limpos)
+        const abCont = document.getElementById('fqv-abilities-list');
+        if (abCont) {
+            const blocos = [];
+            document.querySelectorAll('#lista-ataques .ataque-card').forEach(card => {
+                const nm = card.querySelector('.d-rit-h span')?.innerText?.replace('❖', '').trim()
+                        || card.querySelector('.card-header span')?.innerText?.trim() || 'Arma';
+                blocos.push(`<div class="fqv-compact-item"><strong>⚔️ ${nm}</strong><span>COMBATE</span></div>`);
+            });
+            (window.__habFq || []).forEach(h => {
+                blocos.push(`<div class="fqv-compact-item"><strong>❖ ${h.nome}</strong><span>${h.custo || 'TRAÇO'}</span></div>`);
+            });
+            (window.__podFq || []).forEach(po => {
+                if (despertado) blocos.push(`<div class="fqv-compact-item"><strong>🕯️ ${po.nome}</strong><span>${po.custo || 'ESPEC.'}</span></div>`);
+            });
+            abCont.innerHTML = blocos.length ? blocos.join('') : `<div class="fq-empty">Nenhuma arma ou traço registrado.</div>`;
+        }
+
+        const btnRit = document.getElementById('fqv-btn-rituais');
+        if (btnRit) btnRit.style.display = despertado ? 'inline-block' : 'none';
+    };
+
+    // =========================================================================
+    // 6. ANATOMIA RECOLHÍVEL COM CHIPS DE RESUMO EM COMBATE
     // =========================================================================
     function compactarMapaCorporal() {
         const mapBox = document.querySelector('.body-map-container');
@@ -7145,21 +8039,25 @@ let filtroSubAtualAtaques = 'Todos';
         if (!cont || typeof membrosEstado === 'undefined') return;
         const nomes = { cabeca: 'Cabeça', 'braco-esq': 'Braço E.', 'braco-dir': 'Braço D.', torso: 'Torso', 'perna-esq': 'Perna E.', 'perna-dir': 'Perna D.' };
         const feridos = Object.keys(membrosEstado).filter(k => membrosEstado[k] && membrosEstado[k] !== 'normal');
-        if (!feridos.length) {
-            cont.innerHTML = `<span class="anat-chip">Intacto (Clique para abrir diagrama)</span>`;
-        } else {
-            cont.innerHTML = feridos.map(k => `<span class="anat-chip ${membrosEstado[k]}">${nomes[k] || k}: ${membrosEstado[k].toUpperCase()}</span>`).join('');
-        }
+        cont.innerHTML = !feridos.length
+            ? `<span class="anat-chip">Intacto (Expandir)</span>`
+            : feridos.map(k => `<span class="anat-chip ${membrosEstado[k]}">${nomes[k] || k}: ${membrosEstado[k].toUpperCase()}</span>`).join('');
     }
 
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') window.abrirFichaRapidaVigilia(false);
+    });
+
     // =========================================================================
-    // INICIALIZAÇÃO E ESCUTA EM TEMPO REAL
+    // INICIALIZAÇÃO
     // =========================================================================
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
+            reconstruirModalConfig();
             instalarBarraPericias();
             instalarPainelRastreadores();
             compactarMapaCorporal();
+            instalarFichaRapidaVigilia();
             sincronizarBadgesPericias();
 
             if (atual && typeof db !== 'undefined') {
@@ -7173,6 +8071,9 @@ let filtroSubAtualAtaques = 'Todos';
                     setTimeout(() => {
                         sincronizarBadgesPericias();
                         atualizarResumoAnatomia();
+                        if (document.getElementById('ficha-rapida')?.classList.contains('open')) {
+                            atualizarFichaRapidaVigilia();
+                        }
                     }, 60);
                 });
             }
