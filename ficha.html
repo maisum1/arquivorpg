@@ -6639,11 +6639,13 @@ let filtroSubAtualAtaques = 'Todos';
 })();
 </script>
 <!-- ======================================================================
-     MÓDULO A.R.Q.U.I.V.O. v3.1 (ANTI-CRASH / SEM LOOP DE MUTATION OBSERVER)
-     Cole imediatamente antes de </body> no seu ficha.html
+     MÓDULO A.R.Q.U.I.V.O. v3.2 — INSTANTÂNEO (CSS PURO), VIEW-ONLY & UI LIMPA
+     Substitua o bloco anterior antes de </body> no seu ficha.html
      ====================================================================== -->
 <style id="arquivo-v2-clean-ui">
-    /* 1. Estrutura Geral e Abas */
+    /* =========================================================
+       1. ESTRUTURA GERAL E ABAS DA FICHA COMPLETA
+       ========================================================= */
     .grid-container { gap: 44px !important; padding: 32px 44px !important; }
     @media (max-width: 1200px) {
         .grid-container { padding: 14px 12px !important; gap: 20px !important; }
@@ -6670,274 +6672,349 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .tabs-nav .tab-btn.active { transform: translateY(1px); }
 
-    /* Botões de ícone ultra-compactos */
-    .arq-icon-btn,
-    .rit-botoes .cris-btn,
-    .card-body .cris-btn {
+    /* =========================================================
+       2. ÍCONES INSTANTÂNEOS EM CSS PURO (Zero delay de 1s!)
+       ========================================================= */
+    button[onclick*="copiarRitualClipboard"],
+    button[onclick*="copiarSubClipboard"],
+    button[onclick*="ParaSite("],
+    button[onclick*="ritConcluir("],
+    button[onclick*="subConcluir("],
+    button[onclick*="ritEditar("],
+    button[onclick*="subEditar("],
+    button[onclick*="removerSub("],
+    button[onclick*="abrirModalTransferencia("] {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         min-width: 30px !important;
+        width: 30px !important;
         height: 28px !important;
-        padding: 0 8px !important;
+        padding: 0 !important;
         margin: 0 2px !important;
-        font-size: 13px !important;
+        font-size: 0 !important;
         line-height: 1 !important;
         border-radius: 2px !important;
-        width: auto !important;
-        flex: 0 0 auto !important;
+        flex: 0 0 30px !important;
+        vertical-align: middle !important;
+    }
+    button[onclick*="copiarRitualClipboard"]::before,
+    button[onclick*="copiarSubClipboard"]::before { content: "⧉"; font-size: 14px; }
+    button[onclick*="ParaSite("]::before          { content: "📤"; font-size: 13px; }
+    button[onclick*="ritConcluir("]::before,
+    button[onclick*="subConcluir("]::before       { content: "✔"; font-size: 13px; }
+    button[onclick*="ritEditar("]::before,
+    button[onclick*="subEditar("]::before         { content: "✎"; font-size: 13px; }
+    button[onclick*="removerSub("]::before        { content: "🗑️"; font-size: 13px; }
+    button[onclick*="abrirModalTransferencia("]::before { content: "⇄"; font-size: 14px; }
+
+    /* Esconde instantaneamente as barras antigas de Colar que o Firebase injeta dentro das listas */
+    #lista-rituais > div > button[onclick*="colarRitualClipboard"],
+    #lista-habilidades > div > button[onclick*="colarSubClipboard"],
+    #lista-poderes > div > button[onclick*="colarSubClipboard"] {
+        display: none !important;
+    }
+    #lista-rituais > div:has(> button[onclick*="colarRitualClipboard"]),
+    #lista-habilidades > div:has(> button[onclick*="colarSubClipboard"]),
+    #lista-poderes > div:has(> button[onclick*="colarSubClipboard"]) {
+        display: none !important;
+        margin: 0 !important;
     }
 
-    /* 2. Menu de Configurações (#modal-config) */
-    #modal-config.modal-padrao {
-        max-width: 400px !important;
-        padding: 20px 22px !important;
-        border: 1px solid var(--card-border) !important;
-        border-top: 4px solid var(--op-ink) !important;
-        box-shadow: 0 24px 60px rgba(0,0,0,0.85) !important;
+    /* Botão fixo e pequeno de Colar (📋) ao lado de + LISTA e + CRIAR */
+    .btn-colar-topo {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 32px !important;
+        height: 31px !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border: 1px solid var(--san-purple) !important;
+        color: var(--san-purple) !important;
+        background: transparent !important;
+        border-radius: 2px !important;
+        cursor: pointer !important;
     }
-    body.tema-escuro #modal-config.modal-padrao {
+    .btn-colar-topo:hover { background: var(--card-hover) !important; }
+
+    /* Padroniza qualquer texto de "+ CRIAR ..." para apenas "+ CRIAR" instantaneamente via CSS */
+    .btn-criar {
+        font-size: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .btn-criar::before {
+        content: "+ CRIAR";
+        font-size: 10px !important;
+        letter-spacing: 1px;
+    }
+
+    /* =========================================================
+       3. BANNER DE CRIAÇÃO DE PERÍCIAS & PAINEL DE INICIATIVA
+       ========================================================= */
+    #banner-criacao-pericias {
+        border: 1px solid var(--card-border) !important;
+        border-left: 3px solid var(--op-ink) !important;
+        background: var(--card-bg) !important;
+        padding: 8px 12px !important;
+        margin-bottom: 14px !important;
+    }
+    body.tema-escuro #banner-criacao-pericias { border-left-color: var(--accent-gold) !important; }
+    #banner-criacao-pericias button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 28px !important;
+        height: 26px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 0 !important;
+        border: 1px solid var(--card-border) !important;
+        background: transparent !important;
+        border-radius: 2px !important;
+        transition: 0.15s !important;
+    }
+    #banner-criacao-pericias button:hover { background: var(--card-hover) !important; border-color: var(--op-ink) !important; }
+    #banner-criacao-pericias button[onclick*="modal-guia-criacao"]::before { content: "ℹ️"; font-size: 13px; }
+    #banner-criacao-pericias button[onclick*="resetarPericias"]::before    { content: "🔄"; font-size: 13px; }
+    #banner-criacao-pericias button[onclick*="concluirCriacaoFicha"]::before { content: "✔"; font-size: 13px; color: var(--op-red); }
+
+    /* Painel de Iniciativa (Combate) alinhado ao novo design */
+    #painel-iniciativa-combate {
+        border: 1px solid var(--card-border) !important;
+        border-top: 3px solid var(--op-ink) !important;
+        background: var(--bg-paper) !important;
+        padding: 12px 14px !important;
+        width: 295px !important;
+        box-shadow: 0 18px 45px rgba(0,0,0,0.75) !important;
+        border-radius: 2px !important;
+    }
+    body.tema-escuro #painel-iniciativa-combate {
         background: #161615 !important;
         border-top-color: var(--accent-gold) !important;
     }
-    .cfg-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid var(--card-border);
-        padding-bottom: 10px;
-        margin-bottom: 14px;
+    #painel-iniciativa-combate span[onclick="togglePainelIniciativa()"] {
+        font-size: 0 !important;
+        cursor: pointer;
+        padding: 2px 6px;
     }
-    .cfg-header h3 {
-        margin: 0 !important;
-        font: 900 17px/1 'Crimson Text', serif !important;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--op-ink) !important;
-        background: transparent !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-    }
-    body.tema-escuro .cfg-header h3 { color: var(--accent-gold) !important; }
-    .cfg-close-x {
-        background: none; border: none; color: var(--cor-geral);
-        font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 6px;
-    }
-    .cfg-close-x:hover { color: var(--op-red); }
-
-    .cfg-section {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 2px;
-        padding: 10px 12px;
-        margin-bottom: 10px;
-        text-align: left;
-    }
-    .cfg-section-title {
-        font: 900 9px/1 'Inter', sans-serif;
-        letter-spacing: 1.4px;
-        text-transform: uppercase;
+    #painel-iniciativa-combate span[onclick="togglePainelIniciativa()"]::before {
+        content: "×";
+        font: 700 18px/1 'Inter', sans-serif;
         color: var(--cor-geral);
-        margin-bottom: 8px;
-        display: block;
     }
+    #controles-mestre-iniciativa {
+        border-top: 1px solid var(--card-border) !important;
+        padding-top: 10px !important;
+        margin-top: 8px !important;
+    }
+    #select-ficha-combate, #input-valor-iniciativa, #input-minha-iniciativa {
+        border: 1px solid var(--card-border) !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 11px !important;
+        height: 28px !important;
+    }
+    /* Transforma os botões do mestre na Iniciativa em uma fileira limpa de ícones */
+    #controles-mestre-iniciativa button[onclick="adicionarCombatenteIniciativa()"] {
+        font-size: 0 !important;
+        width: 34px !important;
+        flex: 0 0 34px !important;
+        height: 28px !important;
+        background: var(--op-ink) !important;
+        color: var(--bg-paper) !important;
+        border-radius: 2px !important;
+    }
+    #controles-mestre-iniciativa button[onclick="adicionarCombatenteIniciativa()"]::before {
+        content: "+";
+        font: 900 16px/1 'Inter', sans-serif;
+    }
+    #controles-mestre-iniciativa button[onclick="passarTurnoIniciativa()"],
+    #controles-mestre-iniciativa button[onclick="limparTodaIniciativa()"] {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 28px !important;
+        margin-top: 8px !important;
+        padding: 0 10px !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.8px !important;
+        border-radius: 2px !important;
+        box-sizing: border-box !important;
+    }
+    #controles-mestre-iniciativa button[onclick="passarTurnoIniciativa()"] {
+        width: calc(100% - 38px) !important;
+        margin-right: 6px !important;
+        background: var(--san-purple) !important;
+        color: #fff !important;
+        border: none !important;
+    }
+    #controles-mestre-iniciativa button[onclick="limparTodaIniciativa()"] {
+        width: 32px !important;
+        font-size: 0 !important;
+        border: 1px solid var(--op-red) !important;
+        background: transparent !important;
+        vertical-align: top !important;
+    }
+    #controles-mestre-iniciativa button[onclick="limparTodaIniciativa()"]::before {
+        content: "🗑️";
+        font-size: 13px !important;
+    }
+
+    /* =========================================================
+       4. MODO SOMENTE VISUALIZAÇÃO (?view=true) — TRAVA TOTAL
+       ========================================================= */
+    body.somente-leitura::after {
+        content: "👁️ SOMENTE VISUALIZAÇÃO";
+        position: fixed;
+        left: 50%;
+        bottom: 12px;
+        transform: translateX(-50%);
+        z-index: 10000;
+        padding: 5px 12px;
+        background: rgba(18, 18, 17, 0.88);
+        color: #e8e0ce;
+        border: 1px solid rgba(232,224,206,0.25);
+        font: 800 9.5px/1 'Inter', sans-serif;
+        letter-spacing: 1.4px;
+        border-radius: 2px;
+        pointer-events: none;
+    }
+    body.somente-leitura .btn-config,
+    body.somente-leitura #btn-assumir-posse,
+    body.somente-leitura #banner-criacao-pericias,
+    body.somente-leitura #btn-toggle-edit-per,
+    body.somente-leitura .btn-criar,
+    body.somente-leitura .btn-colar-topo,
+    body.somente-leitura button[onclick*="modal-tpl-"],
+    body.somente-leitura button[onclick*="ritEditar"],
+    body.somente-leitura button[onclick*="subEditar"],
+    body.somente-leitura button[onclick*="removerSub"],
+    body.somente-leitura button[onclick*="abrirModalTransferencia"],
+    body.somente-leitura button[onclick*="adicionarRastreadorPreset"],
+    body.somente-leitura button[onclick*="criarRastreadorCustom"],
+    body.somente-leitura .tracker-del,
+    body.somente-leitura .tracker-stack-btn,
+    body.somente-leitura .bar-btn,
+    body.somente-leitura .fqv-vital-btns {
+        display: none !important;
+    }
+    body.somente-leitura input,
+    body.somente-leitura select,
+    body.somente-leitura textarea,
+    body.somente-leitura .portrait-box,
+    body.somente-leitura .val-btn,
+    body.somente-leitura .tracker-pip,
+    body.somente-leitura .tracker-effect-badge {
+        pointer-events: none !important;
+    }
+
+    /* =========================================================
+       5. MENU DE CONFIGURAÇÕES (#modal-config)
+       ========================================================= */
+    #modal-config.modal-padrao {
+        max-width: 400px !important; padding: 20px 22px !important;
+        border: 1px solid var(--card-border) !important; border-top: 4px solid var(--op-ink) !important;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.85) !important;
+    }
+    body.tema-escuro #modal-config.modal-padrao { background: #161615 !important; border-top-color: var(--accent-gold) !important; }
+    .cfg-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; margin-bottom: 14px; }
+    .cfg-header h3 { margin: 0 !important; font: 900 17px/1 'Crimson Text', serif !important; letter-spacing: 2px; text-transform: uppercase; color: var(--op-ink) !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; }
+    body.tema-escuro .cfg-header h3 { color: var(--accent-gold) !important; }
+    .cfg-close-x { background: none; border: none; color: var(--cor-geral); font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 6px; }
+    .cfg-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 2px; padding: 10px 12px; margin-bottom: 10px; text-align: left; }
+    .cfg-section-title { font: 900 9px/1 'Inter', sans-serif; letter-spacing: 1.4px; text-transform: uppercase; color: var(--cor-geral); margin-bottom: 8px; display: block; }
     .cfg-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .cfg-btn {
-        display: flex; align-items: center; justify-content: center; gap: 5px;
-        width: 100%; box-sizing: border-box; padding: 8px;
-        background: transparent; border: 1px solid var(--card-border);
-        color: var(--op-ink); font: 800 9.5px/1.1 'Inter', sans-serif;
-        letter-spacing: 0.6px; text-transform: uppercase; border-radius: 2px;
-        cursor: pointer; transition: 0.16s ease;
-    }
+    .cfg-btn { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; box-sizing: border-box; padding: 8px; background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); font: 800 9.5px/1.1 'Inter', sans-serif; letter-spacing: 0.6px; text-transform: uppercase; border-radius: 2px; cursor: pointer; }
     .cfg-btn:hover { background: var(--card-hover); border-color: var(--op-ink); }
     .cfg-btn.accent { border-color: var(--san-purple); color: var(--san-purple); }
     .cfg-btn.danger { border-color: var(--op-red); color: var(--op-red); }
-    .cfg-details {
-        border: 1px solid var(--card-border); background: var(--card-bg);
-        border-radius: 2px; margin-bottom: 8px; padding: 9px 12px;
-    }
-    .cfg-details > summary {
-        cursor: pointer; list-style: none; display: flex;
-        justify-content: space-between; align-items: center;
-        font: 800 10px/1 'Inter', sans-serif; letter-spacing: 1px;
-        text-transform: uppercase; color: var(--op-ink);
-    }
+    .cfg-details { border: 1px solid var(--card-border); background: var(--card-bg); border-radius: 2px; margin-bottom: 8px; padding: 9px 12px; }
+    .cfg-details > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; font: 800 10px/1 'Inter', sans-serif; letter-spacing: 1px; text-transform: uppercase; color: var(--op-ink); }
     .cfg-details > summary::-webkit-details-marker { display: none; }
     .cfg-details > summary::after { content: '▸'; opacity: 0.6; }
     .cfg-details[open] > summary::after { transform: rotate(90deg); }
-    .cfg-details-body {
-        margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--card-border);
-        display: flex; flex-direction: column; gap: 7px;
-    }
+    .cfg-details-body { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 7px; }
     .cfg-input-inline { display: flex; gap: 6px; align-items: center; }
-    .cfg-input-inline input {
-        flex: 1; background: transparent; border: 1px solid var(--card-border);
-        color: var(--op-ink); font: 13px 'Special Elite', monospace;
-        padding: 6px 9px; border-radius: 2px; outline: none;
-    }
+    .cfg-input-inline input { flex: 1; background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); font: 13px 'Special Elite', monospace; padding: 6px 9px; border-radius: 2px; outline: none; }
 
-    /* 3. Perícias na Ficha Completa (Sem bug nas Subperícias) */
-    .pericias-toolbar {
-        display: flex; justify-content: space-between; align-items: center;
-        gap: 8px; flex-wrap: wrap; margin-bottom: 14px; padding: 8px 12px;
-        background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 2px;
-    }
+    /* =========================================================
+       6. PERÍCIAS, RASTREADORES, ANATOMIA E FICHA RÁPIDA
+       ========================================================= */
+    .pericias-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; padding: 8px 12px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 2px; }
     .pericias-toolbar-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .arq-pill-btn {
-        background: transparent; border: 1px solid var(--card-border); color: var(--op-ink);
-        font: 800 10px 'Inter', sans-serif; letter-spacing: 0.8px; text-transform: uppercase;
-        padding: 6px 10px; border-radius: 2px; cursor: pointer; transition: 0.15s;
-    }
-    .arq-pill-btn:hover { border-color: var(--op-ink); background: var(--card-hover); }
+    .arq-pill-btn { background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); font: 800 10px 'Inter', sans-serif; letter-spacing: 0.8px; text-transform: uppercase; padding: 6px 10px; border-radius: 2px; cursor: pointer; }
     .arq-pill-btn.active { background: var(--op-ink); color: var(--bg-paper); border-color: var(--op-ink); }
     body.tema-escuro .arq-pill-btn.active { background: var(--accent-gold); color: #121211; border-color: var(--accent-gold); }
 
     body:not(.pericias-edit-mode) .pericia-header { grid-template-columns: 1fr auto 42px !important; }
     body:not(.pericias-edit-mode) .pericia-header > span:nth-child(2),
     body:not(.pericias-edit-mode) .pericia-header > span:nth-child(3) { display: none !important; }
-    body:not(.pericias-edit-mode) .pericia-row {
-        grid-template-columns: 1fr auto 42px !important;
-        padding: 6px 8px !important;
-        border-bottom: 1px solid rgba(128,128,128,0.12) !important;
-        border-radius: 2px;
-        align-items: center !important;
-    }
+    body:not(.pericias-edit-mode) .pericia-row { grid-template-columns: 1fr auto 42px !important; padding: 6px 8px !important; border-bottom: 1px solid rgba(128,128,128,0.12) !important; align-items: center !important; }
     body:not(.pericias-edit-mode) .pericia-row > select,
     body:not(.pericias-edit-mode) .pericia-row > input,
     body:not(.pericias-edit-mode) .pericia-row > div:not(.vigilia-Formula-badge),
-    body:not(.pericias-edit-mode) .pericia-row.has-subs-row > span:not(.pericia-nome) {
-        display: none !important;
-    }
-    body:not(.pericias-edit-mode) .pericia-row.has-subs-row {
-        grid-template-columns: 1fr auto !important;
-    }
+    body:not(.pericias-edit-mode) .pericia-row.has-subs-row > span:not(.pericia-nome) { display: none !important; }
+    body:not(.pericias-edit-mode) .pericia-row.has-subs-row { grid-template-columns: 1fr auto !important; }
 
-    .vigilia-Formula-badge {
-        display: none; align-items: center; gap: 6px; justify-content: flex-end;
-        font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 800; white-space: nowrap;
-    }
+    .vigilia-Formula-badge { display: none; align-items: center; gap: 6px; justify-content: flex-end; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 800; white-space: nowrap; }
     body:not(.pericias-edit-mode) .vigilia-Formula-badge { display: inline-flex !important; }
-    .vg-chip-tr {
-        display: inline-flex; align-items: center; justify-content: center;
-        min-width: 22px; height: 18px; padding: 0 5px; border-radius: 2px;
-        font: 900 10px/1 'Inter', sans-serif; background: rgba(128,128,128,0.15); color: var(--cor-geral);
-    }
+    .vg-chip-tr { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 18px; padding: 0 5px; border-radius: 2px; font: 900 10px/1 'Inter', sans-serif; background: rgba(128,128,128,0.15); color: var(--cor-geral); }
     .vg-chip-tr.tr-12 { background: rgba(102, 82, 53, 0.78); color: #fff; }
     .vg-chip-tr.tr-34 { background: rgba(43, 58, 74, 0.88); color: #fff; }
     .vg-chip-tr.tr-5  { background: var(--op-red); color: #fff; }
     .vg-sub-diamond { color: var(--op-red); font-size: 13px; line-height: 1; }
     .vg-chip-attr { font: 800 9px/1 'Inter', sans-serif; color: var(--cor-geral); letter-spacing: 0.5px; min-width: 34px; text-align: right; }
     body:not(.pericias-edit-mode) .pericia-row.pericia-leiga { opacity: 0.5; }
-    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga:hover { opacity: 1; }
     body.filtrar-apenas-treinadas:not(.pericias-edit-mode) .pericia-row.pericia-leiga { display: none !important; }
 
-    /* 4. Marcadores de Cena & Executor Acumulativo */
-    .scene-trackers-box {
-        margin-top: 18px; background: var(--card-bg); border: 1px solid var(--card-border);
-        border-left: 3px solid var(--op-ink); padding: 12px; border-radius: 2px;
-    }
+    .scene-trackers-box { margin-top: 18px; background: var(--card-bg); border: 1px solid var(--card-border); border-left: 3px solid var(--op-ink); padding: 12px; border-radius: 2px; }
     body.tema-escuro .scene-trackers-box { border-left-color: var(--accent-gold); }
     .scene-trackers-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
     .scene-trackers-title { font: 900 10px 'Inter', sans-serif; letter-spacing: 1.4px; text-transform: uppercase; color: var(--op-ink); }
     .tracker-list { display: flex; flex-direction: column; gap: 7px; }
-    .tracker-card {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        padding: 6px 10px; background: rgba(0,0,0,0.03); border: 1px solid var(--card-border); border-radius: 2px;
-    }
+    .tracker-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; background: rgba(0,0,0,0.03); border: 1px solid var(--card-border); border-radius: 2px; }
     .tracker-card.ready { border-color: var(--op-red); background: rgba(158, 11, 15, 0.09); }
     .tracker-info { min-width: 0; flex: 1; }
     .tracker-name { font: 700 13px 'Crimson Text', serif; color: var(--op-ink); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .tracker-stack-controls { display: inline-flex; align-items: center; gap: 3px; }
-    .tracker-effect-badge {
-        font: 900 9.5px/1 'Inter', sans-serif; padding: 3px 7px; border-radius: 2px;
-        background: var(--card-border); color: var(--op-ink); letter-spacing: 0.5px; text-transform: uppercase;
-    }
+    .tracker-effect-badge { font: 900 9.5px/1 'Inter', sans-serif; padding: 3px 7px; border-radius: 2px; background: var(--card-border); color: var(--op-ink); text-transform: uppercase; }
     .tracker-card.ready .tracker-effect-badge { background: var(--op-red); color: #fff; cursor: pointer; }
-    .tracker-stack-btn {
-        background: transparent; border: 1px solid var(--card-border); color: var(--op-ink);
-        width: 18px; height: 18px; padding: 0; font: 900 11px/1 'Inter', sans-serif;
-        border-radius: 2px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-    }
+    .tracker-stack-btn { background: transparent; border: 1px solid var(--card-border); color: var(--op-ink); width: 18px; height: 18px; padding: 0; font: 900 11px/1 'Inter', sans-serif; border-radius: 2px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
     .tracker-pips { display: flex; align-items: center; gap: 5px; }
-    .tracker-pip {
-        width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--op-ink);
-        background: transparent; cursor: pointer;
-    }
+    .tracker-pip { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--op-ink); background: transparent; cursor: pointer; }
     .tracker-pip.on { background: var(--op-ink); }
     .tracker-del { background: none; border: none; color: var(--cor-geral); font-size: 13px; cursor: pointer; opacity: 0.5; padding: 0 3px; }
 
-    /* 5. Anatomia em Acordeão */
-    .anatomia-wrapper {
-        border: 1px solid var(--card-border); background: var(--card-bg);
-        border-radius: 2px; margin-bottom: 22px; padding: 10px 14px;
-    }
-    .anatomia-wrapper > summary {
-        cursor: pointer; list-style: none; display: flex; justify-content: space-between;
-        align-items: center; gap: 10px; font: 900 11px 'Inter', sans-serif;
-        letter-spacing: 1.2px; text-transform: uppercase; color: var(--op-ink);
-    }
+    .anatomia-wrapper { border: 1px solid var(--card-border); background: var(--card-bg); border-radius: 2px; margin-bottom: 22px; padding: 10px 14px; }
+    .anatomia-wrapper > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; font: 900 11px 'Inter', sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: var(--op-ink); }
     .anatomia-wrapper > summary::-webkit-details-marker { display: none; }
     .anatomia-resumo-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .anat-chip { padding: 2px 7px; border-radius: 2px; border: 1px solid var(--card-border); font: 700 9.5px 'Inter', sans-serif; }
     .anat-chip.lesionado { border-color: var(--op-red); color: var(--op-red); background: rgba(158,11,15,0.1); }
     .anat-chip.decepado { text-decoration: line-through; opacity: 0.6; }
 
-    /* 6. Ficha Rápida (Estilo Vigília) */
-    #fq-open {
-        position: fixed; right: 18px; bottom: 18px; z-index: 9990;
-        border: 1px solid var(--fq-border); background: var(--fq-panel); color: var(--fq-paper);
-        padding: 11px 16px; cursor: pointer; font: 900 10.5px/1 'Inter', sans-serif;
-        letter-spacing: 1.6px; text-transform: uppercase; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        border-left: 3px solid var(--fq-accent);
-    }
+    #fq-open { position: fixed; right: 18px; bottom: 18px; z-index: 9990; border: 1px solid var(--fq-border); background: var(--fq-panel); color: var(--fq-paper); padding: 11px 16px; cursor: pointer; font: 900 10.5px/1 'Inter', sans-serif; letter-spacing: 1.6px; text-transform: uppercase; box-shadow: 0 8px 24px rgba(0,0,0,0.5); border-left: 3px solid var(--fq-accent); }
     .fq-rule, .fq-cross, .fq-corner, .fq-sheet::after { display: none !important; }
-    .fq-sheet.fq-vigilia {
-        width: min(1060px, 96vw) !important; height: min(680px, 92vh) !important;
-        aspect-ratio: auto !important; display: grid !important;
-        grid-template-columns: 1.15fr 0.95fr 0.95fr !important;
-        grid-template-rows: auto auto 1fr auto !important;
-        gap: 14px 24px !important; padding: 26px 30px 20px 30px !important;
-        box-sizing: border-box !important; border: 1px solid var(--fq-border) !important;
-        border-top: 3px solid var(--fq-accent) !important;
-    }
-    .fqv-header {
-        grid-column: 1 / 3; grid-row: 1; display: flex; justify-content: space-between;
-        align-items: flex-end; border-bottom: 1px solid var(--fq-line); padding-bottom: 10px; gap: 16px; z-index: 10;
-    }
-    .fqv-name {
-        font: 700 clamp(28px, 3.6vw, 44px)/0.92 'Crimson Text', Georgia, serif;
-        color: var(--fq-paper); text-transform: uppercase; margin: 0;
-    }
+    .fq-sheet.fq-vigilia { width: min(1060px, 96vw) !important; height: min(680px, 92vh) !important; aspect-ratio: auto !important; display: grid !important; grid-template-columns: 1.15fr 0.95fr 0.95fr !important; grid-template-rows: auto auto 1fr auto !important; gap: 14px 24px !important; padding: 26px 30px 20px 30px !important; box-sizing: border-box !important; border: 1px solid var(--fq-border) !important; border-top: 3px solid var(--fq-accent) !important; }
+    .fqv-header { grid-column: 1 / 3; grid-row: 1; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--fq-line); padding-bottom: 10px; gap: 16px; z-index: 10; }
+    .fqv-name { font: 700 clamp(28px, 3.6vw, 44px)/0.92 'Crimson Text', Georgia, serif; color: var(--fq-paper); text-transform: uppercase; margin: 0; }
     .fqv-sub { margin-top: 4px; font: 800 10.5px/1.2 'Inter', sans-serif; letter-spacing: 1.6px; text-transform: uppercase; color: var(--fq-text-soft); }
     .fqv-sub b { color: var(--fq-accent-hi); }
     .fqv-def-pills { display: flex; gap: 8px; align-items: center; }
-    .fqv-def-pill {
-        padding: 4px 8px; border: 1px solid var(--fq-line); background: rgba(0,0,0,0.18);
-        font: 800 9.5px/1 'Inter', sans-serif; letter-spacing: 1px; color: var(--fq-text-soft);
-    }
+    .fqv-def-pill { padding: 4px 8px; border: 1px solid var(--fq-line); background: rgba(0,0,0,0.18); font: 800 9.5px/1 'Inter', sans-serif; letter-spacing: 1px; color: var(--fq-text-soft); }
     .fqv-def-pill b { font: 700 15px/1 'Crimson Text', serif; color: var(--fq-paper); margin-left: 4px; }
     .fqv-attrs-box { grid-column: 1; grid-row: 2; z-index: 10; }
-    .fqv-section-label {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        font: 900 9.5px/1 'Inter', sans-serif; letter-spacing: 1.8px; text-transform: uppercase;
-        color: var(--fq-text-soft); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--fq-line-soft);
-    }
+    .fqv-section-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 900 9.5px/1 'Inter', sans-serif; letter-spacing: 1.8px; text-transform: uppercase; color: var(--fq-text-soft); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--fq-line-soft); }
     .fqv-attrs-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-    .fqv-attr-Diamond {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        padding: 6px 4px; border: 1px solid var(--fq-line); background: rgba(0,0,0,0.16); border-radius: 2px;
-    }
+    .fqv-attr-Diamond { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 4px; border: 1px solid var(--fq-line); background: rgba(0,0,0,0.16); border-radius: 2px; }
     .fqv-attr-Diamond span { font: 900 8.5px/1 'Inter', sans-serif; color: var(--fq-text-soft); margin-bottom: 3px; }
-    .fqv-attr-Diamond input {
-        width: 100%; border: none !important; background: transparent !important;
-        text-align: center; font: 700 22px/1 'Crimson Text', serif; color: var(--fq-paper) !important; outline: none;
-    }
+    .fqv-attr-Diamond input { width: 100%; border: none !important; background: transparent !important; text-align: center; font: 700 22px/1 'Crimson Text', serif; color: var(--fq-paper) !important; outline: none; }
     .fqv-vitals-box { grid-column: 2; grid-row: 2; z-index: 10; display: flex; flex-direction: column; gap: 7px; justify-content: center; }
-    .fqv-vital-row {
-        display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 8px;
-        padding: 4px 8px; background: rgba(0,0,0,0.16); border: 1px solid var(--fq-line-soft); border-left: 3px solid var(--fq-accent);
-    }
+    .fqv-vital-row { display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 8px; padding: 4px 8px; background: rgba(0,0,0,0.16); border: 1px solid var(--fq-line-soft); border-left: 3px solid var(--fq-accent); }
     .fqv-vital-row.san { border-left-color: var(--fq-accent-blue); }
     .fqv-vital-row.pe  { border-left-color: var(--fq-gold); }
     .fqv-vital-tag { font: 900 10px/1 'Inter', sans-serif; color: var(--fq-paper); }
@@ -6976,8 +7053,14 @@ let filtroSubAtualAtaques = 'Todos';
 <script id="arquivo-v2-clean-logic">
 (function() {
     // =========================================================================
-    // 0. FALLBACK DE FUNÇÕES FINAIS (Evita travamento caso tenham sido cortadas)
+    // 0. BLOQUEIO IMEDIATO PARA LINK DE SOMENTE VISUALIZAÇÃO (?view=true)
     // =========================================================================
+    const SOMENTE_LEITURA = new URLSearchParams(window.location.search).get('view') === 'true';
+    if (SOMENTE_LEITURA) {
+        document.body.classList.add('somente-leitura');
+    }
+
+    // Fallbacks de funções nativas caso o arquivo tenha sido truncado
     if (typeof window.aplicarModoSobrevivenciaVisuais !== 'function') {
         window.aplicarModoSobrevivenciaVisuais = function(ativo) {
             window.isModoSobrevivencia = !!ativo;
@@ -6994,6 +7077,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     if (typeof window.toggleModoSobrevivencia !== 'function') {
         window.toggleModoSobrevivencia = async function() {
+            if (SOMENTE_LEITURA) return;
             const novo = !window.isModoSobrevivencia;
             window.aplicarModoSobrevivenciaVisuais(novo);
             if (typeof atual !== 'undefined' && atual) {
@@ -7067,6 +7151,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     if (typeof window.colarRitualClipboard !== 'function') {
         window.colarRitualClipboard = async function() {
+            if (SOMENTE_LEITURA) return;
             const txt = await navigator.clipboard.readText().catch(() => prompt("Cole o JSON aqui:"));
             if (!txt) return;
             const obj = JSON.parse(txt.trim());
@@ -7088,6 +7173,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     if (typeof window.colarSubClipboard !== 'function') {
         window.colarSubClipboard = async function(col) {
+            if (SOMENTE_LEITURA) return;
             const txt = await navigator.clipboard.readText().catch(() => prompt("Cole o JSON aqui:"));
             if (!txt) return;
             const obj = JSON.parse(txt.trim());
@@ -7097,70 +7183,62 @@ let filtroSubAtualAtaques = 'Todos';
         };
     }
 
-    // =========================================================================
-    // 1. COMPACTAÇÃO SEGURA DE BOTÕES EM ÍCONES (Sem Loop Infinito!)
-    // =========================================================================
-    let isCompactando = false;
-    function compactarBotoesEmIcones() {
-        if (isCompactando) return;
-        isCompactando = true;
-        try {
-            document.querySelectorAll('#aba-rituais button:not([data-iconized]), #aba-tracos button:not([data-iconized]), #aba-combate button:not([data-iconized]), #aba-inventario button:not([data-iconized])').forEach(btn => {
-                const oc = btn.getAttribute('onclick') || '';
-                if (!oc) return;
+    // Trava funções de escrita caso a ficha esteja em ?view=true
+    if (SOMENTE_LEITURA) {
+        window.salvarFicha = function() {};
+        window.updateSub = async function() {};
+        window.removerSub = async function() {};
+        window.ajustar = function() {};
+        window.setLimbState = function() {};
+        window.updateRitualFields = async function() {};
+        window.updateRitualField = async function() {};
+    }
 
-                if (oc.includes('colarRitualClipboard') || oc.includes('colarSubClipboard')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '📋';
-                    btn.title = 'Colar da Área de Transferência';
-                    btn.classList.add('arq-icon-btn');
-                    const parentDiv = btn.parentElement;
-                    if (parentDiv && parentDiv.style && parentDiv.style.marginBottom === '12px') {
-                        if (oc.includes('colarRitualClipboard')) {
-                            const topBar = document.querySelector('#aba-rituais > div:first-child > div:first-child');
-                            if (topBar) { topBar.appendChild(btn); parentDiv.remove(); }
-                        } else if (oc.includes("'habilidades'")) {
-                            const topHab = document.querySelector('#aba-tracos > div:first-child > div:first-child > div:first-child');
-                            if (topHab) { topHab.appendChild(btn); parentDiv.remove(); }
-                        } else if (oc.includes("'poderes'")) {
-                            const topPod = document.querySelector('#btn-group-espec > div:first-child');
-                            if (topPod) { topPod.appendChild(btn); parentDiv.remove(); }
-                        }
-                    }
-                } else if (oc.includes('copiarRitualClipboard') || oc.includes('copiarSubClipboard')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '⧉';
-                    btn.title = 'Copiar';
-                    btn.classList.add('arq-icon-btn');
-                } else if (oc.includes('ParaSite(')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '📤';
-                    btn.title = 'Exportar para o GitHub';
-                    btn.classList.add('arq-icon-btn');
-                } else if (oc.includes('Concluir(')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '✔';
-                    btn.title = 'Concluir';
-                    btn.classList.add('arq-icon-btn');
-                } else if (oc.includes('Editar(')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '✎';
-                    btn.title = 'Editar';
-                    btn.classList.add('arq-icon-btn');
-                } else if (oc.includes('removerSub(')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '🗑️';
-                    btn.title = 'Apagar / Descartar';
-                    btn.classList.add('arq-icon-btn');
-                } else if (oc.includes('abrirModalTransferencia(')) {
-                    btn.dataset.iconized = '1';
-                    btn.innerHTML = '⇄';
-                    btn.title = 'Transferir';
-                    btn.classList.add('arq-icon-btn');
-                }
-            });
-        } finally {
-            isCompactando = false;
+    // =========================================================================
+    // 1. BOTÃO FIXO DE COLAR (📋) NAS BARRAS DE TOPO (Sem duplicar nunca!)
+    // =========================================================================
+    function instalarBotoesColarFixos() {
+        if (SOMENTE_LEITURA) return;
+        const ehMestre = typeof ehMestreFicha === 'function' ? ehMestreFicha() : false;
+        if (!ehMestre) return;
+
+        // 1. Aba Anomalias (Rituais)
+        const topRit = document.querySelector('#aba-rituais > div:first-child > div:first-child');
+        if (topRit && !document.getElementById('btn-colar-fixo-rit')) {
+            const b = document.createElement('button');
+            b.id = 'btn-colar-fixo-rit';
+            b.type = 'button';
+            b.className = 'btn-colar-topo';
+            b.title = 'Colar Anomalia da Área de Transferência';
+            b.innerText = '📋';
+            b.onclick = () => window.colarRitualClipboard();
+            topRit.appendChild(b);
+        }
+
+        // 2. Aba Traços (Habilidades)
+        const topHab = document.querySelector('#aba-tracos > div:first-child > div:first-child > div:first-child');
+        if (topHab && !document.getElementById('btn-colar-fixo-hab')) {
+            const b = document.createElement('button');
+            b.id = 'btn-colar-fixo-hab';
+            b.type = 'button';
+            b.className = 'btn-colar-topo';
+            b.title = 'Colar Traço da Área de Transferência';
+            b.innerText = '📋';
+            b.onclick = () => window.colarSubClipboard('habilidades');
+            topHab.appendChild(b);
+        }
+
+        // 3. Aba Especializações (Poderes)
+        const topPod = document.querySelector('#btn-group-espec > div:first-child');
+        if (topPod && !document.getElementById('btn-colar-fixo-pod')) {
+            const b = document.createElement('button');
+            b.id = 'btn-colar-fixo-pod';
+            b.type = 'button';
+            b.className = 'btn-colar-topo';
+            b.title = 'Colar Especialização da Área de Transferência';
+            b.innerText = '📋';
+            b.onclick = () => window.colarSubClipboard('poderes');
+            topPod.appendChild(b);
         }
     }
 
@@ -7286,6 +7364,7 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.toggleModoEdicaoPericias = function(forcar) {
+        if (SOMENTE_LEITURA) return;
         const novoEstado = typeof forcar === 'boolean' ? forcar : !document.body.classList.contains('pericias-edit-mode');
         document.body.classList.toggle('pericias-edit-mode', novoEstado);
         const btn = document.getElementById('btn-toggle-edit-per');
@@ -7365,11 +7444,12 @@ let filtroSubAtualAtaques = 'Todos';
     }
 
     function salvarRastreadoresNoBanco() {
-        if (!atual) return;
+        if (SOMENTE_LEITURA || !atual) return;
         db.collection("fichas").doc(atual).update({ rastreadoresCena }).catch(() => {});
     }
 
     window.adicionarRastreadorPreset = function(tipo) {
+        if (SOMENTE_LEITURA) return;
         if (tipo === 'executor') {
             rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Executor', atual: 0, max: 2, acumulado: 0, acumulativo: true, passoBonus: 1, efeito: 'no Teste' });
         } else if (tipo === 'analista') {
@@ -7381,6 +7461,7 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.criarRastreadorCustom = function() {
+        if (SOMENTE_LEITURA) return;
         const nome = prompt("Nome do marcador / habilidade (ex: Executor, Favor, Cargas):");
         if (!nome || !nome.trim()) return;
         const max = Math.max(1, Math.min(10, parseInt(prompt("Marcas por ciclo (ex: 2 para a cada 2 falhas ganhar +1):", "2")) || 2));
@@ -7393,6 +7474,7 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.clicarPipRastreador = function(id, indice) {
+        if (SOMENTE_LEITURA) return;
         const item = rastreadoresCena.find(r => r.id === id);
         if (!item) return;
         const isStackable = item.acumulativo !== false && (item.acumulativo === true || /executor/i.test(item.nome));
@@ -7407,6 +7489,7 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.ajustarAcumuloRastreador = function(id, delta) {
+        if (SOMENTE_LEITURA) return;
         const item = rastreadoresCena.find(r => r.id === id);
         if (!item) return;
         item.acumulado = Math.max(0, (parseInt(item.acumulado) || 0) + delta);
@@ -7416,6 +7499,7 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.zerarRastreador = function(id) {
+        if (SOMENTE_LEITURA) return;
         const item = rastreadoresCena.find(r => r.id === id);
         if (!item) return;
         item.atual = 0;
@@ -7426,6 +7510,7 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.removerRastreador = function(id) {
+        if (SOMENTE_LEITURA) return;
         rastreadoresCena = rastreadoresCena.filter(r => r.id !== id);
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
@@ -7434,7 +7519,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     function htmlListaRastreadores() {
         if (!rastreadoresCena.length) {
-            return `<div style="font-size:10.5px; color:var(--cor-geral); font-style:italic; padding:3px 0;">Sem marcadores ativos. Use "+ Executor" ou "+ Novo".</div>`;
+            return `<div style="font-size:10.5px; color:var(--cor-geral); font-style:italic; padding:3px 0;">Sem marcadores ativos.</div>`;
         }
         return rastreadoresCena.map(r => {
             const isStackable = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(r.nome));
@@ -7647,11 +7732,13 @@ let filtroSubAtualAtaques = 'Todos';
     };
 
     window.syncAttrFromFq = function(attr, val) {
+        if (SOMENTE_LEITURA) return;
         const inp = document.getElementById(`attr-${attr}`);
         if (inp) { inp.value = val; alterarAtributoOuNivel(); setTimeout(atualizarFichaRapidaVigilia, 60); }
     };
 
     window.syncVitalFromFq = function(tipo, val) {
+        if (SOMENTE_LEITURA) return;
         const inp = document.getElementById(`${tipo}-atual`);
         if (inp) { inp.value = val; atualizarStatusVisual(tipo); salvarFicha(); setTimeout(atualizarFichaRapidaVigilia, 60); }
     };
@@ -7758,7 +7845,7 @@ let filtroSubAtualAtaques = 'Todos';
     document.addEventListener('keydown', e => { if (e.key === 'Escape') window.abrirFichaRapidaVigilia(false); });
 
     // =========================================================================
-    // INICIALIZAÇÃO SEGURA (Sem MutationObserver Recursivo)
+    // INICIALIZAÇÃO IMEDIATA
     // =========================================================================
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
@@ -7768,10 +7855,11 @@ let filtroSubAtualAtaques = 'Todos';
             compactarMapaCorporal();
             instalarFichaRapidaVigilia();
             sincronizarBadgesPericias();
-            compactarBotoesEmIcones();
+            instalarBotoesColarFixos();
 
-            // Compacta novos botões de forma leve sem causar loop de DOM
-            setInterval(compactarBotoesEmIcones, 1200);
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().onAuthStateChanged(() => setTimeout(instalarBotoesColarFixos, 200));
+            }
 
             if (typeof atual !== 'undefined' && atual && typeof db !== 'undefined') {
                 db.collection("fichas").doc(atual).onSnapshot(doc => {
@@ -7785,14 +7873,14 @@ let filtroSubAtualAtaques = 'Todos';
                         sincronizarBadgesPericias();
                         atualizarResumoAnatomia();
                         window.syncBotaoSobrevConfig();
-                        compactarBotoesEmIcones();
+                        instalarBotoesColarFixos();
                         if (document.getElementById('ficha-rapida')?.classList.contains('open')) {
                             atualizarFichaRapidaVigilia();
                         }
-                    }, 80);
+                    }, 50);
                 });
             }
-        }, 400);
+        }, 150);
     });
 })();
 </script>
