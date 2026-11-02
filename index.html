@@ -1861,5 +1861,166 @@ document.addEventListener('click', function() {
         }
     };
     </script>
+    <!-- ======================================================================
+     SIMULADOR DE PERSPECTIVA DE ACESSO — HUB (index.html)
+     Cole imediatamente antes de </body> no seu index.html
+     ====================================================================== -->
+<style id="simulador-perspectiva-css">
+    .sim-box {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--card-border);
+        text-align: left;
+    }
+    .sim-title {
+        font: 900 10px/1 'Inter', sans-serif;
+        letter-spacing: 1.2px;
+        color: var(--op-red);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .sim-select {
+        width: 100%;
+        padding: 8px 10px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        color: var(--op-ink);
+        font: 700 11px 'Courier Prime', monospace;
+        text-transform: uppercase;
+        border-radius: 2px;
+        cursor: pointer;
+        outline: none;
+    }
+    #badge-simulacao-ativa {
+        position: fixed;
+        bottom: 14px;
+        left: 14px;
+        z-index: 10000001;
+        background: var(--op-red);
+        color: #fff;
+        padding: 6px 12px;
+        font: 800 10px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 2px;
+        box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+        cursor: pointer;
+        display: none;
+    }
+    #badge-simulacao-ativa:hover { filter: brightness(1.15); }
+</style>
+
+<div id="badge-simulacao-ativa" onclick="window.setPerspectivaSimulada('padrao')" title="Clique para voltar à visão de Criador (Super Admin)"></div>
+
+<script id="simulador-perspectiva-hub">
+(function() {
+    const PERSPECTIVAS = {
+        padrao:  "👑 Criador (Super Admin)",
+        mestre:  "🕯️ Outro Mestre",
+        admin:   "🔰 Apenas Admin (Manutenção)",
+        jogador: "👤 Jogador Comum (Sem Permissão)"
+    };
+
+    window.getPerspectivaSimulada = function() {
+        return localStorage.getItem('arquivo_perspectiva_sim') || 'padrao';
+    };
+
+    window.setPerspectivaSimulada = function(modo) {
+        if (!modo || modo === 'padrao') {
+            localStorage.removeItem('arquivo_perspectiva_sim');
+        } else {
+            localStorage.setItem('arquivo_perspectiva_sim', modo);
+        }
+        window.location.reload();
+    };
+
+    function injetarSeletorNoConfig() {
+        const modal = document.getElementById('modal-config');
+        if (!modal || document.getElementById('sim-perspectiva-box')) return;
+
+        const atualModo = window.getPerspectivaSimulada();
+        const box = document.createElement('div');
+        box.id = 'sim-perspectiva-box';
+        box.className = 'sim-box';
+        box.innerHTML = `
+            <span class="sim-title">👁️ VISUALIZAR SITE COMO (PERSPECTIVA)</span>
+            <select class="sim-select" onchange="window.setPerspectivaSimulada(this.value)">
+                ${Object.entries(PERSPECTIVAS).map(([k, label]) => `<option value="${k}" ${atualModo === k ? 'selected' : ''}>${label}</option>`).join('')}
+            </select>
+        `;
+        const btnFechar = modal.querySelector('button[onclick*="modal-config"]:last-of-type');
+        if (btnFechar) modal.insertBefore(box, btnFechar);
+        else modal.appendChild(box);
+    }
+
+    function aplicarPerspectivaNoHub(user) {
+        const ehCriadorReal = user && user.email && user.email.toLowerCase() === EMAIL_SUPER_ADMIN.toLowerCase();
+        if (!ehCriadorReal) return;
+
+        injetarSeletorNoConfig();
+        const modo = window.getPerspectivaSimulada();
+        const badge = document.getElementById('badge-simulacao-ativa');
+
+        if (modo !== 'padrao' && badge) {
+            badge.style.display = 'block';
+            badge.innerText = `👁️ VISÃO: ${PERSPECTIVAS[modo]} [ × SAIR ]`;
+        }
+
+        if (modo === 'padrao') return;
+
+        if (modo === 'mestre') {
+            isSuperAdmin = false;
+            isMestre = true;
+            document.getElementById('btn-admin').style.display = 'none';
+            const btnManuAdmin = document.getElementById('btn-admin-manutencao');
+            if (btnManuAdmin) btnManuAdmin.style.display = 'none';
+            const painelDiretor = document.getElementById('painel-diretor-global');
+            if (painelDiretor) painelDiretor.style.display = 'none';
+            ['btn-ameacas','btn-npcs','btn-campanhas','btn-mestre'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'inline-block';
+            });
+        } else if (modo === 'admin') {
+            isSuperAdmin = false;
+            isMestre = false;
+            document.getElementById('btn-admin').style.display = 'none';
+            const btnManuAdmin = document.getElementById('btn-admin-manutencao');
+            if (btnManuAdmin) btnManuAdmin.style.display = 'none';
+            ['btn-ameacas','btn-npcs','btn-campanhas','btn-mestre'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            mudarAbaHub('jogador');
+        } else if (modo === 'jogador') {
+            isSuperAdmin = false;
+            isMestre = false;
+            document.getElementById('btn-admin').style.display = 'none';
+            const btnManuAdmin = document.getElementById('btn-admin-manutencao');
+            if (btnManuAdmin) btnManuAdmin.style.display = 'none';
+            ['btn-ameacas','btn-npcs','btn-campanhas','btn-mestre'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            mudarAbaHub('jogador');
+
+            // Se a manutenção estiver ligada, mostra o bloqueio real como um jogador comum veria
+            const contour = document.getElementById('global-manutencao-contour');
+            const blocker = document.getElementById('global-manutencao-blocker');
+            if (contour && contour.style.display === 'block' && blocker) {
+                contour.style.display = 'none';
+                blocker.style.display = 'flex';
+            }
+        }
+    }
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            setTimeout(() => aplicarPerspectivaNoHub(user), 250);
+            setTimeout(() => aplicarPerspectivaNoHub(user), 900);
+        }
+    });
+})();
+</script>
 </body>
 </html>
