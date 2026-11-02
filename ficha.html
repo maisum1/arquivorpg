@@ -4427,7 +4427,7 @@ let filtroSubAtualAtaques = 'Todos';
                 c.innerHTML += `
                     <div style="margin-bottom: 12px; text-align: center;">
                         <button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); font-weight:bold; width: 100%; padding: 8px;" onclick="window.colarRitualClipboard()">
-                            [ 📥 COLAR RITUAL DA ÁREA DE TRANSFERÊNCIA ]
+                            COLAR
                         </button>
                     </div>`;
             }
@@ -4461,7 +4461,7 @@ let filtroSubAtualAtaques = 'Todos';
                 // ritual concluído: visualização simplificada (igual ao dossiê da ficha de ameaça)
                 if (r.concluido !== false) {
                     c.innerHTML += ritViewHTML({ id, v: rView, cor, aberto: menusAbertos.has('rv-' + id), afin: nexAtual >= 50,
-                        extra: `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritEditar('${id}')">✎ EDITAR</button>` + btnMestreCopy + btnGithubCopy });
+                        extra: `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritEditar('${id}')">✎</button>` + btnMestreCopy + btnGithubCopy });
                     return;
                 }
                 const btnConcluir = `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritConcluir('${id}')">✔ CONCLUIR RITUAL</button>`;
@@ -5714,11 +5714,11 @@ let filtroSubAtualAtaques = 'Todos';
     const ehMestreFicha = () => { const u = firebase.auth().currentUser; return !!u && (u.email === "pedroacpr@gmail.com" || (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao)); };
     const subPath = col => (isHexatombe || globalHexatombe) ? 'hexa_' + col : col;
     const subRef = (col, id) => db.collection("fichas").doc(atual).collection(subPath(col)).doc(id);
-    const SUB_TAGS = { habilidades: ['TALENTO_ARQUIVO', 'traço/talento', 'COLAR TRAÇO / TALENTO'], poderes: ['PODER_ARQUIVO', 'vínculo/especialização', 'COLAR VÍNCULO / ESPECIALIZAÇÃO'] };
-    const subBtnColar = col => `<div style="margin-bottom: 12px; text-align: center;"><button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); font-weight:bold; width: 100%; padding: 8px;" onclick="window.colarSubClipboard('${col}')">[ 📥 ${SUB_TAGS[col][2]} DA ÁREA DE TRANSFERÊNCIA ]</button></div>`;
-    const subBtnCopiar = (col, id) => ehMestreFicha() ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarSubClipboard('${col}','${id}')">[ 📋 COPIAR ]</button>` : '';
+    const SUB_TAGS = { habilidades: 'TALENTO_ARQUIVO', 'traço/talento', 'COLAR', poderes: 'PODER_ARQUIVO', 'vínculo/especialização', 'COLAR' };
+    const subBtnColar = col => `<div style="margin-bottom: 12px; text-align: center;"><button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); font-weight:bold; width: 100%; padding: 8px;" onclick="window.colarSubClipboard('${col}')">${SUB_TAGS[col][2]}</button></div>`;
+    const subBtnCopiar = (col, id) => ehMestreFicha() ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarSubClipboard('${col}','${id}')">COPIAR</button>` : '';
     const subBtnEditar = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subEditar('${col}','${id}')">✎ EDITAR</button>`;
-    const subBtnConcluir = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subConcluir('${col}','${id}')">✔ CONCLUIR</button>`;
+    const subBtnConcluir = (col, id) => `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.subConcluir('${col}','${id}')">✔</button>`;
     window.subConcluir = async (col, id) => { menusAbertos.delete('sv-' + col + '-' + id); await subRef(col, id).update({ concluido: true }); };
     window.subEditar = async (col, id) => { menusAbertos.add(({ poderes: 'pod-', habilidades: 'hab-', ataques: 'atq-', inventario: 'inv-' })[col] + id); await subRef(col, id).update({ concluido: false }); };
     function subToggleV(key) {
@@ -6945,7 +6945,7 @@ let filtroSubAtualAtaques = 'Todos';
                 <button type="button" id="btn-f-treinadas" class="arq-pill-btn" onclick="window.setFiltroPericiasV2(true)">★ APENAS TREINADAS</button>
             </div>
             <div class="pericias-toolbar-group">
-                <button type="button" id="btn-toggle-edit-per" class="arq-pill-btn" onclick="window.toggleModoEdicaoPericias()">✎ EDITAR TREINO / BÔNUS</button>
+                <button type="button" id="btn-toggle-edit-per" class="arq-pill-btn" onclick="window.toggleModoEdicaoPericias()">✎</button>
             </div>
         `;
         abaPericias.insertBefore(toolbar, gridPericias);
@@ -6963,7 +6963,7 @@ let filtroSubAtualAtaques = 'Todos';
         const btn = document.getElementById('btn-toggle-edit-per');
         if (btn) {
             btn.classList.toggle('active', novoEstado);
-            btn.innerText = novoEstado ? '✔ CONCLUIR EDIÇÃO' : '✎ EDITAR TREINO / BÔNUS';
+            btn.innerText = novoEstado ? '✔ CONCLUIR EDIÇÃO' : '✎';
         }
         sincronizarBadgesPericias();
     };
