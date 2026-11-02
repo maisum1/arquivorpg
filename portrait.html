@@ -21,10 +21,10 @@
             background: transparent !important;
         }
         
-        /* CAIXA DO PORTRAIT: mesma proporção do retrato da ficha (≈ 0,79), para o recorte ser idêntico */
+        /* CAIXA DO PORTRAIT (Proporção 1 : 1.4) */
         #image-frame { 
             position: relative; 
-            width: 276px; 
+            width: 250px; 
             height: 350px; 
             overflow: hidden; 
             background: transparent !important;
@@ -36,10 +36,9 @@
             left: 0; top: 0;
             width: 100%; 
             height: 100%; 
-            object-fit: cover; /* valor inicial; o enquadramento real é calculado em enquadrar() */
-            max-width: none;
+            object-fit: cover; /* Mantém a proporção sem distorcer */
             background: transparent !important;
-            transition: left 0.3s ease-out, top 0.3s ease-out, width 0.3s ease-out, height 0.3s ease-out;
+            transition: transform 0.3s ease-out, object-position 0.3s ease-out;
             /* O Filtro drop-shadow não cria fundo preto, diferente de box-shadow */
             filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
         }
@@ -76,30 +75,14 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-        // ?nome=completo mostra o nome inteiro; por padrão aparece só o primeiro nome
-        const nomeCompleto = params.get('nome') === 'completo';
-
-        // Enquadramento: zoom 1 = a imagem preenche a moldura; abaixo disso aparece o resto da imagem (igual à ficha)
-        let enq = { z: 1, x: 50, y: 50 };
-        function enquadrar() {
-            const img = document.getElementById('personagem-img'), box = img.parentElement;
-            const nw = img.naturalWidth, nh = img.naturalHeight, w = box.clientWidth, h = box.clientHeight;
-            if (!nw || !nh) return;
-            const s = Math.max(w / nw, h / nh) * enq.z, iw = nw * s, ih = nh * s;
-            Object.assign(img.style, { objectFit: 'fill', transform: 'none', width: iw + 'px', height: ih + 'px',
-                left: ((w - iw) * enq.x / 100) + 'px', top: ((h - ih) * enq.y / 100) + 'px' });
-        }
-        document.getElementById('personagem-img').addEventListener('load', enquadrar);
+        const id = new URLSearchParams(window.location.search).get('id');
 
         if (id) {
             db.collection("fichas").doc(id).onSnapshot(doc => {
                 const d = doc.data();
                 if(!d) return;
 
-                const nomeBruto = (d.nome || "Persona").trim();
-                document.getElementById('nome-val').innerText = nomeCompleto ? nomeBruto : (nomeBruto.split(/\s+/)[0] || "Persona");
+                document.getElementById('nome-val').innerText = d.nome || "Persona";
                 document.getElementById('pe-val').innerText = d.peAtual || 0;
                 document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
                 document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
@@ -116,15 +99,15 @@
                     imgEl.src = imgFinal;
                 }
 
-                // VALORES SALVOS NA FICHA (se a imagem vem do retrato principal, vale o enquadramento principal: pX/pY/pZ)
-                const doPrincipal = !d["portrait" + estado] && !d.portraitNormal;
-                const num = v => { const n = parseFloat(v); return isNaN(n) ? undefined : n; };
-                enq = {
-                    z: num(d["p" + estado + "Zoom"]) ?? (doPrincipal ? num(d.pZ) : undefined) ?? num(d.pZ) ?? 1,
-                    x: num(d["p" + estado + "X"]) ?? (doPrincipal ? num(d.pX) : undefined) ?? 50,
-                    y: num(d["p" + estado + "Y"]) ?? (doPrincipal ? num(d.pY) : undefined) ?? 50
-                };
-                enquadrar();
+                // VALORES SALVOS NA FICHA
+                const zoom = d["p"+estado+"Zoom"] || d.pZ || 1;
+                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : 50;
+                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : 50;
+
+                // APLICANDO O RECORTE PROPORCIONAL
+                // Usar porcentagem no object-position garante que não corte as bordas (como a direita)
+                imgEl.style.objectPosition = `${x}% ${y}%`;
+                imgEl.style.transform = `scale(${zoom})`;
             });
         }
     </script>
