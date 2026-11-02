@@ -6639,45 +6639,87 @@ let filtroSubAtualAtaques = 'Todos';
 })();
 </script>
 <!-- ======================================================================
-     MÓDULO A.R.Q.U.I.V.O. v3.3 — ESTÉTICA DOCUMENTO FÍSICO + ÍCONES CENTRALIZADOS
+     MÓDULO A.R.Q.U.I.V.O. v3.4 — SETA DE CARIMBO FORTE + SIMULADOR DE PERSPECTIVA
      Substitua o bloco anterior antes de </body> no seu ficha.html
      ====================================================================== -->
 <style id="arquivo-v2-clean-ui">
     /* =========================================================
-       1. BOTÃO DE VOLTAR: APENAS SETA VERMELHA MAIOR (Sem caixa/texto)
+       1. SETA DE RETORNO FORTE E EXPRESSIVA (Sem box, estilo carimbo)
        ========================================================= */
     button[onclick*="index.html"] {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        padding: 2px 6px !important;
-        margin: 0 !important;
+        padding: 0 8px 0 0 !important;
+        margin: -4px 4px 0 0 !important;
         font-size: 0 !important;
         color: var(--op-red) !important;
         cursor: pointer !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        transition: transform 0.2s ease, opacity 0.2s ease !important;
-        opacity: 0.85;
+        transition: transform 0.18s ease, filter 0.18s ease !important;
     }
     button[onclick*="index.html"] span {
-        font-size: 28px !important;
+        font-size: 0 !important;
+    }
+    button[onclick*="index.html"]::before {
+        content: "⬅";
+        font-size: 38px !important;
         font-family: 'Crimson Text', serif !important;
         font-weight: 900 !important;
-        line-height: 1 !important;
-        letter-spacing: 0 !important;
+        line-height: 0.85 !important;
         color: var(--op-red) !important;
+        -webkit-text-stroke: 1.5px var(--op-dark-red);
+        text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.38);
+        transform: rotate(-3deg);
+        display: inline-block;
+    }
+    body.tema-escuro button[onclick*="index.html"]::before {
+        color: #cc2929 !important;
+        -webkit-text-stroke: 1px #ff4d4d;
+        text-shadow: 3px 3px 0px #000;
     }
     button[onclick*="index.html"]:hover {
-        transform: translateX(-4px) !important;
-        opacity: 1;
+        transform: translateX(-5px) scale(1.08) !important;
+        filter: brightness(1.15);
         background: transparent !important;
+    }
+
+    /* Selo flutuante quando estiver simulando outra perspectiva */
+    #badge-simulacao-ficha {
+        position: fixed;
+        bottom: 14px;
+        left: 14px;
+        z-index: 10000001;
+        background: var(--op-red);
+        color: #fff;
+        padding: 6px 12px;
+        font: 800 10px/1 'Inter', sans-serif;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 2px;
+        box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+        cursor: pointer;
+        display: none;
+    }
+
+    /* Regras de ocultação conforme a perspectiva simulada */
+    body[data-perspectiva="mestre"] button[onclick*="ParaSite("],
+    body[data-perspectiva="admin"] button[onclick*="ParaSite("],
+    body[data-perspectiva="jogador"] button[onclick*="ParaSite("] {
+        display: none !important;
+    }
+    body[data-perspectiva="jogador"] button[onclick*="copiarRitualClipboard"],
+    body[data-perspectiva="jogador"] button[onclick*="copiarSubClipboard"],
+    body[data-perspectiva="jogador"] .btn-colar-topo,
+    body[data-perspectiva="jogador"] button[onclick*="colarRitualClipboard"],
+    body[data-perspectiva="jogador"] button[onclick*="colarSubClipboard"] {
+        display: none !important;
     }
 
     /* =========================================================
        2. ÍCONES PERFEITAMENTE CENTRALIZADOS E MONOCROMÁTICOS
-          (Corrige o letter-spacing que deixava os ícones tortos)
        ========================================================= */
     button[onclick*="copiarRitualClipboard"],
     button[onclick*="copiarSubClipboard"],
@@ -6729,7 +6771,6 @@ let filtroSubAtualAtaques = 'Todos';
         padding: 0 !important;
         font-family: 'Inter', sans-serif !important;
         font-weight: 700 !important;
-        /* Tira o aspecto colorido "cartoon" de emojis do Windows/Android */
         filter: grayscale(100%) contrast(130%);
     }
 
@@ -6743,7 +6784,6 @@ let filtroSubAtualAtaques = 'Todos';
     button[onclick*="removerSub("]::before        { content: "🗑️"; font-size: 13px; }
     button[onclick*="abrirModalTransferencia("]::before { content: "⇄"; font-size: 15px; filter: none; }
 
-    /* Oculta as barras largas de Colar antigas dentro das listas */
     #lista-rituais > div > button[onclick*="colarRitualClipboard"],
     #lista-habilidades > div > button[onclick*="colarSubClipboard"],
     #lista-poderes > div > button[onclick*="colarSubClipboard"] {
@@ -6756,7 +6796,6 @@ let filtroSubAtualAtaques = 'Todos';
         margin: 0 !important;
     }
 
-    /* Botão quadrado pequeno de Colar ao lado de + LISTA e + CRIAR */
     .btn-colar-topo {
         font-size: 13px !important;
         border: 1px dashed var(--san-purple) !important;
@@ -6767,7 +6806,6 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .btn-colar-topo:hover { background: rgba(128,128,128,0.2) !important; }
 
-    /* Padroniza os botões "+ CRIAR ..." mantendo a fonte de máquina de escrever original */
     .btn-criar {
         font-size: 0 !important;
         display: inline-flex !important;
@@ -6785,108 +6823,56 @@ let filtroSubAtualAtaques = 'Todos';
 
     /* =========================================================
        3. PERÍCIAS COM TEXTURA DE DOCUMENTO DATILOGRAFADO
-          (Sem retângulos chapados "cartoon", usando Special Elite/Courier)
        ========================================================= */
     .pericias-toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 14px;
-        padding: 6px 10px;
-        background: var(--card-bg);
-        border: 1px dashed var(--card-border);
-        border-radius: 2px;
+        display: flex; justify-content: space-between; align-items: center;
+        gap: 8px; flex-wrap: wrap; margin-bottom: 14px; padding: 6px 10px;
+        background: var(--card-bg); border: 1px dashed var(--card-border); border-radius: 2px;
     }
     .pericias-toolbar-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .arq-pill-btn {
-        background: rgba(0,0,0,0.03);
-        border: 1px dashed var(--card-border);
-        color: var(--cor-geral);
-        font: 700 10px 'Courier Prime', monospace;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        padding: 5px 10px;
-        border-radius: 2px;
-        cursor: pointer;
-        transition: 0.15s;
+        background: rgba(0,0,0,0.03); border: 1px dashed var(--card-border); color: var(--cor-geral);
+        font: 700 10px 'Courier Prime', monospace; letter-spacing: 1px; text-transform: uppercase;
+        padding: 5px 10px; border-radius: 2px; cursor: pointer; transition: 0.15s;
     }
     .arq-pill-btn:hover { border-color: var(--op-ink); color: var(--op-ink); }
     .arq-pill-btn.active {
-        background: var(--op-ink);
-        color: var(--bg-paper);
-        border: 1px solid var(--op-ink);
-        font-family: 'Crimson Text', serif;
-        font-weight: 900;
-        box-shadow: 2px 2px 0px rgba(0,0,0,0.35);
+        background: var(--op-ink); color: var(--bg-paper); border: 1px solid var(--op-ink);
+        font-family: 'Crimson Text', serif; font-weight: 900; box-shadow: 2px 2px 0px rgba(0,0,0,0.35);
     }
     body.tema-escuro .arq-pill-btn.active {
-        background: #222;
-        color: var(--accent-gold);
-        border-color: #333;
-        box-shadow: 2px 2px 0px #000;
+        background: #222; color: var(--accent-gold); border-color: #333; box-shadow: 2px 2px 0px #000;
     }
 
     body:not(.pericias-edit-mode) .pericia-header { grid-template-columns: 1fr auto 42px !important; }
     body:not(.pericias-edit-mode) .pericia-header > span:nth-child(2),
     body:not(.pericias-edit-mode) .pericia-header > span:nth-child(3) { display: none !important; }
     body:not(.pericias-edit-mode) .pericia-row {
-        grid-template-columns: 1fr auto 42px !important;
-        padding: 5px 6px !important;
-        border-bottom: 1px dotted var(--card-border) !important;
-        align-items: center !important;
+        grid-template-columns: 1fr auto 42px !important; padding: 5px 6px !important;
+        border-bottom: 1px dotted var(--card-border) !important; align-items: center !important;
     }
     body:not(.pericias-edit-mode) .pericia-row > select,
     body:not(.pericias-edit-mode) .pericia-row > input,
     body:not(.pericias-edit-mode) .pericia-row > div:not(.vigilia-Formula-badge),
-    body:not(.pericias-edit-mode) .pericia-row.has-subs-row > span:not(.pericia-nome) {
-        display: none !important;
-    }
-    body:not(.pericias-edit-mode) .pericia-row.has-subs-row {
-        grid-template-columns: 1fr auto !important;
-    }
+    body:not(.pericias-edit-mode) .pericia-row.has-subs-row > span:not(.pericia-nome) { display: none !important; }
+    body:not(.pericias-edit-mode) .pericia-row.has-subs-row { grid-template-columns: 1fr auto !important; }
 
     .vigilia-Formula-badge {
-        display: none;
-        align-items: baseline;
-        gap: 6px;
-        justify-content: flex-end;
-        font-family: 'Courier Prime', monospace;
-        font-size: 11px;
-        white-space: nowrap;
-        cursor: pointer;
+        display: none; align-items: baseline; gap: 6px; justify-content: flex-end;
+        font-family: 'Courier Prime', monospace; font-size: 11px; white-space: nowrap; cursor: pointer;
     }
     body:not(.pericias-edit-mode) .vigilia-Formula-badge { display: inline-flex !important; }
-
-    /* Notação de Treino Estilo Carimbo / Datilografia (Sem retângulo colorido chapado) */
     .vg-chip-tr {
-        font-family: 'Special Elite', monospace;
-        font-size: 12px;
-        font-weight: bold;
-        color: var(--cor-geral);
-        padding: 0 3px;
-        border-bottom: 1px dotted var(--card-border);
+        font-family: 'Special Elite', monospace; font-size: 12px; font-weight: bold;
+        color: var(--cor-geral); padding: 0 3px; border-bottom: 1px dotted var(--card-border);
     }
-    .vg-chip-tr.tr-12,
-    .vg-chip-tr.tr-34,
-    .vg-chip-tr.tr-5 {
-        color: var(--op-ink);
-        border-bottom: 1px solid currentColor;
+    .vg-chip-tr.tr-12, .vg-chip-tr.tr-34, .vg-chip-tr.tr-5 {
+        color: var(--op-ink); border-bottom: 1px solid currentColor;
     }
-    .vg-sub-diamond {
-        color: var(--op-red);
-        font-size: 12px;
-        line-height: 1;
-    }
+    .vg-sub-diamond { color: var(--op-red); font-size: 12px; line-height: 1; }
     .vg-chip-attr {
-        font-family: 'Courier Prime', monospace;
-        font-size: 10px;
-        font-weight: bold;
-        color: var(--cor-geral);
-        letter-spacing: 0.5px;
-        min-width: 32px;
-        text-align: right;
+        font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: bold;
+        color: var(--cor-geral); letter-spacing: 0.5px; min-width: 32px; text-align: right;
     }
     body:not(.pericias-edit-mode) .pericia-row.pericia-leiga { opacity: 0.58; }
     body:not(.pericias-edit-mode) .pericia-row.pericia-leiga:hover { opacity: 1; }
@@ -6896,168 +6882,67 @@ let filtroSubAtualAtaques = 'Todos';
        4. BANNER DE CRIAÇÃO DE PERÍCIAS & PAINEL DE INICIATIVA
        ========================================================= */
     #banner-criacao-pericias button {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 28px !important;
-        height: 26px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        font-size: 0 !important;
-        letter-spacing: 0 !important;
-        text-indent: 0 !important;
-        border: 1px dashed var(--op-ink) !important;
-        background: transparent !important;
-        border-radius: 2px !important;
+        display: inline-flex !important; align-items: center !important; justify-content: center !important;
+        width: 28px !important; height: 26px !important; padding: 0 !important; margin: 0 !important;
+        font-size: 0 !important; letter-spacing: 0 !important; text-indent: 0 !important;
+        border: 1px dashed var(--op-ink) !important; background: transparent !important; border-radius: 2px !important;
     }
     #banner-criacao-pericias button::before {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 100% !important;
-        height: 100% !important;
-        letter-spacing: 0 !important;
-        filter: grayscale(100%) contrast(130%);
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        width: 100% !important; height: 100% !important; letter-spacing: 0 !important;
     }
-    #banner-criacao-pericias button[onclick*="modal-guia-criacao"]::before { content: "ℹ"; font-family: 'Crimson Text', serif; font-weight: 900; font-size: 15px; color: var(--op-ink); filter: none; }
-    #banner-criacao-pericias button[onclick*="resetarPericias"]::before    { content: "↺"; font-size: 15px; color: var(--op-red); filter: none; }
-    #banner-criacao-pericias button[onclick*="concluirCriacaoFicha"]::before { content: "✔"; font-size: 13px; color: var(--op-red); filter: none; }
+    #banner-criacao-pericias button[onclick*="modal-guia-criacao"]::before { content: "ℹ"; font-family: 'Crimson Text', serif; font-weight: 900; font-size: 15px; color: var(--op-ink); }
+    #banner-criacao-pericias button[onclick*="resetarPericias"]::before    { content: "↺"; font-size: 15px; color: var(--op-red); }
+    #banner-criacao-pericias button[onclick*="concluirCriacaoFicha"]::before { content: "✔"; font-size: 13px; color: var(--op-red); }
 
-    /* Iniciativa com estética de Dossiê */
-    #painel-iniciativa-combate span[onclick="togglePainelIniciativa()"] {
-        font-size: 0 !important;
-        cursor: pointer;
-        padding: 2px 6px;
-    }
-    #painel-iniciativa-combate span[onclick="togglePainelIniciativa()"]::before {
-        content: "×";
-        font: 700 18px/1 'Courier Prime', monospace;
-        color: var(--cor-geral);
-    }
+    #painel-iniciativa-combate span[onclick="togglePainelIniciativa()"] { font-size: 0 !important; cursor: pointer; padding: 2px 6px; }
+    #painel-iniciativa-combate span[onclick="togglePainelIniciativa()"]::before { content: "×"; font: 700 18px/1 'Courier Prime', monospace; color: var(--cor-geral); }
     #controles-mestre-iniciativa button[onclick="adicionarCombatenteIniciativa()"] {
-        font-size: 0 !important;
-        width: 34px !important;
-        flex: 0 0 34px !important;
-        height: 28px !important;
-        letter-spacing: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        font-size: 0 !important; width: 34px !important; flex: 0 0 34px !important; height: 28px !important;
+        letter-spacing: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;
     }
-    #controles-mestre-iniciativa button[onclick="adicionarCombatenteIniciativa()"]::before {
-        content: "+";
-        font: 700 18px/1 'Courier Prime', monospace;
-    }
+    #controles-mestre-iniciativa button[onclick="adicionarCombatenteIniciativa()"]::before { content: "+"; font: 700 18px/1 'Courier Prime', monospace; }
     #controles-mestre-iniciativa button[onclick="passarTurnoIniciativa()"] {
-        width: calc(100% - 38px) !important;
-        margin-right: 6px !important;
-        height: 28px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        width: calc(100% - 38px) !important; margin-right: 6px !important; height: 28px !important;
+        display: inline-flex !important; align-items: center !important; justify-content: center !important;
     }
     #controles-mestre-iniciativa button[onclick="limparTodaIniciativa()"] {
-        width: 32px !important;
-        height: 28px !important;
-        font-size: 0 !important;
-        letter-spacing: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        vertical-align: bottom !important;
+        width: 32px !important; height: 28px !important; font-size: 0 !important; letter-spacing: 0 !important;
+        display: inline-flex !important; align-items: center !important; justify-content: center !important; vertical-align: bottom !important;
     }
-    #controles-mestre-iniciativa button[onclick="limparTodaIniciativa()"]::before {
-        content: "🗑️";
-        font-size: 13px !important;
-        filter: grayscale(100%) contrast(130%);
-    }
+    #controles-mestre-iniciativa button[onclick="limparTodaIniciativa()"]::before { content: "🗑️"; font-size: 13px !important; filter: grayscale(100%) contrast(130%); }
 
     /* =========================================================
-       5. MARCADORES DE CENA & EXECUTOR ACUMULATIVO (Estilo Papel/Dossiê)
+       5. MARCADORES DE CENA & EXECUTOR ACUMULATIVO
        ========================================================= */
     .scene-trackers-box {
-        margin-top: 18px;
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-left: 4px solid var(--op-ink);
-        padding: 12px;
-        border-radius: 2px;
+        margin-top: 18px; background: var(--card-bg); border: 1px solid var(--card-border);
+        border-left: 4px solid var(--op-ink); padding: 12px; border-radius: 2px;
     }
     body.tema-escuro .scene-trackers-box { border-left-color: var(--accent-gold); }
     .scene-trackers-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-        border-bottom: 1px dotted var(--card-border);
-        padding-bottom: 6px;
+        display: flex; justify-content: space-between; align-items: center; gap: 8px;
+        margin-bottom: 10px; border-bottom: 1px dotted var(--card-border); padding-bottom: 6px;
     }
-    .scene-trackers-title {
-        font: 900 11px 'Crimson Text', serif;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: var(--op-ink);
-    }
+    .scene-trackers-title { font: 900 11px 'Crimson Text', serif; letter-spacing: 1.5px; text-transform: uppercase; color: var(--op-ink); }
     .tracker-list { display: flex; flex-direction: column; gap: 7px; }
     .tracker-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 6px 10px;
-        background: rgba(0,0,0,0.02);
-        border: 1px dotted var(--card-border);
-        border-radius: 2px;
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        padding: 6px 10px; background: rgba(0,0,0,0.02); border: 1px dotted var(--card-border); border-radius: 2px;
     }
-    .tracker-card.ready {
-        border: 1px dashed var(--op-red);
-        background: rgba(158, 11, 15, 0.06);
-    }
+    .tracker-card.ready { border: 1px dashed var(--op-red); background: rgba(158, 11, 15, 0.06); }
     .tracker-info { min-width: 0; flex: 1; }
-    .tracker-name {
-        font: 700 14px 'Crimson Text', serif;
-        color: var(--op-ink);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
+    .tracker-name { font: 700 14px 'Crimson Text', serif; color: var(--op-ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .tracker-stack-controls { display: inline-flex; align-items: center; gap: 4px; }
-    .tracker-effect-badge {
-        font: 700 11px/1 'Special Elite', monospace;
-        padding: 3px 7px;
-        border: 1px dotted var(--card-border);
-        color: var(--op-ink);
-    }
-    .tracker-card.ready .tracker-effect-badge {
-        background: var(--op-red);
-        border-color: var(--op-red);
-        color: #fff;
-        cursor: pointer;
-    }
+    .tracker-effect-badge { font: 700 11px/1 'Special Elite', monospace; padding: 3px 7px; border: 1px dotted var(--card-border); color: var(--op-ink); }
+    .tracker-card.ready .tracker-effect-badge { background: var(--op-red); border-color: var(--op-red); color: #fff; cursor: pointer; }
     .tracker-stack-btn {
-        background: transparent;
-        border: 1px dotted var(--card-border);
-        color: var(--op-ink);
-        width: 20px;
-        height: 20px;
-        padding: 0;
-        font: 700 13px/1 'Courier Prime', monospace;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        background: transparent; border: 1px dotted var(--card-border); color: var(--op-ink);
+        width: 20px; height: 20px; padding: 0; font: 700 13px/1 'Courier Prime', monospace;
+        cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     }
     .tracker-pips { display: flex; align-items: center; gap: 5px; }
-    .tracker-pip {
-        width: 13px;
-        height: 13px;
-        border-radius: 50%;
-        border: 1.5px solid var(--op-ink);
-        background: transparent;
-        cursor: pointer;
-    }
+    .tracker-pip { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--op-ink); background: transparent; cursor: pointer; }
     .tracker-pip.on { background: var(--op-ink); }
     .tracker-del { background: none; border: none; color: var(--cor-geral); font-size: 14px; cursor: pointer; opacity: 0.5; padding: 0 3px; }
     .tracker-del:hover { opacity: 1; color: var(--op-red); }
@@ -7065,25 +6950,8 @@ let filtroSubAtualAtaques = 'Todos';
     /* =========================================================
        6. ANATOMIA RECOLHÍVEL & MENU DE CONFIGURAÇÕES
        ========================================================= */
-    .anatomia-wrapper {
-        border: 1px dashed var(--card-border);
-        background: var(--card-bg);
-        border-radius: 2px;
-        margin-bottom: 22px;
-        padding: 10px 14px;
-    }
-    .anatomia-wrapper > summary {
-        cursor: pointer;
-        list-style: none;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        font: 900 12px 'Crimson Text', serif;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        color: var(--op-ink);
-    }
+    .anatomia-wrapper { border: 1px dashed var(--card-border); background: var(--card-bg); border-radius: 2px; margin-bottom: 22px; padding: 10px 14px; }
+    .anatomia-wrapper > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; font: 900 12px 'Crimson Text', serif; letter-spacing: 1.5px; text-transform: uppercase; color: var(--op-ink); }
     .anatomia-wrapper > summary::-webkit-details-marker { display: none; }
     .anatomia-resumo-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .anat-chip { padding: 2px 7px; border-radius: 2px; border: 1px dotted var(--card-border); font: 700 10px 'Courier Prime', monospace; }
@@ -7113,19 +6981,10 @@ let filtroSubAtualAtaques = 'Todos';
        ========================================================= */
     body.somente-leitura::after {
         content: "SOMENTE VISUALIZAÇÃO";
-        position: fixed;
-        left: 50%;
-        bottom: 12px;
-        transform: translateX(-50%);
-        z-index: 10000;
-        padding: 5px 12px;
-        background: rgba(18, 18, 17, 0.88);
-        color: #e8e0ce;
-        border: 1px solid rgba(232,224,206,0.25);
-        font: 700 10px/1 'Courier Prime', monospace;
-        letter-spacing: 1.5px;
-        border-radius: 2px;
-        pointer-events: none;
+        position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 10000;
+        padding: 5px 12px; background: rgba(18, 18, 17, 0.88); color: #e8e0ce;
+        border: 1px solid rgba(232,224,206,0.25); font: 700 10px/1 'Courier Prime', monospace;
+        letter-spacing: 1.5px; border-radius: 2px; pointer-events: none;
     }
     body.somente-leitura .btn-config,
     body.somente-leitura #btn-assumir-posse,
@@ -7157,17 +7016,59 @@ let filtroSubAtualAtaques = 'Todos';
     }
 </style>
 
+<div id="badge-simulacao-ficha" onclick="localStorage.removeItem('arquivo_perspectiva_sim'); window.location.reload();" title="Clique para voltar à visão de Criador"></div>
+
 <script id="arquivo-v2-clean-logic">
 (function() {
     // =========================================================================
-    // 0. BLOQUEIO IMEDIATO PARA LINK DE SOMENTE VISUALIZAÇÃO (?view=true)
+    // 0. BLOQUEIO PARA ?view=true E SIMULADOR DE PERSPECTIVA DE ACESSO
     // =========================================================================
     const SOMENTE_LEITURA = new URLSearchParams(window.location.search).get('view') === 'true';
     if (SOMENTE_LEITURA) {
         document.body.classList.add('somente-leitura');
     }
 
-    // Fallbacks de funções do final do arquivo original (caso tenham sido cortadas)
+    const PERSPECTIVA_ATUAL = localStorage.getItem('arquivo_perspectiva_sim') || 'padrao';
+    if (PERSPECTIVA_ATUAL !== 'padrao') {
+        document.body.setAttribute('data-perspectiva', PERSPECTIVA_ATUAL);
+    }
+
+    function aplicarPerspectivaNaFicha() {
+        const user = firebase.auth().currentUser;
+        const ehCriadorReal = user && user.email && user.email.toLowerCase() === 'pedroacpr@gmail.com';
+        if (!ehCriadorReal) return;
+
+        const nomesPerspectiva = {
+            mestre: "🕯️ Outro Mestre",
+            admin: "🔰 Apenas Admin",
+            jogador: "👤 Jogador Comum"
+        };
+
+        const badge = document.getElementById('badge-simulacao-ficha');
+        if (PERSPECTIVA_ATUAL !== 'padrao' && badge) {
+            badge.style.display = 'block';
+            badge.innerText = `👁️ VISÃO: ${nomesPerspectiva[PERSPECTIVA_ATUAL] || PERSPECTIVA_ATUAL} [ × SAIR ]`;
+        }
+
+        if (PERSPECTIVA_ATUAL === 'jogador') {
+            // Se a manutenção estiver ligada, mostra a tela preta de bloqueio como o jogador comum vê
+            const contour = document.getElementById('global-manutencao-contour');
+            const blocker = document.getElementById('global-manutencao-blocker');
+            if (contour && contour.style.display === 'block' && blocker) {
+                contour.style.display = 'none';
+                blocker.style.display = 'flex';
+            }
+            // Se estiver numa campanha, esconde controles de mestre da iniciativa e mostra controles de jogador
+            const ctrlMestre = document.getElementById('controles-mestre-iniciativa');
+            const ctrlJog = document.getElementById('controles-jogador-iniciativa');
+            if (ctrlMestre && ctrlMestre.style.display === 'block') {
+                ctrlMestre.style.display = 'none';
+                if (ctrlJog) ctrlJog.style.display = 'block';
+            }
+        }
+    }
+
+    // Fallbacks de funções nativas
     if (typeof window.aplicarModoSobrevivenciaVisuais !== 'function') {
         window.aplicarModoSobrevivenciaVisuais = function(ativo) {
             window.isModoSobrevivencia = !!ativo;
@@ -7304,7 +7205,7 @@ let filtroSubAtualAtaques = 'Todos';
     // 1. BOTÃO FIXO DE COLAR (📋) NAS BARRAS DE TOPO
     // =========================================================================
     function instalarBotoesColarFixos() {
-        if (SOMENTE_LEITURA) return;
+        if (SOMENTE_LEITURA || PERSPECTIVA_ATUAL === 'jogador') return;
         const ehMestre = typeof ehMestreFicha === 'function' ? ehMestreFicha() : false;
         if (!ehMestre) return;
 
@@ -7687,7 +7588,12 @@ let filtroSubAtualAtaques = 'Todos';
             instalarBotoesColarFixos();
 
             if (typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().onAuthStateChanged(() => setTimeout(instalarBotoesColarFixos, 200));
+                firebase.auth().onAuthStateChanged(() => {
+                    setTimeout(() => {
+                        instalarBotoesColarFixos();
+                        aplicarPerspectivaNaFicha();
+                    }, 250);
+                });
             }
 
             if (typeof atual !== 'undefined' && atual && typeof db !== 'undefined') {
@@ -7703,6 +7609,7 @@ let filtroSubAtualAtaques = 'Todos';
                         atualizarResumoAnatomia();
                         window.syncBotaoSobrevConfig();
                         instalarBotoesColarFixos();
+                        aplicarPerspectivaNaFicha();
                     }, 50);
                 });
             }
