@@ -2739,6 +2739,33 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
             </div>
             <div style="margin-bottom: 40px;"><h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">TRAÇOS E TALENTOS</h3><div id="lista-habilidades"></div></div>
             <div id="container-poderes" style="display:none;"><h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block; color: var(--hp-red) !important;">VÍNCULOS E ESPECIALIZAÇÕES</h3><div id="lista-poderes"></div></div>
+
+<div class="arquivo-ledger-wrap">
+  <details id="arquivo-ledger" class="arquivo-ledger">
+    <summary>
+      <span><b>REGISTRO DE EFEITOS</b><small>Contadores, bônus temporários, usos e efeitos acumulados</small></span>
+      <span class="arquivo-ledger-count" id="arquivo-ledger-count">0 REGISTROS</span>
+    </summary>
+    <div class="arquivo-ledger-body">
+      <p class="arquivo-ledger-intro">Um espaço geral para acompanhar qualquer regra que normalmente exigiria anotações à parte. Exemplo: Executor — contador, etapa 2, efeito +1, teto +5; registre as falhas e consulte o bônus calculado. Os marcadores não alteram rolagens automaticamente: registram e calculam o efeito para consulta, sem interferir nas regras personalizadas da campanha.</p>
+      <form id="arquivo-ledger-form" class="arquivo-ledger-form">
+        <label>EFEITO / MECÂNICA<input id="ledger-name" maxlength="70" required placeholder="Ex.: Executor — falhas acumuladas"></label>
+        <label>TIPO<select id="ledger-type"><option value="counter">Contador por etapas</option><option value="bonus">Bônus / penalidade</option><option value="uses">Usos disponíveis</option><option value="note">Lembrete / condição</option></select></label>
+        <div class="ledger-fields" id="ledger-numeric-fields">
+          <label>VALOR ATUAL<input id="ledger-value" type="number" value="0"></label>
+          <label>ETAPA / LIMITE<input id="ledger-step" type="number" min="1" value="2"></label>
+          <label>EFEITO POR ETAPA<input id="ledger-rate" type="number" value="1"></label>
+          <label>TETO DO EFEITO<input id="ledger-cap" type="number" value="5"></label>
+        </div>
+        <label class="ledger-full">QUANDO / COMO FUNCIONA<input id="ledger-trigger" maxlength="120" placeholder="Ex.: a cada duas falhas em testes; acumula até +5"></label>
+        <label class="ledger-full">OBSERVAÇÕES<textarea id="ledger-note" rows="2" maxlength="350" placeholder="Duração, forma de gastar, quando reinicia..."></textarea></label>
+        <div class="ledger-form-actions"><button type="submit">+ REGISTRAR EFEITO</button><span>Salvo junto ao arquivo do personagem</span></div>
+      </form>
+      <div id="arquivo-ledger-list" class="arquivo-ledger-list"><div class="ledger-empty">Nenhum efeito registrado.</div></div>
+    </div>
+  </details>
+</div>
+
         </div>
 
         <div id="aba-rituais" class="tab-content">
@@ -6638,547 +6665,229 @@ let filtroSubAtualAtaques = 'Todos';
   setTimeout(()=>refresh(true),1200);
 })();
 </script>
-<!-- ======================================================================
-     MÓDULO A.R.Q.U.I.V.O. v2 — DESPOLUIÇÃO VISUAL + RASTREADORES DE CENA
-     Cole imediatamente antes de </body> no seu ficha.html
-     ====================================================================== -->
-<style id="arquivo-v2-clean-ui">
-    /* 1. Refinamento Geral de Espaçamento e Bordas (Menos ruído de linhas tracejadas) */
-    .grid-container {
-        gap: 44px !important;
-        padding: 32px 44px !important;
-    }
-    @media (max-width: 1200px) {
-        .grid-container { padding: 14px 12px !important; gap: 20px !important; }
-    }
 
-    /* Abas limpas em linha contínua estilo pasta de arquivo */
-    .tabs-nav {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 4px !important;
-        border-bottom: 2px solid var(--op-ink) !important;
-        padding-bottom: 0 !important;
-        margin-bottom: 20px !important;
-    }
-    body.tema-escuro .tabs-nav { border-bottom-color: #333 !important; }
-    .tabs-nav .tab-btn {
-        flex: 1 1 auto !important;
-        border: 1px solid transparent !important;
-        border-bottom: none !important;
-        border-radius: 2px 2px 0 0 !important;
-        padding: 9px 10px !important;
-        font-size: 10.5px !important;
-        letter-spacing: 1px !important;
-        box-shadow: none !important;
-    }
-    .tabs-nav .tab-btn.active {
-        transform: translateY(1px);
-    }
 
-    /* 2. Perícias Estilo "A Vigília / Dossiê" (Modo Leitura Limpa vs Modo Edição) */
-    .pericias-toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 14px;
-        padding: 8px 12px;
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 2px;
-    }
-    .pericias-toolbar-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .arq-pill-btn {
-        background: transparent;
-        border: 1px solid var(--card-border);
-        color: var(--op-ink);
-        font: 800 10px 'Inter', sans-serif;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        padding: 6px 10px;
-        border-radius: 2px;
-        cursor: pointer;
-        transition: 0.15s;
-    }
-    .arq-pill-btn:hover { border-color: var(--op-ink); background: var(--card-hover); }
-    .arq-pill-btn.active { background: var(--op-ink); color: var(--bg-paper); border-color: var(--op-ink); }
-    body.tema-escuro .arq-pill-btn.active { background: var(--accent-gold); color: #121211; border-color: var(--accent-gold); }
-
-    /* Quando NÃO está em modo de edição de perícias, simplifica a tabela para leitura imediata */
-    body:not(.pericias-edit-mode) .pericia-header {
-        grid-template-columns: 1fr auto 42px !important;
-    }
-    body:not(.pericias-edit-mode) .pericia-header > span:nth-child(2),
-    body:not(.pericias-edit-mode) .pericia-header > span:nth-child(3) {
-        display: none !important;
-    }
-    body:not(.pericias-edit-mode) .pericia-row {
-        grid-template-columns: 1fr auto 42px !important;
-        padding: 6px 8px !important;
-        border-bottom: 1px solid rgba(128,128,128,0.12) !important;
-        border-radius: 2px;
-    }
-    /* Esconde os selects/inputs crus no modo leitura e mostra os badges limpos estilo OP2 */
-    body:not(.pericias-edit-mode) .pericia-row > select,
-    body:not(.pericias-edit-mode) .pericia-row > input,
-    body:not(.pericias-edit-mode) .pericia-row > div {
-        display: none !important;
-    }
-    .vigilia-Formula-badge {
-        display: none;
-        align-items: center;
-        gap: 5px;
-        justify-content: flex-end;
-        font-family: 'Inter', sans-serif;
-        font-size: 10px;
-        font-weight: 800;
-    }
-    body:not(.pericias-edit-mode) .vigilia-Formula-badge {
-        display: inline-flex !important;
-    }
-    .vg-chip-tr {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 22px;
-        height: 18px;
-        padding: 0 5px;
-        border-radius: 2px;
-        font: 900 10px 'Inter', sans-serif;
-        background: rgba(128,128,128,0.15);
-        color: var(--cor-geral);
-    }
-    .vg-chip-tr.tr-12 { background: rgba(102, 82, 53, 0.75); color: #fff; }
-    .vg-chip-tr.tr-34 { background: rgba(43, 58, 74, 0.85); color: #fff; }
-    .vg-chip-tr.tr-5  { background: var(--op-red); color: #fff; }
-    .vg-chip-attr {
-        font: 800 9px 'Inter', sans-serif;
-        color: var(--cor-geral);
-        letter-spacing: 0.5px;
-        min-width: 34px;
-        text-align: left;
-    }
-
-    /* Atenua perícias leigas (+0) no modo leitura para destacar o que o personagem sabe fazer */
-    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga {
-        opacity: 0.52;
-    }
-    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga:hover {
-        opacity: 1;
-    }
-    body.filtrar-apenas-treinadas:not(.pericias-edit-mode) .pericia-row.pericia-leiga {
-        display: none !important;
-    }
-
-    /* 3. Painel Universal de Marcadores de Cena / Condições / Gatilhos (Executor, Analista, etc.) */
-    .scene-trackers-box {
-        margin-top: 18px;
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-left: 3px solid var(--op-ink);
-        padding: 12px;
-        border-radius: 2px;
-    }
-    body.tema-escuro .scene-trackers-box { border-left-color: var(--accent-gold); }
-    .scene-trackers-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-    .scene-trackers-title {
-        font: 900 10px 'Inter', sans-serif;
-        letter-spacing: 1.4px;
-        text-transform: uppercase;
-        color: var(--op-ink);
-    }
-    .tracker-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    .tracker-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 7px 10px;
-        background: rgba(0,0,0,0.03);
-        border: 1px solid var(--card-border);
-        border-radius: 2px;
-        transition: 0.2s;
-    }
-    .tracker-card.ready {
-        border-color: var(--op-red);
-        background: rgba(158, 11, 15, 0.09);
-    }
-    .tracker-info { min-width: 0; flex: 1; }
-    .tracker-name {
-        font: 700 13px 'Crimson Text', serif;
-        color: var(--op-ink);
-        letter-spacing: 0.4px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-    .tracker-effect-badge {
-        font: 900 9px 'Inter', sans-serif;
-        padding: 2px 6px;
-        border-radius: 2px;
-        background: var(--card-border);
-        color: var(--op-ink);
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .tracker-card.ready .tracker-effect-badge {
-        background: var(--op-red);
-        color: #fff;
-        cursor: pointer;
-    }
-    .tracker-pips {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-    .tracker-pip {
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        border: 1.5px solid var(--op-ink);
-        background: transparent;
-        cursor: pointer;
-        transition: 0.15s;
-    }
-    .tracker-pip.on {
-        background: var(--op-ink);
-    }
-    .tracker-card.ready .tracker-pip.on {
-        background: var(--op-red);
-        border-color: var(--op-red);
-        box-shadow: 0 0 6px rgba(158,11,15,0.5);
-    }
-    .tracker-del {
-        background: none;
-        border: none;
-        color: var(--cor-geral);
-        font-size: 13px;
-        cursor: pointer;
-        opacity: 0.5;
-        padding: 0 3px;
-    }
-    .tracker-del:hover { opacity: 1; color: var(--op-red); }
-
-    /* 4. Mapa Corporal Recolhível em Acordeão Tático */
-    .anatomia-wrapper {
-        border: 1px solid var(--card-border);
-        background: var(--card-bg);
-        border-radius: 2px;
-        margin-bottom: 22px;
-        padding: 10px 14px;
-    }
-    .anatomia-wrapper > summary {
-        cursor: pointer;
-        list-style: none;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        font: 900 11px 'Inter', sans-serif;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        color: var(--op-ink);
-    }
-    .anatomia-wrapper > summary::-webkit-details-marker { display: none; }
-    .anatomia-resumo-chips {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        align-items: center;
-        font-size: 10px;
-    }
-    .anat-chip {
-        padding: 2px 7px;
-        border-radius: 2px;
-        border: 1px solid var(--card-border);
-        font: 700 9.5px 'Inter', sans-serif;
-    }
-    .anat-chip.lesionado { border-color: var(--op-red); color: var(--op-red); background: rgba(158,11,15,0.1); }
-    .anat-chip.decepado { text-decoration: line-through; opacity: 0.6; }
+<style id="arquivo-refino-visual">
+/* A.R.Q.U.I.V.O. — camada de hierarquia visual
+   Preserva os componentes e dados; reduz molduras concorrentes e ruído decorativo. */
+.grid-container{
+  gap:clamp(24px,3vw,42px)!important;
+  padding:clamp(22px,3.2vw,42px) clamp(20px,4vw,54px)!important;
+  background-image:
+    radial-gradient(circle at 12% 18%,rgba(139,115,85,.045) 0%,transparent 28%),
+    radial-gradient(circle at 88% 82%,rgba(120,100,80,.045) 0%,transparent 32%),
+    linear-gradient(to right,rgba(0,0,0,.025),transparent 3%,transparent 97%,rgba(0,0,0,.025))!important;
+}
+.grid-container > section{min-width:0}
+.grid-container > section:first-child{padding-right:clamp(8px,1.2vw,18px)}
+.grid-container > section:nth-child(2){min-width:0}
+.grid-container .section-header{
+  display:block!important;width:fit-content;max-width:100%;
+  padding:3px 0 5px!important;margin:0 0 14px!important;
+  color:var(--op-ink)!important;background:transparent!important;
+  border:0!important;border-bottom:1px solid var(--op-red)!important;
+  box-shadow:none!important;text-shadow:none!important;border-radius:0!important;
+  font:900 13px 'Inter',sans-serif!important;letter-spacing:.13em!important;
+}
+.grid-container .pericias-box{
+  padding:8px 12px 12px!important;background:transparent!important;
+  border:0!important;border-top:1px solid var(--card-border)!important;
+  box-shadow:none!important;
+}
+.grid-container .pericias-box .section-header{
+  width:100%;font-size:11px!important;color:var(--cor-geral)!important;
+  border-bottom:1px dotted var(--card-border)!important;margin-bottom:10px!important;
+}
+.grid-container .pericia-header{margin-bottom:5px!important;font-size:9px!important;opacity:.75}
+.grid-container .pericia-row{
+  padding:4px 3px!important;border-bottom:1px solid rgba(90,70,50,.10)!important;
+  font-size:12px!important;gap:4px!important;
+}
+body.tema-escuro .grid-container .pericia-row{border-bottom-color:rgba(255,255,255,.07)!important}
+.grid-container .pericia-desc{margin:0 0 3px!important;padding:7px 9px!important;background:rgba(0,0,0,.025)!important}
+.grid-container .mid-stats{gap:8px!important;margin:14px 0 18px!important}
+.grid-container .stat-box{
+  border:0!important;border-bottom:1px solid var(--card-border)!important;
+  background:transparent!important;padding:7px 4px!important;box-shadow:none!important;
+}
+.grid-container .stat-box label{font-size:8px!important;letter-spacing:.08em!important}
+.grid-container .stat-box select,.grid-container .stat-box input{font-size:16px!important}
+.grid-container .status-container{margin-bottom:10px!important}
+.grid-container .status-header-container{margin-bottom:2px!important}
+.grid-container .status-header{font-size:10px!important;letter-spacing:1.5px!important}
+.grid-container .bar-bg{min-height:24px!important;border:1px solid rgba(80,65,48,.18)!important;background:rgba(0,0,0,.025)!important}
+.grid-container .bar-content{padding:0 7px!important;font-size:12px!important}
+.grid-container .bar-btn{opacity:.62}
+.grid-container .bar-btn:hover{opacity:1}
+.grid-container .body-map-container{border:0!important;border-top:1px dotted var(--card-border)!important;border-bottom:1px dotted var(--card-border)!important;margin:16px auto!important}
+.grid-container .limb-box-new{box-shadow:none!important;background:var(--bg-paper)!important;border:1px solid var(--card-border)!important}
+.grid-container .combat-stat-box{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--card-border)!important;
+  border-radius:0!important;box-shadow:none!important;padding:9px 5px!important;
+}
+.grid-container .combat-stats-grid{gap:12px!important}
+.grid-container .tabs-nav{
+  gap:4px!important;margin:18px 0 22px!important;padding:0 0 7px;
+  border-bottom:1px solid var(--card-border);
+}
+.grid-container .tab-btn{
+  border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;
+  padding:9px 5px!important;background:transparent!important;box-shadow:none!important;
+  color:var(--cor-geral)!important;font-size:10px!important;letter-spacing:.07em!important;
+}
+.grid-container .tab-btn.active{
+  background:transparent!important;color:var(--op-red)!important;
+  border-bottom-color:var(--op-red)!important;box-shadow:none!important;text-shadow:none!important;
+}
+body.tema-escuro .grid-container .tab-btn.active{background:transparent!important;color:var(--accent-gold)!important;border-bottom-color:var(--accent-gold)!important}
+.grid-container .ritual-card{
+  border:0!important;border-left:2px solid var(--card-border)!important;
+  border-bottom:1px solid var(--card-border)!important;background:transparent!important;
+  box-shadow:none!important;margin-bottom:6px!important;
+}
+.grid-container .card-header{padding:9px 10px!important;font-size:16px!important;letter-spacing:.06em!important}
+.grid-container .card-body{padding:10px 12px!important;background:rgba(0,0,0,.018)!important}
+.grid-container .bg-section{
+  background:transparent!important;border:0!important;border-top:1px solid var(--card-border)!important;
+  border-radius:0!important;padding:10px 4px!important;
+}
+.grid-container .bg-section .section-header{font-size:10px!important}
+.grid-container .cris-textarea{border:0!important;border-bottom:1px dotted var(--card-border)!important;border-radius:0!important;min-height:65px!important;padding:8px 2px!important}
+.grid-container .cris-btn,.grid-container .btn-filtro{
+  border-radius:1px!important;box-shadow:none!important;letter-spacing:.06em!important;
+}
+.grid-container .filtros-container{gap:5px!important;margin-bottom:10px!important}
+.grid-container .btn-filtro{padding:5px 9px!important}
+.grid-container .info-row{margin-top:9px!important;margin-bottom:5px!important}
+.grid-container .info-label{width:125px!important;font-size:9px!important}
+.grid-container .watermark-confidential{opacity:.55}
+#ficha-rapida .fq-sheet{box-shadow:0 12px 34px rgba(0,0,0,.35)}
+/* Evita que os dados pareçam uma coleção de cartões independentes. */
+.grid-container .dynamic-item-highlight{
+  border-radius:1px!important;box-shadow:none!important;
+  background:rgba(0,0,0,.018)!important;
+}
+body.tema-escuro .grid-container .dynamic-item-highlight{background:rgba(255,255,255,.018)!important}
+@media(max-width:1100px){
+  .grid-container{grid-template-columns:minmax(0,1fr)!important;gap:22px!important;padding:22px clamp(14px,3vw,28px)!important;min-width:0!important}
+  .grid-container > section:first-child{padding-right:0}
+  .grid-container #pericias-grid{gap:12px!important}
+}
+@media(max-width:650px){
+  .grid-container{padding:14px 12px 28px!important;gap:18px!important}
+  .grid-container .tabs-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important}
+  .grid-container .tab-btn{font-size:9px!important;padding:8px 2px!important;letter-spacing:.02em!important}
+  .grid-container #pericias-grid{grid-template-columns:1fr!important}
+  .grid-container .pericias-box{padding:7px 3px 10px!important}
+  .grid-container .pericia-header,.grid-container .pericia-row{grid-template-columns:minmax(0,1.5fr) 38px 38px 42px 38px!important}
+  .grid-container .pericia-row{font-size:11px!important}
+  .grid-container .mid-stats{gap:4px!important}
+  .grid-container .stat-box{padding:6px 2px!important}
+  .grid-container .stat-box select,.grid-container .stat-box input{font-size:14px!important}
+  .grid-container .body-map-container{transform:scale(.94);transform-origin:top center;margin:8px auto!important}
+  .grid-container .info-label{width:105px!important}
+}
 </style>
 
-<script id="arquivo-v2-clean-logic">
-(function() {
-    // =========================================================================
-    // 1. PRIMEIRO NOME AUTOMÁTICO (Ficha Rápida / Cabeçalho / OBS)
-    // =========================================================================
-    window.obterPrimeiroNomePersona = function(nome) {
-        const txt = String(nome || '').trim();
-        return txt ? txt.split(/\s+/)[0] : 'PERSONA';
-    };
 
-    // Sobrescreve copiarLinkOBS para já incluir ?shortName=1 por padrão
-    const oldCopiarOBS = window.copiarLinkOBS;
-    window.copiarLinkOBS = function() {
-        const url = `${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}&shortName=1`;
-        navigator.clipboard.writeText(url);
-        alert("Link do Portrait (OBS com Primeiro Nome) copiado!");
-    };
+<style id="arquivo-ledger-css">
+.arquivo-ledger-wrap{margin:22px 0 12px;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border)}
+.arquivo-ledger{color:var(--op-ink);font-family:'Courier Prime',monospace}
+.arquivo-ledger>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 3px;user-select:none}
+.arquivo-ledger>summary::-webkit-details-marker{display:none}
+.arquivo-ledger>summary:before{content:'＋';font:16px 'Inter',sans-serif;color:var(--op-red);margin-right:2px}
+.arquivo-ledger[open]>summary:before{content:'−'}
+.arquivo-ledger>summary>span:first-of-type{flex:1}
+.arquivo-ledger>summary b{font:900 11px 'Inter',sans-serif;letter-spacing:.12em}
+.arquivo-ledger>summary small{display:block;margin-top:3px;color:var(--cor-geral);font-size:10px}
+.arquivo-ledger-count{font:700 9px 'Inter',sans-serif;letter-spacing:.08em;color:var(--cor-geral)}
+.arquivo-ledger-body{padding:4px 0 14px}
+.arquivo-ledger-intro{font-size:11px;line-height:1.5;color:var(--cor-geral);max-width:760px;margin:2px 0 14px}
+.arquivo-ledger-form{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(160px,.8fr);gap:9px;padding:12px;background:rgba(0,0,0,.025);border-left:2px solid var(--op-red);margin-bottom:12px}
+body.tema-escuro .arquivo-ledger-form{background:rgba(255,255,255,.025)}
+.arquivo-ledger-form label{display:flex;flex-direction:column;gap:4px;font:800 9px 'Inter',sans-serif;letter-spacing:.07em;color:var(--cor-geral)}
+.arquivo-ledger-form input,.arquivo-ledger-form select,.arquivo-ledger-form textarea{min-width:0;width:100%;box-sizing:border-box;background:transparent;color:var(--op-ink);border:0;border-bottom:1px dotted var(--card-border);border-radius:0;padding:7px 3px;font:13px 'Special Elite',monospace;outline:none}
+.arquivo-ledger-form textarea{resize:vertical;border:1px dotted var(--card-border)}
+.ledger-fields{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ledger-full{grid-column:1/-1}
+.ledger-form-actions{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ledger-form-actions button,.ledger-item button{background:transparent;border:1px solid var(--card-border);color:var(--op-ink);padding:6px 9px;font:800 9px 'Inter',sans-serif;letter-spacing:.06em;cursor:pointer}
+.ledger-form-actions button{border-color:var(--op-red);color:var(--op-red)}
+.ledger-form-actions span{font-size:10px;color:var(--cor-geral)}
+.arquivo-ledger-list{display:grid;gap:6px}
+.ledger-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 3px;border-bottom:1px dotted var(--card-border)}
+.ledger-item-main{min-width:0}
+.ledger-item-title{font:700 13px 'Special Elite',monospace;color:var(--op-ink)}
+.ledger-item-meta{font-size:10px;color:var(--cor-geral);line-height:1.45;margin-top:3px;overflow-wrap:anywhere}
+.ledger-item-value{font:900 17px 'Crimson Text',serif;color:var(--op-red);white-space:nowrap}
+.ledger-item-controls{display:flex;align-items:center;gap:4px}
+.ledger-item-controls button{min-width:28px;padding:5px}
+.ledger-item-controls .ledger-delete{color:var(--op-red);border-color:rgba(158,11,15,.35)}
+.ledger-empty{padding:12px 3px;color:var(--cor-geral);font:italic 12px 'Crimson Text',serif}
+@media(max-width:650px){.arquivo-ledger-form{grid-template-columns:1fr}.ledger-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.ledger-item{grid-template-columns:1fr}.ledger-item-controls{justify-content:flex-start}.arquivo-ledger-count{font-size:8px}}
+</style>
 
-    // =========================================================================
-    // 2. BARRA DE FILTRO E VISUALIZAÇÃO LIMPA DE PERÍCIAS (Estilo OP2 Vigília)
-    // =========================================================================
-    function instalarBarraPericias() {
-        const abaPericias = document.getElementById('aba-pericias');
-        const gridPericias = document.getElementById('pericias-grid');
-        if (!abaPericias || !gridPericias || document.getElementById('pericias-toolbar-v2')) return;
 
-        const toolbar = document.createElement('div');
-        toolbar.id = 'pericias-toolbar-v2';
-        toolbar.className = 'pericias-toolbar';
-        toolbar.innerHTML = `
-            <div class="pericias-toolbar-group">
-                <button type="button" id="btn-f-todas" class="arq-pill-btn active" onclick="window.setFiltroPericiasV2(false)">TODAS AS PERÍCIAS</button>
-                <button type="button" id="btn-f-treinadas" class="arq-pill-btn" onclick="window.setFiltroPericiasV2(true)">★ APENAS TREINADAS</button>
-            </div>
-            <div class="pericias-toolbar-group">
-                <button type="button" id="btn-toggle-edit-per" class="arq-pill-btn" onclick="window.toggleModoEdicaoPericias()">✎ EDITAR TREINO / BÔNUS</button>
-            </div>
-        `;
-        abaPericias.insertBefore(toolbar, gridPericias);
-    }
+<script id="arquivo-ledger-js">
+(function(){
+  const $ = id => document.getElementById(id);
+  const root = $('arquivo-ledger');
+  if(!root || typeof db === 'undefined' || typeof atual === 'undefined' || !atual) return;
+  const ref = db.collection('fichas').doc(atual).collection('marcadoresEfeito');
+  let cache = [];
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const tipo = $('ledger-type'), numeric = $('ledger-numeric-fields');
+  function syncFields(){ numeric.style.display = tipo.value === 'note' ? 'none' : 'grid'; }
+  tipo.addEventListener('change',syncFields); syncFields();
 
-    window.setFiltroPericiasV2 = function(apenasTreinadas) {
-        document.body.classList.toggle('filtrar-apenas-treinadas', !!apenasTreinadas);
-        document.getElementById('btn-f-todas')?.classList.toggle('active', !apenasTreinadas);
-        document.getElementById('btn-f-treinadas')?.classList.toggle('active', !!apenasTreinadas);
-    };
-
-    window.toggleModoEdicaoPericias = function(forcar) {
-        const novoEstado = typeof forcar === 'boolean' ? forcar : !document.body.classList.contains('pericias-edit-mode');
-        document.body.classList.toggle('pericias-edit-mode', novoEstado);
-        const btn = document.getElementById('btn-toggle-edit-per');
-        if (btn) {
-            btn.classList.toggle('active', novoEstado);
-            btn.innerText = novoEstado ? '✔ CONCLUIR EDIÇÃO' : '✎ EDITAR TREINO / BÔNUS';
-        }
-        sincronizarBadgesPericias();
-    };
-
-    function sincronizarBadgesPericias() {
-        if (typeof nomesPericias === 'undefined') return;
-        nomesPericias.forEach(p => {
-            const row = document.getElementById(`row-${p}`);
-            if (!row) return;
-
-            let badge = row.querySelector('.vigilia-Formula-badge');
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.className = 'vigilia-Formula-badge';
-                badge.title = 'Clique para editar ou ver detalhes';
-                badge.onclick = () => toggleDescricao(p);
-                const lastChild = row.lastElementChild;
-                row.insertBefore(badge, lastChild);
-            }
-
-            const attrSel = document.getElementById(`attr-${p}`);
-            const attrNome = attrSel ? attrSel.value : (bancoPericias[p]?.attr || 'SAG');
-            const treinoSel = document.getElementById(`treino-${p}`);
-            const baseTreinoSel = document.getElementById(`base-treino-${p}`);
-
-            let treinoVal = 0;
-            let ehTreinado = false;
-
-            if (treinoSel) {
-                treinoVal = parseInt(treinoSel.value) || 0;
-                ehTreinado = treinoVal > 0;
-            } else if (baseTreinoSel) {
-                ehTreinado = baseTreinoSel.value === 'true';
-                for (let i = 0; i < 4; i++) {
-                    const st = parseInt(document.getElementById(`sub-treino-${p}-${i}`)?.value) || 0;
-                    if (st > treinoVal) treinoVal = st;
-                }
-                if (treinoVal > 0) ehTreinado = true;
-            }
-
-            row.classList.toggle('pericia-leiga', !ehTreinado);
-
-            let classeCor = '';
-            if (treinoVal === 1 || treinoVal === 2) classeCor = 'tr-12';
-            else if (treinoVal === 3 || treinoVal === 4) classeCor = 'tr-34';
-            else if (treinoVal >= 5) classeCor = 'tr-5';
-
-            const txtTreino = treinoSel ? `+${treinoVal}` : (ehTreinado ? `❖ +${treinoVal}` : 'Leigo');
-            badge.innerHTML = `<span class="vg-chip-tr ${classeCor}">${txtTreino}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
-        });
-    }
-
-    // =========================================================================
-    // 3. SISTEMA UNIVERSAL DE RASTREADORES / GATILHOS DE CENA (Executor, etc.)
-    // =========================================================================
-    let rastreadoresCena = [];
-
-    function instalarPainelRastreadores() {
-        const colEsq = document.querySelector('#grid-container > section:first-child');
-        if (!colEsq || document.getElementById('painel-rastreadores-cena')) return;
-
-        const box = document.createElement('div');
-        box.id = 'painel-rastreadores-cena';
-        box.className = 'scene-trackers-box';
-        box.innerHTML = `
-            <div class="scene-trackers-header">
-                <span class="scene-trackers-title">⚡ MARCADORES DE CENA & GATILHOS</span>
-                <div style="display:flex; gap:4px;">
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('executor')" title="Adiciona o contador automático do traço Executor">+ Executor</button>
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('analista')" title="Adiciona bônus de observação do Analista">+ Analista</button>
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.criarRastreadorCustom()">+ Novo</button>
-                </div>
-            </div>
-            <div id="lista-rastreadores-cena" class="tracker-list"></div>
-        `;
-        colEsq.appendChild(box);
-        renderizarRastreadores();
-    }
-
-    function salvarRastreadoresNoBanco() {
-        if (!atual) return;
-        db.collection("fichas").doc(atual).update({ rastreadoresCena }).catch(() => {});
-    }
-
-    window.adicionarRastreadorPreset = function(tipo) {
-        if (tipo === 'executor') {
-            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Executor (Falhas)', atual: 0, max: 2, efeito: '+1 no Próximo Teste' });
-        } else if (tipo === 'analista') {
-            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista (Alvo Observado)', atual: 1, max: 1, efeito: '+1d3 nos Testes na Cena' });
-        }
-        renderizarRastreadores();
-        salvarRastreadoresNoBanco();
-    };
-
-    window.criarRastreadorCustom = function() {
-        const nome = prompt("Nome do marcador / habilidade (ex: Executor, Favor, Munição Especial, Rodadas):");
-        if (!nome || !nome.trim()) return;
-        const max = Math.max(1, Math.min(10, parseInt(prompt("Quantidade de marcas/cargas necessárias (1 a 10):", "2")) || 2));
-        const efeito = prompt("Bônus ou lembrete quando completar (ex: +1 no próximo teste):", "Ativo") || "Ativo";
-        rastreadoresCena.push({ id: Date.now().toString(36), nome: nome.trim(), atual: 0, max, efeito: efeito.trim() });
-        renderizarRastreadores();
-        salvarRastreadoresNoBanco();
-    };
-
-    window.clicarPipRastreador = function(id, indice) {
-        const item = rastreadoresCena.find(r => r.id === id);
-        if (!item) return;
-        item.atual = (item.atual === indice) ? indice - 1 : indice;
-        renderizarRastreadores();
-        salvarRastreadoresNoBanco();
-    };
-
-    window.zerarRastreador = function(id) {
-        const item = rastreadoresCena.find(r => r.id === id);
-        if (!item) return;
-        item.atual = 0;
-        renderizarRastreadores();
-        salvarRastreadoresNoBanco();
-    };
-
-    window.removerRastreador = function(id) {
-        rastreadoresCena = rastreadoresCena.filter(r => r.id !== id);
-        renderizarRastreadores();
-        salvarRastreadoresNoBanco();
-    };
-
-    function renderizarRastreadores() {
-        const cont = document.getElementById('lista-rastreadores-cena');
-        if (!cont) return;
-        if (!rastreadoresCena.length) {
-            cont.innerHTML = `<div style="font-size:11px; color:var(--cor-geral); font-style:italic; text-align:center; padding:4px 0;">Nenhum gatilho ativo. Use "+ Executor" ou "+ Novo" para rastrear falhas, cargas ou bônus temporários sem anotar na mão.</div>`;
-            return;
-        }
-        cont.innerHTML = rastreadoresCena.map(r => {
-            const pronto = r.atual >= r.max;
-            let pips = '';
-            for (let i = 1; i <= r.max; i++) {
-                pips += `<span class="tracker-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})" title="Marca ${i}/${r.max}"></span>`;
-            }
-            return `
-                <div class="tracker-card ${pronto ? 'ready' : ''}">
-                    <div class="tracker-info">
-                        <div class="tracker-name">
-                            <span>${r.nome}</span>
-                            <span class="tracker-effect-badge" onclick="${pronto ? `window.zerarRastreador('${r.id}')` : ''}" title="${pronto ? 'Clique para consumir e zerar o contador' : 'Complete as marcas para ativar'}">
-                                ${pronto ? `⚡ PRONTO: ${r.efeito} (USAR ↻)` : `${r.atual}/${r.max} → ${r.efeito}`}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="tracker-pips">${pips}</div>
-                    <button class="tracker-del" onclick="window.removerRastreador('${r.id}')" title="Remover marcador">×</button>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // =========================================================================
-    // 4. ANATOMIA RECOLHÍVEL COM CHIPS DE RESUMO EM COMBATE
-    // =========================================================================
-    function compactarMapaCorporal() {
-        const mapBox = document.querySelector('.body-map-container');
-        if (!mapBox || mapBox.parentElement.classList.contains('anatomia-wrapper')) return;
-
-        const details = document.createElement('details');
-        details.className = 'anatomia-wrapper';
-        details.innerHTML = `
-            <summary>
-                <span>🩺 INTEGRIDADE ANATÔMICA (VD / DEC)</span>
-                <div id="anatomia-resumo-chips" class="anatomia-resumo-chips"></div>
-            </summary>
-        `;
-        mapBox.parentNode.insertBefore(details, mapBox);
-        details.appendChild(mapBox);
-        atualizarResumoAnatomia();
-    }
-
-    function atualizarResumoAnatomia() {
-        const cont = document.getElementById('anatomia-resumo-chips');
-        if (!cont || typeof membrosEstado === 'undefined') return;
-        const nomes = { cabeca: 'Cabeça', 'braco-esq': 'Braço E.', 'braco-dir': 'Braço D.', torso: 'Torso', 'perna-esq': 'Perna E.', 'perna-dir': 'Perna D.' };
-        const feridos = Object.keys(membrosEstado).filter(k => membrosEstado[k] && membrosEstado[k] !== 'normal');
-        if (!feridos.length) {
-            cont.innerHTML = `<span class="anat-chip">Intacto (Clique para abrir diagrama)</span>`;
-        } else {
-            cont.innerHTML = feridos.map(k => `<span class="anat-chip ${membrosEstado[k]}">${nomes[k] || k}: ${membrosEstado[k].toUpperCase()}</span>`).join('');
-        }
-    }
-
-    // =========================================================================
-    // INICIALIZAÇÃO E ESCUTA EM TEMPO REAL
-    // =========================================================================
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            instalarBarraPericias();
-            instalarPainelRastreadores();
-            compactarMapaCorporal();
-            sincronizarBadgesPericias();
-
-            if (atual && typeof db !== 'undefined') {
-                db.collection("fichas").doc(atual).onSnapshot(doc => {
-                    if (!doc.exists) return;
-                    const data = doc.data();
-                    if (Array.isArray(data.rastreadoresCena)) {
-                        rastreadoresCena = data.rastreadoresCena;
-                        renderizarRastreadores();
-                    }
-                    setTimeout(() => {
-                        sincronizarBadgesPericias();
-                        atualizarResumoAnatomia();
-                    }, 60);
-                });
-            }
-        }, 400);
-    });
+  function computed(d){
+    const value = Number(d.value)||0, step=Math.max(1,Number(d.step)||1), rate=Number(d.rate)||0, cap=Number(d.cap)||0;
+    if(d.type==='counter') return {big: '+'+Math.min(Math.floor(Math.max(0,value)/step)*rate,cap), sub:`${value} / ${step} por etapa · ${d.trigger||'Contador acumulativo'}`};
+    if(d.type==='bonus') return {big:(value>0?'+':'')+value,sub:d.trigger||'Bônus ou penalidade em vigor'};
+    if(d.type==='uses') return {big:String(value),sub:`${d.step>0?'Limite: '+d.step+' · ':''}${d.trigger||'Usos disponíveis'}`};
+    return {big:'•',sub:d.trigger||'Lembrete ativo'};
+  }
+  function render(){
+    $('arquivo-ledger-count').textContent = `${cache.length} ${cache.length===1?'REGISTRO':'REGISTROS'}`;
+    const list=$('arquivo-ledger-list');
+    if(!cache.length){list.innerHTML='<div class="ledger-empty">Nenhum efeito registrado. Você pode criar um marcador para qualquer mecânica da campanha.</div>';return;}
+    list.innerHTML=cache.map(d=>{
+      const c=computed(d), val=Number(d.value)||0;
+      const controls=d.type==='note'?`<div class="ledger-item-controls"><button type="button" class="ledger-delete" data-act="delete" data-id="${esc(d.id)}" title="Excluir registro">×</button></div>`:`<div class="ledger-item-controls"><button type="button" data-act="minus" data-id="${esc(d.id)}" aria-label="Diminuir">−</button><button type="button" data-act="plus" data-id="${esc(d.id)}" aria-label="Aumentar">+</button>${d.type==='counter'?`<button type="button" data-act="reset" data-id="${esc(d.id)}" title="Zerar contador">↺</button>`:''}<button type="button" class="ledger-delete" data-act="delete" data-id="${esc(d.id)}" title="Excluir registro">×</button></div>`;
+      return `<article class="ledger-item"><div class="ledger-item-main"><div class="ledger-item-title">${esc(d.name)}</div><div class="ledger-item-meta">${esc(c.sub)}${d.note?'<br>'+esc(d.note):''}</div></div><div style="display:flex;align-items:center;gap:10px;justify-content:flex-end;flex-wrap:wrap"><strong class="ledger-item-value">${esc(c.big)}</strong>${controls}</div></article>`;
+    }).join('');
+  }
+  ref.orderBy('createdAt','asc').onSnapshot(snap=>{cache=snap.docs.map(doc=>({id:doc.id,...doc.data()}));render();},err=>{console.warn('Registro de efeitos indisponível:',err);$('arquivo-ledger-list').innerHTML='<div class="ledger-empty">Não foi possível carregar os registros deste arquivo.</div>';});
+  $('arquivo-ledger-form').addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    const name=$('ledger-name').value.trim(); if(!name)return;
+    const type=tipo.value;
+    const d={name,type,value:Number($('ledger-value').value)||0,step:Math.max(1,Number($('ledger-step').value)||1),rate:Number($('ledger-rate').value)||0,cap:Math.max(0,Number($('ledger-cap').value)||0),trigger:$('ledger-trigger').value.trim(),note:$('ledger-note').value.trim(),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+    try{await ref.add(d);ev.target.reset();$('ledger-value').value=0;$('ledger-step').value=2;$('ledger-rate').value=1;$('ledger-cap').value=5;syncFields();}
+    catch(err){console.error(err);alert('Não foi possível salvar este efeito. Verifique sua permissão de edição.');}
+  });
+  $('arquivo-ledger-list').addEventListener('click',async ev=>{
+    const b=ev.target.closest('button[data-act]');if(!b)return;
+    const d=cache.find(x=>x.id===b.dataset.id);if(!d)return;
+    const act=b.dataset.act;
+    try{
+      if(act==='delete'){if(confirm(`Excluir o registro "${d.name}"?`))await ref.doc(d.id).delete();return;}
+      let value=Number(d.value)||0;
+      if(act==='plus')value++;
+      if(act==='minus')value=d.type==='bonus'?value-1:Math.max(0,value-1);
+      if(act==='reset')value=0;
+      await ref.doc(d.id).update({value});
+    }catch(err){console.error(err);alert('Não foi possível atualizar este marcador.');}
+  });
 })();
 </script>
+
+
+<style id="arquivo-config-refino">
+.btn-config,.btn-theme{opacity:.42!important;transition:opacity .18s ease,transform .18s ease!important}
+.btn-config:hover,.btn-theme:hover{opacity:1!important}
+.modal-padrao{border-radius:1px!important;box-shadow:0 18px 48px rgba(0,0,0,.42)!important}
+.modal-padrao h3{letter-spacing:.08em!important}
+</style>
 </body>
 </html>
