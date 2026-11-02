@@ -7617,5 +7617,100 @@ let filtroSubAtualAtaques = 'Todos';
     });
 })();
 </script>
+    <!-- ======================================================================
+     SETA CARIMBADA REALISTA (MESMO FILTRO SVG DO "NA" DE AMEAÇAS)
+     Cole antes de </body> no seu ficha.html
+     ====================================================================== -->
+<svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
+    <defs>
+        <filter id="carimbo-seta" x="-15%" y="-15%" width="130%" height="130%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="ruido"/>
+            <feColorMatrix in="ruido" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.4" result="falhas"/>
+            <feComposite in="SourceGraphic" in2="falhas" operator="in" result="tinta"/>
+            <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="2" seed="7" result="onda"/>
+            <feDisplacementMap in="tinta" in2="onda" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </defs>
+</svg>
+
+<style id="seta-carimbo-fix">
+    /* Libera o respiro lateral para a seta crescer no hover sem ser cortada */
+    #grid-container > section:first-child {
+        overflow: visible !important;
+    }
+
+    button[onclick*="index.html"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 6px 10px !important;
+        margin: -4px 0 0 4px !important;
+        font-size: 0 !important;
+        color: var(--op-red) !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+        overflow: visible !important;
+        transform: rotate(-4deg) !important;
+        transform-origin: center center !important;
+        opacity: 0.9 !important;
+        mix-blend-mode: multiply;
+        filter: url(#carimbo-seta);
+        transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease !important;
+    }
+
+    /* Remove a seta de fonte antiga que parecia cartoon */
+    button[onclick*="index.html"]::before,
+    button[onclick*="index.html"] span {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Seta vetorial com cauda em "V" (estilo carimbo de dossiê) */
+    button[onclick*="index.html"] svg.svg-seta-carimbo {
+        width: 48px !important;
+        height: 28px !important;
+        fill: var(--op-red) !important;
+        display: block !important;
+        overflow: visible !important;
+    }
+
+    body.tema-escuro button[onclick*="index.html"],
+    body.tema-hexatombe button[onclick*="index.html"] {
+        mix-blend-mode: normal !important;
+    }
+    body.tema-escuro button[onclick*="index.html"] svg.svg-seta-carimbo {
+        fill: #cc2929 !important;
+    }
+
+    button[onclick*="index.html"]:hover {
+        transform: translateX(-4px) scale(1.14) rotate(-6deg) !important;
+        opacity: 1 !important;
+        background: transparent !important;
+    }
+</style>
+
+<script id="seta-carimbo-init">
+(function() {
+    function aplicarSetaCarimbo() {
+        const btn = document.querySelector('button[onclick*="index.html"]');
+        if (!btn || btn.querySelector('.svg-seta-carimbo')) return;
+        btn.title = "Voltar ao Hub";
+        btn.innerHTML = `
+            <svg class="svg-seta-carimbo" viewBox="0 0 64 38" xmlns="http://www.w3.org/2000/svg">
+                <!-- Seta carimbada apontando para a esquerda com cauda chanfrada -->
+                <path d="M26 2 L2 19 L26 36 L26 25.5 L62 25.5 L54.5 19 L62 12.5 L26 12.5 Z"/>
+            </svg>
+        `;
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', aplicarSetaCarimbo);
+    } else {
+        aplicarSetaCarimbo();
+    }
+})();
+</script>
 </body>
 </html>
