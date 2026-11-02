@@ -6638,6 +6638,547 @@ let filtroSubAtualAtaques = 'Todos';
   setTimeout(()=>refresh(true),1200);
 })();
 </script>
+<!-- ======================================================================
+     MÓDULO A.R.Q.U.I.V.O. v2 — DESPOLUIÇÃO VISUAL + RASTREADORES DE CENA
+     Cole imediatamente antes de </body> no seu ficha.html
+     ====================================================================== -->
+<style id="arquivo-v2-clean-ui">
+    /* 1. Refinamento Geral de Espaçamento e Bordas (Menos ruído de linhas tracejadas) */
+    .grid-container {
+        gap: 44px !important;
+        padding: 32px 44px !important;
+    }
+    @media (max-width: 1200px) {
+        .grid-container { padding: 14px 12px !important; gap: 20px !important; }
+    }
 
+    /* Abas limpas em linha contínua estilo pasta de arquivo */
+    .tabs-nav {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        border-bottom: 2px solid var(--op-ink) !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 20px !important;
+    }
+    body.tema-escuro .tabs-nav { border-bottom-color: #333 !important; }
+    .tabs-nav .tab-btn {
+        flex: 1 1 auto !important;
+        border: 1px solid transparent !important;
+        border-bottom: none !important;
+        border-radius: 2px 2px 0 0 !important;
+        padding: 9px 10px !important;
+        font-size: 10.5px !important;
+        letter-spacing: 1px !important;
+        box-shadow: none !important;
+    }
+    .tabs-nav .tab-btn.active {
+        transform: translateY(1px);
+    }
+
+    /* 2. Perícias Estilo "A Vigília / Dossiê" (Modo Leitura Limpa vs Modo Edição) */
+    .pericias-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+        padding: 8px 12px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 2px;
+    }
+    .pericias-toolbar-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .arq-pill-btn {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--op-ink);
+        font: 800 10px 'Inter', sans-serif;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        padding: 6px 10px;
+        border-radius: 2px;
+        cursor: pointer;
+        transition: 0.15s;
+    }
+    .arq-pill-btn:hover { border-color: var(--op-ink); background: var(--card-hover); }
+    .arq-pill-btn.active { background: var(--op-ink); color: var(--bg-paper); border-color: var(--op-ink); }
+    body.tema-escuro .arq-pill-btn.active { background: var(--accent-gold); color: #121211; border-color: var(--accent-gold); }
+
+    /* Quando NÃO está em modo de edição de perícias, simplifica a tabela para leitura imediata */
+    body:not(.pericias-edit-mode) .pericia-header {
+        grid-template-columns: 1fr auto 42px !important;
+    }
+    body:not(.pericias-edit-mode) .pericia-header > span:nth-child(2),
+    body:not(.pericias-edit-mode) .pericia-header > span:nth-child(3) {
+        display: none !important;
+    }
+    body:not(.pericias-edit-mode) .pericia-row {
+        grid-template-columns: 1fr auto 42px !important;
+        padding: 6px 8px !important;
+        border-bottom: 1px solid rgba(128,128,128,0.12) !important;
+        border-radius: 2px;
+    }
+    /* Esconde os selects/inputs crus no modo leitura e mostra os badges limpos estilo OP2 */
+    body:not(.pericias-edit-mode) .pericia-row > select,
+    body:not(.pericias-edit-mode) .pericia-row > input,
+    body:not(.pericias-edit-mode) .pericia-row > div {
+        display: none !important;
+    }
+    .vigilia-Formula-badge {
+        display: none;
+        align-items: center;
+        gap: 5px;
+        justify-content: flex-end;
+        font-family: 'Inter', sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+    }
+    body:not(.pericias-edit-mode) .vigilia-Formula-badge {
+        display: inline-flex !important;
+    }
+    .vg-chip-tr {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 2px;
+        font: 900 10px 'Inter', sans-serif;
+        background: rgba(128,128,128,0.15);
+        color: var(--cor-geral);
+    }
+    .vg-chip-tr.tr-12 { background: rgba(102, 82, 53, 0.75); color: #fff; }
+    .vg-chip-tr.tr-34 { background: rgba(43, 58, 74, 0.85); color: #fff; }
+    .vg-chip-tr.tr-5  { background: var(--op-red); color: #fff; }
+    .vg-chip-attr {
+        font: 800 9px 'Inter', sans-serif;
+        color: var(--cor-geral);
+        letter-spacing: 0.5px;
+        min-width: 34px;
+        text-align: left;
+    }
+
+    /* Atenua perícias leigas (+0) no modo leitura para destacar o que o personagem sabe fazer */
+    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga {
+        opacity: 0.52;
+    }
+    body:not(.pericias-edit-mode) .pericia-row.pericia-leiga:hover {
+        opacity: 1;
+    }
+    body.filtrar-apenas-treinadas:not(.pericias-edit-mode) .pericia-row.pericia-leiga {
+        display: none !important;
+    }
+
+    /* 3. Painel Universal de Marcadores de Cena / Condições / Gatilhos (Executor, Analista, etc.) */
+    .scene-trackers-box {
+        margin-top: 18px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-left: 3px solid var(--op-ink);
+        padding: 12px;
+        border-radius: 2px;
+    }
+    body.tema-escuro .scene-trackers-box { border-left-color: var(--accent-gold); }
+    .scene-trackers-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .scene-trackers-title {
+        font: 900 10px 'Inter', sans-serif;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--op-ink);
+    }
+    .tracker-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .tracker-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 7px 10px;
+        background: rgba(0,0,0,0.03);
+        border: 1px solid var(--card-border);
+        border-radius: 2px;
+        transition: 0.2s;
+    }
+    .tracker-card.ready {
+        border-color: var(--op-red);
+        background: rgba(158, 11, 15, 0.09);
+    }
+    .tracker-info { min-width: 0; flex: 1; }
+    .tracker-name {
+        font: 700 13px 'Crimson Text', serif;
+        color: var(--op-ink);
+        letter-spacing: 0.4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .tracker-effect-badge {
+        font: 900 9px 'Inter', sans-serif;
+        padding: 2px 6px;
+        border-radius: 2px;
+        background: var(--card-border);
+        color: var(--op-ink);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    .tracker-card.ready .tracker-effect-badge {
+        background: var(--op-red);
+        color: #fff;
+        cursor: pointer;
+    }
+    .tracker-pips {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .tracker-pip {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 1.5px solid var(--op-ink);
+        background: transparent;
+        cursor: pointer;
+        transition: 0.15s;
+    }
+    .tracker-pip.on {
+        background: var(--op-ink);
+    }
+    .tracker-card.ready .tracker-pip.on {
+        background: var(--op-red);
+        border-color: var(--op-red);
+        box-shadow: 0 0 6px rgba(158,11,15,0.5);
+    }
+    .tracker-del {
+        background: none;
+        border: none;
+        color: var(--cor-geral);
+        font-size: 13px;
+        cursor: pointer;
+        opacity: 0.5;
+        padding: 0 3px;
+    }
+    .tracker-del:hover { opacity: 1; color: var(--op-red); }
+
+    /* 4. Mapa Corporal Recolhível em Acordeão Tático */
+    .anatomia-wrapper {
+        border: 1px solid var(--card-border);
+        background: var(--card-bg);
+        border-radius: 2px;
+        margin-bottom: 22px;
+        padding: 10px 14px;
+    }
+    .anatomia-wrapper > summary {
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font: 900 11px 'Inter', sans-serif;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--op-ink);
+    }
+    .anatomia-wrapper > summary::-webkit-details-marker { display: none; }
+    .anatomia-resumo-chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+        font-size: 10px;
+    }
+    .anat-chip {
+        padding: 2px 7px;
+        border-radius: 2px;
+        border: 1px solid var(--card-border);
+        font: 700 9.5px 'Inter', sans-serif;
+    }
+    .anat-chip.lesionado { border-color: var(--op-red); color: var(--op-red); background: rgba(158,11,15,0.1); }
+    .anat-chip.decepado { text-decoration: line-through; opacity: 0.6; }
+</style>
+
+<script id="arquivo-v2-clean-logic">
+(function() {
+    // =========================================================================
+    // 1. PRIMEIRO NOME AUTOMÁTICO (Ficha Rápida / Cabeçalho / OBS)
+    // =========================================================================
+    window.obterPrimeiroNomePersona = function(nome) {
+        const txt = String(nome || '').trim();
+        return txt ? txt.split(/\s+/)[0] : 'PERSONA';
+    };
+
+    // Sobrescreve copiarLinkOBS para já incluir ?shortName=1 por padrão
+    const oldCopiarOBS = window.copiarLinkOBS;
+    window.copiarLinkOBS = function() {
+        const url = `${window.location.href.split('ficha.html')[0]}portrait.html?id=${atual}&shortName=1`;
+        navigator.clipboard.writeText(url);
+        alert("Link do Portrait (OBS com Primeiro Nome) copiado!");
+    };
+
+    // =========================================================================
+    // 2. BARRA DE FILTRO E VISUALIZAÇÃO LIMPA DE PERÍCIAS (Estilo OP2 Vigília)
+    // =========================================================================
+    function instalarBarraPericias() {
+        const abaPericias = document.getElementById('aba-pericias');
+        const gridPericias = document.getElementById('pericias-grid');
+        if (!abaPericias || !gridPericias || document.getElementById('pericias-toolbar-v2')) return;
+
+        const toolbar = document.createElement('div');
+        toolbar.id = 'pericias-toolbar-v2';
+        toolbar.className = 'pericias-toolbar';
+        toolbar.innerHTML = `
+            <div class="pericias-toolbar-group">
+                <button type="button" id="btn-f-todas" class="arq-pill-btn active" onclick="window.setFiltroPericiasV2(false)">TODAS AS PERÍCIAS</button>
+                <button type="button" id="btn-f-treinadas" class="arq-pill-btn" onclick="window.setFiltroPericiasV2(true)">★ APENAS TREINADAS</button>
+            </div>
+            <div class="pericias-toolbar-group">
+                <button type="button" id="btn-toggle-edit-per" class="arq-pill-btn" onclick="window.toggleModoEdicaoPericias()">✎ EDITAR TREINO / BÔNUS</button>
+            </div>
+        `;
+        abaPericias.insertBefore(toolbar, gridPericias);
+    }
+
+    window.setFiltroPericiasV2 = function(apenasTreinadas) {
+        document.body.classList.toggle('filtrar-apenas-treinadas', !!apenasTreinadas);
+        document.getElementById('btn-f-todas')?.classList.toggle('active', !apenasTreinadas);
+        document.getElementById('btn-f-treinadas')?.classList.toggle('active', !!apenasTreinadas);
+    };
+
+    window.toggleModoEdicaoPericias = function(forcar) {
+        const novoEstado = typeof forcar === 'boolean' ? forcar : !document.body.classList.contains('pericias-edit-mode');
+        document.body.classList.toggle('pericias-edit-mode', novoEstado);
+        const btn = document.getElementById('btn-toggle-edit-per');
+        if (btn) {
+            btn.classList.toggle('active', novoEstado);
+            btn.innerText = novoEstado ? '✔ CONCLUIR EDIÇÃO' : '✎ EDITAR TREINO / BÔNUS';
+        }
+        sincronizarBadgesPericias();
+    };
+
+    function sincronizarBadgesPericias() {
+        if (typeof nomesPericias === 'undefined') return;
+        nomesPericias.forEach(p => {
+            const row = document.getElementById(`row-${p}`);
+            if (!row) return;
+
+            let badge = row.querySelector('.vigilia-Formula-badge');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'vigilia-Formula-badge';
+                badge.title = 'Clique para editar ou ver detalhes';
+                badge.onclick = () => toggleDescricao(p);
+                const lastChild = row.lastElementChild;
+                row.insertBefore(badge, lastChild);
+            }
+
+            const attrSel = document.getElementById(`attr-${p}`);
+            const attrNome = attrSel ? attrSel.value : (bancoPericias[p]?.attr || 'SAG');
+            const treinoSel = document.getElementById(`treino-${p}`);
+            const baseTreinoSel = document.getElementById(`base-treino-${p}`);
+
+            let treinoVal = 0;
+            let ehTreinado = false;
+
+            if (treinoSel) {
+                treinoVal = parseInt(treinoSel.value) || 0;
+                ehTreinado = treinoVal > 0;
+            } else if (baseTreinoSel) {
+                ehTreinado = baseTreinoSel.value === 'true';
+                for (let i = 0; i < 4; i++) {
+                    const st = parseInt(document.getElementById(`sub-treino-${p}-${i}`)?.value) || 0;
+                    if (st > treinoVal) treinoVal = st;
+                }
+                if (treinoVal > 0) ehTreinado = true;
+            }
+
+            row.classList.toggle('pericia-leiga', !ehTreinado);
+
+            let classeCor = '';
+            if (treinoVal === 1 || treinoVal === 2) classeCor = 'tr-12';
+            else if (treinoVal === 3 || treinoVal === 4) classeCor = 'tr-34';
+            else if (treinoVal >= 5) classeCor = 'tr-5';
+
+            const txtTreino = treinoSel ? `+${treinoVal}` : (ehTreinado ? `❖ +${treinoVal}` : 'Leigo');
+            badge.innerHTML = `<span class="vg-chip-tr ${classeCor}">${txtTreino}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
+        });
+    }
+
+    // =========================================================================
+    // 3. SISTEMA UNIVERSAL DE RASTREADORES / GATILHOS DE CENA (Executor, etc.)
+    // =========================================================================
+    let rastreadoresCena = [];
+
+    function instalarPainelRastreadores() {
+        const colEsq = document.querySelector('#grid-container > section:first-child');
+        if (!colEsq || document.getElementById('painel-rastreadores-cena')) return;
+
+        const box = document.createElement('div');
+        box.id = 'painel-rastreadores-cena';
+        box.className = 'scene-trackers-box';
+        box.innerHTML = `
+            <div class="scene-trackers-header">
+                <span class="scene-trackers-title">⚡ MARCADORES DE CENA & GATILHOS</span>
+                <div style="display:flex; gap:4px;">
+                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('executor')" title="Adiciona o contador automático do traço Executor">+ Executor</button>
+                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('analista')" title="Adiciona bônus de observação do Analista">+ Analista</button>
+                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.criarRastreadorCustom()">+ Novo</button>
+                </div>
+            </div>
+            <div id="lista-rastreadores-cena" class="tracker-list"></div>
+        `;
+        colEsq.appendChild(box);
+        renderizarRastreadores();
+    }
+
+    function salvarRastreadoresNoBanco() {
+        if (!atual) return;
+        db.collection("fichas").doc(atual).update({ rastreadoresCena }).catch(() => {});
+    }
+
+    window.adicionarRastreadorPreset = function(tipo) {
+        if (tipo === 'executor') {
+            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Executor (Falhas)', atual: 0, max: 2, efeito: '+1 no Próximo Teste' });
+        } else if (tipo === 'analista') {
+            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista (Alvo Observado)', atual: 1, max: 1, efeito: '+1d3 nos Testes na Cena' });
+        }
+        renderizarRastreadores();
+        salvarRastreadoresNoBanco();
+    };
+
+    window.criarRastreadorCustom = function() {
+        const nome = prompt("Nome do marcador / habilidade (ex: Executor, Favor, Munição Especial, Rodadas):");
+        if (!nome || !nome.trim()) return;
+        const max = Math.max(1, Math.min(10, parseInt(prompt("Quantidade de marcas/cargas necessárias (1 a 10):", "2")) || 2));
+        const efeito = prompt("Bônus ou lembrete quando completar (ex: +1 no próximo teste):", "Ativo") || "Ativo";
+        rastreadoresCena.push({ id: Date.now().toString(36), nome: nome.trim(), atual: 0, max, efeito: efeito.trim() });
+        renderizarRastreadores();
+        salvarRastreadoresNoBanco();
+    };
+
+    window.clicarPipRastreador = function(id, indice) {
+        const item = rastreadoresCena.find(r => r.id === id);
+        if (!item) return;
+        item.atual = (item.atual === indice) ? indice - 1 : indice;
+        renderizarRastreadores();
+        salvarRastreadoresNoBanco();
+    };
+
+    window.zerarRastreador = function(id) {
+        const item = rastreadoresCena.find(r => r.id === id);
+        if (!item) return;
+        item.atual = 0;
+        renderizarRastreadores();
+        salvarRastreadoresNoBanco();
+    };
+
+    window.removerRastreador = function(id) {
+        rastreadoresCena = rastreadoresCena.filter(r => r.id !== id);
+        renderizarRastreadores();
+        salvarRastreadoresNoBanco();
+    };
+
+    function renderizarRastreadores() {
+        const cont = document.getElementById('lista-rastreadores-cena');
+        if (!cont) return;
+        if (!rastreadoresCena.length) {
+            cont.innerHTML = `<div style="font-size:11px; color:var(--cor-geral); font-style:italic; text-align:center; padding:4px 0;">Nenhum gatilho ativo. Use "+ Executor" ou "+ Novo" para rastrear falhas, cargas ou bônus temporários sem anotar na mão.</div>`;
+            return;
+        }
+        cont.innerHTML = rastreadoresCena.map(r => {
+            const pronto = r.atual >= r.max;
+            let pips = '';
+            for (let i = 1; i <= r.max; i++) {
+                pips += `<span class="tracker-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})" title="Marca ${i}/${r.max}"></span>`;
+            }
+            return `
+                <div class="tracker-card ${pronto ? 'ready' : ''}">
+                    <div class="tracker-info">
+                        <div class="tracker-name">
+                            <span>${r.nome}</span>
+                            <span class="tracker-effect-badge" onclick="${pronto ? `window.zerarRastreador('${r.id}')` : ''}" title="${pronto ? 'Clique para consumir e zerar o contador' : 'Complete as marcas para ativar'}">
+                                ${pronto ? `⚡ PRONTO: ${r.efeito} (USAR ↻)` : `${r.atual}/${r.max} → ${r.efeito}`}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="tracker-pips">${pips}</div>
+                    <button class="tracker-del" onclick="window.removerRastreador('${r.id}')" title="Remover marcador">×</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // =========================================================================
+    // 4. ANATOMIA RECOLHÍVEL COM CHIPS DE RESUMO EM COMBATE
+    // =========================================================================
+    function compactarMapaCorporal() {
+        const mapBox = document.querySelector('.body-map-container');
+        if (!mapBox || mapBox.parentElement.classList.contains('anatomia-wrapper')) return;
+
+        const details = document.createElement('details');
+        details.className = 'anatomia-wrapper';
+        details.innerHTML = `
+            <summary>
+                <span>🩺 INTEGRIDADE ANATÔMICA (VD / DEC)</span>
+                <div id="anatomia-resumo-chips" class="anatomia-resumo-chips"></div>
+            </summary>
+        `;
+        mapBox.parentNode.insertBefore(details, mapBox);
+        details.appendChild(mapBox);
+        atualizarResumoAnatomia();
+    }
+
+    function atualizarResumoAnatomia() {
+        const cont = document.getElementById('anatomia-resumo-chips');
+        if (!cont || typeof membrosEstado === 'undefined') return;
+        const nomes = { cabeca: 'Cabeça', 'braco-esq': 'Braço E.', 'braco-dir': 'Braço D.', torso: 'Torso', 'perna-esq': 'Perna E.', 'perna-dir': 'Perna D.' };
+        const feridos = Object.keys(membrosEstado).filter(k => membrosEstado[k] && membrosEstado[k] !== 'normal');
+        if (!feridos.length) {
+            cont.innerHTML = `<span class="anat-chip">Intacto (Clique para abrir diagrama)</span>`;
+        } else {
+            cont.innerHTML = feridos.map(k => `<span class="anat-chip ${membrosEstado[k]}">${nomes[k] || k}: ${membrosEstado[k].toUpperCase()}</span>`).join('');
+        }
+    }
+
+    // =========================================================================
+    // INICIALIZAÇÃO E ESCUTA EM TEMPO REAL
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            instalarBarraPericias();
+            instalarPainelRastreadores();
+            compactarMapaCorporal();
+            sincronizarBadgesPericias();
+
+            if (atual && typeof db !== 'undefined') {
+                db.collection("fichas").doc(atual).onSnapshot(doc => {
+                    if (!doc.exists) return;
+                    const data = doc.data();
+                    if (Array.isArray(data.rastreadoresCena)) {
+                        rastreadoresCena = data.rastreadoresCena;
+                        renderizarRastreadores();
+                    }
+                    setTimeout(() => {
+                        sincronizarBadgesPericias();
+                        atualizarResumoAnatomia();
+                    }, 60);
+                });
+            }
+        }, 400);
+    });
+})();
+</script>
 </body>
 </html>
