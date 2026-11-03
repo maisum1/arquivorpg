@@ -2022,5 +2022,102 @@ document.addEventListener('click', function() {
     });
 })();
 </script>
+    <!-- ======================================================================
+     CORREÇÃO DE ENQUADRAMENTO E PROPORÇÃO DOS RETRATOS NO HUB (index.html)
+     Resolve: 1) Corte de zoom < 1 (Francisco) | 2) Deslocamento vertical (Jerome)
+     Cole imediatamente antes de </body> no seu index.html
+     ====================================================================== -->
+<style id="fix-portrait-hub-css">
+    /* Garante a mesma proporção da ficha (130:165) e referência absoluta para a imagem */
+    .portrait-mini {
+        position: relative !important;
+        width: 80px !important;
+        height: 101px !important;
+        overflow: hidden !important;
+    }
+    @media (max-width: 600px) {
+        .portrait-mini {
+            width: 75px !important;
+            height: 95px !important;
+        }
+    }
+</style>
+
+<script id="fix-portrait-hub-logic">
+(function() {
+    // Matemática híbrida fiel:
+    // - Se zoom < 1 (caso Francisco): usa escala proporcional completa (mostra a imagem inteira sem cortar bordas)
+    // - Se zoom >= 1 (caso Jerome): usa a exata matriz de centro do calibrador da ficha (w - nw*s0)*(x/100) + zoom no centro
+    window.ajustarFotoHub = function(img) {
+        if (!img || !img.parentElement) return;
+        const box = img.parentElement;
+        const nw = img.naturalWidth, nh = img.naturalHeight;
+        const w = box.clientWidth, h = box.clientHeight;
+        if (typeof roFotoHub !== 'undefined') roFotoHub.observe(box);
+        if (!nw || !nh || !w || !h) return;
+
+        const z = parseFloat(img.dataset.pz) || 1;
+        const x = isNaN(parseFloat(img.dataset.px)) ? 50 : parseFloat(img.dataset.px);
+        const y = isNaN(parseFloat(img.dataset.py)) ? 50 : parseFloat(img.dataset.py);
+
+        const sCover = Math.max(w / nw, h / nh);
+        const wCover = nw * sCover;
+        const hCover = nh * sCover;
+
+        img.style.position = 'absolute';
+        img.style.objectFit = 'fill';
+        img.style.maxWidth = 'none';
+        img.style.maxHeight = 'none';
+        img.style.transform = 'none';
+
+        const iw = wCover * z;
+        const ih = hCover * z;
+        img.style.width = iw + 'px';
+        img.style.height = ih + 'px';
+
+        if (z < 1) {
+            // Zoom < 1 (Francisco): centraliza a imagem inteira dentro da moldura sem cortar cabeça/pés
+            img.style.left = ((w - iw) * (x / 100)) + 'px';
+            img.style.top  = ((h - ih) * (y / 100)) + 'px';
+        } else {
+            // Zoom >= 1 (Jerome): reproduz exatamente a geometria de object-position + transform:scale(z) da ficha
+            const baseLeft = (w - wCover) * (x / 100);
+            const baseTop  = (h - hCover) * (y / 100);
+            img.style.left = (baseLeft * z + (w * (1 - z)) / 2) + 'px';
+            img.style.top  = (baseTop  * z + (h * (1 - z)) / 2) + 'px';
+        }
+    };
+
+    // Converte automaticamente todos os retratos de Personas (e do Monitor/Campanha) que usavam o style antigo
+    function converterRetratosPersonasHub() {
+        document.querySelectorAll('.ficha-card .portrait-mini img:not([data-hub-fixed])').forEach(img => {
+            img.dataset.hubFixed = '1';
+
+            // Extrai pX, pY e pZ do style inline gerado por carregarFichasJogador / renderFichaMonitorCard
+            const st = img.getAttribute('style') || '';
+            const mPos = st.match(/object-position:\s*([-\d.]+)%\s+([-\d.]+)%/i);
+            const mZ   = st.match(/scale\(([-\d.]+)\)/i);
+
+            img.dataset.px = mPos ? mPos[1] : 50;
+            img.dataset.py = mPos ? mPos[2] : 50;
+            img.dataset.pz = mZ   ? mZ[1]   : 1;
+
+            if (img.complete && img.naturalWidth) {
+                window.ajustarFotoHub(img);
+            } else {
+                img.addEventListener('load', function() { window.ajustarFotoHub(this); });
+            }
+        });
+    }
+
+    // Observa a criação dos cards de Personas e Monitor no Hub e aplica o enquadramento imediatamente
+    const obsHub = new MutationObserver(() => converterRetratosPersonasHub());
+    window.addEventListener('DOMContentLoaded', () => {
+        converterRetratosPersonasHub();
+        obsHub.observe(document.body, { childList: true, subtree: true });
+    });
+    converterRetratosPersonasHub();
+})();
+</script>
 </body>
 </html>
