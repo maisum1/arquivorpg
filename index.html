@@ -2023,16 +2023,15 @@ document.addEventListener('click', function() {
 })();
 </script>
     <!-- ======================================================================
-     CORREÇÃO DE ENQUADRAMENTO E PROPORÇÃO DOS RETRATOS NO HUB (index.html)
-     Resolve: 1) Corte de zoom < 1 (Francisco) | 2) Deslocamento vertical (Jerome)
-     Cole imediatamente antes de </body> no seu index.html
+     CORREÇÃO DEFINITIVA DE RETRATOS NO HUB (index.html)
+     Corrige o bug do "pY || 50" que transformava 0% (rosto/topo) em 50% (peito)
+     e aplica o enquadramento sem cortes igual ao da ficha.html
      ====================================================================== -->
 <style id="fix-portrait-hub-css">
-    /* Garante a mesma proporção da ficha (130:165) e referência absoluta para a imagem */
     .portrait-mini {
         position: relative !important;
         width: 80px !important;
-        height: 101px !important;
+        height: 102px !important;
         overflow: hidden !important;
     }
     @media (max-width: 600px) {
@@ -2045,9 +2044,7 @@ document.addEventListener('click', function() {
 
 <script id="fix-portrait-hub-logic">
 (function() {
-    // Matemática híbrida fiel:
-    // - Se zoom < 1 (caso Francisco): usa escala proporcional completa (mostra a imagem inteira sem cortar bordas)
-    // - Se zoom >= 1 (caso Jerome): usa a exata matriz de centro do calibrador da ficha (w - nw*s0)*(x/100) + zoom no centro
+    // Mesma equação exata da ficha.html para qualquer zoom (inclusive < 1 e pY = 0)
     window.ajustarFotoHub = function(img) {
         if (!img || !img.parentElement) return;
         const box = img.parentElement;
@@ -2060,63 +2057,139 @@ document.addEventListener('click', function() {
         const x = isNaN(parseFloat(img.dataset.px)) ? 50 : parseFloat(img.dataset.px);
         const y = isNaN(parseFloat(img.dataset.py)) ? 50 : parseFloat(img.dataset.py);
 
-        const sCover = Math.max(w / nw, h / nh);
-        const wCover = nw * sCover;
-        const hCover = nh * sCover;
+        const s = Math.max(w / nw, h / nh) * z;
+        const iw = nw * s, ih = nh * s;
 
         img.style.position = 'absolute';
         img.style.objectFit = 'fill';
         img.style.maxWidth = 'none';
         img.style.maxHeight = 'none';
         img.style.transform = 'none';
-
-        const iw = wCover * z;
-        const ih = hCover * z;
         img.style.width = iw + 'px';
         img.style.height = ih + 'px';
-
-        if (z < 1) {
-            // Zoom < 1 (Francisco): centraliza a imagem inteira dentro da moldura sem cortar cabeça/pés
-            img.style.left = ((w - iw) * (x / 100)) + 'px';
-            img.style.top  = ((h - ih) * (y / 100)) + 'px';
-        } else {
-            // Zoom >= 1 (Jerome): reproduz exatamente a geometria de object-position + transform:scale(z) da ficha
-            const baseLeft = (w - wCover) * (x / 100);
-            const baseTop  = (h - hCover) * (y / 100);
-            img.style.left = (baseLeft * z + (w * (1 - z)) / 2) + 'px';
-            img.style.top  = (baseTop  * z + (h * (1 - z)) / 2) + 'px';
-        }
+        img.style.left = ((w - iw) * (x / 100)) + 'px';
+        img.style.top  = ((h - ih) * (y / 100)) + 'px';
     };
 
-    // Converte automaticamente todos os retratos de Personas (e do Monitor/Campanha) que usavam o style antigo
-    function converterRetratosPersonasHub() {
-        document.querySelectorAll('.ficha-card .portrait-mini img:not([data-hub-fixed])').forEach(img => {
-            img.dataset.hubFixed = '1';
+    // Sobrescreve renderFichaMonitorCard para passar data-px, data-py, data-pz usando ?? (preservando 0!)
+    window.renderFichaMonitorCard = function(doc, context = 'monitor') {
+        const d = doc.data();
+        const px = (d.pX !== undefined && d.pX !== "") ? d.pX : 50;
+        const py = (d.pY !== undefined && d.pY !== "") ? d.pY : 50;
+        const pz = (d.pZ !== undefined && d.pZ !== "") ? d.pZ : 1;
 
-            // Extrai pX, pY e pZ do style inline gerado por carregarFichasJogador / renderFichaMonitorCard
-            const st = img.getAttribute('style') || '';
-            const mPos = st.match(/object-position:\s*([-\d.]+)%\s+([-\d.]+)%/i);
-            const mZ   = st.match(/scale\(([-\d.]+)\)/i);
+        let nomePersona = (d.nome || 'Persona').replace(/'/g, "\\'");
+        let ctxPassado = d.isNpcAmeaca ? 'npc-ameaca' : context;
+        let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${ctxPassado}')" title="Configurações">⚙️</button>`;
 
-            img.dataset.px = mPos ? mPos[1] : 50;
-            img.dataset.py = mPos ? mPos[2] : 50;
-            img.dataset.pz = mZ   ? mZ[1]   : 1;
+        let img = d.portrait
+            ? `<img src="${d.portrait}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">`
+            : '';
 
-            if (img.complete && img.naturalWidth) {
-                window.ajustarFotoHub(img);
-            } else {
-                img.addEventListener('load', function() { window.ajustarFotoHub(this); });
+        let expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
+        if (!globalRevelado && context !== 'monitor' && context !== 'raiox' && context !== 'campanha') {
+            expInfo = '';
+        }
+
+        let nomeJogadorInfo = `<span class="player-name-tag" style="font-family: 'Inter', sans-serif; font-size: 9px; font-weight: bold; color: var(--cor-geral); text-transform: uppercase; display: block; margin-bottom: 2px;">JOGADOR: ${d.nomeJogador || 'DESCONHECIDO'}</span>`;
+
+        let campanhaInfo = '';
+        if (d.campanhaId) {
+            let nomeVisual = (context === 'monitor' || context === 'raiox')
+                ? (d.campanhaNome || d.campanhaId)
+                : (d.campanhaOculta ? "[ CONFIDENCIAL ]" : (d.campanhaNome || d.campanhaId));
+            campanhaInfo = `<span class="camp-tag" style="margin-top: 4px;">${nomeVisual}</span>`;
+        }
+
+        let origemInfo = `<span class="player-tag" style="margin-top: 4px;">${d.classe || d.origem || 'Indefinido'}</span>`;
+        let statsInfo = `<span class="stats-tag"><span style="color:var(--op-red);">PV: ${d.vidaAtual || 0}/${d.vidaMax || 0}</span> <span style="color:var(--cor-geral); font-weight:normal;">|</span> <span style="color:var(--san-purple);">LUC: ${d.sanAtual || 0}/${d.sanMax || 0}</span></span>`;
+
+        return `
+            <div class="ficha-card base-card" style="cursor: pointer;" onclick="const sec = this.querySelector('.info-secundaria'); sec.style.display = sec.style.display === 'none' ? 'block' : 'none';">
+                <div class="card-actions">${botoesAcao}</div>
+                <div class="card-content">
+                    <div class="portrait-mini">${img}</div>
+                    <div class="card-info">
+                        <strong>${d.nome || 'PERSONA'}</strong>
+                        ${expInfo}
+                        ${nomeJogadorInfo}
+                        ${campanhaInfo}
+                        <div class="info-secundaria" style="display: none; margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--card-border);">
+                            ${origemInfo}
+                            ${statsInfo}
+                        </div>
+                    </div>
+                </div>
+                <a href="ficha.html?id=${doc.id}" class="btn-open" onclick="event.stopPropagation()">VER</a>
+            </div>`;
+    };
+
+    // Sobrescreve carregarFichasJogador para usar data-px, data-py, data-pz sem perder o valor 0 de pY!
+    let unsubFichasFix = null;
+    window.carregarFichasJogador = function(uid) {
+        if (unsubFichasFix) unsubFichasFix();
+        unsubFichasFix = db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
+            const divFichas = document.getElementById('lista-fichas');
+            if (!divFichas) return;
+            divFichas.innerHTML = "";
+            minhasFichasGlobais = [];
+
+            const divAmeacas = document.getElementById("lista-ameacas");
+            if (divAmeacas && !document.getElementById('wrapper-ameacas-personas')) {
+                divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
             }
+            const personasAmeaca = [];
+            let count = 0;
+
+            snap.forEach(doc => {
+                const docData = doc.data();
+                const docId = doc.id;
+                minhasFichasGlobais.push({ id: docId, nome: docData.nome || 'Persona Desconhecida' });
+
+                if (docData.isNpcAmeaca) {
+                    personasAmeaca.push(window.renderFichaMonitorCard(doc, 'monitor'));
+                } else {
+                    count++;
+                    const dataRegistroTexto = formatarDataRegistro(docData.createdAt);
+                    const px = (docData.pX !== undefined && docData.pX !== "") ? docData.pX : 50;
+                    const py = (docData.pY !== undefined && docData.pY !== "") ? docData.pY : 50;
+                    const pz = (docData.pZ !== undefined && docData.pZ !== "") ? docData.pZ : 1;
+
+                    divFichas.innerHTML += `
+                        <div class="ficha-card base-card" id="card-${docId}">
+                            <div class="card-actions" style="top: 8px; right: 8px;">
+                                <button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}', 'ficha', 'hub-proprio')" title="Configurações da Ficha">⚙️</button>
+                            </div>
+                            <div class="card-content">
+                                <div class="portrait-mini">
+                                    <img src="${docData.portrait || 'https://via.placeholder.com/100x130'}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">
+                                </div>
+                                <div class="card-info">
+                                    <strong>${docData.nome || 'Sem Nome'}</strong>
+                                    <span class="player-tag" style="font-size: 10px;">${docData.classe || docData.origem || 'Persona'}</span>
+                                    <span class="card-data-registro" style="display:block; margin-top:2px;">Registro: ${dataRegistroTexto}</span>
+                                </div>
+                            </div>
+                            <a href="ficha.html?id=${docId}" class="btn-open" style="width: 100%; box-sizing: border-box; display: block; margin-top: auto; text-align: center;">ACESSAR FICHA</a>
+                        </div>
+                    `;
+                }
+            });
+
+            hubPersonasHtml = personasAmeaca;
+            renderHubAmeacas();
+
+            const elemContador = document.getElementById('contador-personas');
+            if (elemContador) elemContador.innerText = `Personas: ${count}`;
+        });
+    };
+
+    // Caso o usuário já tenha logado antes do script inicializar, recarrega os cards imediatamente
+    if (typeof auth !== 'undefined') {
+        auth.onAuthStateChanged(u => {
+            if (u) setTimeout(() => window.carregarFichasJogador(u.uid), 180);
         });
     }
-
-    // Observa a criação dos cards de Personas e Monitor no Hub e aplica o enquadramento imediatamente
-    const obsHub = new MutationObserver(() => converterRetratosPersonasHub());
-    window.addEventListener('DOMContentLoaded', () => {
-        converterRetratosPersonasHub();
-        obsHub.observe(document.body, { childList: true, subtree: true });
-    });
-    converterRetratosPersonasHub();
 })();
 </script>
 </body>
