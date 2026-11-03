@@ -7709,5 +7709,318 @@ let filtroSubAtualAtaques = 'Todos';
     }
 })();
 </script>
+    <!-- ======================================================================
+     CORREÇÃO: ENQUADRAMENTO DE FOTO (IGUAL AMEAÇAS) + ANOMALIA INCOMPLETA
+     Cole antes de </body> no seu ficha.html
+     ====================================================================== -->
+<script id="patch-foto-e-incompleto">
+(function() {
+    // =========================================================================
+    // 1. ENQUADRAMENTO PROPORCIONAL SEM CORTAR IMAGEM (Igual ao ameaca.html)
+    // =========================================================================
+    function aplicarMatematicaFoto(img, z, x, y) {
+        if (!img || !img.parentElement) return;
+        const box = img.parentElement;
+        const nw = img.naturalWidth, nh = img.naturalHeight;
+        const w = box.clientWidth, h = box.clientHeight;
+        if (!nw || !nh || !w || !h) return;
+
+        const zoom = parseFloat(z) || 1;
+        const posX = isNaN(parseFloat(x)) ? 50 : parseFloat(x);
+        const posY = isNaN(parseFloat(y)) ? 50 : parseFloat(y);
+
+        // Escala base em que zoom = 1 preenche o quadro (cover), e zoom < 1 revela o resto da imagem inteira
+        const s = Math.max(w / nw, h / nh) * zoom;
+        const iw = nw * s, ih = nh * s;
+
+        img.style.position = 'absolute';
+        img.style.objectFit = 'fill';
+        img.style.maxWidth = 'none';
+        img.style.maxHeight = 'none';
+        img.style.transform = 'none';
+        img.style.width = iw + 'px';
+        img.style.height = ih + 'px';
+        img.style.left = ((w - iw) * (posX / 100)) + 'px';
+        img.style.top = ((h - ih) * (posY / 100)) + 'px';
+    }
+
+    // Atualiza o retrato principal da ficha sempre que carregar ou mudar de tamanho
+    window.ajustarRetratoFicha = function() {
+        const img = document.getElementById('display-portrait');
+        if (!img || img.style.display === 'none' || !img.src) return;
+        aplicarMatematicaFoto(img, img.dataset.pz || 1, img.dataset.px ?? 50, img.dataset.py ?? 50);
+    };
+
+    const portraitImg = document.getElementById('display-portrait');
+    if (portraitImg) {
+        portraitImg.addEventListener('load', window.ajustarRetratoFicha);
+        if (portraitImg.parentElement && typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(() => window.ajustarRetratoFicha()).observe(portraitImg.parentElement);
+        }
+    }
+
+    // Ajusta os sliders do modal de enquadramento para permitir zoom menor (0.1 a 5) igual às Ameaças
+    const sliderZoom = document.getElementById('crop-zoom');
+    const sliderX = document.getElementById('crop-x');
+    const sliderY = document.getElementById('crop-y');
+    if (sliderZoom) { sliderZoom.min = "0.1"; sliderZoom.max = "5"; sliderZoom.step = "0.01"; }
+    if (sliderX)    { sliderX.min = "-50"; sliderX.max = "150"; sliderX.step = "0.5"; }
+    if (sliderY)    { sliderY.min = "-50"; sliderY.max = "150"; sliderY.step = "0.5"; }
+
+    // Sobrescreve processarArquivo para preservar a proporção inteira e transparência (WebP)
+    window.processarArquivo = function(i) {
+        if (i.files && i.files[0]) {
+            const r = new FileReader();
+            r.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const c = document.createElement('canvas');
+                    const ctx = c.getContext('2d');
+
+                    let maxW = 800, maxH = 800;
+                    let ratio = Math.min(maxW / img.width, maxH / img.height, 1);
+                    c.width = Math.round(img.width * ratio);
+                    c.height = Math.round(img.height * ratio);
+
+                    ctx.clearRect(0, 0, c.width, c.height);
+                    ctx.drawImage(img, 0, 0, c.width, c.height);
+
+                    const p = document.getElementById('crop-preview');
+                    if (modoCrop === 'ritual') {
+                        p.style.width = "80px"; p.style.height = "80px";
+                    } else {
+                        p.style.width = "130px"; p.style.height = "165px";
+                    }
+
+                    document.getElementById('modal-config').style.display = 'none';
+                    document.getElementById('crop-modal').style.display = 'block';
+
+                    const tempImg = document.getElementById('temp-img');
+                    tempImg.onload = function() {
+                        const boxW = p.clientWidth || 130, boxH = p.clientHeight || 165;
+                        // Calcula o zoom mínimo para a imagem inteira caber dentro da moldura sem cortar nada
+                        const zFit = Math.min(boxW / c.width, boxH / c.height) / Math.max(boxW / c.width, boxH / c.height);
+                        if (sliderZoom) {
+                            sliderZoom.min = Math.min(0.1, zFit).toFixed(3);
+                            // Já inicia no zoom que mostra a imagem inteira se ela for de proporção diferente
+                            sliderZoom.value = zFit < 0.98 ? zFit.toFixed(2) : 1;
+                        }
+                        if (sliderX) sliderX.value = 50;
+                        if (sliderY) sliderY.value = 50;
+                        window.atualizarPreview();
+                    };
+                    tempImg.src = c.toDataURL('image/webp', 0.75);
+                    i.value = "";
+                };
+            };
+            r.readAsDataURL(i.files[0]);
+        }
+    };
+
+    window.atualizarPreview = function() {
+        const tempImg = document.getElementById('temp-img');
+        const z = document.getElementById('crop-zoom').value;
+        const x = document.getElementById('crop-x').value;
+        const y = document.getElementById('crop-y').value;
+        aplicarMatematicaFoto(tempImg, z, x, y);
+    };
+
+    // Escuta o carregamento da ficha no Firebase para aplicar o enquadramento sem corte no retrato
+    if (typeof atual !== 'undefined' && atual && typeof db !== 'undefined') {
+        db.collection("fichas").doc(atual).onSnapshot(doc => {
+            if (!doc.exists) return;
+            const d_raw = doc.data();
+            const hF = (typeof isHexatombe !== 'undefined' && isHexatombe) || (typeof globalHexatombe !== 'undefined' && globalHexatombe);
+            const d = (hF && d_raw.hexatombe_data) ? { ...d_raw, ...d_raw.hexatombe_data } : d_raw;
+            const img = document.getElementById('display-portrait');
+            if (img && d.portrait) {
+                img.dataset.px = d.pX ?? 50;
+                img.dataset.py = d.pY ?? 50;
+                img.dataset.pz = d.pZ ?? 1;
+                setTimeout(window.ajustarRetratoFicha, 30);
+            }
+        });
+    }
+
+    // =========================================================================
+    // 2. ANOMALIAS: "INCOMPLETO / ALTERADO" COMO VERSÃO PRÓPRIA (IGUAL VERDADEIRO)
+    // =========================================================================
+    // modoVar: false/'normal' | true/'buffed' (Verdadeiro) | 'incompleto' (Incompleto/alterado)
+    window.updateRitualFields = async function(id, campos, modoVar) {
+        menusAbertos.add('rit-' + id);
+        const prefixo = (modoVar === true || modoVar === 'buffed')
+            ? 'buffed.'
+            : (modoVar === 'incompleto' ? 'incompletoData.' : '');
+        const o = {};
+        Object.keys(campos).forEach(k => { o[prefixo + k] = campos[k]; });
+        await db.collection("fichas").doc(atual).collection((isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais").doc(id).update(o);
+    };
+    window.updateRitualField = (id, campo, valor, modoVar) => window.updateRitualFields(id, { [campo]: valor }, modoVar);
+    window.ritMudarComplexidade = (id, val, modoVar) => {
+        const c = COMPLEXIDADES[val];
+        return window.updateRitualFields(id, c ? { complexidade: val, tempoAprendizado: c.base } : { complexidade: val }, modoVar);
+    };
+
+    // Alternar "Verdadeiro" ou "Incompleto" (mutuamente exclusivos para cada versão ter seus dados)
+    window.ritAprendido = async function(id, marcado) {
+        menusAbertos.add('rit-' + id);
+        const up = { aprendido: marcado };
+        if (marcado) up.incompleto = false;
+        await db.collection("fichas").doc(atual).collection((isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais").doc(id).update(up);
+    };
+    window.ritIncompleto = async function(id, marcado) {
+        menusAbertos.add('rit-' + id);
+        const up = { incompleto: marcado };
+        if (marcado) up.aprendido = false;
+        await db.collection("fichas").doc(atual).collection((isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais").doc(id).update(up);
+    };
+
+    // Atualiza ritCardHTML para passar o modo correto ('buffed', 'incompleto' ou 'normal')
+    window.ritCardHTML = function(o) {
+        const { id, r, v, buf, cor, aberto, afin, btns, toggleJs, symbolJs } = o, E = ritEsc;
+        const modoArg = typeof buf === 'string' ? `'${buf}'` : (buf ? `'buffed'` : `'normal'`);
+        const comp = COMPLEXIDADES[v.complexidade], mod = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual';
+        const pend = !!r.primeiraExecucao, mini = !!r.minidesafio, inc = !!r.incompleto, tem = !!r.temAfinidade;
+        const esp = (r.espontanea !== undefined) ? !!r.espontanea : !!v.primeiraConjuracao;
+        const campo = (rot, k, ph, cheio) => `<label class="rit-field${cheio ? ' full' : ''}"><span class="rit-label" style="color:${cor}">${rot}</span><input type="text" class="rit-input" placeholder="${ph}" value="${E(v[k])}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','${k}',this.value,${modoArg})"></label>`;
+        const marca = (k, on, txt, dica) => `<label class="rit-chip${on ? ' on' : ''}" title="${dica}"><input type="checkbox" ${on ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','${k}',this.checked,'normal')">${txt}</label>`;
+        let info = comp ? `<b>DT ${comp.dt}</b> · estudo ${comp.base}` : 'Escolha a complexidade para calcular a DT e o tempo de estudo.';
+        if (comp && pend) info += `<br>1ª execução: teste de Ocultismo contra DT ${comp.dt}${mini ? ' (+5 do minidesafio)' : ''}. Falha: +${comp.falha} de prática antes de tentar de novo. Falha crítica: consequência adicional.`;
+        else if (comp) info += ' — execução básica dominada, sem novo teste em condições normais.';
+        const avisos = [];
+        if (inc) avisos.push('⚠ Versão Incompleta / Alterada ativa: edições feitas agora ficam salvas separadamente da versão normal.');
+        if (esp) avisos.push('Manifestação espontânea: surge sem conhecimento ritualístico e não concede a capacidade de reproduzir o fenômeno.');
+        const badges = (comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : '')
+            + `<span class="rit-badge" title="${MODALIDADES[mod].nome}">${MODALIDADES[mod].curto}</span>`
+            + (r.aprendido ? '<span class="rit-badge alerta">Verdadeiro</span>' : '')
+            + (inc ? '<span class="rit-badge alerta">Incompleto</span>' : '')
+            + (pend ? '<span class="rit-badge alerta">1ª exec.</span>' : '')
+            + (esp ? '<span class="rit-badge">Espontâneo</span>' : '')
+            + ((tem && afin && r.aprendido) ? '<span class="rit-badge">Afinidade</span>' : '');
+        return `<div class="ritual-card" style="border-left-color:${cor}">
+    <div class="card-header" onclick="${toggleJs}"><span style="color:${cor};font-weight:900">${E(v.nome) || 'Nova Anomalia'}</span><span class="rit-badges">${badges}</span></div>
+    <div class="card-body" id="rit-${id}" style="display:${aberto ? 'block' : 'none'}">
+        <div class="rit-layout-top">
+            <div class="rit-symbol-box" onclick="${symbolJs}">${v.simbolo ? `<img src="${v.simbolo}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${v.sX || 50}% ${v.sY || 50}%;transform:scale(${v.sZ || 1});position:absolute;top:0;left:0;filter:grayscale(100%) contrast(150%);mix-blend-mode:multiply">` : `<span style="text-align:center;font:700 9px 'Inter',sans-serif;color:var(--cor-geral)">REGISTRO<br>(Clique)</span>`}</div>
+            <div class="rit-grid-2">
+                <label class="rit-field full"><span class="rit-label" style="color:${cor}">Nome</span><input type="text" class="rit-input" placeholder="Nome do ritual..." value="${E(v.nome)}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','nome',this.value,${modoArg})"></label>
+                <label class="rit-field"><span class="rit-label" style="color:${cor}">Complexidade</span><select class="rit-input" onclick="event.stopPropagation()" onchange="window.ritMudarComplexidade('${id}',this.value,${modoArg})">${ritOpcoesComplex(v.complexidade)}</select></label>
+                <label class="rit-field"><span class="rit-label" style="color:${cor}">Modalidade</span><select class="rit-input" title="${MODALIDADES[mod].dica}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','modalidade',this.value,${modoArg})">${Object.keys(MODALIDADES).map(k => `<option value="${k}" ${mod === k ? 'selected' : ''}>${MODALIDADES[k].nome}</option>`).join('')}</select></label>
+            </div>
+        </div>
+        <div class="rit-info">${info}${avisos.map(a => `<div>${a}</div>`).join('')}</div>
+        <div class="rit-chips">
+            ${marca('primeiraExecucao', pend, '1ª execução pendente', 'Ainda precisa passar pelo teste inicial de Ocultismo')}
+            ${marca('minidesafio', mini, 'Minidesafio resolvido (+5)', 'Acertou o minidesafio ritualístico: +5 no teste de primeira execução')}
+            <label class="rit-chip${r.aprendido ? ' on' : ''}" title="Versão compreendida por completo (salva separadamente)"><input type="checkbox" ${r.aprendido ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritAprendido('${id}',this.checked)">Compreensão total (Verdadeiro)</label>
+            <label class="rit-chip${inc ? ' on' : ''}" title="Versão incompleta ou alterada (puxa os dados do normal, mas edições ficam salvas separadamente)"><input type="checkbox" ${inc ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritIncompleto('${id}',this.checked)">Incompleto / alterado</label>
+            ${marca('espontanea', esp, 'Manifestação espontânea', 'Fenômeno sem conhecimento ou execução deliberada')}
+            ${(afin && r.aprendido) ? marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade') : ''}
+        </div>
+        <div class="rit-grid-2">
+            ${campo('Pré-requisitos', 'preRequisitos', 'Grau de Ocultismo, conhecimentos, componentes...', true)}
+            ${(esp || !pend) ? '' : campo('Projeção de estudo', 'tempoAprendizado', comp ? comp.base : 'Ex: 2 semanas', true)}
+        </div>
+        <div class="rit-sec">EXECUÇÃO</div>
+        <div class="rit-grid-3">
+            ${campo('Tempo', 'tempoConjuracao', 'Ex: Ação Padrão')}${campo('Alcance', 'alcance', 'Ex: Curto')}${campo('Alvo / Área', 'alvo', 'Ex: 1 Ser')}
+            ${campo('Duração', 'duracao', 'Ex: Cena')}${campo('Custo de Fôlego (PF)', 'custoPe', 'Ex: 2')}${campo('Dano mental / Lucidez (PL)', 'custoSanidade', 'Ex: 1d4')}
+            ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
+        </div>
+        <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Descrição</span><textarea class="cris-textarea" placeholder="O que é, como se manifesta, aparência, ambientação..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${modoArg})">${E(v.descricao)}</textarea></label>
+        <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Efeito</span><textarea class="cris-textarea" placeholder="Regras, testes e mecânicas do efeito..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','efeito',this.value,${modoArg})">${E(v.efeito)}</textarea></label>
+        <div style="display:${(tem && afin && r.aprendido) ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
+            <span class="rit-label" style="font-weight:900">Efeito da afinidade</span>
+            <textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Como a afinidade modifica este ritual..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','afinidade',this.value,${modoArg})">${E(v.afinidade)}</textarea>
+        </div>
+        <div class="rit-botoes">${btns}</div>
+    </div>
+</div>`;
+    };
+
+    // Inclui tag [INCOMPLETO] na visualização resumida do ritual concluído
+    const oldRitViewHTML = window.ritViewHTML;
+    window.ritViewHTML = function(o) {
+        let html = oldRitViewHTML(o);
+        if (o.v && o.v.incompleto && !o.v.aprendido) {
+            html = html.replace('❖ ' + (ritEsc(o.v.nome) || 'Nova Anomalia'), '❖ ' + (ritEsc(o.v.nome) || 'Nova Anomalia') + '<small>[INCOMPLETO]</small>');
+        }
+        return html;
+    };
+
+    // Atualiza carregarRituais para mesclar r.incompletoData quando r.incompleto estiver ativo
+    window.carregarRituais = function() {
+        if (unsubRit) unsubRit();
+        const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
+
+        unsubRit = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => {
+            const c = document.getElementById('lista-rituais');
+            if (!c) return;
+            c.innerHTML = RIT_AJUDA;
+            window.__ritFq = [];
+            const cE = { "Morte": "var(--cor-morte)", "Sangue": "var(--op-red)", "Energia": "#483d8b", "Conhecimento": "#b8860b", "Nenhum": "var(--op-ink)" };
+
+            const currentUser = firebase.auth().currentUser;
+            const isSuperAdmin = currentUser && (currentUser.email === "pedroacpr@gmail.com");
+            const isMestre = isSuperAdmin || (typeof isNaListaManutencao !== 'undefined' && isNaListaManutencao);
+            const nexAtual = parseInt(document.getElementById('nex-personagem')?.value) || 0;
+
+            snap.forEach(doc => {
+                const r = doc.data();
+                const id = doc.id;
+                const iO = menusAbertos.has('rit-' + id);
+                const isBuffado = !!r.aprendido;
+                const isIncompleto = !isBuffado && !!r.incompleto;
+                const modoEdicao = isBuffado ? 'buffed' : (isIncompleto ? 'incompleto' : 'normal');
+
+                // Puxa os dados do normal como base e sobrepõe com buffed (se Verdadeiro) ou incompletoData (se Incompleto)
+                const varData = isBuffado ? (r.buffed || {}) : (isIncompleto ? (r.incompletoData || {}) : {});
+                const rView = (isBuffado || isIncompleto) ? {
+                    ...r,
+                    ...varData,
+                    aprendido: isBuffado,
+                    incompleto: isIncompleto,
+                    primeiraConjuracao: varData.primeiraConjuracao ?? r.primeiraConjuracao ?? false,
+                    tempoAprendizado: varData.tempoAprendizado ?? r.tempoAprendizado ?? ''
+                } : r;
+
+                window.__ritFq.push({
+                    nome: rView.nome,
+                    verdadeiro: isBuffado,
+                    incompleto: isIncompleto,
+                    custo: ritCustoTxt(rView),
+                    comp: rView.complexidade || '',
+                    mod: (MODALIDADES[rView.modalidade] || MODALIDADES.ritual).curto
+                });
+
+                const cor = cE[rView.elemento] || "var(--op-ink)";
+                const btnMestreCopy = isMestre ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualClipboard('${id}')" title="Copiar Ritual">[ 📋 COPIAR ]</button>` : '';
+                const btnGithubCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 5px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarRitualParaSite('${id}')" title="Exportar para o GitHub">[ 📋 GITHUB ]</button>` : '';
+
+                if (r.concluido !== false) {
+                    c.innerHTML += window.ritViewHTML({
+                        id, v: rView, cor, aberto: menusAbertos.has('rv-' + id), afin: nexAtual >= 50,
+                        extra: `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritEditar('${id}')">✎ EDITAR</button>` + btnMestreCopy + btnGithubCopy
+                    });
+                    return;
+                }
+                const btnConcluir = `<button class="cris-btn" style="margin-right:5px; font-weight:bold;" onclick="event.stopPropagation(); window.ritConcluir('${id}')">✔ CONCLUIR RITUAL</button>`;
+                const btnApagar = `<button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'rituais')">APAGAR REGISTRO</button>`;
+                c.innerHTML += window.ritCardHTML({
+                    id, r, v: rView, buf: modoEdicao, cor, aberto: iO, afin: nexAtual >= 50,
+                    btns: btnConcluir + btnMestreCopy + btnGithubCopy + btnApagar,
+                    toggleJs: `toggleElem('rit-${id}')`, symbolJs: `abrirUpload('ritual', '${id}')`
+                });
+            });
+        });
+    };
+
+    // Reinicia a escuta de rituais já com o suporte à versão Incompleta
+    if (typeof atual !== 'undefined' && atual) {
+        setTimeout(() => window.carregarRituais(), 200);
+    }
+})();
+</script>
 </body>
 </html>
