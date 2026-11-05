@@ -2424,5 +2424,168 @@ if (campanhaParam) {
         </button>
     </div>
 </div>
+    <!-- ======================================================================
+     PATCH FICHA DE AMEAÇA (ameaca.html):
+     1) Campo "Resistência" nas Anomalias/Rituais (só exibe no dossiê se preenchido)
+     2) "Incompleto / alterado" funcionando como versão separada (igual Verdadeiro)
+     Cole imediatamente antes de </body> no seu ameaca.html
+     ====================================================================== -->
+<script id="patch-rituais-ameaca">
+(function() {
+    // 1. Resolve qual versão do ritual está ativa (Normal, Verdadeiro/buffed ou Incompleto/incompletoData)
+    window.ritView = function(r) {
+        const isBuffado = !!r.aprendido;
+        const isIncompleto = !isBuffado && !!r.incompleto;
+        const varData = isBuffado ? (r.buffed || {}) : (isIncompleto ? (r.incompletoData || {}) : {});
+        return (isBuffado || isIncompleto) ? {
+            ...r,
+            ...varData,
+            aprendido: isBuffado,
+            incompleto: isIncompleto,
+            primeiraConjuracao: varData.primeiraConjuracao ?? r.primeiraConjuracao ?? false,
+            tempoAprendizado: varData.tempoAprendizado ?? r.tempoAprendizado ?? ''
+        } : r;
+    };
+
+    // 2. Grava no subobjeto correto: normal (''), verdadeiro ('buffed.') ou incompleto ('incompletoData.')
+    window.updateRitualFields = async function(id, campos, modoVar) {
+        menusAbertos.add('rit-' + id);
+        const prefixo = (modoVar === true || modoVar === 'buffed')
+            ? 'buffed.'
+            : (modoVar === 'incompleto' ? 'incompletoData.' : '');
+        const o = {};
+        Object.keys(campos).forEach(k => { o[prefixo + k] = campos[k]; });
+        await refRit().doc(id).update(o);
+    };
+    window.updateRitualField = (id, campo, valor, modoVar) => window.updateRitualFields(id, { [campo]: valor }, modoVar);
+    window.ritMudarComplexidade = (id, val, modoVar) => {
+        const c = COMPLEXIDADES[val];
+        return window.updateRitualFields(id, c ? { complexidade: val, tempoAprendizado: c.base } : { complexidade: val }, modoVar);
+    };
+
+    // Alterna mutuamente entre Verdadeiro e Incompleto
+    window.ritAprendido = async function(id, marcado) {
+        menusAbertos.add('rit-' + id);
+        const up = { aprendido: marcado };
+        if (marcado) up.incompleto = false;
+        await refRit().doc(id).update(up);
+    };
+    window.ritIncompleto = async function(id, marcado) {
+        menusAbertos.add('rit-' + id);
+        const up = { incompleto: marcado };
+        if (marcado) up.aprendido = false;
+        await refRit().doc(id).update(up);
+    };
+
+    // 3. Card de Edição na Ficha de Ameaça (com Resistência + botão Incompleto/alterado como versão)
+    window.ritCardHTML = function(o) {
+        const { id, r, v, buf, cor, aberto, afin, btns, toggleJs, symbolJs } = o, E = ritEsc;
+        const modoArg = typeof buf === 'string' ? `'${buf}'` : (buf ? `'buffed'` : `'normal'`);
+        const comp = COMPLEXIDADES[v.complexidade], mod = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual';
+        const pend = !!r.primeiraExecucao, mini = !!r.minidesafio, inc = !!r.incompleto, tem = !!r.temAfinidade;
+        const esp = (r.espontanea !== undefined) ? !!r.espontanea : !!v.primeiraConjuracao;
+        const campo = (rot, k, ph, cheio) => `<label class="rit-field${cheio ? ' full' : ''}"><span class="rit-label" style="color:${cor}">${rot}</span><input type="text" class="rit-input" placeholder="${ph}" value="${E(v[k])}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','${k}',this.value,${modoArg})"></label>`;
+        const marca = (k, on, txt, dica) => `<label class="rit-chip${on ? ' on' : ''}" title="${dica}"><input type="checkbox" ${on ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','${k}',this.checked,'normal')">${txt}</label>`;
+        let info = comp ? `<b>DT ${comp.dt}</b> · estudo ${comp.base}` : 'Escolha a complexidade para calcular a DT e o tempo de estudo.';
+        if (comp && pend) info += `<br>1ª execução: teste de Ocultismo contra DT ${comp.dt}${mini ? ' (+5 do minidesafio)' : ''}. Falha: +${comp.falha} de prática antes de tentar de novo. Falha crítica: consequência adicional.`;
+        else if (comp) info += ' — execução básica dominada, sem novo teste em condições normais.';
+        const avisos = [];
+        if (inc) avisos.push('⚠ Versão Incompleta / Alterada ativa: edições feitas agora ficam salvas separadamente da versão normal.');
+        if (esp) avisos.push('Manifestação espontânea: surge sem conhecimento ritualístico e não concede a capacidade de reproduzir o fenômeno.');
+        const badges = (comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : '')
+            + `<span class="rit-badge" title="${MODALIDADES[mod].nome}">${MODALIDADES[mod].curto}</span>`
+            + (r.aprendido ? '<span class="rit-badge alerta">Verdadeiro</span>' : '')
+            + (inc ? '<span class="rit-badge alerta">Incompleto</span>' : '')
+            + (pend ? '<span class="rit-badge alerta">1ª exec.</span>' : '')
+            + (esp ? '<span class="rit-badge">Espontâneo</span>' : '')
+            + ((tem && afin && r.aprendido) ? '<span class="rit-badge">Afinidade</span>' : '');
+        return `<div class="ritual-card" style="border-left-color:${cor}">
+    <div class="card-header" onclick="${toggleJs}"><span style="color:${cor};font-weight:900">${E(v.nome) || 'Nova Anomalia'}</span><span class="rit-badges">${badges}</span></div>
+    <div class="card-body" id="rit-${id}" style="display:${aberto ? 'block' : 'none'}">
+        <div class="rit-layout-top">
+            <div class="rit-symbol-box" onclick="${symbolJs}">${v.simbolo ? `<img src="${v.simbolo}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${v.sX || 50}% ${v.sY || 50}%;transform:scale(${v.sZ || 1});position:absolute;top:0;left:0;filter:grayscale(100%) contrast(150%);mix-blend-mode:multiply">` : `<span style="text-align:center;font:700 9px 'Inter',sans-serif;color:var(--cor-geral)">REGISTRO<br>(Clique)</span>`}</div>
+            <div class="rit-grid-2">
+                <label class="rit-field full"><span class="rit-label" style="color:${cor}">Nome</span><input type="text" class="rit-input" placeholder="Nome do ritual..." value="${E(v.nome)}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','nome',this.value,${modoArg})"></label>
+                <label class="rit-field"><span class="rit-label" style="color:${cor}">Complexidade</span><select class="rit-input" onclick="event.stopPropagation()" onchange="window.ritMudarComplexidade('${id}',this.value,${modoArg})">${ritOpcoesComplex(v.complexidade)}</select></label>
+                <label class="rit-field"><span class="rit-label" style="color:${cor}">Modalidade</span><select class="rit-input" title="${MODALIDADES[mod].dica}" onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','modalidade',this.value,${modoArg})">${Object.keys(MODALIDADES).map(k => `<option value="${k}" ${mod === k ? 'selected' : ''}>${MODALIDADES[k].nome}</option>`).join('')}</select></label>
+            </div>
+        </div>
+        <div class="rit-info">${info}${avisos.map(a => `<div>${a}</div>`).join('')}</div>
+        <div class="rit-chips">
+            ${marca('primeiraExecucao', pend, '1ª execução pendente', 'Ainda precisa passar pelo teste inicial de Ocultismo')}
+            ${marca('minidesafio', mini, 'Minidesafio resolvido (+5)', 'Acertou o minidesafio ritualístico: +5 no teste de primeira execução')}
+            <label class="rit-chip${r.aprendido ? ' on' : ''}" title="Versão compreendida por completo (salva separadamente)"><input type="checkbox" ${r.aprendido ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritAprendido('${id}',this.checked)">Compreensão total (Verdadeiro)</label>
+            <label class="rit-chip${inc ? ' on' : ''}" title="Versão incompleta ou alterada (puxa os dados do normal, mas edições ficam salvas separadamente)"><input type="checkbox" ${inc ? 'checked' : ''} onclick="event.stopPropagation()" onchange="window.ritIncompleto('${id}',this.checked)">Incompleto / alterado</label>
+            ${marca('espontanea', esp, 'Manifestação espontânea', 'Fenômeno sem conhecimento ou execução deliberada')}
+            ${(afin && r.aprendido) ? marca('temAfinidade', tem, 'Tenho afinidade', 'Mostra o efeito de afinidade') : ''}
+        </div>
+        <div class="rit-grid-2">
+            ${campo('Pré-requisitos', 'preRequisitos', 'Grau de Ocultismo, conhecimentos, componentes...', true)}
+            ${(esp || !pend) ? '' : campo('Projeção de estudo', 'tempoAprendizado', comp ? comp.base : 'Ex: 2 semanas', true)}
+        </div>
+        <div class="rit-sec">EXECUÇÃO</div>
+        <div class="rit-grid-3">
+            ${campo('Tempo', 'tempoConjuracao', 'Ex: Ação Padrão')}${campo('Alcance', 'alcance', 'Ex: Curto')}${campo('Alvo / Área', 'alvo', 'Ex: 1 Ser')}
+            ${campo('Duração', 'duracao', 'Ex: Cena')}${campo('Custo de Fôlego (PF)', 'custoPe', 'Ex: 2')}${campo('Dano mental / Lucidez (PL)', 'custoSanidade', 'Ex: 1d4')}
+            ${campo('Resistência', 'resistencia', 'Ex: Fortitude parcial, Resiliência anula...', true)}
+            ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
+        </div>
+        <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Descrição</span><textarea class="cris-textarea" placeholder="O que é, como se manifesta, aparência, ambientação..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${modoArg})">${E(v.descricao)}</textarea></label>
+        <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Efeito</span><textarea class="cris-textarea" placeholder="Regras, testes e mecânicas do efeito..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','efeito',this.value,${modoArg})">${E(v.efeito)}</textarea></label>
+        <div style="display:${(tem && afin && r.aprendido) ? 'block' : 'none'};margin-top:12px;padding:10px 12px;border:1px solid var(--card-border);background:rgba(0,0,0,.03)">
+            <span class="rit-label" style="font-weight:900">Efeito da afinidade</span>
+            <textarea class="cris-textarea" style="height:50px;border:none;background:transparent;padding:0;margin-top:5px;font-style:italic" placeholder="Como a afinidade modifica este ritual..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','afinidade',this.value,${modoArg})">${E(v.afinidade)}</textarea>
+        </div>
+        <div class="rit-botoes">${btns}</div>
+    </div>
+</div>`;
+    };
+
+    // 4. Visualização no Dossiê da Ameaça: mostra Resistência apenas se preenchida + tag [INCOMPLETO]
+    window.ritViewHTML = function(o) {
+        const { id, v, cor, aberto, afin, extra } = o, E = ritEsc, comp = COMPLEXIDADES[v.complexidade], modk = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual', mod = MODALIDADES[modk];
+        const pend = !!v.primeiraExecucao, esp = (v.espontanea !== undefined) ? !!v.espontanea : !!v.primeiraConjuracao, custo = ritCustoTxt(v);
+        const kv = (k, x) => (x && String(x).trim()) ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
+        const corpo = (v.simbolo ? `<img src="${v.simbolo}" alt="">` : '')
+            + kv('Pré-requisitos', v.preRequisitos)
+            + ((pend && !esp) ? kv('Projeção de estudo', v.tempoAprendizado) + (comp ? kv('1ª execução', `Ocultismo contra DT ${comp.dt}${v.minidesafio ? ' (+5 do minidesafio)' : ''}`) : '') : '')
+            + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
+            + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
+            + kv('Resistência', v.resistencia)
+            + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
+            + (v.efeito ? `<div class="d-kv" style="margin-top:6px"><b>Efeito</b></div><p style="margin-top:2px">${E(v.efeito)}</p>` : '')
+            + ((afin && v.aprendido && v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+        const tagModo = v.aprendido ? '<small>[VERDADEIRO]</small>' : (v.incompleto ? '<small>[INCOMPLETO]</small>' : '');
+        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${tagModo}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
+    };
+
+    // 5. Atualiza renderRituais na Ameaça para passar 'buffed' | 'incompleto' | 'normal'
+    window.renderRituais = function() {
+        const c = $('lista-rituais'); if (!c) return;
+        if ($('rit-ajuda-slot') && !$('rit-ajuda-slot').innerHTML) $('rit-ajuda-slot').innerHTML = RIT_AJUDA;
+        const mestre = ehMestre(), superAdm = ehSuperAdmin(), afin = exp >= 50;
+        let h = mestre ? `<div style="margin-bottom:12px"><button type="button" class="rit-btn mestre" style="width:100%;padding:8px;font-weight:bold" onclick="colarRitualClipboard()">[ 📥 COLAR RITUAL DA ÁREA DE TRANSFERÊNCIA ]</button></div>` : '';
+        RITS.forEach(({ id, r }) => {
+            const isBuffado = !!r.aprendido;
+            const isIncompleto = !isBuffado && !!r.incompleto;
+            const modoEdicao = isBuffado ? 'buffed' : (isIncompleto ? 'incompleto' : 'normal');
+            const v = window.ritView(r);
+            const cor = COR_ELEM[v.elemento] || "var(--op-ink)";
+            const aberto = menusAbertos.has('rit-' + id);
+            h += window.ritCardHTML({
+                id, r, v, buf: modoEdicao, cor, aberto, afin,
+                toggleJs: `toggleRit('${id}')`, symbolJs: `abrirSimbolo('${id}')`,
+                btns: (mestre ? `<button type="button" class="rit-btn mestre" onclick="copiarRitualClipboard('${id}')" title="Copiar ritual para colar em outra ficha">[ 📋 COPIAR ]</button>` : '')
+                    + (superAdm ? `<button type="button" class="rit-btn mestre" onclick="copiarRitualParaSite('${id}')" title="Exportar código para o GitHub">[ 📋 GITHUB ]</button>` : '')
+                    + `<button type="button" class="rit-btn perigo" onclick="removerRitual('${id}')">APAGAR REGISTRO</button>`
+            });
+        });
+        c.innerHTML = h;
+    };
+
+    renderRituais();
+    renderDossie();
+})();
+</script>
 </body>
 </html>
