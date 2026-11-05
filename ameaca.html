@@ -2425,14 +2425,13 @@ if (campanhaParam) {
     </div>
 </div>
     <!-- ======================================================================
-     PATCH FICHA DE AMEAÇA (ameaca.html):
-     1) Campo "Resistência" nas Anomalias/Rituais (só exibe no dossiê se preenchido)
-     2) "Incompleto / alterado" funcionando como versão separada (igual Verdadeiro)
-     Cole imediatamente antes de </body> no seu ameaca.html
+     PATCH COMPLETO — FICHA DE AMEAÇA (ameaca.html):
+     1) Campo "Resistência" nos Rituais/Anomalias (só exibe no dossiê se preenchido)
+     2) "Incompleto / alterado" como versão própria separada (igual ao Verdadeiro)
+     3) Exportação pro GitHub (📤) atualizada com Resistência e Incompleto
      ====================================================================== -->
 <script id="patch-rituais-ameaca">
 (function() {
-    // 1. Resolve qual versão do ritual está ativa (Normal, Verdadeiro/buffed ou Incompleto/incompletoData)
     window.ritView = function(r) {
         const isBuffado = !!r.aprendido;
         const isIncompleto = !isBuffado && !!r.incompleto;
@@ -2447,7 +2446,6 @@ if (campanhaParam) {
         } : r;
     };
 
-    // 2. Grava no subobjeto correto: normal (''), verdadeiro ('buffed.') ou incompleto ('incompletoData.')
     window.updateRitualFields = async function(id, campos, modoVar) {
         menusAbertos.add('rit-' + id);
         const prefixo = (modoVar === true || modoVar === 'buffed')
@@ -2463,7 +2461,6 @@ if (campanhaParam) {
         return window.updateRitualFields(id, c ? { complexidade: val, tempoAprendizado: c.base } : { complexidade: val }, modoVar);
     };
 
-    // Alterna mutuamente entre Verdadeiro e Incompleto
     window.ritAprendido = async function(id, marcado) {
         menusAbertos.add('rit-' + id);
         const up = { aprendido: marcado };
@@ -2477,7 +2474,6 @@ if (campanhaParam) {
         await refRit().doc(id).update(up);
     };
 
-    // 3. Card de Edição na Ficha de Ameaça (com Resistência + botão Incompleto/alterado como versão)
     window.ritCardHTML = function(o) {
         const { id, r, v, buf, cor, aberto, afin, btns, toggleJs, symbolJs } = o, E = ritEsc;
         const modoArg = typeof buf === 'string' ? `'${buf}'` : (buf ? `'buffed'` : `'normal'`);
@@ -2541,7 +2537,6 @@ if (campanhaParam) {
 </div>`;
     };
 
-    // 4. Visualização no Dossiê da Ameaça: mostra Resistência apenas se preenchida + tag [INCOMPLETO]
     window.ritViewHTML = function(o) {
         const { id, v, cor, aberto, afin, extra } = o, E = ritEsc, comp = COMPLEXIDADES[v.complexidade], modk = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual', mod = MODALIDADES[modk];
         const pend = !!v.primeiraExecucao, esp = (v.espontanea !== undefined) ? !!v.espontanea : !!v.primeiraConjuracao, custo = ritCustoTxt(v);
@@ -2559,7 +2554,6 @@ if (campanhaParam) {
         return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${tagModo}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     };
 
-    // 5. Atualiza renderRituais na Ameaça para passar 'buffed' | 'incompleto' | 'normal'
     window.renderRituais = function() {
         const c = $('lista-rituais'); if (!c) return;
         if ($('rit-ajuda-slot') && !$('rit-ajuda-slot').innerHTML) $('rit-ajuda-slot').innerHTML = RIT_AJUDA;
@@ -2581,6 +2575,23 @@ if (campanhaParam) {
             });
         });
         c.innerHTML = h;
+    };
+
+    window.copiarRitualParaSite = async function(id) {
+        try {
+            const doc = await refRit().doc(id).get();
+            if (!doc.exists) return;
+            const r = doc.data();
+            const ritId = r.nome ? r.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_anomalia';
+            const esc = s => String(s || '').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+            const b = r.buffed || {};
+            const inc = r.incompletoData || {};
+
+            const template = `    "${ritId}": { nome: "${r.nome || ''}", elemento: "${r.elemento || 'Nenhum'}", complexidade: "${r.complexidade || ''}", modalidade: "${r.modalidade || 'ritual'}", preRequisitos: "${esc(r.preRequisitos)}", simbolo: "", tempoAprendizado: "${r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${r.tempoConjuracao || ''}", alcance: "${r.alcance || ''}", alvo: "${r.alvo || ''}", duracao: "${r.duracao || ''}", resistencia: "${esc(r.resistencia)}", custoAdicional: "${esc(r.custoAdicional)}", custoPe: "${r.custoPe || ''}", custoSanidade: "${r.custoSanidade || ''}", efeito: "${esc(r.efeito)}", descricao: "${esc(r.descricao)}", afinidade: "${esc(r.afinidade)}", buffed: { nome: "${b.nome || r.nome || ''}", complexidade: "${b.complexidade || r.complexidade || ''}", modalidade: "${b.modalidade || r.modalidade || 'ritual'}", preRequisitos: "${esc(b.preRequisitos || r.preRequisitos)}", simbolo: "", tempoAprendizado: "${b.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${b.tempoConjuracao || ''}", alcance: "${b.alcance || r.alcance || ''}", alvo: "${b.alvo || r.alvo || ''}", duracao: "${b.duracao || r.duracao || ''}", resistencia: "${esc(b.resistencia || r.resistencia)}", custoAdicional: "${esc(b.custoAdicional || r.custoAdicional)}", custoPe: "${b.custoPe || r.custoPe || ''}", custoSanidade: "${b.custoSanidade || r.custoSanidade || ''}", efeito: "${esc(b.efeito || r.efeito)}", descricao: "${esc(b.descricao || r.descricao)}", afinidade: "${esc(b.afinidade || r.afinidade)}" }, incompletoData: { nome: "${inc.nome || r.nome || ''}", complexidade: "${inc.complexidade || r.complexidade || ''}", modalidade: "${inc.modalidade || r.modalidade || 'ritual'}", preRequisitos: "${esc(inc.preRequisitos || r.preRequisitos)}", simbolo: "", tempoAprendizado: "${inc.tempoAprendizado || r.tempoAprendizado || ''}", primeiraConjuracao: false, tempoConjuracao: "${inc.tempoConjuracao || r.tempoConjuracao || ''}", alcance: "${inc.alcance || r.alcance || ''}", alvo: "${inc.alvo || r.alvo || ''}", duracao: "${inc.duracao || r.duracao || ''}", resistencia: "${esc(inc.resistencia || r.resistencia)}", custoAdicional: "${esc(inc.custoAdicional || r.custoAdicional)}", custoPe: "${inc.custoPe || r.custoPe || ''}", custoSanidade: "${inc.custoSanidade || r.custoSanidade || ''}", efeito: "${esc(inc.efeito || r.efeito)}", descricao: "${esc(inc.descricao || r.descricao)}", afinidade: "${esc(inc.afinidade || r.afinidade)}" } },`;
+
+            await navigator.clipboard.writeText(template);
+            alert("📤 ANOMALIA EXPORTADA!\n\nCopiado em linha única (com Resistência, Verdadeiro e Incompleto) para sua Área de Transferência.");
+        } catch(e) { alert("Erro ao copiar o código do ritual: " + e); }
     };
 
     renderRituais();
