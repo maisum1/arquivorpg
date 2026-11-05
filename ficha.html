@@ -7710,14 +7710,15 @@ let filtroSubAtualAtaques = 'Todos';
 })();
 </script>
     <!-- ======================================================================
-     CORREÇÃO: ENQUADRAMENTO DE FOTO (IGUAL AMEAÇAS) + ANOMALIA INCOMPLETA
+     PATCH FICHA DE JOGADOR (ficha.html):
+     1) Campo "Resistência" nas Anomalias (só exibe na visualização se preenchido)
+     2) "Incompleto / alterado" funcionando como versão separada (igual Verdadeiro)
+     3) Enquadramento de foto sem cortes no zoom
      Cole antes de </body> no seu ficha.html
      ====================================================================== -->
 <script id="patch-foto-e-incompleto">
 (function() {
-    // =========================================================================
-    // 1. ENQUADRAMENTO PROPORCIONAL SEM CORTAR IMAGEM (Igual ao ameaca.html)
-    // =========================================================================
+    // 1. ENQUADRAMENTO PROPORCIONAL SEM CORTAR IMAGEM
     function aplicarMatematicaFoto(img, z, x, y) {
         if (!img || !img.parentElement) return;
         const box = img.parentElement;
@@ -7729,7 +7730,6 @@ let filtroSubAtualAtaques = 'Todos';
         const posX = isNaN(parseFloat(x)) ? 50 : parseFloat(x);
         const posY = isNaN(parseFloat(y)) ? 50 : parseFloat(y);
 
-        // Escala base em que zoom = 1 preenche o quadro (cover), e zoom < 1 revela o resto da imagem inteira
         const s = Math.max(w / nw, h / nh) * zoom;
         const iw = nw * s, ih = nh * s;
 
@@ -7741,10 +7741,9 @@ let filtroSubAtualAtaques = 'Todos';
         img.style.width = iw + 'px';
         img.style.height = ih + 'px';
         img.style.left = ((w - iw) * (posX / 100)) + 'px';
-        img.style.top = ((h - ih) * (posY / 100)) + 'px';
+        img.style.top  = ((h - ih) * (posY / 100)) + 'px';
     }
 
-    // Atualiza o retrato principal da ficha sempre que carregar ou mudar de tamanho
     window.ajustarRetratoFicha = function() {
         const img = document.getElementById('display-portrait');
         if (!img || img.style.display === 'none' || !img.src) return;
@@ -7759,7 +7758,6 @@ let filtroSubAtualAtaques = 'Todos';
         }
     }
 
-    // Ajusta os sliders do modal de enquadramento para permitir zoom menor (0.1 a 5) igual às Ameaças
     const sliderZoom = document.getElementById('crop-zoom');
     const sliderX = document.getElementById('crop-x');
     const sliderY = document.getElementById('crop-y');
@@ -7767,7 +7765,6 @@ let filtroSubAtualAtaques = 'Todos';
     if (sliderX)    { sliderX.min = "-50"; sliderX.max = "150"; sliderX.step = "0.5"; }
     if (sliderY)    { sliderY.min = "-50"; sliderY.max = "150"; sliderY.step = "0.5"; }
 
-    // Sobrescreve processarArquivo para preservar a proporção inteira e transparência (WebP)
     window.processarArquivo = function(i) {
         if (i.files && i.files[0]) {
             const r = new FileReader();
@@ -7777,21 +7774,16 @@ let filtroSubAtualAtaques = 'Todos';
                 img.onload = function() {
                     const c = document.createElement('canvas');
                     const ctx = c.getContext('2d');
-
                     let maxW = 800, maxH = 800;
                     let ratio = Math.min(maxW / img.width, maxH / img.height, 1);
                     c.width = Math.round(img.width * ratio);
                     c.height = Math.round(img.height * ratio);
-
                     ctx.clearRect(0, 0, c.width, c.height);
                     ctx.drawImage(img, 0, 0, c.width, c.height);
 
                     const p = document.getElementById('crop-preview');
-                    if (modoCrop === 'ritual') {
-                        p.style.width = "80px"; p.style.height = "80px";
-                    } else {
-                        p.style.width = "130px"; p.style.height = "165px";
-                    }
+                    if (modoCrop === 'ritual') { p.style.width = "80px"; p.style.height = "80px"; }
+                    else { p.style.width = "130px"; p.style.height = "165px"; }
 
                     document.getElementById('modal-config').style.display = 'none';
                     document.getElementById('crop-modal').style.display = 'block';
@@ -7799,11 +7791,9 @@ let filtroSubAtualAtaques = 'Todos';
                     const tempImg = document.getElementById('temp-img');
                     tempImg.onload = function() {
                         const boxW = p.clientWidth || 130, boxH = p.clientHeight || 165;
-                        // Calcula o zoom mínimo para a imagem inteira caber dentro da moldura sem cortar nada
                         const zFit = Math.min(boxW / c.width, boxH / c.height) / Math.max(boxW / c.width, boxH / c.height);
                         if (sliderZoom) {
                             sliderZoom.min = Math.min(0.1, zFit).toFixed(3);
-                            // Já inicia no zoom que mostra a imagem inteira se ela for de proporção diferente
                             sliderZoom.value = zFit < 0.98 ? zFit.toFixed(2) : 1;
                         }
                         if (sliderX) sliderX.value = 50;
@@ -7820,13 +7810,9 @@ let filtroSubAtualAtaques = 'Todos';
 
     window.atualizarPreview = function() {
         const tempImg = document.getElementById('temp-img');
-        const z = document.getElementById('crop-zoom').value;
-        const x = document.getElementById('crop-x').value;
-        const y = document.getElementById('crop-y').value;
-        aplicarMatematicaFoto(tempImg, z, x, y);
+        aplicarMatematicaFoto(tempImg, document.getElementById('crop-zoom').value, document.getElementById('crop-x').value, document.getElementById('crop-y').value);
     };
 
-    // Escuta o carregamento da ficha no Firebase para aplicar o enquadramento sem corte no retrato
     if (typeof atual !== 'undefined' && atual && typeof db !== 'undefined') {
         db.collection("fichas").doc(atual).onSnapshot(doc => {
             if (!doc.exists) return;
@@ -7835,18 +7821,15 @@ let filtroSubAtualAtaques = 'Todos';
             const d = (hF && d_raw.hexatombe_data) ? { ...d_raw, ...d_raw.hexatombe_data } : d_raw;
             const img = document.getElementById('display-portrait');
             if (img && d.portrait) {
-                img.dataset.px = d.pX ?? 50;
-                img.dataset.py = d.pY ?? 50;
-                img.dataset.pz = d.pZ ?? 1;
+                img.dataset.px = (d.pX !== undefined && d.pX !== "") ? d.pX : 50;
+                img.dataset.py = (d.pY !== undefined && d.pY !== "") ? d.pY : 50;
+                img.dataset.pz = (d.pZ !== undefined && d.pZ !== "") ? d.pZ : 1;
                 setTimeout(window.ajustarRetratoFicha, 30);
             }
         });
     }
 
-    // =========================================================================
-    // 2. ANOMALIAS: "INCOMPLETO / ALTERADO" COMO VERSÃO PRÓPRIA (IGUAL VERDADEIRO)
-    // =========================================================================
-    // modoVar: false/'normal' | true/'buffed' (Verdadeiro) | 'incompleto' (Incompleto/alterado)
+    // 2. ANOMALIAS: RESISTÊNCIA + "INCOMPLETO / ALTERADO" COMO VERSÃO PRÓPRIA
     window.updateRitualFields = async function(id, campos, modoVar) {
         menusAbertos.add('rit-' + id);
         const prefixo = (modoVar === true || modoVar === 'buffed')
@@ -7862,7 +7845,6 @@ let filtroSubAtualAtaques = 'Todos';
         return window.updateRitualFields(id, c ? { complexidade: val, tempoAprendizado: c.base } : { complexidade: val }, modoVar);
     };
 
-    // Alternar "Verdadeiro" ou "Incompleto" (mutuamente exclusivos para cada versão ter seus dados)
     window.ritAprendido = async function(id, marcado) {
         menusAbertos.add('rit-' + id);
         const up = { aprendido: marcado };
@@ -7876,7 +7858,6 @@ let filtroSubAtualAtaques = 'Todos';
         await db.collection("fichas").doc(atual).collection((isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais").doc(id).update(up);
     };
 
-    // Atualiza ritCardHTML para passar o modo correto ('buffed', 'incompleto' ou 'normal')
     window.ritCardHTML = function(o) {
         const { id, r, v, buf, cor, aberto, afin, btns, toggleJs, symbolJs } = o, E = ritEsc;
         const modoArg = typeof buf === 'string' ? `'${buf}'` : (buf ? `'buffed'` : `'normal'`);
@@ -7926,6 +7907,7 @@ let filtroSubAtualAtaques = 'Todos';
         <div class="rit-grid-3">
             ${campo('Tempo', 'tempoConjuracao', 'Ex: Ação Padrão')}${campo('Alcance', 'alcance', 'Ex: Curto')}${campo('Alvo / Área', 'alvo', 'Ex: 1 Ser')}
             ${campo('Duração', 'duracao', 'Ex: Cena')}${campo('Custo de Fôlego (PF)', 'custoPe', 'Ex: 2')}${campo('Dano mental / Lucidez (PL)', 'custoSanidade', 'Ex: 1d4')}
+            ${campo('Resistência', 'resistencia', 'Ex: Fortitude parcial, Resiliência anula...', true)}
             ${campo('Custo adicional', 'custoAdicional', 'Ex: 1 vela, sangue de animal, componente raro...', true)}
         </div>
         <label class="rit-field" style="margin-top:12px"><span class="rit-label" style="color:${cor}">Descrição</span><textarea class="cris-textarea" placeholder="O que é, como se manifesta, aparência, ambientação..." onclick="event.stopPropagation()" onchange="window.updateRitualField('${id}','descricao',this.value,${modoArg})">${E(v.descricao)}</textarea></label>
@@ -7939,17 +7921,24 @@ let filtroSubAtualAtaques = 'Todos';
 </div>`;
     };
 
-    // Inclui tag [INCOMPLETO] na visualização resumida do ritual concluído
-    const oldRitViewHTML = window.ritViewHTML;
+    // Visualização simplificada: exibe "Resistência" somente se tiver algo escrito + tag [INCOMPLETO]
     window.ritViewHTML = function(o) {
-        let html = oldRitViewHTML(o);
-        if (o.v && o.v.incompleto && !o.v.aprendido) {
-            html = html.replace('❖ ' + (ritEsc(o.v.nome) || 'Nova Anomalia'), '❖ ' + (ritEsc(o.v.nome) || 'Nova Anomalia') + '<small>[INCOMPLETO]</small>');
-        }
-        return html;
+        const { id, v, cor, aberto, afin, extra } = o, E = ritEsc, comp = COMPLEXIDADES[v.complexidade], modk = MODALIDADES[v.modalidade] ? v.modalidade : 'ritual', mod = MODALIDADES[modk];
+        const pend = !!v.primeiraExecucao, esp = (v.espontanea !== undefined) ? !!v.espontanea : !!v.primeiraConjuracao, custo = ritCustoTxt(v);
+        const kv = (k, x) => (x && String(x).trim()) ? `<div class="d-kv"><b>${k}</b><span>${E(x)}</span></div>` : '';
+        const corpo = (v.simbolo ? `<img src="${v.simbolo}" alt="">` : '')
+            + kv('Pré-requisitos', v.preRequisitos)
+            + ((pend && !esp) ? kv('Projeção de estudo', v.tempoAprendizado) + (comp ? kv('1ª execução', `Ocultismo contra DT ${comp.dt}${v.minidesafio ? ' (+5 do minidesafio)' : ''}`) : '') : '')
+            + (v.incompleto ? kv('Atenção', 'Fórmula incompleta ou alterada') : '')
+            + kv('Tempo de execução', v.tempoConjuracao) + kv('Alcance', v.alcance) + kv('Alvo / área', v.alvo) + kv('Duração', v.duracao)
+            + kv('Resistência', v.resistencia)
+            + (v.descricao ? `<p>${E(v.descricao)}</p>` : '')
+            + (v.efeito ? `<div class="d-kv" style="margin-top:6px"><b>Efeito</b></div><p style="margin-top:2px">${E(v.efeito)}</p>` : '')
+            + ((afin && v.aprendido && v.temAfinidade && v.afinidade) ? `<p><em>${E(v.afinidade)}</em></p>` : '');
+        const tagModo = v.aprendido ? '<small>[VERDADEIRO]</small>' : (v.incompleto ? '<small>[INCOMPLETO]</small>' : '');
+        return `<div class="d-rit${aberto ? ' aberto' : ''}" id="rv-${id}" style="border-left-color:${cor}"><div class="d-rit-h" onclick="ritToggleV('${id}')"><span style="color:${cor}">❖ ${E(v.nome) || 'Nova Anomalia'}${tagModo}${custo ? `<span class="d-custo">${E(custo)}</span>` : ''}</span><span class="d-rit-dir"><span class="rit-badges">${comp ? `<span class="rit-badge" title="${comp.nome}">${v.complexidade}</span>` : ''}<span class="rit-badge" title="${mod.nome}">${mod.curto}</span></span><i>▸</i></span></div><div class="d-rit-b" id="rvb-${id}" style="display:${aberto ? 'block' : 'none'}">${corpo || '<em>Sem detalhes.</em>'}${extra ? `<div class="rit-botoes">${extra}</div>` : ''}</div></div>`;
     };
 
-    // Atualiza carregarRituais para mesclar r.incompletoData quando r.incompleto estiver ativo
     window.carregarRituais = function() {
         if (unsubRit) unsubRit();
         const p = (isHexatombe || globalHexatombe) ? "hexa_rituais" : "rituais";
@@ -7974,7 +7963,6 @@ let filtroSubAtualAtaques = 'Todos';
                 const isIncompleto = !isBuffado && !!r.incompleto;
                 const modoEdicao = isBuffado ? 'buffed' : (isIncompleto ? 'incompleto' : 'normal');
 
-                // Puxa os dados do normal como base e sobrepõe com buffed (se Verdadeiro) ou incompletoData (se Incompleto)
                 const varData = isBuffado ? (r.buffed || {}) : (isIncompleto ? (r.incompletoData || {}) : {});
                 const rView = (isBuffado || isIncompleto) ? {
                     ...r,
@@ -8016,7 +8004,6 @@ let filtroSubAtualAtaques = 'Todos';
         });
     };
 
-    // Reinicia a escuta de rituais já com o suporte à versão Incompleta
     if (typeof atual !== 'undefined' && atual) {
         setTimeout(() => window.carregarRituais(), 200);
     }
