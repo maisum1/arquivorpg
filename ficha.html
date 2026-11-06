@@ -5119,26 +5119,40 @@ let filtroSubAtualAtaques = 'Todos';
 
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
-            if (minhaFichaId) {
-                const painelJog = document.getElementById('controles-jogador-iniciativa');
-                if (painelJog) painelJog.style.display = 'block';
-            }
+            const painelJog = document.getElementById('controles-jogador-iniciativa');
+            const painelMestre = document.getElementById('controles-mestre-iniciativa');
+            const simulandoJogador = localStorage.getItem('arquivo_perspectiva_sim') === 'jogador';
 
-            try {
-                const campSnap = await db.collection("campanhas").where("codigo", "==", campanhaId).get();
-                if (!campSnap.empty) {
-                    const dadosCamp = campSnap.docs[0].data();
-                    const checarSuperAdmin = (usuarioLogado.email && usuarioLogado.email.toLowerCase() === "pedroacpr@gmail.com");
-                    
-                    if (dadosCamp.dono === usuarioLogado.uid || checarSuperAdmin) {
-                        souMestreDestaCampanha = true;
-                        document.getElementById('controles-mestre-iniciativa').style.display = 'block';
-                        const painelJog = document.getElementById('controles-jogador-iniciativa');
-                        if (painelJog) painelJog.style.display = 'none';
-                        carregarCombatentesDisponiveis();
-                    }
+            // Jogador: só o campo de valor (a persona é a ficha aberta). Mestre: seletor de combatente.
+            const aplicarPapelIniciativa = (ehMestre) => {
+                souMestreDestaCampanha = !!ehMestre && !simulandoJogador;
+                if (painelMestre) painelMestre.style.display = souMestreDestaCampanha ? 'block' : 'none';
+                if (painelJog) painelJog.style.display = (!souMestreDestaCampanha && minhaFichaId) ? 'block' : 'none';
+                const lblNome = document.getElementById('init-meu-personagem');
+                if (lblNome) {
+                    const n = (document.getElementById('nome-personagem')?.value || '').trim();
+                    lblNome.textContent = n ? ('⚔️ ' + n) : '';
                 }
-            } catch (e) { console.log("Erro ao validar mestre."); }
+            };
+
+            const chavePapel = campanhaId + '|' + usuarioLogado.uid;
+            if (window.__iniPapel && window.__iniPapel.chave === chavePapel) {
+                aplicarPapelIniciativa(window.__iniPapel.mestre);   // já resolvido: só reaplica (sem piscar nem recarregar a lista)
+            } else {
+                aplicarPapelIniciativa(false);   // começa SEMPRE como jogador, até confirmar que é o mestre
+                try {
+                    const campSnap = await db.collection("campanhas").where("codigo", "==", campanhaId).get();
+                    let ehMestre = false;
+                    if (!campSnap.empty) {
+                        const dadosCamp = campSnap.docs[0].data();
+                        const checarSuperAdmin = (usuarioLogado.email && usuarioLogado.email.toLowerCase() === "pedroacpr@gmail.com");
+                        ehMestre = (dadosCamp.dono === usuarioLogado.uid) || checarSuperAdmin;
+                    }
+                    window.__iniPapel = { chave: chavePapel, mestre: ehMestre };
+                    aplicarPapelIniciativa(ehMestre);
+                    if (ehMestre) carregarCombatentesDisponiveis();
+                } catch (e) { console.log("Erro ao validar mestre."); }
+            }
 
             const listaContainer = document.getElementById('container-lista-iniciativa');
             if (listaContainer && !listaContainer.dataset.dragAttached) {
@@ -5357,6 +5371,12 @@ let filtroSubAtualAtaques = 'Todos';
                 if (snap.exists) {
                     meuNome = snap.data().nome || "Persona";
                     minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
+                    const uAtualIni = firebase.auth().currentUser;
+                    if (!souMestreDestaCampanha && uAtualIni && snap.data().dono && snap.data().dono !== uAtualIni.uid) {
+                        alert("Você só pode enviar a iniciativa da sua própria ficha.");
+                        inputVal.placeholder = "Valor...";
+                        return;
+                    }
                 } else {
                     snap = await db.collection("ameacas").doc(minhaFichaId).get();
                     if (snap.exists) {
@@ -5411,6 +5431,8 @@ let filtroSubAtualAtaques = 'Todos';
                     const tag = opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] ';
                     select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome} (AGI ${opt.agi})</option>`;
                 });
+                const fichaAberta = new URLSearchParams(window.location.search).get('id');
+                if (fichaAberta && opcoesDeCombatentes.some(o => o.id === fichaAberta)) select.value = fichaAberta;
             } catch (e) {}
         }
 
@@ -6033,6 +6055,7 @@ let filtroSubAtualAtaques = 'Todos';
     <div id="container-lista-iniciativa" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px;"></div>
 
     <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
+        <div id="init-meu-personagem" style="font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: var(--cor-geral); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
         <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
             <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
             <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">Enviar</button>
@@ -8519,9 +8542,12 @@ let filtroSubAtualAtaques = 'Todos';
 
                 <!-- CABEÇALHO -->
                 <header class="fq-op2-header">
-                    <div class="fq-op2-name-wrap">
-                        <h2 class="fq-op2-name" id="fq2-nome">PERSONA</h2>
-                        <span class="fq-op2-fullname" id="fq2-fullname"></span>
+                    <div class="fq-op2-id-col">
+                        <div class="fq-op2-name-wrap">
+                            <h2 class="fq-op2-name" id="fq2-nome">PERSONA</h2>
+                            <span class="fq-op2-fullname" id="fq2-fullname"></span>
+                        </div>
+                        <div class="fq-op2-meta-line" id="fq2-meta"></div>
                     </div>
                     <div class="fq-op2-classbar">
                         <span class="fq-op2-origin-banner" id="fq2-origem">ORIGEM</span>
@@ -8624,6 +8650,31 @@ let filtroSubAtualAtaques = 'Todos';
         window.renderFichaRapidaOP2();
     };
 
+    const fqEhMobile = () => window.matchMedia('(max-width: 860px)').matches;
+    let fqScrollSalvo = 0;
+    function fqTravarRolagem(travar) {
+        const html = document.documentElement, body = document.body;
+        if (travar) {
+            if (html.classList.contains('fq-lock')) return;
+            fqScrollSalvo = window.scrollY || 0;
+            html.classList.add('fq-lock');
+            if (fqEhMobile()) {   // iOS: impede a página de trás de rolar/aparecer
+                body.style.position = 'fixed';
+                body.style.top = `-${fqScrollSalvo}px`;
+                body.style.left = '0';
+                body.style.right = '0';
+                body.style.width = '100%';
+            }
+        } else {
+            if (!html.classList.contains('fq-lock')) return;
+            html.classList.remove('fq-lock');
+            if (body.style.position === 'fixed') {
+                body.style.position = ''; body.style.top = ''; body.style.left = ''; body.style.right = ''; body.style.width = '';
+                window.scrollTo(0, fqScrollSalvo);
+            }
+        }
+    }
+
     window.abrirFichaRapidaOP2 = function(abrir) {
         const modal = document.getElementById('ficha-rapida');
         const backdrop = document.getElementById('fq-backdrop');
@@ -8632,11 +8683,22 @@ let filtroSubAtualAtaques = 'Todos';
             window.renderFichaRapidaOP2();
             modal.classList.add('open');
             backdrop.classList.add('open');
+            modal.scrollTop = 0;
+            fqTravarRolagem(true);
         } else {
             modal.classList.remove('open');
             backdrop.classList.remove('open');
+            fqTravarRolagem(false);
         }
     };
+
+    if (!window.__fqEscOP2) {
+        window.__fqEscOP2 = true;
+        document.addEventListener('keydown', e => {
+            const m = document.getElementById('ficha-rapida');
+            if (e.key === 'Escape' && m && m.classList.contains('open')) window.abrirFichaRapidaOP2(false);
+        });
+    }
 
     window.fq2IrAba = function(aba) {
         window.abrirFichaRapidaOP2(false);
@@ -8702,6 +8764,18 @@ let filtroSubAtualAtaques = 'Todos';
 
         document.getElementById('fq2-nome').innerText = primeiroNome;
         document.getElementById('fq2-fullname').innerText = restoNome;
+
+        // Idade e local de nascimento (linha discreta sob o nome)
+        const metaEl = document.getElementById('fq2-meta');
+        if (metaEl) {
+            const idadeTxt = (document.getElementById('idade-personagem')?.value || '').toString().trim();
+            const nascTxt = (document.getElementById('bgNascimento')?.value || '').trim();
+            const escM = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const partesMeta = [];
+            if (idadeTxt && idadeTxt !== '0') partesMeta.push(`<span><i>Idade</i>${escM(idadeTxt)}</span>`);
+            if (nascTxt) partesMeta.push(`<span title="${escM(nascTxt)}"><i>Nasc.</i>${escM(nascTxt)}</span>`);
+            metaEl.innerHTML = partesMeta.join('');
+        }
         document.getElementById('fq2-origem').innerText = origem;
         const arqEl = document.getElementById('fq2-arquetipo');
         if (arqEl) {
@@ -8817,7 +8891,7 @@ let filtroSubAtualAtaques = 'Todos';
                             algumaSubAdicionada = true;
                             linhas.push(`
                                 <div class="fq-op2-sk-row">
-                                    <span class="fq-op2-sk-name" title="${p}: ${sNome}">${sNome}</span>
+                                    <span class="fq-op2-sk-name has-parent" title="${p}: ${sNome}"><small class="fq-op2-sk-parent">${p}</small><span class="fq-op2-sk-sub">${sNome}</span></span>
                                     <span class="fq-op2-sk-icons">
                                         ${fmtShape(st)}
                                         <span class="fq-op2-sk-plus">+</span>
@@ -8904,7 +8978,7 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="fq-op2-power-head">
                             <span class="fq-op2-power-banner paranormal">ANOMALIAS</span>
                         </div>
-                        <div class="fq-op2-power-desc">${rituaisUnicos.join(' &nbsp;•&nbsp; ')}</div>
+                        <div class="fq-op2-power-desc">${rituaisUnicos.map(t => `<div class="fq-op2-line-item">${t}</div>`).join('')}</div>
                     </div>
                 `);
             }
@@ -8935,7 +9009,7 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="fq-op2-power-head">
                             <span class="fq-op2-power-banner">EQUIPAMENTO</span>
                         </div>
-                        <div class="fq-op2-power-desc">${armasFormatadas.join(' &nbsp;•&nbsp; ')}</div>
+                        <div class="fq-op2-power-desc">${armasFormatadas.map(t => `<div class="fq-op2-line-item">${t}</div>`).join('')}</div>
                     </div>
                 `);
             }
@@ -8952,7 +9026,9 @@ let filtroSubAtualAtaques = 'Todos';
     }
 })();
 </script>
-    <!-- ======================================================================
+
+<!-- ===== PAPEL GASTO + AJUSTES DA FICHA RÁPIDA ===== -->
+<!-- ======================================================================
   FICHA RÁPIDA — PAPEL MANCHADO + TINTA DESGASTADA
   COMO USAR: cole este bloco INTEIRO no ficha.html, logo antes do </body>
   (depois do último <script>). Tem que vir DEPOIS do <style id="fq-op2-unified-css">,
@@ -9187,11 +9263,12 @@ body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapi
 }
 */
 </style>
-    <style id="fq-x-ajuste-1">
-/* 1) PAPEL = sua imagem (sem textura gerada por cima) */
+
+<style id="fq-x-ajuste-1">
+/* 1) PAPEL = imagem (sem textura gerada por cima) */
 body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-sheet.fq-op2-board{
   background-color: #e3dbc7 !important;
-  background-image: url("https://i.imgur.com/bWwYxZ0.jpeg") !important;
+  background-image: url("https://i.imgur.com/LBw6Ir0.jpeg") !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -9205,11 +9282,11 @@ body #ficha-rapida{
   --fq-x-tinta-sombra: 0 0 .4px rgba(30,20,10,.4);
 }
 
-/* 3) Losangos e ícones pequenos sem desgaste (para os números ficarem legíveis) */
+/* 3) Losangos e ícones pequenos sem desgaste (números legíveis) */
 #ficha-rapida .fq-op2-diamond,
 #ficha-rapida .fq-op2-shape{ background-image: none; }
 
-/* 4) Carimbo: volta ao filtro original que já existia no seu arquivo */
+/* 4) Carimbo: volta ao filtro original do arquivo */
 body #ficha-rapida .fq-op2-stamp-lvl{
   filter: url(#fq-carimbo-filter) !important;
   background: none;
@@ -9222,5 +9299,154 @@ body #ficha-rapida .fq-op2-stamp-lvl{
   #ficha-rapida .fq-sheet.fq-op2-board::after{ opacity: .5; }
 }
 </style>
+
+<style id="fq-x-ajuste-2">
+/* ======================================================================
+   AJUSTE 2 — subperícias, listas verticais, idade/nascimento,
+   tarjas no modo escuro e LAYOUT MOBILE da Ficha Rápida
+   ====================================================================== */
+
+/* ---------- A) Perícia-mãe discreta nas subperícias ---------- */
+#ficha-rapida .fq-op2-sk-name.has-parent{
+  display:flex; flex-direction:column; align-items:flex-end; justify-content:center;
+  white-space:normal; line-height:1.05;
+}
+#ficha-rapida .fq-op2-sk-parent{
+  display:block; font:700 7.5px/1 'Courier Prime', monospace; letter-spacing:1.2px;
+  text-transform:uppercase; color:var(--fq-ink-soft); opacity:.7; margin-bottom:1px;
+}
+#ficha-rapida .fq-op2-sk-sub{
+  max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* ---------- B) Anomalias e equipamento: um por linha ---------- */
+#ficha-rapida .fq-op2-line-item{ line-height:1.35; padding:1px 0; }
+#ficha-rapida .fq-op2-line-item + .fq-op2-line-item{
+  border-top:1px dotted var(--fq-line-guide); margin-top:2px; padding-top:3px;
+}
+
+/* ---------- C) Idade e local de nascimento (cabeçalho) ---------- */
+#ficha-rapida .fq-op2-header{ margin-bottom:8px; }
+#ficha-rapida .fq-op2-id-col{ display:flex; flex-direction:column; gap:4px; min-width:0; max-width:100%; }
+#ficha-rapida .fq-op2-meta-line{
+  display:flex; flex-wrap:wrap; gap:2px 14px;
+  font:700 10px/1.2 'Courier Prime', monospace; letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--fq-ink-soft); max-width:34vw;
+}
+#ficha-rapida .fq-op2-meta-line:empty{ display:none; }
+#ficha-rapida .fq-op2-meta-line span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+#ficha-rapida .fq-op2-meta-line i{ font-style:normal; color:var(--fq-ink-faint); margin-right:5px; }
+
+/* ---------- D) Modo escuro: tarjas padrão agora aparecem ---------- */
+body.tema-escuro #ficha-rapida,
+body.tema-hexatombe #ficha-rapida,
+body.modo-sobrevivencia #ficha-rapida{
+  --fq-tag-bg:#d8d0be;
+  --fq-tag-fg:#17150f;
+  /* desgaste da tinta nas tarjas claras: bem sutil, para não atrapalhar a leitura do texto */
+  --fq-x-wear-tinta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .72 0 0 0 0 .69 0 0 0 0 .62 9 0 0 0 -5.9'/%3E%3C/filter%3E%3Crect width='160' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
+}
+body.tema-escuro #ficha-rapida .fq-op2-sec-ribbon,
+body.tema-hexatombe #ficha-rapida .fq-op2-sec-ribbon,
+body.modo-sobrevivencia #ficha-rapida .fq-op2-sec-ribbon,
+body.tema-escuro #ficha-rapida .fq-op2-origin-banner,
+body.tema-hexatombe #ficha-rapida .fq-op2-origin-banner,
+body.modo-sobrevivencia #ficha-rapida .fq-op2-origin-banner,
+body.tema-escuro #ficha-rapida .fq-op2-power-banner:not(.paranormal),
+body.tema-hexatombe #ficha-rapida .fq-op2-power-banner:not(.paranormal),
+body.modo-sobrevivencia #ficha-rapida .fq-op2-power-banner:not(.paranormal),
+body.tema-escuro #ficha-rapida .fq-op2-diamond,
+body.tema-hexatombe #ficha-rapida .fq-op2-diamond,
+body.modo-sobrevivencia #ficha-rapida .fq-op2-diamond,
+body.tema-escuro #ficha-rapida .fq-op2-shape,
+body.tema-hexatombe #ficha-rapida .fq-op2-shape,
+body.modo-sobrevivencia #ficha-rapida .fq-op2-shape{
+  background-color:var(--fq-tag-bg) !important;
+  color:var(--fq-tag-fg) !important;
+  box-shadow:none;
+}
+body.tema-escuro #ficha-rapida .fq-op2-diamond input,
+body.tema-hexatombe #ficha-rapida .fq-op2-diamond input,
+body.modo-sobrevivencia #ficha-rapida .fq-op2-diamond input{
+  color:var(--fq-tag-fg) !important;
+}
+
+/* ---------- E) MOBILE: a ficha rápida inteira rola, sem rolagem aninhada ---------- */
+html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
+
+@media (max-width: 860px){
+  /* o container vira a tela cheia que rola; fundo opaco = nada da ficha normal aparece por trás */
+  #ficha-rapida{
+    position:fixed !important; inset:0 !important;
+    display:block !important; padding:0 !important; margin:0 !important;
+    overflow-x:hidden !important; overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y;
+    background-color:var(--fq-paper-bg);
+  }
+
+  /* a folha cresce conforme o conteúdo (sem altura fixa) */
+  #ficha-rapida .fq-sheet.fq-op2-board{
+    display:flex !important; flex-direction:column !important;
+    width:100% !important; max-width:none !important;
+    height:auto !important; min-height:100% !important; max-height:none !important;
+    aspect-ratio:auto !important; overflow:visible !important;
+    padding:20px 16px 84px !important; gap:16px !important;
+    border:0 !important;
+  }
+
+  /* ordem de leitura: cabeçalho, retrato, atributos/perícias, direita, rodapé */
+  #ficha-rapida .fq-op2-header{
+    order:1; flex-direction:column !important; align-items:flex-start !important;
+    gap:10px; padding-right:44px !important;
+  }
+  #ficha-rapida .fq-op2-name-wrap{ flex-wrap:wrap; row-gap:2px; }
+  #ficha-rapida .fq-op2-name{ font-size:44px !important; }
+  #ficha-rapida .fq-op2-meta-line{ max-width:100%; }
+  #ficha-rapida .fq-op2-classbar{ gap:10px 12px; }
+
+  #ficha-rapida .fq-op2-center{
+    order:2; flex:none; width:100%; height:300px !important; margin:0;
+  }
+  #ficha-rapida .fq-op2-center img{
+    width:auto !important; max-width:100% !important; height:100% !important;
+  }
+  #ficha-rapida .fq-op2-left{ order:3; flex:none; padding:0 !important; gap:14px; justify-content:flex-start !important; }
+  #ficha-rapida .fq-op2-right{ order:4; flex:none; padding:0 !important; }
+  #ficha-rapida .fq-op2-footer{ order:5; flex-wrap:wrap; gap:10px; }
+
+  /* nada de listas rolando dentro de listas: tudo aberto */
+  #ficha-rapida .fq-op2-skills-wrap{ flex:none !important; }
+  #ficha-rapida .fq-op2-skills-scroll,
+  #ficha-rapida .fq-op2-powers-scroll{
+    flex:none !important; max-height:none !important; overflow:visible !important; padding-right:0 !important;
+  }
+
+  /* trilhas PV/LUC/FÔL cabem em telas estreitas */
+  #ficha-rapida .fq-op2-track-row{ grid-template-columns:42px 34px minmax(0,1fr) auto !important; }
+  #ficha-rapida .fq-op2-track-Step button{ width:25px; height:26px; }
+  #ficha-rapida .fq-op2-pip{ width:11px; height:14px; }
+  #ficha-rapida .fq-op2-iconbtn{ width:34px; height:30px; }
+
+  /* fechar e moldura sempre visíveis enquanto rola */
+  #ficha-rapida .fq-op2-close{
+    position:fixed; top:12px; right:12px; width:34px; height:34px; font-size:20px;
+    background:var(--fq-paper-bg); z-index:60;
+  }
+  #ficha-rapida .fq-op2-frame{ position:fixed; inset:8px; }
+
+  /* papel (imagem) em celular: repete na vertical em vez de esticar */
+  body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-sheet.fq-op2-board{
+    background-size:900px auto !important;
+    background-repeat:repeat-y !important;
+    background-position:50% 0 !important;
+  }
+
+  /* botão/painel de iniciativa não cobrem o conteúdo */
+  html.fq-lock #fq-open{ display:none !important; }
+  html.fq-lock #btn-toggle-iniciativa{ right:12px !important; bottom:12px !important; padding:9px 12px !important; z-index:9998 !important; }
+  html.fq-lock #painel-iniciativa-combate{ right:12px !important; bottom:62px !important; max-width:calc(100vw - 24px) !important; }
+}
+</style>
+
 </body>
 </html>
