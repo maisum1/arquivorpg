@@ -8952,5 +8952,240 @@ let filtroSubAtualAtaques = 'Todos';
     }
 })();
 </script>
+    <!-- ======================================================================
+  FICHA RÁPIDA — PAPEL MANCHADO + TINTA DESGASTADA
+  COMO USAR: cole este bloco INTEIRO no ficha.html, logo antes do </body>
+  (depois do último <script>). Tem que vir DEPOIS do <style id="fq-op2-unified-css">,
+  porque ele sobrescreve as regras daquele bloco. Não precisa de nenhuma imagem.
+  Para desfazer: apague o bloco.
+  ====================================================================== -->
+
+<!-- ============ 1) FILTROS SVG (tinta desgastada, rabisco, carimbo) ============ -->
+<svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
+  <defs>
+    <!-- Letras grandes com borda levemente irregular (tinta/tipografia de prensa) -->
+    <filter id="fq-x-borda" x="-3%" y="-15%" width="106%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="2" seed="11" result="w"/>
+      <feDisplacementMap in="SourceGraphic" in2="w" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+    <!-- Traço de caneta/rabisco: tremida + falhas de tinta (barras PV, LUC, FÔL) -->
+    <filter id="fq-x-rabisco" x="-3%" y="-40%" width="106%" height="180%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045 0.09" numOctaves="2" seed="8" result="w"/>
+      <feDisplacementMap in="SourceGraphic" in2="w" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.1" result="falhas"/>
+      <feComposite in="d" in2="falhas" operator="in"/>
+    </filter>
+
+    <!-- Carimbo: falhas finas + manchas grandes sem tinta + leve tremor -->
+    <filter id="fq-x-carimbo" x="-12%" y="-20%" width="124%" height="140%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="g"/>
+      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.55" result="fino"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="2" result="m"/>
+      <feColorMatrix in="m" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.0" result="mancha"/>
+      <feComposite in="fino" in2="mancha" operator="in" result="corte"/>
+      <feComposite in="SourceGraphic" in2="corte" operator="in" result="tinta"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="7" result="w"/>
+      <feDisplacementMap in="tinta" in2="w" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<style id="fq-x-papel-gasto">
+/* ======================================================================
+   2) TEXTURAS (todas geradas por ruído SVG embutido — sem arquivos externos)
+   ====================================================================== */
+#ficha-rapida{
+  /* mosqueado marrom do papel (manchas grandes e suaves) */
+  --fq-x-mancha: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='700'%3E%3Cfilter id='b' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .008' numOctaves='5' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .52 0 0 0 0 .36 0 0 0 0 .16 0 0 0 1.5 -.7'/%3E%3C/filter%3E%3Crect width='900' height='700' filter='url(%23b)'/%3E%3C/svg%3E");
+
+  /* relevo/fibra do papel (luz rasante sobre ruído fino) */
+  --fq-x-relevo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='p' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' seed='5' stitchTiles='stitch' result='t'/%3E%3CfeDiffuseLighting in='t' surfaceScale='1.3'%3E%3CfeDistantLight azimuth='50' elevation='64'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23p)' opacity='.55'/%3E%3C/svg%3E");
+
+  /* "desgaste" da folha: pontinhos da cor do papel por cima de tudo, concentrados em zonas */
+  --fq-x-wear-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1180' height='720'%3E%3Cfilter id='w' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' result='h'/%3E%3CfeColorMatrix in='h' values='0 0 0 0 .86 0 0 0 0 .83 0 0 0 0 .75 10 0 0 0 -5.8' result='s'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='3' seed='9' result='l'/%3E%3CfeColorMatrix in='l' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 8 0 0 0 -4.4' result='z'/%3E%3CfeComposite in='s' in2='z' operator='in'/%3E%3C/filter%3E%3Crect width='1180' height='720' filter='url(%23w)'/%3E%3C/svg%3E");
+
+  /* "furos" de tinta nas tarjas/losangos/etiquetas: riscos horizontais, como rolo de tinta seco.
+     Branco + multiply = mostra o papel por baixo (buraco na tinta). */
+  --fq-x-wear-tinta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 9 0 0 0 -5.2'/%3E%3C/filter%3E%3Crect width='160' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
+
+  --fq-x-tinta-sombra: 0 0 .5px rgba(30,20,10,.6), 0 0 2px rgba(30,20,10,.2);
+}
+
+/* Versão para temas escuros: os furos passam a ter a cor do papel escuro */
+body.tema-escuro #ficha-rapida,
+body.tema-hexatombe #ficha-rapida,
+body.modo-sobrevivencia #ficha-rapida{
+  --fq-x-wear-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1180' height='720'%3E%3Cfilter id='w' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' result='h'/%3E%3CfeColorMatrix in='h' values='0 0 0 0 .082 0 0 0 0 .078 0 0 0 0 .075 10 0 0 0 -5.8' result='s'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='3' seed='9' result='l'/%3E%3CfeColorMatrix in='l' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 8 0 0 0 -4.4' result='z'/%3E%3CfeComposite in='s' in2='z' operator='in'/%3E%3C/filter%3E%3Crect width='1180' height='720' filter='url(%23w)'/%3E%3C/svg%3E");
+  --fq-x-wear-tinta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .082 0 0 0 0 .078 0 0 0 0 .075 9 0 0 0 -5.2'/%3E%3C/filter%3E%3Crect width='160' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
+  --fq-x-tinta-sombra: none;
+}
+
+/* ======================================================================
+   3) A FOLHA: papel amarelado, manchado, com bordas queimadas
+   (tema claro = versão completa)
+   ====================================================================== */
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-sheet.fq-op2-board{
+  background-color: #e3dbc7 !important;
+  background-image:
+    /* 1-3  pingos avermelhados (respingo) */
+    radial-gradient(circle 2.6px at 93.2% 23%, rgba(140,28,28,.55), transparent 3.2px),
+    radial-gradient(circle 1.6px at 94.4% 25.5%, rgba(140,28,28,.5), transparent 2.2px),
+    radial-gradient(circle 1.2px at 92.1% 27%, rgba(140,28,28,.45), transparent 1.8px),
+    /* 4-5  marcas de copo/café: miolo fraco + aro escuro + halo */
+    radial-gradient(circle 76px at 72% 80%, rgba(112,72,30,.05) 0 56px, rgba(112,72,30,.24) 59px 61px, rgba(112,72,30,.05) 66px, transparent 76px),
+    radial-gradient(circle 48px at 8% 88%, rgba(112,72,30,.04) 0 32px, rgba(112,72,30,.18) 34px 36px, transparent 48px),
+    /* 6-7  dobras (uma horizontal no meio, uma vertical em 1/3) */
+    linear-gradient(180deg, transparent calc(50% - 5px), rgba(70,48,22,.06) calc(50% - 1px), rgba(70,48,22,.15) 50%, rgba(70,48,22,.05) calc(50% + 1px), transparent calc(50% + 6px)),
+    linear-gradient(90deg, transparent calc(33.333% - 4px), rgba(70,48,22,.05) calc(33.333% - 1px), rgba(70,48,22,.11) 33.333%, transparent calc(33.333% + 4px)),
+    /* 8-10  manchas grandes de oxidação/umidade */
+    radial-gradient(ellipse 260px 180px at 18% 30%, rgba(150,110,50,.15), transparent 70%),
+    radial-gradient(ellipse 330px 230px at 86% 62%, rgba(120,85,40,.17), transparent 72%),
+    radial-gradient(ellipse 210px 140px at 50% 8%,  rgba(140,100,45,.11), transparent 70%),
+    /* 11-12  ruído SVG */
+    var(--fq-x-mancha),
+    var(--fq-x-relevo) !important;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 900px 700px, 400px 400px !important;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat !important;
+  background-attachment: local !important;   /* a textura rola junto com o conteúdo no celular */
+  background-blend-mode: multiply !important;
+  /* bordas "queimadas" do papel + a sombra externa que já existia */
+  box-shadow:
+    inset 0 0 95px rgba(95,62,24,.42),
+    inset 0 0 18px rgba(60,38,14,.45),
+    0 28px 80px rgba(0,0,0,.85) !important;
+}
+
+/* Temas escuros: versão simples (só grão + mosqueado sutil) */
+body.tema-escuro #ficha-rapida .fq-sheet.fq-op2-board,
+body.tema-hexatombe #ficha-rapida .fq-sheet.fq-op2-board,
+body.modo-sobrevivencia #ficha-rapida .fq-sheet.fq-op2-board{
+  background-color: var(--fq-paper-bg) !important;
+  background-image: var(--fq-x-mancha), var(--fq-x-relevo) !important;
+  background-size: 900px 700px, 400px 400px !important;
+  background-repeat: repeat, repeat !important;
+  background-attachment: local !important;
+  background-blend-mode: soft-light, soft-light !important;
+  box-shadow: inset 0 0 90px rgba(0,0,0,.55), 0 28px 80px rgba(0,0,0,.85) !important;
+}
+
+/* Camada de desgaste por CIMA do conteúdo (só desktop). A máscara deixa o retrato limpo. */
+@media (min-width: 861px){
+  #ficha-rapida .fq-sheet.fq-op2-board::after{
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 28 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    background: var(--fq-x-wear-papel) 50% 50% / 1180px 720px no-repeat;
+    -webkit-mask-image: linear-gradient(90deg,#000 0,#000 31%,transparent 36%,transparent 62%,#000 67%,#000 100%);
+            mask-image: linear-gradient(90deg,#000 0,#000 31%,transparent 36%,transparent 62%,#000 67%,#000 100%);
+    opacity: .9;
+  }
+}
+
+/* ======================================================================
+   4) TINTA DESGASTADA nas tarjas, losangos, etiquetas e ícones
+   ====================================================================== */
+#ficha-rapida .fq-op2-sec-ribbon,
+#ficha-rapida .fq-op2-origin-banner,
+#ficha-rapida .fq-op2-power-banner,
+#ficha-rapida .fq-op2-track-tag,
+#ficha-rapida .fq-op2-diamond,
+#ficha-rapida .fq-op2-shape{
+  background-image: var(--fq-x-wear-tinta);
+  background-size: 160px 80px;
+}
+
+/* Tarjas com corte irregular (como recortadas/carimbadas a mão) */
+#ficha-rapida .fq-op2-sec-ribbon,
+#ficha-rapida .fq-op2-origin-banner,
+#ficha-rapida .fq-op2-power-banner{
+  clip-path: polygon(0 7%, 3% 0, 36% 4%, 71% 0, 100% 5%, calc(100% - 10px) 100%, 53% 95%, 22% 100%, 0 92%);
+}
+
+/* Texto com leve "sangramento" de tinta (só tema claro; nos escuros fica none) */
+#ficha-rapida .fq-op2-attr-lbl,
+#ficha-rapida .fq-op2-sk-name,
+#ficha-rapida .fq-op2-sk-tot,
+#ficha-rapida .fq-op2-power-desc,
+#ficha-rapida .fq-op2-name,
+#ficha-rapida .fq-op2-fullname,
+#ficha-rapida .fq-op2-defs,
+#ficha-rapida .fq-op2-meta-dot,
+#ficha-rapida .fq-op2-track-num{
+  text-shadow: var(--fq-x-tinta-sombra);
+}
+
+/* Nome do personagem: bordas de letra irregulares */
+#ficha-rapida .fq-op2-name{ filter: url(#fq-x-borda); }
+
+/* ======================================================================
+   5) CARIMBO DE NÍVEL — mais "sujo", com tinta falhando
+   ====================================================================== */
+#ficha-rapida .fq-op2-stamp-lvl{
+  filter: url(#fq-x-carimbo) !important;
+  border-width: 3px;
+  opacity: .92;
+  background: radial-gradient(ellipse at 40% 50%, rgba(158,27,27,.10), transparent 70%);
+}
+
+/* ======================================================================
+   6) BARRAS: PV (X de caneta), LUC (rabisco azul), FÔL (hachura ocre)
+   ====================================================================== */
+/* PV e FÔL: container inteiro "tremido" + falhas de tinta */
+#ficha-rapida .fq-op2-pips-grid{ filter: url(#fq-x-rabisco); }
+
+/* cada quadradinho levemente torto, como desenhado a mão */
+#ficha-rapida .fq-op2-pip:nth-child(3n)  { transform: skewX(-10deg) rotate(2.5deg); }
+#ficha-rapida .fq-op2-pip:nth-child(4n+1){ transform: skewX(-10deg) rotate(-3deg) translateY(.5px); }
+#ficha-rapida .fq-op2-pip:nth-child(5n+2){ transform: skewX(-8deg) rotate(1.5deg) scale(1.06); }
+
+/* LUC: caixa sem o retângulo rígido; o rabisco pode vazar um pouco da caixa */
+#ficha-rapida .fq-op2-luc-scribble-box{
+  overflow: visible !important;
+  background: none !important;
+  height: 20px !important;
+  border: 1px solid rgba(37,35,32,.28);
+}
+#ficha-rapida .fq-op2-luc-scribble-fill{
+  clip-path: none !important;
+  height: 100% !important;
+  background-color: rgba(31,60,109,.10) !important;
+  /* 4 camadas de riscos em ângulos/espaçamentos "quebrados" + furos de tinta */
+  background-image:
+    var(--fq-x-wear-tinta),
+    repeating-linear-gradient(-63deg, transparent 0 1.1px, var(--fq-blue-pen) 1.1px 2.7px, transparent 2.7px 4.3px),
+    repeating-linear-gradient(-47deg, transparent 0 1.9px, var(--fq-blue-pen) 1.9px 3.2px, transparent 3.2px 5.9px),
+    repeating-linear-gradient(-71deg, transparent 0 3.3px, rgba(31,60,109,.7) 3.3px 4.4px, transparent 4.4px 7.7px),
+    repeating-linear-gradient(18deg,  transparent 0 4.1px, rgba(31,60,109,.5) 4.1px 5.4px, transparent 5.4px 9.3px) !important;
+  background-size: 160px 80px, auto, auto, auto, auto !important;
+  filter: url(#fq-x-rabisco);
+}
+
+/* Imagem do personagem: "impressa" no papel (só tema claro) */
+body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-op2-center img{
+  mix-blend-mode: multiply;
+  filter: contrast(1.05) saturate(.92) sepia(.14) drop-shadow(0 10px 16px rgba(50,32,12,.38));
+}
+
+/* ======================================================================
+   7) OPCIONAL — linhas de formulário nas perícias (como na imagem de referência)
+   Descomente para ter linhas pautadas que continuam mesmo onde não há perícia.
+   ====================================================================== */
+/*
+#ficha-rapida .fq-op2-skills-scroll{
+  background: repeating-linear-gradient(to bottom, transparent 0 21px, var(--fq-line-guide) 21px 22px);
+  background-attachment: local;
+}
+#ficha-rapida .fq-op2-sk-row{
+  height: 22px; box-sizing: border-box; padding: 0; border-bottom: 0;
+}
+*/
+</style>
 </body>
 </html>
