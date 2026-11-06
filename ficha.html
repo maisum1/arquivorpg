@@ -8062,7 +8062,7 @@ let filtroSubAtualAtaques = 'Todos';
 })();
 </script>
     <!-- ======================================================================
-     FICHA RÁPIDA — ESTÉTICA ARQUIVO FÍSICO / CARIMBO (AJUSTES DE ROTAÇÃO E PILHAS)
+     FICHA RÁPIDA + INICIATIVA CORRIGIDA (MOBILE SCROLL, DARK MODE, SUBPERÍCIAS)
      Substitua o bloco anterior antes de </body> no seu ficha.html
      ====================================================================== -->
 <svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
@@ -8080,6 +8080,17 @@ let filtroSubAtualAtaques = 'Todos';
 <style id="fq-op2-unified-css">
     @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&family=Crimson+Text:ital,wght@0,600;0,700;1,400&display=swap');
 
+    /* Trava o scroll da ficha de fundo e esconde botões flutuantes quando a Ficha Rápida está aberta */
+    body.fq-modal-open {
+        overflow: hidden !important;
+        height: 100dvh !important;
+    }
+    body.fq-modal-open #btn-toggle-iniciativa,
+    body.fq-modal-open #painel-iniciativa-combate,
+    body.fq-modal-open #fq-open {
+        display: none !important;
+    }
+
     #ficha-rapida .fq-rule,
     #ficha-rapida .fq-cross,
     #ficha-rapida .fq-corner,
@@ -8087,18 +8098,23 @@ let filtroSubAtualAtaques = 'Todos';
         display: none !important;
     }
 
+    /* Variáveis de Tinta e Papel (Modo Claro vs. Modo Escuro com Alto Contraste nas Tarjas) */
     #ficha-rapida {
         --fq-paper-bg: #dfd8c8;
         --fq-paper-dark: #cfc6b2;
         --fq-ink-main: #252320;
         --fq-ink-soft: #4a4640;
         --fq-ink-faint: #787268;
+        --fq-tarja-bg: #2b2825;
+        --fq-tarja-txt: #f2ede1;
+        --fq-tarja-border: transparent;
         --fq-line-guide: rgba(37, 35, 32, 0.22);
         --fq-red-stamp: #9e1b1b;
         --fq-blue-pen: #1f3c6d;
         --fq-ocre-fol: #9c631c;
         --fq-blend: multiply;
         padding: 14px !important;
+        z-index: 10005 !important;
     }
 
     body.tema-escuro #ficha-rapida,
@@ -8106,13 +8122,17 @@ let filtroSubAtualAtaques = 'Todos';
     body.modo-sobrevivencia #ficha-rapida {
         --fq-paper-bg: #151413;
         --fq-paper-dark: #0e0d0c;
-        --fq-ink-main: #e6e0d2;
+        --fq-ink-main: #eae4d7;
         --fq-ink-soft: #b8b0a0;
-        --fq-ink-faint: #7d776c;
+        --fq-ink-faint: #8a8275;
+        /* Tarjas e Losangos visíveis e destacados no Modo Escuro */
+        --fq-tarja-bg: #36322d;
+        --fq-tarja-txt: #f5f0e6;
+        --fq-tarja-border: rgba(234, 228, 215, 0.28);
         --fq-line-guide: rgba(230, 224, 210, 0.16);
-        --fq-red-stamp: #c92a2a;
-        --fq-blue-pen: #4875b8;
-        --fq-ocre-fol: #c2812d;
+        --fq-red-stamp: #d63333;
+        --fq-blue-pen: #5284cc;
+        --fq-ocre-fol: #d18d36;
         --fq-blend: normal;
     }
 
@@ -8130,10 +8150,10 @@ let filtroSubAtualAtaques = 'Todos';
             radial-gradient(circle at 50% 50%, transparent 45%, rgba(60, 45, 25, 0.26) 100%),
             repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px) !important;
         border: 1px solid var(--fq-line-guide) !important;
-        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.85) !important;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.9) !important;
         overflow: hidden !important;
         display: grid !important;
-        grid-template-columns: 31% 33% 36% !important;
+        grid-template-columns: 32% 32% 36% !important;
         grid-template-rows: auto 1fr auto !important;
         padding: 24px 34px 16px 34px !important;
         box-sizing: border-box !important;
@@ -8147,30 +8167,23 @@ let filtroSubAtualAtaques = 'Todos';
         pointer-events: none;
         z-index: 30;
     }
-    .fq-op2-frame::before {
-        content: "";
-        position: absolute;
-        inset: 3px;
-        border: 1px solid rgba(128, 120, 105, 0.14);
-        pointer-events: none;
-    }
 
     .fq-op2-close {
         position: absolute;
         top: 14px;
         right: 14px;
-        z-index: 45;
-        width: 24px;
-        height: 24px;
+        z-index: 50;
+        width: 26px;
+        height: 26px;
         border: 1px solid var(--fq-line-guide);
-        background: rgba(0, 0, 0, 0.08);
-        color: var(--fq-ink-main);
+        background: var(--fq-tarja-bg);
+        color: var(--fq-tarja-txt);
         font: 700 16px/1 'Courier Prime', monospace;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0.7;
+        opacity: 0.85;
         transition: 0.15s;
     }
     .fq-op2-close:hover { opacity: 1; background: var(--fq-red-stamp); color: #fff; border-color: var(--fq-red-stamp); }
@@ -8183,31 +8196,64 @@ let filtroSubAtualAtaques = 'Todos';
         justify-content: space-between;
         align-items: flex-start;
         z-index: 20;
-        padding-right: 18px;
-        margin-bottom: 2px;
+        padding-right: 22px;
+        margin-bottom: 4px;
+        gap: 12px;
     }
 
-    .fq-op2-name-wrap { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+    .fq-op2-name-col {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .fq-op2-name-wrap {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
     .fq-op2-name {
         font-family: 'Oswald', sans-serif;
         font-weight: 700;
-        font-size: clamp(36px, 4.4vw, 56px);
-        line-height: 0.86;
+        font-size: clamp(34px, 4.2vw, 54px);
+        line-height: 0.88;
         letter-spacing: 1px;
         text-transform: uppercase;
         color: var(--fq-ink-main);
         margin: 0;
         mix-blend-mode: var(--fq-blend);
     }
-    .fq-op2-fullname { font: 700 12px/1 'Courier Prime', monospace; letter-spacing: 2px; text-transform: uppercase; color: var(--fq-ink-soft); }
+    .fq-op2-fullname {
+        font: 700 12px/1 'Courier Prime', monospace;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--fq-ink-soft);
+    }
+    /* Linha sutil de Idade e Local de Nascimento */
+    .fq-op2-bioline {
+        margin-top: 4px;
+        font: 700 10px/1.2 'Courier Prime', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--fq-ink-faint);
+    }
 
-    .fq-op2-classbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
-    
-    /* Tarja de Origem com leve rotação física e chanfro assimétrico */
+    .fq-op2-classbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+    /* Tarja de Origem Assimétrica e Visível no Escuro */
     .fq-op2-origin-banner {
         display: inline-block;
-        background: #2b2825;
-        color: #f2ede1;
+        background: var(--fq-tarja-bg);
+        color: var(--fq-tarja-txt);
+        border-left: 2px solid var(--fq-tarja-border);
+        border-bottom: 1px solid var(--fq-tarja-border);
         font-family: 'Oswald', sans-serif;
         font-weight: 700;
         font-size: 13px;
@@ -8215,11 +8261,10 @@ let filtroSubAtualAtaques = 'Todos';
         text-transform: uppercase;
         padding: 5px 16px 5px 12px;
         clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-        transform: rotate(-1deg);
+        transform: rotate(-1.2deg);
         border-radius: 0;
         mix-blend-mode: var(--fq-blend);
-        opacity: 0.94;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.25);
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
     }
     .fq-op2-meta-dot { font: 700 12px/1 'Oswald', sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: var(--fq-ink-main); }
 
@@ -8241,7 +8286,7 @@ let filtroSubAtualAtaques = 'Todos';
         text-transform: uppercase;
         transform: rotate(-4deg);
         mix-blend-mode: var(--fq-blend);
-        opacity: 0.88;
+        opacity: 0.9;
         filter: url(#fq-carimbo-filter);
         background: transparent;
         user-select: none;
@@ -8261,17 +8306,18 @@ let filtroSubAtualAtaques = 'Todos';
         z-index: 15;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
         min-height: 0;
         padding-right: 8px;
     }
 
-    /* Tarjas de Seção (ATRIBUTOS, PERÍCIAS, EQUIPAMENTO) com chanfro assimétrico e rotação */
     .fq-op2-sec-ribbon {
         display: inline-block;
         align-self: flex-start;
-        background: #2b2825;
-        color: #f2ede1;
+        background: var(--fq-tarja-bg);
+        color: var(--fq-tarja-txt);
+        border-left: 2px solid var(--fq-tarja-border);
+        border-bottom: 1px solid var(--fq-tarja-border);
         font: 700 12.5px/1 'Oswald', sans-serif;
         letter-spacing: 2px;
         text-transform: uppercase;
@@ -8280,17 +8326,16 @@ let filtroSubAtualAtaques = 'Todos';
         transform: rotate(-1.5deg);
         border-radius: 0;
         mix-blend-mode: var(--fq-blend);
-        opacity: 0.94;
         margin-bottom: 6px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.25);
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.35);
     }
 
     .fq-op2-attrs-stair {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        margin-left: 10px;
-        margin-bottom: 8px;
+        margin-left: 6px;
+        margin-bottom: 10px;
     }
     .fq-op2-attr-line {
         display: flex;
@@ -8305,16 +8350,16 @@ let filtroSubAtualAtaques = 'Todos';
     .fq-op2-attr-line:nth-child(5) { padding-right: 76px; }
 
     .fq-op2-attr-lbl {
-        font: 600 19px/0.95 'Crimson Text', Georgia, serif;
+        font: 600 18.5px/0.95 'Crimson Text', Georgia, serif;
         letter-spacing: 0.8px;
         text-transform: uppercase;
         color: var(--fq-ink-main);
     }
-    /* Losangos de Atributos em Tinta Escura Neutra (sem arredondamento moderno) */
     .fq-op2-diamond {
         width: 21px;
         height: 21px;
-        background: #2b2825;
+        background: var(--fq-tarja-bg);
+        border: 1px solid var(--fq-tarja-border);
         transform: rotate(45deg);
         border-radius: 0;
         display: inline-flex;
@@ -8322,7 +8367,7 @@ let filtroSubAtualAtaques = 'Todos';
         justify-content: center;
         mix-blend-mode: var(--fq-blend);
         flex-shrink: 0;
-        box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     }
     .fq-op2-diamond input {
         width: 24px !important;
@@ -8331,7 +8376,7 @@ let filtroSubAtualAtaques = 'Todos';
         background: transparent !important;
         border: none !important;
         outline: none !important;
-        color: #f4efe4 !important;
+        color: var(--fq-tarja-txt) !important;
         font: 700 12px/1 'Courier Prime', monospace !important;
         text-align: center !important;
         padding: 0 !important;
@@ -8344,25 +8389,46 @@ let filtroSubAtualAtaques = 'Todos';
         color: var(--fq-ink-main); font: 700 9px/1 'Courier Prime', monospace;
         letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 0; cursor: pointer;
     }
-    .fq-op2-mini-filter:hover { background: rgba(0,0,0,0.08); }
+    .fq-op2-mini-filter:hover { background: rgba(128,128,128,0.15); }
 
     .fq-op2-skills-scroll { flex: 1; overflow-y: auto; padding-right: 6px; display: flex; flex-direction: column; gap: 0; }
     .fq-op2-sk-row {
-        display: grid; grid-template-columns: minmax(0, 1fr) auto 26px;
-        align-items: center; gap: 6px; padding: 2.5px 0; border-bottom: 1px dashed var(--fq-line-guide);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto 26px;
+        align-items: center;
+        gap: 6px;
+        padding: 2.5px 0;
+        border-bottom: 1px dashed var(--fq-line-guide);
     }
     .fq-op2-sk-name {
-        text-align: right; font: 700 11.5px/1.15 'Oswald', sans-serif;
-        color: var(--fq-ink-main); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.4px;
+        text-align: right;
+        font: 700 11.5px/1.15 'Oswald', sans-serif;
+        color: var(--fq-ink-main);
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        letter-spacing: 0.4px;
+    }
+    /* Prefixo sutil da perícia maior nas subperícias (ex: SOBREV. • URBANA) */
+    .fq-op2-sk-parent {
+        font-family: 'Courier Prime', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--fq-ink-faint);
+        letter-spacing: 0.2px;
+        margin-right: 3px;
     }
     .fq-op2-sk-icons { display: inline-flex; align-items: center; gap: 4px; }
     .fq-op2-shape {
-        width: 14px; height: 14px; background: #2b2825; color: #f4efe4;
-        font: 700 8.5px/14px 'Courier Prime', monospace; text-align: center; display: inline-block; mix-blend-mode: var(--fq-blend);
+        width: 14px; height: 14px; background: var(--fq-tarja-bg); color: var(--fq-tarja-txt);
+        border: 1px solid var(--fq-tarja-border);
+        font: 700 8.5px/13px 'Courier Prime', monospace; text-align: center; display: inline-block; mix-blend-mode: var(--fq-blend);
+        box-sizing: border-box;
     }
-    .fq-op2-shape.tri { clip-path: polygon(50% 6%, 96% 92%, 4% 92%); padding-top: 2px; box-sizing: border-box; }
+    .fq-op2-shape.tri { clip-path: polygon(50% 6%, 96% 92%, 4% 92%); padding-top: 1px; border: none; }
     .fq-op2-shape.sq { border-radius: 0; }
-    .fq-op2-shape.dia { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+    .fq-op2-shape.dia { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); border: none; }
 
     .fq-op2-sk-plus { color: var(--fq-ink-soft); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 10px; }
     .fq-op2-sk-attrname { font: 700 8.5px/1 'Courier Prime', monospace; color: var(--fq-ink-soft); text-transform: uppercase; width: 24px; }
@@ -8382,7 +8448,7 @@ let filtroSubAtualAtaques = 'Todos';
         display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; z-index: 25;
     }
 
-    /* Coluna Direita: Trilhas de PV, LUC e FÔL + Habilidades */
+    /* Coluna Direita: Trilhas e Habilidades */
     .fq-op2-right {
         grid-column: 3; grid-row: 2; z-index: 18;
         display: flex; flex-direction: column; gap: 12px; min-height: 0; padding-left: 6px;
@@ -8394,7 +8460,7 @@ let filtroSubAtualAtaques = 'Todos';
     .fq-op2-track-tag {
         color: #f4efe4; font: 700 12px/1 'Oswald', sans-serif; letter-spacing: 1.2px; text-transform: uppercase;
         padding: 5px 6px; text-align: center; clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
-        transform: rotate(-1deg); border-radius: 0; mix-blend-mode: var(--fq-blend); box-shadow: 1px 1px 3px rgba(0,0,0,0.25);
+        transform: rotate(-1deg); border-radius: 0; mix-blend-mode: var(--fq-blend); box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     }
     .fq-op2-track-tag.pv  { background: var(--fq-red-stamp); }
     .fq-op2-track-tag.luc { background: var(--fq-blue-pen); }
@@ -8415,20 +8481,19 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .fq-op2-pip.pv.filled {
         border-color: var(--fq-red-stamp);
-        background: linear-gradient(45deg, transparent 42%, var(--fq-red-stamp) 43%, var(--fq-red-stamp) 57%, transparent 58%), linear-gradient(-45deg, transparent 42%, var(--fq-red-stamp) 43%, var(--fq-red-stamp) 57%, transparent 58%), rgba(158, 27, 27, 0.22);
+        background: linear-gradient(45deg, transparent 42%, var(--fq-red-stamp) 43%, var(--fq-red-stamp) 57%, transparent 58%), linear-gradient(-45deg, transparent 42%, var(--fq-red-stamp) 43%, var(--fq-red-stamp) 57%, transparent 58%), rgba(158, 27, 27, 0.25);
     }
     .fq-op2-pip.fol.filled {
         border-color: var(--fq-ocre-fol);
         background: repeating-linear-gradient(-55deg, var(--fq-ocre-fol), var(--fq-ocre-fol) 2px, rgba(156,99,28,0.25) 2px, rgba(156,99,28,0.25) 4px);
     }
 
-    /* BARRA DE LUCIDEZ COM RABISCOS DENSOS DE CANETA AZUL */
     .fq-op2-luc-scribble-box {
         position: relative; height: 18px; width: 100%; border: 1px solid var(--fq-line-guide);
         border-radius: 0; background: rgba(0, 0, 0, 0.03); overflow: hidden; cursor: pointer;
     }
     .fq-op2-luc-scribble-fill {
-        height: 100%; mix-blend-mode: var(--fq-blend); opacity: 0.9; transition: width 0.25s ease;
+        height: 100%; mix-blend-mode: var(--fq-blend); opacity: 0.92; transition: width 0.25s ease;
         background-image:
             repeating-linear-gradient(-62deg, transparent 0px, transparent 1.2px, var(--fq-blue-pen) 1.2px, var(--fq-blue-pen) 2.8px, transparent 2.8px, transparent 4.5px),
             repeating-linear-gradient(-48deg, transparent 0px, transparent 2px, var(--fq-blue-pen) 2px, var(--fq-blue-pen) 3.4px, transparent 3.4px, transparent 6px),
@@ -8443,18 +8508,20 @@ let filtroSubAtualAtaques = 'Todos';
     }
     .fq-op2-track-Step button:hover { background: var(--fq-ink-main); color: var(--fq-paper-bg); }
 
-    /* Habilidades e Especializações */
     .fq-op2-powers-scroll { flex: 1; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 11px; }
     .fq-op2-power-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
     .fq-op2-power-head::after { content: ""; flex: 1; height: 1px; border-bottom: 1px dashed var(--fq-line-guide); }
     .fq-op2-power-banner {
-        display: inline-block; background: #2b2825; color: #f2ede1; font: 700 12px/1 'Oswald', sans-serif;
-        letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 16px 4px 10px; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-        transform: rotate(-1deg); border-radius: 0; mix-blend-mode: var(--fq-blend); opacity: 0.94; box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+        display: inline-block; background: var(--fq-tarja-bg); color: var(--fq-tarja-txt);
+        border-left: 2px solid var(--fq-tarja-border); border-bottom: 1px solid var(--fq-tarja-border);
+        font: 700 12px/1 'Oswald', sans-serif; letter-spacing: 1.5px; text-transform: uppercase;
+        padding: 4px 16px 4px 10px; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+        transform: rotate(-1deg); border-radius: 0; mix-blend-mode: var(--fq-blend); box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
     }
-    .fq-op2-power-banner.paranormal { background: var(--fq-red-stamp); color: #fff; }
+    .fq-op2-power-banner.paranormal { background: var(--fq-red-stamp); color: #fff; border-color: transparent; }
     .fq-op2-power-cost { font: 700 10px/1 'Courier Prime', monospace; color: var(--fq-red-stamp); text-transform: uppercase; }
-    .fq-op2-power-desc { font: 400 11.5px/1.42 'Courier Prime', monospace; color: var(--fq-ink-main); padding-left: 2px; }
+    .fq-op2-power-desc { font: 400 11.5px/1.45 'Courier Prime', monospace; color: var(--fq-ink-main); padding-left: 2px; }
+    .fq-op2-list-line { display: block; margin-bottom: 3px; }
 
     /* Rodapé */
     .fq-op2-footer {
@@ -8468,17 +8535,117 @@ let filtroSubAtualAtaques = 'Todos';
         width: 25px; height: 23px; border: 1px dashed var(--fq-line-guide); background: rgba(0, 0, 0, 0.05);
         color: var(--fq-ink-main); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; filter: grayscale(100%); transition: 0.15s;
     }
-    .fq-op2-iconbtn:hover { filter: none; border-color: var(--fq-ink-main); background: rgba(0, 0, 0, 0.12); }
 
+    /* =========================================================
+       CORREÇÃO COMPLETA PARA CELULAR (SCROLL LIVRE E SEM SOBREPOSIÇÃO)
+       ========================================================= */
     @media (max-width: 860px) {
-        .fq-sheet.fq-op2-board {
-            grid-template-columns: 1fr !important; grid-template-rows: auto !important; height: 95dvh !important;
-            aspect-ratio: auto !important; overflow-y: auto !important; padding: 18px 14px !important; gap: 14px !important;
+        #ficha-rapida {
+            padding: 0 !important;
+            align-items: flex-start !important;
         }
-        .fq-op2-header, .fq-op2-left, .fq-op2-center, .fq-op2-right, .fq-op2-footer { grid-column: 1 !important; grid-row: auto !important; }
-        .fq-op2-center { height: 230px; order: -1; }
-        .fq-op2-attrs-stair .fq-op2-attr-line { padding-right: 0 !important; justify-content: space-between; }
-        .fq-op2-skills-scroll { max-height: 220px; }
+        .fq-sheet.fq-op2-board {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            aspect-ratio: auto !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding: 18px 16px 28px 16px !important;
+            gap: 16px !important;
+            border: none !important;
+        }
+        .fq-op2-frame {
+            display: none !important;
+        }
+        .fq-op2-close {
+            position: fixed !important;
+            top: 12px !important;
+            right: 12px !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 20px !important;
+            z-index: 10020 !important;
+        }
+        /* Ordem lógica vertical no celular: 1) Foto -> 2) Nome/Nível -> 3) PV/LUC/FÔL + Habilidades -> 4) Atributos + Perícias -> 5) Rodapé */
+        .fq-op2-center {
+            order: 1 !important;
+            width: 100% !important;
+            height: 210px !important;
+            flex: 0 0 210px !important;
+            margin-top: 4px !important;
+        }
+        .fq-op2-center img {
+            width: auto !important;
+            max-width: 90% !important;
+            height: 100% !important;
+        }
+        .fq-op2-header {
+            order: 2 !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding-right: 0 !important;
+            gap: 8px !important;
+            width: 100% !important;
+            flex: 0 0 auto !important;
+        }
+        .fq-op2-classbar {
+            width: 100% !important;
+            justify-content: space-between !important;
+        }
+        .fq-op2-right {
+            order: 3 !important;
+            width: 100% !important;
+            padding-left: 0 !important;
+            min-height: auto !important;
+            flex: 0 0 auto !important;
+            overflow: visible !important;
+        }
+        .fq-op2-powers-scroll {
+            overflow: visible !important;
+            max-height: none !important;
+            flex: 0 0 auto !important;
+        }
+        .fq-op2-left {
+            order: 4 !important;
+            width: 100% !important;
+            padding-right: 0 !important;
+            min-height: auto !important;
+            flex: 0 0 auto !important;
+            gap: 14px !important;
+            overflow: visible !important;
+        }
+        .fq-op2-attrs-stair {
+            margin-left: 0 !important;
+        }
+        .fq-op2-attrs-stair .fq-op2-attr-line {
+            padding-right: 0 !important;
+            justify-content: space-between !important;
+            border-bottom: 1px dotted var(--fq-line-guide);
+            padding-bottom: 3px;
+        }
+        .fq-op2-skills-wrap {
+            flex: 0 0 auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+        }
+        .fq-op2-skills-scroll {
+            overflow: visible !important;
+            max-height: none !important;
+            flex: 0 0 auto !important;
+        }
+        .fq-op2-footer {
+            order: 5 !important;
+            width: 100% !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            flex: 0 0 auto !important;
+            margin-top: 6px !important;
+            padding-bottom: 12px !important;
+        }
     }
 </style>
 
@@ -8486,6 +8653,53 @@ let filtroSubAtualAtaques = 'Todos';
 (function() {
     let fqMostrarTodas = false;
 
+    // Abreviações sutis das Perícias-Mãe para identificar as Subperícias
+    const ABREV_PAI = {
+        "Sobrevivência": "SOBREV.",
+        "Balística": "BALÍST.",
+        "Combate": "COMB.",
+        "Educação": "EDUC.",
+        "Pilotagem": "PILOT.",
+        "Idiomas": "IDIOM."
+    };
+
+    // =========================================================================
+    // 1. CORREÇÃO DA INICIATIVA: JOGADOR SÓ VÊ O CAMPO DE VALOR DA SUA PERSONA
+    // =========================================================================
+    function ajustarModoIniciativaFicha() {
+        const ctrlJog = document.getElementById('controles-jogador-iniciativa');
+        const ctrlMestre = document.getElementById('controles-mestre-iniciativa');
+        if (!ctrlJog || !ctrlMestre) return;
+
+        // Na página de ficha de jogador (ficha.html), o padrão SEMPRE é mostrar o campo direto da própria Persona
+        ctrlJog.style.display = 'block';
+        ctrlMestre.style.display = 'none';
+
+        const perspectiva = localStorage.getItem('arquivo_perspectiva_sim') || 'padrao';
+        if (souMestreDestaCampanha && perspectiva !== 'jogador') {
+            let btnToggleMestre = document.getElementById('btn-alternar-mestre-inic');
+            if (!btnToggleMestre) {
+                btnToggleMestre = document.createElement('button');
+                btnToggleMestre.id = 'btn-alternar-mestre-inic';
+                btnToggleMestre.type = 'button';
+                btnToggleMestre.style.cssText = "width:100%; margin-top:6px; background:transparent; border:1px dotted var(--card-border); color:var(--cor-geral); font:700 9px 'Courier Prime',monospace; padding:4px; cursor:pointer; text-transform:uppercase;";
+                btnToggleMestre.innerText = "👑 Abrir Controles do Mestre";
+                btnToggleMestre.onclick = function() {
+                    const mAberto = ctrlMestre.style.display === 'block';
+                    ctrlMestre.style.display = mAberto ? 'none' : 'block';
+                    this.innerText = mAberto ? "👑 Abrir Controles do Mestre" : "▴ Ocultar Controles do Mestre";
+                };
+                ctrlJog.appendChild(btnToggleMestre);
+            }
+        }
+    }
+
+    // Vigia caso inicializarSistemaIniciativa tente esconder controles-jogador-iniciativa
+    setInterval(ajustarModoIniciativaFicha, 700);
+
+    // =========================================================================
+    // 2. MONTAGEM E LÓGICA DA FICHA RÁPIDA
+    // =========================================================================
     function montarDOMFichaRapidaOP2() {
         let btnOpen = document.getElementById('fq-open');
         if (!btnOpen) {
@@ -8519,9 +8733,12 @@ let filtroSubAtualAtaques = 'Todos';
 
                 <!-- CABEÇALHO -->
                 <header class="fq-op2-header">
-                    <div class="fq-op2-name-wrap">
-                        <h2 class="fq-op2-name" id="fq2-nome">PERSONA</h2>
-                        <span class="fq-op2-fullname" id="fq2-fullname"></span>
+                    <div class="fq-op2-name-col">
+                        <div class="fq-op2-name-wrap">
+                            <h2 class="fq-op2-name" id="fq2-nome">PERSONA</h2>
+                            <span class="fq-op2-fullname" id="fq2-fullname"></span>
+                        </div>
+                        <div class="fq-op2-bioline" id="fq2-bioline"></div>
                     </div>
                     <div class="fq-op2-classbar">
                         <span class="fq-op2-origin-banner" id="fq2-origem">ORIGEM</span>
@@ -8629,10 +8846,12 @@ let filtroSubAtualAtaques = 'Todos';
         const backdrop = document.getElementById('fq-backdrop');
         if (!modal || !backdrop) return;
         if (abrir) {
+            document.body.classList.add('fq-modal-open');
             window.renderFichaRapidaOP2();
             modal.classList.add('open');
             backdrop.classList.add('open');
         } else {
+            document.body.classList.remove('fq-modal-open');
             modal.classList.remove('open');
             backdrop.classList.remove('open');
         }
@@ -8693,6 +8912,17 @@ let filtroSubAtualAtaques = 'Todos';
         const partesNome = nomeCompleto.split(/\s+/);
         const primeiroNome = partesNome[0] || 'PERSONA';
         const restoNome = partesNome.slice(1).join(' ');
+
+        const idade = parseInt(document.getElementById('idade-personagem')?.value) || 0;
+        const nascimento = (document.getElementById('bgNascimento')?.value || '').trim();
+        const bioPartes = [];
+        if (idade > 0) bioPartes.push(`IDADE: ${idade} ANOS`);
+        if (nascimento) bioPartes.push(`NASC.: ${nascimento}`);
+        const bioEl = document.getElementById('fq2-bioline');
+        if (bioEl) {
+            bioEl.innerText = bioPartes.join('  •  ');
+            bioEl.style.display = bioPartes.length ? 'block' : 'none';
+        }
 
         const origem = document.getElementById('origem-personagem')?.value || 'SEM ORIGEM';
         const classe = document.getElementById('classe-personagem')?.value || '';
@@ -8762,7 +8992,7 @@ let filtroSubAtualAtaques = 'Todos';
             condCont.innerHTML = conds.map(c => `<span class="fq-status-tag">${c}</span>`).join('');
         }
 
-        // Perícias (incluindo Subperícias e Idiomas corrigidos)
+        // Perícias + Subperícias (com indicação sutil da Perícia-Mãe)
         const skList = document.getElementById('fq2-skills-list');
         if (skList && typeof nomesPericias !== 'undefined') {
             const linhas = [];
@@ -8797,6 +9027,7 @@ let filtroSubAtualAtaques = 'Todos';
                     }
                 } else if (baseSel) {
                     const totalSubSlots = inf.subs ? inf.subs.length : (inf.subsInputs ? 4 : 0);
+                    const abrevPai = ABREV_PAI[p] || (p.substring(0, 5).toUpperCase() + '.');
                     let algumaSubAdicionada = false;
 
                     for (let idx = 0; idx < totalSubSlots; idx++) {
@@ -8804,7 +9035,7 @@ let filtroSubAtualAtaques = 'Todos';
                         if (inf.subs) {
                             sNome = inf.subs[idx];
                         } else if (inf.subsInputs) {
-                            sNome = idx < 3 ? (document.getElementById(`sub-nome-${p}-${idx}`)?.value || '').trim() : 'Outros Idiomas';
+                            sNome = idx < 3 ? (document.getElementById(`sub-nome-${p}-${idx}`)?.value || '').trim() : 'Outros';
                         }
                         if (!sNome) continue;
 
@@ -8817,7 +9048,7 @@ let filtroSubAtualAtaques = 'Todos';
                             algumaSubAdicionada = true;
                             linhas.push(`
                                 <div class="fq-op2-sk-row">
-                                    <span class="fq-op2-sk-name" title="${p}: ${sNome}">${sNome}</span>
+                                    <span class="fq-op2-sk-name" title="${p}: ${sNome}"><span class="fq-op2-sk-parent">${abrevPai} •</span>${sNome}</span>
                                     <span class="fq-op2-sk-icons">
                                         ${fmtShape(st)}
                                         <span class="fq-op2-sk-plus">+</span>
@@ -8849,12 +9080,12 @@ let filtroSubAtualAtaques = 'Todos';
             skList.innerHTML = linhas.length ? linhas.join('') : `<div class="fq-empty">Nenhuma perícia treinada.</div>`;
         }
 
-        // Coluna Direita: Traços, Especializações (Paranormais com tarja vermelha), Anomalias e Equipamento
+        // Coluna Direita: Traços, Especializações, Anomalias (uma embaixo da outra) e Equipamentos (um embaixo do outro)
         const pwList = document.getElementById('fq2-powers-list');
         if (pwList) {
             const blocos = [];
 
-            // 1. Traços e Talentos (mundanos - tarja neutra escura)
+            // 1. Traços e Talentos
             const vistosHab = new Set();
             (window.__habFq || []).forEach(h => {
                 const chave = ((h.nome || '') + '|' + (h.desc || '')).toLowerCase().trim();
@@ -8871,7 +9102,7 @@ let filtroSubAtualAtaques = 'Todos';
                 `);
             });
 
-            // 2. Vínculos e Especializações (Paranormais - tarja vermelha!)
+            // 2. Vínculos e Especializações (Tarja Vermelha)
             const vistosPod = new Set();
             (window.__podFq || []).forEach(po => {
                 const chave = ((po.nome || '') + '|' + (po.desc || '')).toLowerCase().trim();
@@ -8888,7 +9119,7 @@ let filtroSubAtualAtaques = 'Todos';
                 `);
             });
 
-            // 3. Anomalias (Somente nomes, com tarja vermelha!)
+            // 3. Anomalias (Uma embaixo da outra)
             const rituaisUnicos = [];
             const vistosRit = new Set();
             (window.__ritFq || []).forEach(r => {
@@ -8896,7 +9127,7 @@ let filtroSubAtualAtaques = 'Todos';
                 if (!nm || vistosRit.has(nm.toLowerCase())) return;
                 vistosRit.add(nm.toLowerCase());
                 const sufixo = r.verdadeiro ? ' [Verdadeiro]' : (r.incompleto ? ' [Incompleto]' : '');
-                rituaisUnicos.push(`❖ <b>${nm}</b>${sufixo}`);
+                rituaisUnicos.push(`<span class="fq-op2-list-line">❖ <b>${nm}</b>${sufixo}</span>`);
             });
             if (rituaisUnicos.length) {
                 blocos.push(`
@@ -8904,12 +9135,12 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="fq-op2-power-head">
                             <span class="fq-op2-power-banner paranormal">ANOMALIAS</span>
                         </div>
-                        <div class="fq-op2-power-desc">${rituaisUnicos.join(' &nbsp;•&nbsp; ')}</div>
+                        <div class="fq-op2-power-desc">${rituaisUnicos.join('')}</div>
                     </div>
                 `);
             }
 
-            // 4. Equipamento / Armas (Com o dano descolado corretamente)
+            // 4. Equipamento / Armas (Uma embaixo da outra)
             const armasFormatadas = [];
             document.querySelectorAll('#lista-ataques .ataque-card').forEach(card => {
                 const headerSpan = card.querySelector('.d-rit-h > span:first-child');
@@ -8919,14 +9150,14 @@ let filtroSubAtualAtaques = 'Todos';
                     const metaTxt = metaEl ? metaEl.innerText.trim() : '';
                     if (metaEl) metaEl.remove();
                     const nomeArma = clone.innerText.replace('❖', '').trim();
-                    armasFormatadas.push(metaTxt ? `<b>${nomeArma}</b> (${metaTxt})` : `<b>${nomeArma}</b>`);
+                    armasFormatadas.push(`<span class="fq-op2-list-line">• <b>${nomeArma}</b>${metaTxt ? ` (${metaTxt})` : ''}</span>`);
                 } else {
                     const inputs = card.querySelectorAll('.card-body input.rit-input');
                     const nomeArma = inputs[0]?.value?.trim() || card.querySelector('.card-header > span:first-child')?.innerText?.trim() || 'Arma';
                     const danoArma = inputs[1]?.value?.trim() || '';
                     const tipoArma = inputs[2]?.value?.trim() || '';
                     const info = [danoArma, tipoArma].filter(Boolean).join(' ');
-                    armasFormatadas.push(info ? `<b>${nomeArma}</b> (${info})` : `<b>${nomeArma}</b>`);
+                    armasFormatadas.push(`<span class="fq-op2-list-line">• <b>${nomeArma}</b>${info ? ` (${info})` : ''}</span>`);
                 }
             });
             if (armasFormatadas.length) {
@@ -8935,7 +9166,7 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="fq-op2-power-head">
                             <span class="fq-op2-power-banner">EQUIPAMENTO</span>
                         </div>
-                        <div class="fq-op2-power-desc">${armasFormatadas.join(' &nbsp;•&nbsp; ')}</div>
+                        <div class="fq-op2-power-desc">${armasFormatadas.join('')}</div>
                     </div>
                 `);
             }
@@ -8952,275 +9183,5 @@ let filtroSubAtualAtaques = 'Todos';
     }
 })();
 </script>
-    <!-- ======================================================================
-  FICHA RÁPIDA — PAPEL MANCHADO + TINTA DESGASTADA
-  COMO USAR: cole este bloco INTEIRO no ficha.html, logo antes do </body>
-  (depois do último <script>). Tem que vir DEPOIS do <style id="fq-op2-unified-css">,
-  porque ele sobrescreve as regras daquele bloco. Não precisa de nenhuma imagem.
-  Para desfazer: apague o bloco.
-  ====================================================================== -->
-
-<!-- ============ 1) FILTROS SVG (tinta desgastada, rabisco, carimbo) ============ -->
-<svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
-  <defs>
-    <!-- Letras grandes com borda levemente irregular (tinta/tipografia de prensa) -->
-    <filter id="fq-x-borda" x="-3%" y="-15%" width="106%" height="130%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="2" seed="11" result="w"/>
-      <feDisplacementMap in="SourceGraphic" in2="w" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-
-    <!-- Traço de caneta/rabisco: tremida + falhas de tinta (barras PV, LUC, FÔL) -->
-    <filter id="fq-x-rabisco" x="-3%" y="-40%" width="106%" height="180%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.045 0.09" numOctaves="2" seed="8" result="w"/>
-      <feDisplacementMap in="SourceGraphic" in2="w" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="g"/>
-      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.1" result="falhas"/>
-      <feComposite in="d" in2="falhas" operator="in"/>
-    </filter>
-
-    <!-- Carimbo: falhas finas + manchas grandes sem tinta + leve tremor -->
-    <filter id="fq-x-carimbo" x="-12%" y="-20%" width="124%" height="140%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="g"/>
-      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.55" result="fino"/>
-      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="2" result="m"/>
-      <feColorMatrix in="m" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.0" result="mancha"/>
-      <feComposite in="fino" in2="mancha" operator="in" result="corte"/>
-      <feComposite in="SourceGraphic" in2="corte" operator="in" result="tinta"/>
-      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="7" result="w"/>
-      <feDisplacementMap in="tinta" in2="w" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </defs>
-</svg>
-
-<style id="fq-x-papel-gasto">
-/* ======================================================================
-   2) TEXTURAS (todas geradas por ruído SVG embutido — sem arquivos externos)
-   ====================================================================== */
-#ficha-rapida{
-  /* mosqueado marrom do papel (manchas grandes e suaves) */
-  --fq-x-mancha: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='700'%3E%3Cfilter id='b' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .008' numOctaves='5' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .52 0 0 0 0 .36 0 0 0 0 .16 0 0 0 1.5 -.7'/%3E%3C/filter%3E%3Crect width='900' height='700' filter='url(%23b)'/%3E%3C/svg%3E");
-
-  /* relevo/fibra do papel (luz rasante sobre ruído fino) */
-  --fq-x-relevo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='p' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' seed='5' stitchTiles='stitch' result='t'/%3E%3CfeDiffuseLighting in='t' surfaceScale='1.3'%3E%3CfeDistantLight azimuth='50' elevation='64'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23p)' opacity='.55'/%3E%3C/svg%3E");
-
-  /* "desgaste" da folha: pontinhos da cor do papel por cima de tudo, concentrados em zonas */
-  --fq-x-wear-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1180' height='720'%3E%3Cfilter id='w' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' result='h'/%3E%3CfeColorMatrix in='h' values='0 0 0 0 .86 0 0 0 0 .83 0 0 0 0 .75 10 0 0 0 -5.8' result='s'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='3' seed='9' result='l'/%3E%3CfeColorMatrix in='l' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 8 0 0 0 -4.4' result='z'/%3E%3CfeComposite in='s' in2='z' operator='in'/%3E%3C/filter%3E%3Crect width='1180' height='720' filter='url(%23w)'/%3E%3C/svg%3E");
-
-  /* "furos" de tinta nas tarjas/losangos/etiquetas: riscos horizontais, como rolo de tinta seco.
-     Branco + multiply = mostra o papel por baixo (buraco na tinta). */
-  --fq-x-wear-tinta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 9 0 0 0 -5.2'/%3E%3C/filter%3E%3Crect width='160' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
-
-  --fq-x-tinta-sombra: 0 0 .5px rgba(30,20,10,.6), 0 0 2px rgba(30,20,10,.2);
-}
-
-/* Versão para temas escuros: os furos passam a ter a cor do papel escuro */
-body.tema-escuro #ficha-rapida,
-body.tema-hexatombe #ficha-rapida,
-body.modo-sobrevivencia #ficha-rapida{
-  --fq-x-wear-papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1180' height='720'%3E%3Cfilter id='w' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' result='h'/%3E%3CfeColorMatrix in='h' values='0 0 0 0 .082 0 0 0 0 .078 0 0 0 0 .075 10 0 0 0 -5.8' result='s'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='3' seed='9' result='l'/%3E%3CfeColorMatrix in='l' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 8 0 0 0 -4.4' result='z'/%3E%3CfeComposite in='s' in2='z' operator='in'/%3E%3C/filter%3E%3Crect width='1180' height='720' filter='url(%23w)'/%3E%3C/svg%3E");
-  --fq-x-wear-tinta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .082 0 0 0 0 .078 0 0 0 0 .075 9 0 0 0 -5.2'/%3E%3C/filter%3E%3Crect width='160' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
-  --fq-x-tinta-sombra: none;
-}
-
-/* ======================================================================
-   3) A FOLHA: papel amarelado, manchado, com bordas queimadas
-   (tema claro = versão completa)
-   ====================================================================== */
-body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-sheet.fq-op2-board{
-  background-color: #e3dbc7 !important;
-  background-image:
-    /* 1-3  pingos avermelhados (respingo) */
-    radial-gradient(circle 2.6px at 93.2% 23%, rgba(140,28,28,.55), transparent 3.2px),
-    radial-gradient(circle 1.6px at 94.4% 25.5%, rgba(140,28,28,.5), transparent 2.2px),
-    radial-gradient(circle 1.2px at 92.1% 27%, rgba(140,28,28,.45), transparent 1.8px),
-    /* 4-5  marcas de copo/café: miolo fraco + aro escuro + halo */
-    radial-gradient(circle 76px at 72% 80%, rgba(112,72,30,.05) 0 56px, rgba(112,72,30,.24) 59px 61px, rgba(112,72,30,.05) 66px, transparent 76px),
-    radial-gradient(circle 48px at 8% 88%, rgba(112,72,30,.04) 0 32px, rgba(112,72,30,.18) 34px 36px, transparent 48px),
-    /* 6-7  dobras (uma horizontal no meio, uma vertical em 1/3) */
-    linear-gradient(180deg, transparent calc(50% - 5px), rgba(70,48,22,.06) calc(50% - 1px), rgba(70,48,22,.15) 50%, rgba(70,48,22,.05) calc(50% + 1px), transparent calc(50% + 6px)),
-    linear-gradient(90deg, transparent calc(33.333% - 4px), rgba(70,48,22,.05) calc(33.333% - 1px), rgba(70,48,22,.11) 33.333%, transparent calc(33.333% + 4px)),
-    /* 8-10  manchas grandes de oxidação/umidade */
-    radial-gradient(ellipse 260px 180px at 18% 30%, rgba(150,110,50,.15), transparent 70%),
-    radial-gradient(ellipse 330px 230px at 86% 62%, rgba(120,85,40,.17), transparent 72%),
-    radial-gradient(ellipse 210px 140px at 50% 8%,  rgba(140,100,45,.11), transparent 70%),
-    /* 11-12  ruído SVG */
-    var(--fq-x-mancha),
-    var(--fq-x-relevo) !important;
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 900px 700px, 400px 400px !important;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat !important;
-  background-attachment: local !important;   /* a textura rola junto com o conteúdo no celular */
-  background-blend-mode: multiply !important;
-  /* bordas "queimadas" do papel + a sombra externa que já existia */
-  box-shadow:
-    inset 0 0 95px rgba(95,62,24,.42),
-    inset 0 0 18px rgba(60,38,14,.45),
-    0 28px 80px rgba(0,0,0,.85) !important;
-}
-
-/* Temas escuros: versão simples (só grão + mosqueado sutil) */
-body.tema-escuro #ficha-rapida .fq-sheet.fq-op2-board,
-body.tema-hexatombe #ficha-rapida .fq-sheet.fq-op2-board,
-body.modo-sobrevivencia #ficha-rapida .fq-sheet.fq-op2-board{
-  background-color: var(--fq-paper-bg) !important;
-  background-image: var(--fq-x-mancha), var(--fq-x-relevo) !important;
-  background-size: 900px 700px, 400px 400px !important;
-  background-repeat: repeat, repeat !important;
-  background-attachment: local !important;
-  background-blend-mode: soft-light, soft-light !important;
-  box-shadow: inset 0 0 90px rgba(0,0,0,.55), 0 28px 80px rgba(0,0,0,.85) !important;
-}
-
-/* Camada de desgaste por CIMA do conteúdo (só desktop). A máscara deixa o retrato limpo. */
-@media (min-width: 861px){
-  #ficha-rapida .fq-sheet.fq-op2-board::after{
-    content: "" !important;
-    display: block !important;
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 28 !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    pointer-events: none;
-    background: var(--fq-x-wear-papel) 50% 50% / 1180px 720px no-repeat;
-    -webkit-mask-image: linear-gradient(90deg,#000 0,#000 31%,transparent 36%,transparent 62%,#000 67%,#000 100%);
-            mask-image: linear-gradient(90deg,#000 0,#000 31%,transparent 36%,transparent 62%,#000 67%,#000 100%);
-    opacity: .9;
-  }
-}
-
-/* ======================================================================
-   4) TINTA DESGASTADA nas tarjas, losangos, etiquetas e ícones
-   ====================================================================== */
-#ficha-rapida .fq-op2-sec-ribbon,
-#ficha-rapida .fq-op2-origin-banner,
-#ficha-rapida .fq-op2-power-banner,
-#ficha-rapida .fq-op2-track-tag,
-#ficha-rapida .fq-op2-diamond,
-#ficha-rapida .fq-op2-shape{
-  background-image: var(--fq-x-wear-tinta);
-  background-size: 160px 80px;
-}
-
-/* Tarjas com corte irregular (como recortadas/carimbadas a mão) */
-#ficha-rapida .fq-op2-sec-ribbon,
-#ficha-rapida .fq-op2-origin-banner,
-#ficha-rapida .fq-op2-power-banner{
-  clip-path: polygon(0 7%, 3% 0, 36% 4%, 71% 0, 100% 5%, calc(100% - 10px) 100%, 53% 95%, 22% 100%, 0 92%);
-}
-
-/* Texto com leve "sangramento" de tinta (só tema claro; nos escuros fica none) */
-#ficha-rapida .fq-op2-attr-lbl,
-#ficha-rapida .fq-op2-sk-name,
-#ficha-rapida .fq-op2-sk-tot,
-#ficha-rapida .fq-op2-power-desc,
-#ficha-rapida .fq-op2-name,
-#ficha-rapida .fq-op2-fullname,
-#ficha-rapida .fq-op2-defs,
-#ficha-rapida .fq-op2-meta-dot,
-#ficha-rapida .fq-op2-track-num{
-  text-shadow: var(--fq-x-tinta-sombra);
-}
-
-/* Nome do personagem: bordas de letra irregulares */
-#ficha-rapida .fq-op2-name{ filter: url(#fq-x-borda); }
-
-/* ======================================================================
-   5) CARIMBO DE NÍVEL — mais "sujo", com tinta falhando
-   ====================================================================== */
-#ficha-rapida .fq-op2-stamp-lvl{
-  filter: url(#fq-x-carimbo) !important;
-  border-width: 3px;
-  opacity: .92;
-  background: radial-gradient(ellipse at 40% 50%, rgba(158,27,27,.10), transparent 70%);
-}
-
-/* ======================================================================
-   6) BARRAS: PV (X de caneta), LUC (rabisco azul), FÔL (hachura ocre)
-   ====================================================================== */
-/* PV e FÔL: container inteiro "tremido" + falhas de tinta */
-#ficha-rapida .fq-op2-pips-grid{ filter: url(#fq-x-rabisco); }
-
-/* cada quadradinho levemente torto, como desenhado a mão */
-#ficha-rapida .fq-op2-pip:nth-child(3n)  { transform: skewX(-10deg) rotate(2.5deg); }
-#ficha-rapida .fq-op2-pip:nth-child(4n+1){ transform: skewX(-10deg) rotate(-3deg) translateY(.5px); }
-#ficha-rapida .fq-op2-pip:nth-child(5n+2){ transform: skewX(-8deg) rotate(1.5deg) scale(1.06); }
-
-/* LUC: caixa sem o retângulo rígido; o rabisco pode vazar um pouco da caixa */
-#ficha-rapida .fq-op2-luc-scribble-box{
-  overflow: visible !important;
-  background: none !important;
-  height: 20px !important;
-  border: 1px solid rgba(37,35,32,.28);
-}
-#ficha-rapida .fq-op2-luc-scribble-fill{
-  clip-path: none !important;
-  height: 100% !important;
-  background-color: rgba(31,60,109,.10) !important;
-  /* 4 camadas de riscos em ângulos/espaçamentos "quebrados" + furos de tinta */
-  background-image:
-    var(--fq-x-wear-tinta),
-    repeating-linear-gradient(-63deg, transparent 0 1.1px, var(--fq-blue-pen) 1.1px 2.7px, transparent 2.7px 4.3px),
-    repeating-linear-gradient(-47deg, transparent 0 1.9px, var(--fq-blue-pen) 1.9px 3.2px, transparent 3.2px 5.9px),
-    repeating-linear-gradient(-71deg, transparent 0 3.3px, rgba(31,60,109,.7) 3.3px 4.4px, transparent 4.4px 7.7px),
-    repeating-linear-gradient(18deg,  transparent 0 4.1px, rgba(31,60,109,.5) 4.1px 5.4px, transparent 5.4px 9.3px) !important;
-  background-size: 160px 80px, auto, auto, auto, auto !important;
-  filter: url(#fq-x-rabisco);
-}
-
-/* Imagem do personagem: "impressa" no papel (só tema claro) */
-body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-op2-center img{
-  mix-blend-mode: multiply;
-  filter: contrast(1.05) saturate(.92) sepia(.14) drop-shadow(0 10px 16px rgba(50,32,12,.38));
-}
-
-/* ======================================================================
-   7) OPCIONAL — linhas de formulário nas perícias (como na imagem de referência)
-   Descomente para ter linhas pautadas que continuam mesmo onde não há perícia.
-   ====================================================================== */
-/*
-#ficha-rapida .fq-op2-skills-scroll{
-  background: repeating-linear-gradient(to bottom, transparent 0 21px, var(--fq-line-guide) 21px 22px);
-  background-attachment: local;
-}
-#ficha-rapida .fq-op2-sk-row{
-  height: 22px; box-sizing: border-box; padding: 0; border-bottom: 0;
-}
-*/
-</style>
-    <style id="fq-x-ajuste-1">
-/* 1) PAPEL = sua imagem (sem textura gerada por cima) */
-body:not(.tema-escuro):not(.tema-hexatombe):not(.modo-sobrevivencia) #ficha-rapida .fq-sheet.fq-op2-board{
-  background-color: #e3dbc7 !important;
-  background-image: url("https://i.imgur.com/bWwYxZ0.jpeg") !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-attachment: local !important;
-  background-blend-mode: normal !important;
-}
-
-/* 2) Tinta gasta bem mais leve nas tarjas e etiquetas */
-body #ficha-rapida{
-  --fq-x-wear-tinta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 9 0 0 0 -5.9'/%3E%3C/filter%3E%3Crect width='160' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
-  --fq-x-tinta-sombra: 0 0 .4px rgba(30,20,10,.4);
-}
-
-/* 3) Losangos e ícones pequenos sem desgaste (para os números ficarem legíveis) */
-#ficha-rapida .fq-op2-diamond,
-#ficha-rapida .fq-op2-shape{ background-image: none; }
-
-/* 4) Carimbo: volta ao filtro original que já existia no seu arquivo */
-body #ficha-rapida .fq-op2-stamp-lvl{
-  filter: url(#fq-carimbo-filter) !important;
-  background: none;
-  border-width: 2.5px;
-  opacity: .88;
-}
-
-/* 5) Camada de pontinhos por cima da ficha, mais suave */
-@media (min-width: 861px){
-  #ficha-rapida .fq-sheet.fq-op2-board::after{ opacity: .5; }
-}
-</style>
 </body>
 </html>
