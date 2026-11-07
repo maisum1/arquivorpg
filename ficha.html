@@ -5131,7 +5131,7 @@ let filtroSubAtualAtaques = 'Todos';
                 const lblNome = document.getElementById('init-meu-personagem');
                 if (lblNome) {
                     const n = (document.getElementById('nome-personagem')?.value || '').trim();
-                    lblNome.textContent = n ? ('⚔️ ' + n) : '';
+                    lblNome.textContent = n ? ('⚔️ ' + n.split(/\s+/)[0]) : '';
                 }
             };
 
@@ -5244,7 +5244,7 @@ let filtroSubAtualAtaques = 'Todos';
                         const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
 
                         item.innerHTML = `
-                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${combatente.nome}</span>
+                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${combatente.tipo === 'ameaca' ? combatente.nome : String(combatente.nome || '').trim().split(/\s+/)[0]}</span>
                             <div style="display: flex; align-items: center;">
                                 ${botoesMestre}
                                 <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${combatente.agi}">${combatente.valor}</span>
@@ -8547,13 +8547,14 @@ let filtroSubAtualAtaques = 'Todos';
                             <h2 class="fq-op2-name" id="fq2-nome">PERSONA</h2>
                             <span class="fq-op2-fullname" id="fq2-fullname"></span>
                         </div>
-                        <div class="fq-op2-meta-line" id="fq2-meta"></div>
+                        <div class="fq-op2-lema" id="fq2-lema"></div>
                     </div>
-                    <div class="fq-op2-classbar">
+                    <div class="fq-op2-right-col"><div class="fq-op2-classbar">
                         <span class="fq-op2-origin-banner" id="fq2-origem">ORIGEM</span>
                         <span class="fq-op2-meta-dot" id="fq2-arquetipo" style="display:none;"></span>
                         <div class="fq-op2-stamp-lvl">NÍVEL <span id="fq2-nivel" style="margin-left:5px;">0</span></div>
                     </div>
+                    <div class="fq-op2-meta-line" id="fq2-meta"></div></div>
                 </header>
 
                 <!-- COLUNA ESQUERDA: ATRIBUTOS + PERÍCIAS -->
@@ -8775,6 +8776,24 @@ let filtroSubAtualAtaques = 'Todos';
             if (idadeTxt && idadeTxt !== '0') partesMeta.push(`<span><i>Idade</i>${escM(idadeTxt)}</span>`);
             if (nascTxt) partesMeta.push(`<span title="${escM(nascTxt)}"><i>Nasc.</i>${escM(nascTxt)}</span>`);
             metaEl.innerHTML = partesMeta.join('');
+        }
+
+        // Frase de efeito: começo do campo "Ideologia e Crenças" (primeira linha ou primeira frase)
+        const lemaEl = document.getElementById('fq2-lema');
+        if (lemaEl) {
+            const brutoIdeo = (document.getElementById('bgIdeologia')?.value || '').replace(/\r/g, '').trim();
+            let lema = '';
+            if (brutoIdeo) {
+                if (brutoIdeo.includes('\n')) {
+                    lema = brutoIdeo.split('\n').map(l => l.trim()).find(l => l) || '';
+                } else {
+                    const mFrase = brutoIdeo.match(/^(.+?[.!?…])(\s|$)/);
+                    lema = mFrase ? mFrase[1] : brutoIdeo;
+                }
+                if (lema.length > 140) lema = lema.slice(0, 140).replace(/\s+\S*$/, '') + '…';
+            }
+            lemaEl.textContent = lema;
+            lemaEl.title = lema;
         }
         document.getElementById('fq2-origem').innerText = origem;
         const arqEl = document.getElementById('fq2-arquetipo');
@@ -9327,11 +9346,17 @@ body #ficha-rapida .fq-op2-stamp-lvl{
 
 /* ---------- C) Idade e local de nascimento (cabeçalho) ---------- */
 #ficha-rapida .fq-op2-header{ margin-bottom:8px; }
-#ficha-rapida .fq-op2-id-col{ display:flex; flex-direction:column; gap:4px; min-width:0; max-width:100%; }
+#ficha-rapida .fq-op2-id-col{ display:flex; flex-direction:column; gap:5px; min-width:0; max-width:100%; }
+#ficha-rapida .fq-op2-lema{
+  font:italic 600 14px/1.25 'Crimson Text', Georgia, serif; color:var(--fq-ink-soft);
+  max-width:min(380px, 30vw);
+}
+#ficha-rapida .fq-op2-lema:empty{ display:none; }
+#ficha-rapida .fq-op2-right-col{ display:flex; flex-direction:column; align-items:flex-end; gap:7px; min-width:0; }
 #ficha-rapida .fq-op2-meta-line{
-  display:flex; flex-wrap:wrap; gap:2px 14px;
+  display:flex; flex-wrap:wrap; justify-content:flex-end; gap:2px 14px;
   font:700 10px/1.2 'Courier Prime', monospace; letter-spacing:1.2px; text-transform:uppercase;
-  color:var(--fq-ink-soft); max-width:34vw;
+  color:var(--fq-ink-soft); max-width:100%;
 }
 #ficha-rapida .fq-op2-meta-line:empty{ display:none; }
 #ficha-rapida .fq-op2-meta-line span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
@@ -9401,7 +9426,9 @@ html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
   }
   #ficha-rapida .fq-op2-name-wrap{ flex-wrap:wrap; row-gap:2px; }
   #ficha-rapida .fq-op2-name{ font-size:44px !important; }
-  #ficha-rapida .fq-op2-meta-line{ max-width:100%; }
+  #ficha-rapida .fq-op2-lema{ max-width:100%; }
+  #ficha-rapida .fq-op2-right-col{ align-items:flex-start; }
+  #ficha-rapida .fq-op2-meta-line{ justify-content:flex-start; }
   #ficha-rapida .fq-op2-classbar{ gap:10px 12px; }
 
   #ficha-rapida .fq-op2-center{
