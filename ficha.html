@@ -8562,11 +8562,11 @@ let filtroSubAtualAtaques = 'Todos';
                     <div>
                         <span class="fq-op2-sec-ribbon">ATRIBUTOS</span>
                         <div class="fq-op2-attrs-stair">
-                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl">AGILIDADE</span><span class="fq-op2-diamond"><input type="number" id="fq2-agi" onchange="window.fq2SyncAttr('agi', this.value)"></span></div>
-                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl">FORÇA</span><span class="fq-op2-diamond"><input type="number" id="fq2-for" onchange="window.fq2SyncAttr('for', this.value)"></span></div>
-                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl">SAGACIDADE</span><span class="fq-op2-diamond"><input type="number" id="fq2-sag" onchange="window.fq2SyncAttr('sag', this.value)"></span></div>
-                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl">VONTADE</span><span class="fq-op2-diamond"><input type="number" id="fq2-von" onchange="window.fq2SyncAttr('von', this.value)"></span></div>
-                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl">VIGOR</span><span class="fq-op2-diamond"><input type="number" id="fq2-vig" onchange="window.fq2SyncAttr('vig', this.value)"></span></div>
+                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl" data-abbr="AGI">AGILIDADE</span><span class="fq-op2-diamond"><input type="number" id="fq2-agi" onchange="window.fq2SyncAttr('agi', this.value)"></span></div>
+                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl" data-abbr="FOR">FORÇA</span><span class="fq-op2-diamond"><input type="number" id="fq2-for" onchange="window.fq2SyncAttr('for', this.value)"></span></div>
+                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl" data-abbr="SAG">SAGACIDADE</span><span class="fq-op2-diamond"><input type="number" id="fq2-sag" onchange="window.fq2SyncAttr('sag', this.value)"></span></div>
+                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl" data-abbr="VON">VONTADE</span><span class="fq-op2-diamond"><input type="number" id="fq2-von" onchange="window.fq2SyncAttr('von', this.value)"></span></div>
+                            <div class="fq-op2-attr-line"><span class="fq-op2-attr-lbl" data-abbr="VIG">VIGOR</span><span class="fq-op2-diamond"><input type="number" id="fq2-vig" onchange="window.fq2SyncAttr('vig', this.value)"></span></div>
                         </div>
                     </div>
 
@@ -9472,6 +9472,120 @@ html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
   html.fq-lock #fq-open{ display:none !important; }
   html.fq-lock #btn-toggle-iniciativa{ right:12px !important; bottom:12px !important; padding:9px 12px !important; z-index:9998 !important; }
   html.fq-lock #painel-iniciativa-combate{ right:12px !important; bottom:62px !important; max-width:calc(100vw - 24px) !important; }
+}
+
+/* ======================================================================
+   F) CELULAR / TELAS ESTREITAS (até 860px) — disposição em 3 colunas, inspirada na versão antiga:
+      atributos | retrato | PV-LUC-FÔL  (topo)
+      perícias  | habilidades/anomalias/equipamento  (abaixo)
+      rodapé fixo (DEF/BLQ/ESQ + atalhos)
+   Tablet (acima de 860px) e PC não são afetados.
+   ====================================================================== */
+@media (max-width: 860px){
+  #ficha-rapida .fq-sheet.fq-op2-board{
+    display:grid !important;
+    grid-template-columns:repeat(12, minmax(0,1fr)) !important;
+    grid-template-rows:auto auto 1fr auto !important;   /* a 3ª linha estica e empurra o rodapé para a base */
+    column-gap:0 !important; row-gap:10px !important;
+    padding:14px 18px 0 !important;
+    align-content:stretch;
+  }
+
+  /* as colunas "somem" para que seus blocos internos possam ser posicionados na grade */
+  #ficha-rapida .fq-op2-left,
+  #ficha-rapida .fq-op2-right{ display:contents !important; }
+
+  /* ---- cabeçalho: nome à esquerda, origem/nível/idade à direita ---- */
+  #ficha-rapida .fq-op2-header{
+    grid-column:1 / -1 !important; grid-row:1 !important;
+    flex-direction:row !important; justify-content:space-between !important; align-items:flex-start !important;
+    gap:8px; padding-right:40px !important; margin-bottom:0 !important;
+  }
+  #ficha-rapida .fq-op2-name{ font-size:36px !important; }
+  #ficha-rapida .fq-op2-fullname{ font-size:10px; letter-spacing:1.5px; }
+  #ficha-rapida .fq-op2-lema{ font-size:12.5px; max-width:48vw; }
+  #ficha-rapida .fq-op2-right-col{ align-items:flex-end; gap:5px; }
+  #ficha-rapida .fq-op2-classbar{ justify-content:flex-end; gap:6px 8px; }
+  #ficha-rapida .fq-op2-origin-banner{ font-size:11px; padding:4px 12px 4px 9px; }
+  #ficha-rapida .fq-op2-stamp-lvl{ font-size:17px; padding:2px 9px; }
+  #ficha-rapida .fq-op2-meta-line{ justify-content:flex-end; font-size:9px; letter-spacing:.8px; max-width:46vw; }
+
+  /* ---- topo: atributos | retrato | trilhas ---- */
+  #ficha-rapida .fq-op2-left > div:first-child{ grid-column:1 / 5 !important; grid-row:2 !important; min-width:0; }
+  #ficha-rapida .fq-op2-center{
+    grid-column:5 / 9 !important; grid-row:2 !important; align-self:start;
+    width:100% !important; height:min(280px, 36vh) !important; margin:0; order:0;
+  }
+  #ficha-rapida .fq-op2-center img{ height:100% !important; width:auto !important; max-width:150% !important; }
+  #ficha-rapida .fq-op2-conds-float{ bottom:4px; left:-8px; right:-8px; }
+  #ficha-rapida .fq-op2-tracks{
+    grid-column:9 / 13 !important; grid-row:2 !important; min-width:0; gap:9px; padding-bottom:0; border-bottom:0;
+  }
+
+  /* atributos abreviados (AGI, FOR...) */
+  #ficha-rapida .fq-op2-sec-ribbon{ font-size:11px; padding:4px 12px 4px 8px; margin-bottom:5px; }
+  #ficha-rapida .fq-op2-attrs-stair{ margin:0; gap:5px; }
+  #ficha-rapida .fq-op2-attr-line,
+  #ficha-rapida .fq-op2-attr-line:nth-child(n){ padding-right:2px !important; justify-content:space-between !important; gap:4px; }
+  #ficha-rapida .fq-op2-attr-lbl{ font-size:0 !important; line-height:1; }
+  #ficha-rapida .fq-op2-attr-lbl::before{
+    content:attr(data-abbr); font:600 17px/1 'Crimson Text', Georgia, serif; letter-spacing:.8px;
+  }
+
+  /* trilhas PV/LUC/FÔL: etiqueta + valor + botões em cima, barra embaixo */
+  #ficha-rapida .fq-op2-track-row{
+    grid-template-columns:auto auto 1fr !important;
+    grid-template-areas:"tag num step" "bar bar bar";
+    gap:3px 5px;
+  }
+  #ficha-rapida .fq-op2-track-tag{ grid-area:tag; font-size:11px; padding:4px 5px; }
+  #ficha-rapida .fq-op2-track-num{ grid-area:num; width:28px !important; font-size:19px !important; }
+  #ficha-rapida .fq-op2-track-Step{ grid-area:step; justify-self:end; }
+  #ficha-rapida .fq-op2-track-Step button{ width:22px; height:24px; }
+  #ficha-rapida .fq-op2-track-Step button[title="-5"],
+  #ficha-rapida .fq-op2-track-Step button[title="+5"]{ display:none; }   /* a barra de lucidez também é clicável */
+  #ficha-rapida .fq-op2-pips-grid,
+  #ficha-rapida .fq-op2-luc-scribble-box{ grid-area:bar; min-width:0; }
+  #ficha-rapida .fq-op2-luc-scribble-box{ height:16px !important; }
+  #ficha-rapida .fq-op2-pip{ width:10px; height:13px; }
+
+  /* ---- abaixo: perícias | habilidades ---- */
+  #ficha-rapida .fq-op2-skills-wrap{ grid-column:1 / 7 !important; grid-row:3 !important; min-width:0; padding-right:8px; }
+  #ficha-rapida #fq2-powers-list{ grid-column:7 / 13 !important; grid-row:3 !important; min-width:0; gap:9px; padding-left:2px; }
+
+  #ficha-rapida .fq-op2-skills-head{ gap:6px; margin-bottom:4px; }
+  #ficha-rapida .fq-op2-mini-filter{ font-size:8px; padding:3px 5px; }
+  #ficha-rapida .fq-op2-sk-row{ grid-template-columns:minmax(0,1fr) auto 24px !important; gap:4px; padding:2px 0; }
+  #ficha-rapida .fq-op2-sk-name{ text-align:left; font-size:10.5px; letter-spacing:.2px; }
+  #ficha-rapida .fq-op2-sk-name.has-parent{ align-items:flex-start; }
+  #ficha-rapida .fq-op2-sk-parent{ font-size:6.5px; }
+  #ficha-rapida .fq-op2-sk-plus,
+  #ficha-rapida .fq-op2-sk-icons .fq-op2-shape.dia{ display:none; }
+  #ficha-rapida .fq-op2-sk-icons{ gap:3px; }
+  #ficha-rapida .fq-op2-sk-attrname{ width:auto; font-size:7px; }
+  #ficha-rapida .fq-op2-sk-tot{ font-size:11.5px; }
+
+  #ficha-rapida .fq-op2-power-banner{ font-size:10px; padding:3px 12px 3px 8px; letter-spacing:1px; }
+  #ficha-rapida .fq-op2-power-desc{ font-size:10px; line-height:1.35; }
+  #ficha-rapida .fq-op2-power-cost{ font-size:9px; }
+
+  /* ---- rodapé fixo na base da tela ---- */
+  #ficha-rapida .fq-op2-footer{
+    grid-column:1 / -1 !important; grid-row:4 !important; order:0;
+    position:sticky; bottom:0; z-index:50;
+    margin:0 -18px; padding:8px 18px calc(8px + env(safe-area-inset-bottom, 0px));
+    background:var(--fq-paper-bg);
+    background:color-mix(in srgb, var(--fq-paper-bg) 94%, transparent);
+    border-top:1px solid var(--fq-line-guide);
+    flex-wrap:nowrap; gap:6px;
+  }
+  #ficha-rapida .fq-op2-defs{ gap:9px; font-size:11px; }
+  #ficha-rapida .fq-op2-defs b{ font-size:13px; }
+  #ficha-rapida .fq-op2-iconbtn{ width:30px; height:28px; }
+  #ficha-rapida .fq-op2-quicknav{ gap:4px; }
+
+  html.fq-lock #btn-toggle-iniciativa{ bottom:64px !important; font-size:11px !important; padding:7px 10px !important; }
+  html.fq-lock #painel-iniciativa-combate{ bottom:108px !important; }
 }
 </style>
 
