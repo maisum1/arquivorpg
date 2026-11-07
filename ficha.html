@@ -8686,11 +8686,44 @@ let filtroSubAtualAtaques = 'Todos';
             backdrop.classList.add('open');
             modal.scrollTop = 0;
             fqTravarRolagem(true);
+            fqObservarBlocos();
+            fqAlinharBlocos();
         } else {
             modal.classList.remove('open');
             backdrop.classList.remove('open');
             fqTravarRolagem(false);
         }
+    };
+
+    // Celular: habilidades começam na mesma altura das perícias (que ficam encostadas na base)
+    function fqAlinharBlocos() {
+        const sk = document.querySelector('#ficha-rapida .fq-op2-skills-wrap');
+        const pw = document.getElementById('fq2-powers-list');
+        if (!sk || !pw) return;
+        pw.style.removeProperty('--fq-pw-offset');
+        if (!window.matchMedia('(max-width: 600px)').matches) return;
+        const rs = sk.getBoundingClientRect(), rp = pw.getBoundingClientRect();
+        const mb = parseFloat(getComputedStyle(sk).marginBottom) || 0;
+        const delta = rs.top - rp.top;                    // quanto as perícias desceram
+        const alturaLinha = (rs.bottom + mb) - rp.top;    // altura total disponível na linha
+        const offset = Math.max(0, Math.min(delta, alturaLinha - rp.height));   // sem empurrar as habilidades para fora
+        if (offset > 0.5) pw.style.setProperty('--fq-pw-offset', offset + 'px');
+    }
+    function fqObservarBlocos() {
+        if (window.__fqRO || !window.ResizeObserver) return;
+        const sk = document.querySelector('#ficha-rapida .fq-op2-skills-wrap');
+        const pw = document.getElementById('fq2-powers-list');
+        if (!sk || !pw) return;
+        window.__fqRO = new ResizeObserver(() => fqAlinharBlocos());
+        window.__fqRO.observe(sk); window.__fqRO.observe(pw);
+        window.addEventListener('resize', fqAlinharBlocos);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fqAlinharBlocos);
+    }
+    const fqRenderOriginal = window.renderFichaRapidaOP2;
+    window.renderFichaRapidaOP2 = function() {
+        const r = fqRenderOriginal.apply(this, arguments);
+        fqAlinharBlocos(); requestAnimationFrame(fqAlinharBlocos);
+        return r;
     };
 
     if (!window.__fqExpandOP2) {
@@ -9684,14 +9717,14 @@ html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
 }
 
 /* ======================================================================
-   H) CELULAR — desce um pouco perícias e habilidades/anomalias/equipamento
-      (retrato, atributos e trilhas PV/LUC/FÔL continuam exatamente onde estão)
+   H) CELULAR — perícias encostadas no limite inferior da tela (antes de rolar);
+      habilidades/anomalias/equipamento começam na mesma altura das perícias
+      (a altura exata é calculada pelo script: --fq-pw-offset).
+      Retrato, atributos e trilhas PV/LUC/FÔL não mudam.
    ====================================================================== */
 @media (max-width: 600px){
-  #ficha-rapida .fq-op2-skills-wrap,
-  #ficha-rapida #fq2-powers-list{
-    margin-top:clamp(14px, 6vh, 42px);
-  }
+  #ficha-rapida .fq-op2-skills-wrap{ align-self:end !important; margin-top:0 !important; margin-bottom:3px; }
+  #ficha-rapida #fq2-powers-list{ align-self:start !important; margin-top:var(--fq-pw-offset, 0px) !important; }
 }
 </style>
 
