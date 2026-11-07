@@ -8693,6 +8693,14 @@ let filtroSubAtualAtaques = 'Todos';
         }
     };
 
+    if (!window.__fqExpandOP2) {
+        window.__fqExpandOP2 = true;
+        document.addEventListener('click', e => {
+            const d = e.target.closest && e.target.closest('#fq2-powers-list .fq-op2-power-desc');
+            if (d && !d.classList.contains('fq-op2-power-list')) d.classList.toggle('expandido');
+        });
+    }
+
     if (!window.__fqEscOP2) {
         window.__fqEscOP2 = true;
         document.addEventListener('keydown', e => {
@@ -8997,7 +9005,7 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="fq-op2-power-head">
                             <span class="fq-op2-power-banner paranormal">ANOMALIAS</span>
                         </div>
-                        <div class="fq-op2-power-desc">${rituaisUnicos.map(t => `<div class="fq-op2-line-item">${t}</div>`).join('')}</div>
+                        <div class="fq-op2-power-desc fq-op2-power-list">${rituaisUnicos.map(t => `<div class="fq-op2-line-item">${t}</div>`).join('')}</div>
                     </div>
                 `);
             }
@@ -9028,7 +9036,7 @@ let filtroSubAtualAtaques = 'Todos';
                         <div class="fq-op2-power-head">
                             <span class="fq-op2-power-banner">EQUIPAMENTO</span>
                         </div>
-                        <div class="fq-op2-power-desc">${armasFormatadas.map(t => `<div class="fq-op2-line-item">${t}</div>`).join('')}</div>
+                        <div class="fq-op2-power-desc fq-op2-power-list">${armasFormatadas.map(t => `<div class="fq-op2-line-item">${t}</div>`).join('')}</div>
                     </div>
                 `);
             }
@@ -9586,6 +9594,93 @@ html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
 
   html.fq-lock #btn-toggle-iniciativa{ bottom:64px !important; font-size:11px !important; padding:7px 10px !important; }
   html.fq-lock #painel-iniciativa-combate{ bottom:108px !important; }
+}
+
+/* ======================================================================
+   G) CELULAR (até 600px) — RETRATO GRANDE NO CENTRO, BLOCOS AO REDOR
+      (disposição da versão antiga: atributos e perícias à esquerda,
+       PV/LUC/FÔL e habilidades à direita, condições e rodapé embaixo)
+   ====================================================================== */
+@media (max-width: 600px){
+  #ficha-rapida{ --fq-halo: 0 0 3px var(--fq-paper-bg), 0 0 5px var(--fq-paper-bg), 0 0 5px var(--fq-paper-bg); }
+
+  #ficha-rapida .fq-sheet.fq-op2-board{
+    grid-template-rows:auto auto 1fr auto auto !important;
+    padding:12px 16px 0 !important;
+    row-gap:8px !important;
+  }
+
+  /* linha fina sob o cabeçalho, como na versão antiga */
+  #ficha-rapida .fq-op2-header{ border-bottom:1px dashed var(--fq-line-guide); padding-bottom:8px !important; }
+
+  /* retrato: grande, ao centro, ATRÁS dos blocos de texto */
+  #ficha-rapida .fq-op2-center{ display:contents !important; }
+  #ficha-rapida #fq2-portrait{
+    grid-column:4 / 10 !important; grid-row:2 / 4 !important;
+    justify-self:center; align-self:start;
+    height:min(56vh, 480px) !important; width:auto !important; max-width:none !important;
+    margin-top:2px; position:relative; z-index:1; pointer-events:none;
+  }
+
+  /* todos os blocos ficam acima do retrato */
+  #ficha-rapida .fq-op2-left > div:first-child,
+  #ficha-rapida .fq-op2-tracks,
+  #ficha-rapida .fq-op2-skills-wrap,
+  #ficha-rapida #fq2-powers-list{ position:relative; z-index:5; }
+
+  /* esquerda: atributos (topo) e perícias (abaixo) */
+  #ficha-rapida .fq-op2-left > div:first-child{ grid-column:1 / 4 !important; grid-row:2 !important; }
+  #ficha-rapida .fq-op2-skills-wrap{ grid-column:1 / 6 !important; grid-row:3 !important; padding-right:0 !important; }
+
+  /* direita: PV/LUC/FÔL (topo) e habilidades (abaixo) */
+  #ficha-rapida .fq-op2-tracks{ grid-column:9 / 13 !important; grid-row:2 !important; }
+  #ficha-rapida #fq2-powers-list{ grid-column:8 / 13 !important; grid-row:3 !important; }
+
+  /* botões sobre o retrato continuam visíveis */
+  #ficha-rapida .fq-op2-track-Step button,
+  #ficha-rapida .fq-op2-mini-filter{ background:var(--fq-paper-bg); }
+
+  /* texto com "halo" da cor do papel: legível mesmo se encostar no retrato */
+  #ficha-rapida .fq-op2-sk-name,
+  #ficha-rapida .fq-op2-sk-parent,
+  #ficha-rapida .fq-op2-sk-attrname,
+  #ficha-rapida .fq-op2-sk-tot,
+  #ficha-rapida .fq-op2-attr-lbl,
+  #ficha-rapida .fq-op2-track-num,
+  #ficha-rapida .fq-op2-power-desc,
+  #ficha-rapida .fq-op2-line-item{
+    text-shadow:var(--fq-halo);
+    /* contorno da cor do papel atrás das letras: legível mesmo sobre partes escuras do retrato */
+    -webkit-text-stroke:3px var(--fq-paper-bg); paint-order:stroke fill;
+  }
+
+  /* perícias um pouco mais enxutas (coluna estreita) */
+  #ficha-rapida .fq-op2-sk-name{ font-size:10px; }
+
+  /* descrições das habilidades: até 3 linhas; toque para abrir/fechar */
+  #ficha-rapida .fq-op2-power-desc{
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3;
+    overflow:hidden; font-size:9.5px; line-height:1.3;
+  }
+  #ficha-rapida .fq-op2-power-desc.expandido{ display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; }
+  #ficha-rapida .fq-op2-power-desc.fq-op2-power-list{ display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; }
+
+  /* condições: linha própria, acima do rodapé */
+  #ficha-rapida .fq-op2-conds-float{
+    position:relative !important; z-index:5;
+    grid-column:1 / -1 !important; grid-row:4 !important;
+    left:auto !important; right:auto !important; bottom:auto !important;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-start !important; gap:5px;
+  }
+  #ficha-rapida .fq-op2-conds-float:empty{ display:none !important; }
+  #ficha-rapida .fq-op2-conds-float:not(:empty)::before{
+    content:"CONDIÇÕES"; font:700 8.5px/1 'Courier Prime', monospace; letter-spacing:2px;
+    color:var(--fq-ink-soft); margin-right:4px; text-shadow:var(--fq-halo);
+    -webkit-text-stroke:3px var(--fq-paper-bg); paint-order:stroke fill;
+  }
+
+  /* rodapé (DEF/BLQ/ESQ + atalhos) fixo na base */
+  #ficha-rapida .fq-op2-footer{ grid-row:5 !important; }
 }
 </style>
 
