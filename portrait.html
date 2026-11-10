@@ -6,61 +6,276 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Special+Elite&family=Courier+Prime:wght@400;700&family=Crimson+Text:ital,wght@0,600;1,400&display=swap');
+
+        /* ====================================================================
+           PORTRAIT DE TRANSMISSÃO (OBS) — mesma estética da ficha rápida:
+           tarjas pretas de tinta gasta, rabiscos de caneta, carimbo e losangos.
+           Uso:  portrait.html?id=ID_DA_FICHA
+           ==================================================================== */
+        :root {
+            --ink: #0b0908;                 /* contorno de tinta dos textos */
+            --papel: #efe7d4;               /* cor de papel (texto claro) */
+            --tarja: #1c1a18;               /* tarja preta da ficha */
+            --pv: #d63a34;   --pv-tag: #a31f1f;
+            --luc: #5f93dc;  --luc-tag: #1f3c6d;
+            --fol: #e0a043;  --fol-tag: #9c631c;   /* amarelo queimado / marrom da ficha */
+            --contorno: -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
+                        0 -2px 0 var(--ink), 0 2px 0 var(--ink), -2px 0 0 var(--ink), 2px 0 0 var(--ink);
+
+            /* riscos de desgaste (tinta falhando) sobre as tarjas */
+            --desgaste: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='80'%3E%3Cfilter id='t' x='0' y='0' width='1' height='1' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .7' numOctaves='2' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .94 0 0 0 0 .9 0 0 0 0 .83 8 0 0 0 -4.9'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.32'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='200' height='80' filter='url(%23t)'/%3E%3C/svg%3E");
+
+            --glow: rgba(214, 58, 52, .7);  /* brilho do retrato (muda conforme o estado) */
+        }
+
         /* FORÇA TRANSPARÊNCIA TOTAL NO NAVEGADOR E NO OBS */
-        html, body { 
-            margin: 0; padding: 0; overflow: hidden; 
-            background: none !important; 
+        html, body {
+            margin: 0; padding: 0; overflow: hidden;
+            background: none !important;
             background-color: transparent !important;
         }
 
-        #main-wrapper { 
-            display: flex; flex-direction: row; align-items: flex-end; 
-            padding: 20px; gap: 25px; 
+        #main-wrapper {
+            display: flex; flex-direction: row; align-items: flex-end;
+            padding: 20px; gap: 25px;
             background: transparent !important;
-        }
-        
-        /* CAIXA DO PORTRAIT (Proporção 1 : 1.4) */
-        #image-frame { 
-            position: relative; 
-            width: 250px; 
-            height: 350px; 
-            overflow: hidden; 
-            background: transparent !important;
-            border: none;
-        }
-        
-        #personagem-img { 
-            position: absolute; 
-            left: 0; top: 0;
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* Mantém a proporção sem distorcer */
-            background: transparent !important;
-            transition: transform 0.3s ease-out, object-position 0.3s ease-out;
-            /* O Filtro drop-shadow não cria fundo preto, diferente de box-shadow */
-            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
         }
 
-        /* TEXTOS */
-        #stats-container { display: flex; flex-direction: column; margin-left: -40px; position: relative; z-index: 10; pointer-events: none; }
-        #nome-val { font-size: 34px; text-transform: uppercase; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 8px #ff0000, 0 0 8px #ff0000; font-family: 'Special Elite'; margin-bottom: 5px; }
-        #vida-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 8px #ff0000, 0 0 8px #ff0000; margin-left: 15px; }
-        #san-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 8px #0066ff, 0 0 8px #0066ff; margin-left: 30px; }
-        #pe-container { position: absolute; bottom: 10px; left: 10px; font-size: 40px; color: #f5e6fc; text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 8px #cc66ff, 0 0 8px #cc66ff; z-index: 10; font-family: 'Special Elite'; }
+        /* ---------------- RETRATO (proporção 1 : 1.4) ---------------- */
+        #image-frame {
+            position: relative; width: 250px; height: 350px; overflow: hidden;
+            background: transparent !important; border: none;
+        }
+        #personagem-img {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            object-fit: cover;                 /* mantém a proporção sem distorcer */
+            background: transparent !important;
+            transition: transform .3s ease-out, object-position .3s ease-out;
+            /* drop-shadow não cria fundo preto (diferente de box-shadow) */
+            filter: drop-shadow(0 0 7px var(--glow)) drop-shadow(0 5px 6px rgba(0,0,0,.55));
+        }
+        #image-frame.flash::after {            /* clarão quando toma dano */
+            content: ""; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse at 50% 55%, rgba(214,58,52,.55), transparent 70%);
+            animation: clarao .6s ease-out forwards;
+        }
+
+        /* ---------------- FÔLEGO (sobre o retrato) ---------------- */
+        #fol-box {
+            position: absolute; left: 8px; bottom: 8px; z-index: 10;
+            display: flex; align-items: center; gap: 7px;
+        }
+        #pe-val {
+            font: 400 42px/1 'Special Elite', 'Courier New', monospace; color: #fff0d2;
+            text-shadow: var(--contorno), 0 0 12px var(--fol), 0 0 22px var(--fol-tag);
+        }
+        #pe-max {
+            font: 400 17px/1 'Special Elite', 'Courier New', monospace; color: var(--fol);
+            text-shadow: var(--contorno); margin-left: -3px; align-self: flex-end; padding-bottom: 5px;
+        }
+        #pe-max:empty { display: none; }
+
+        /* ---------------- ETIQUETAS (PV / LUC / FÔL) ---------------- */
+        .tag {
+            display: inline-block; position: relative;
+            font: 700 13px/1 'Oswald', Impact, sans-serif; letter-spacing: .16em; color: #fff;
+            padding: 4px 11px 4px 8px; text-transform: uppercase;
+            background-image: var(--desgaste); background-size: 200px 80px;
+            clip-path: polygon(0 0, 100% 8%, calc(100% - 7px) 100%, 0 92%);
+            text-shadow: 1px 1px 0 rgba(0,0,0,.6);
+        }
+        .tag.pv  { background-color: var(--pv-tag); }
+        .tag.luc { background-color: var(--luc-tag); }
+        .tag.fol { background-color: var(--fol-tag); }
+        .tag-wrap { filter: drop-shadow(2px 3px 0 rgba(0,0,0,.55)); display: inline-flex; }
+
+        /* ---------------- COLUNA DE STATUS ---------------- */
+        #stats-container {
+            display: flex; flex-direction: column; gap: 7px;
+            margin-left: -40px; position: relative; z-index: 10; pointer-events: none;
+            width: 272px;
+        }
+
+        /* nome: tarja preta com tinta gasta, como "EX-CULTISTA" na ficha */
+        .nome-wrap { align-self: flex-start; filter: drop-shadow(3px 4px 0 rgba(0,0,0,.6)); margin-bottom: 2px; max-width: 100%; }
+        #nome-val {
+            display: block; padding: 6px 30px 6px 16px; max-width: 100%; box-sizing: border-box;
+            font: 700 38px/1.05 'Oswald', Impact, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+            color: var(--papel); text-shadow: 2px 2px 0 #000;
+            background: var(--tarja) var(--desgaste); background-size: 200px 80px;
+            clip-path: polygon(0 9%, 3% 0, 38% 5%, 72% 0, 100% 7%, calc(100% - 14px) 100%, 52% 94%, 22% 100%, 0 91%);
+            white-space: nowrap; overflow: hidden; text-overflow: clip;
+        }
+
+        .stat { display: flex; flex-direction: column; gap: 4px; }
+        .linha { display: flex; align-items: center; gap: 9px; position: relative; }
+        .val {
+            font: 400 38px/1 'Special Elite', 'Courier New', monospace; color: #fff;
+            text-shadow: var(--contorno), 0 0 14px var(--brilho);
+        }
+        .max {
+            font: 400 17px/1 'Special Elite', 'Courier New', monospace; color: var(--papel); opacity: .85;
+            text-shadow: var(--contorno); margin-left: -4px; align-self: flex-end; padding-bottom: 5px;
+        }
+        #stat-pv  { --brilho: var(--pv); }
+        #stat-luc { --brilho: var(--luc); }
+
+        /* barras de rabisco (PV = cruzado vermelho, LUC = rabisco azul), como na ficha */
+        .barra {
+            position: relative; height: 14px; margin-top: 1px;
+            border: 1px solid rgba(239,231,212,.38); background: rgba(0,0,0,.42);
+            box-shadow: 2px 2px 0 rgba(0,0,0,.55);
+        }
+        .fill {
+            position: absolute; inset: 0 auto 0 0; width: 0;
+            transition: width .55s cubic-bezier(.2,.8,.2,1);
+            filter: url(#f-rabisco);
+        }
+        #fill-pv {
+            background:
+                repeating-linear-gradient(-58deg, transparent 0 1.2px, var(--pv) 1.2px 2.9px, transparent 2.9px 4.4px),
+                repeating-linear-gradient(52deg,  transparent 0 3.2px, rgba(214,58,52,.7) 3.2px 4.4px, transparent 4.4px 7.6px),
+                rgba(214,58,52,.22);
+        }
+        #fill-luc {
+            background:
+                repeating-linear-gradient(-63deg, transparent 0 1.1px, var(--luc) 1.1px 2.7px, transparent 2.7px 4.3px),
+                repeating-linear-gradient(-47deg, transparent 0 1.9px, var(--luc) 1.9px 3.2px, transparent 3.2px 5.9px),
+                repeating-linear-gradient(18deg,  transparent 0 4.1px, rgba(95,147,220,.55) 4.1px 5.4px, transparent 5.4px 9.3px),
+                rgba(95,147,220,.2);
+        }
+
+        /* número de dano/cura que sobe e some */
+        .delta {
+            position: absolute; left: 112px; top: -4px; font: 700 24px/1 'Oswald', Impact, sans-serif;
+            text-shadow: var(--contorno); animation: subir 1.6s ease-out forwards; pointer-events: none;
+        }
+        .delta.perda  { color: var(--pv); }
+        .delta.ganho  { color: #f3e6c4; }
+        .delta.luc    { color: var(--luc); }
+
+        /* ---------------- MARCADORES DE CENA E GATILHOS ---------------- */
+        #marcadores { display: none; flex-wrap: wrap; gap: 5px 14px; margin: 0 0 4px 3px; }
+        .marc { display: inline-flex; align-items: center; gap: 7px; }
+        .marc .nm {
+            font: 400 12px/1 'Special Elite', 'Courier New', monospace; letter-spacing: .09em; text-transform: uppercase;
+            color: var(--papel); text-shadow: var(--contorno); min-width: 86px; max-width: 118px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .marc .ef {
+            font: italic 600 13px/1 'Crimson Text', Georgia, serif; color: var(--fol); text-shadow: var(--contorno);
+            max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .dms { display: inline-flex; gap: 8px; padding: 0 3px; }
+        .dm {
+            width: 11px; height: 11px; transform: rotate(45deg); box-sizing: border-box;
+            border: 1.8px solid var(--fol); background: rgba(0,0,0,.45);
+            box-shadow: 0 0 0 1.5px var(--ink);
+        }
+        .dm.on { background: var(--fol); box-shadow: 0 0 0 1.5px var(--ink), 0 0 9px var(--fol); }
+        .marc.pronto .dm.on { animation: pulso 1.5s ease-in-out infinite; }
+
+        /* acumulativo (ex.: Executor): contador num losango maior, sem limite de valor */
+        .acc { position: relative; width: 32px; height: 32px; display: grid; place-items: center; }
+        .acc::before {
+            content: ""; position: absolute; inset: 5px; transform: rotate(45deg);
+            background: var(--fol); border: 2px solid var(--ink); box-shadow: 0 0 10px var(--fol-tag);
+        }
+        .acc b { position: relative; font: 700 14px/1 'Oswald', Impact, sans-serif; color: #1d1204; letter-spacing: -.02em; }
+        .acc.zero::before { background: rgba(0,0,0,.45); border-color: var(--fol); box-shadow: 0 0 0 2px var(--ink); }
+        .acc.zero b { color: var(--fol); opacity: .7; }
+        .marc.pronto .acc::before { animation: pulso 1.5s ease-in-out infinite; }
+
+        /* ---------------- CARIMBO DE ESTADO (sobre o retrato) ---------------- */
+        #selo {
+            display: none; position: absolute; top: 12px; right: 8px; z-index: 11;
+            font: 700 15px/1 'Oswald', Impact, sans-serif; letter-spacing: .16em; text-transform: uppercase;
+            color: var(--pv); border: 3px solid var(--pv); padding: 5px 9px 5px 12px;
+            transform: rotate(-7deg); background: rgba(0,0,0,.28);
+            text-shadow: 1px 1px 0 var(--ink); filter: url(#f-carimbo); opacity: .93;
+        }
+
+        /* ---------------- ESTADOS ---------------- */
+        body[data-estado="Machucado"] { --glow: rgba(255, 60, 50, .95); }
+        body[data-estado="Machucado"] #personagem-img { animation: respira 2s ease-in-out infinite alternate; }
+        body[data-estado="Machucado"] #selo { display: block; }
+        body[data-estado="Enlouquecendo"] { --glow: rgba(80, 140, 255, .95); }
+        body[data-estado="Enlouquecendo"] #nome-val { animation: tremor 4s steps(1) infinite; }
+        body[data-estado="Enlouquecendo"] #selo { display: block; color: var(--luc); border-color: var(--luc); font-size: 12.5px; letter-spacing: .1em; }
+        body[data-estado="Morto"] { --glow: rgba(70, 8, 8, .9); }
+        body[data-estado="Morto"] #personagem-img { filter: grayscale(1) brightness(.72) contrast(1.1) drop-shadow(0 0 7px var(--glow)); }
+        body[data-estado="Morto"] #selo { display: block; font-size: 20px; }
+        body[data-estado="Morto"] #nome-val { opacity: .8; }
+
+        @keyframes pulso   { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.5) drop-shadow(0 0 5px var(--fol)); } }
+        @keyframes respira { from { filter: drop-shadow(0 0 5px var(--glow)) drop-shadow(0 5px 6px rgba(0,0,0,.55)); }
+                             to   { filter: drop-shadow(0 0 14px var(--glow)) drop-shadow(0 5px 6px rgba(0,0,0,.55)); } }
+        @keyframes tremor  { 0%,92%,100% { transform: none; } 93% { transform: translate(-2px,1px); } 95% { transform: translate(2px,-1px); } 97% { transform: translate(-1px,0); } }
+        @keyframes clarao  { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes subir   { 0% { opacity: 0; transform: translateY(8px) scale(.8); } 15% { opacity: 1; transform: translateY(0) scale(1.15); }
+                             100% { opacity: 0; transform: translateY(-26px) scale(1); } }
+
+        @media (max-width: 700px) {
+            #main-wrapper { gap: 16px; padding: 12px; }
+            #image-frame { width: 210px; height: 294px; }
+            #nome-val { font-size: 30px; }
+        }
     </style>
 </head>
 <body>
+    <!-- filtros de tinta (mesmos da ficha): rabisco tremido e carimbo falhado -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <filter id="f-rabisco" x="-3%" y="-40%" width="106%" height="180%" color-interpolation-filters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.045 0.09" numOctaves="2" seed="8" result="w"/>
+                <feDisplacementMap in="SourceGraphic" in2="w" scale="3.4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="g"/>
+                <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.1" result="falhas"/>
+                <feComposite in="d" in2="falhas" operator="in"/>
+            </filter>
+            <filter id="f-carimbo" x="-12%" y="-20%" width="124%" height="140%" color-interpolation-filters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="g"/>
+                <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.85" result="fino"/>
+                <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="2" result="m"/>
+                <feColorMatrix in="m" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -4 3.6" result="mancha"/>
+                <feComposite in="fino" in2="mancha" operator="in" result="corte"/>
+                <feComposite in="SourceGraphic" in2="corte" operator="in"/>
+            </filter>
+        </defs>
+    </svg>
+
     <div id="main-wrapper">
         <div id="image-frame">
             <img id="personagem-img" src="">
-            <div id="pe-container"><span id="pe-val">0</span></div>
+            <div id="selo"></div>
+            <div id="fol-box">
+                <span class="tag-wrap"><span class="tag fol">FÔL</span></span>
+                <span id="pe-val">0</span><span id="pe-max"></span>
+            </div>
         </div>
+
         <div id="stats-container">
-            <div id="nome-val">...</div>
-            <div id="vida-text">0/0</div>
-            <div id="san-text">0/0</div>
+            <div class="nome-wrap"><span id="nome-val">...</span></div>
+
+            <div class="stat" id="stat-pv">
+                <div class="linha" id="linha-pv">
+                    <span class="tag-wrap"><span class="tag pv">PV</span></span>
+                    <span id="vida-text"><span class="val" id="vida-atual">0</span><span class="max" id="vida-max"></span></span>
+                </div>
+                <div class="barra"><div class="fill" id="fill-pv"></div></div>
+            </div>
+
+            <!-- marcadores de cena e gatilhos: aparecem logo abaixo dos pontos de vida -->
+            <div id="marcadores"></div>
+
+            <div class="stat" id="stat-luc">
+                <div class="linha" id="linha-luc">
+                    <span class="tag-wrap"><span class="tag luc">LUC</span></span>
+                    <span id="san-text"><span class="val" id="san-atual">0</span><span class="max" id="san-max"></span></span>
+                </div>
+                <div class="barra"><div class="fill" id="fill-luc"></div></div>
+            </div>
         </div>
     </div>
 
@@ -75,50 +290,122 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const id = new URLSearchParams(window.location.search).get('id');
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const mostrarMarcadores = params.get('marcadores') !== '0';   // portrait.html?id=...&marcadores=0 esconde
+
+        const $ = (i) => document.getElementById(i);
+        const num = (v) => { const n = parseInt(v, 10); return isNaN(n) ? 0 : n; };
+        const pct = (a, m) => (m > 0 ? Math.max(0, Math.min(100, (a / m) * 100)) : 0);
+        let anterior = null;   // valores do último snapshot (para detectar dano/cura)
+
+        function flutuar(linhaId, delta, classe) {
+            const el = document.createElement('span');
+            el.className = 'delta ' + classe;
+            el.textContent = (delta > 0 ? '+' : '−') + Math.abs(delta);
+            $(linhaId).appendChild(el);
+            setTimeout(() => el.remove(), 1700);
+        }
+
+        function el(tag, classe, texto) {
+            const e = document.createElement(tag);
+            if (classe) e.className = classe;
+            if (texto !== undefined) e.textContent = texto;
+            return e;
+        }
+
+        /* Marcadores de cena e gatilhos (vêm de "rastreadoresCena" na ficha).
+           - sem limite de quantidade: um chip por marcador, com os losangos que ele tiver (1, 2, 3...)
+           - acumulativos (Executor): contador "+N" num losango maior, sem teto */
+        function renderMarcadores(lista) {
+            const box = $('marcadores');
+            box.textContent = '';
+            if (!mostrarMarcadores || !Array.isArray(lista) || !lista.length) { box.style.display = 'none'; return; }
+            box.style.display = 'flex';
+
+            lista.forEach(r => {
+                if (!r) return;
+                const nome = String(r.nome || '').trim() || 'Marcador';
+                const max = Math.max(1, Math.min(12, num(r.max) || 1));
+                const atual = Math.max(0, num(r.atual));
+                const acum = Math.max(0, num(r.acumulado));
+                const empilha = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(nome));
+                const pronto = empilha ? acum > 0 : atual >= max;
+
+                const chip = el('div', 'marc' + (pronto ? ' pronto' : ''));
+                chip.appendChild(el('span', 'nm', nome));
+
+                const dms = el('span', 'dms');
+                for (let i = 1; i <= max; i++) dms.appendChild(el('i', 'dm' + (i <= atual ? ' on' : '')));
+                chip.appendChild(dms);
+
+                if (empilha) {
+                    const acc = el('span', 'acc' + (acum === 0 ? ' zero' : ''));
+                    acc.appendChild(el('b', '', '+' + acum));
+                    chip.appendChild(acc);
+                }
+                if (pronto && r.efeito) chip.appendChild(el('span', 'ef', r.efeito));
+                box.appendChild(chip);
+            });
+        }
 
         if (id) {
             db.collection("fichas").doc(id).onSnapshot(doc => {
                 const d = doc.data();
-                if(!d) return;
+                if (!d) return;
 
-                const nomeCompleto = String(d.nome || "Persona").trim();
-                document.getElementById('nome-val').innerText = nomeCompleto.split(/\s+/)[0] || "Persona";
-                document.getElementById('pe-val').innerText = d.peAtual || 0;
-                document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
-                document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
+                const vida = num(d.vidaAtual), vidaMax = num(d.vidaMax);
+                const san = num(d.sanAtual),   sanMax = num(d.sanMax);
+                const pe = num(d.peAtual);
+                const peMax = (d.peMax !== undefined && d.peMax !== null) ? num(d.peMax) : null;
 
+                /* nome: só o primeiro nome; nomes longos encolhem para caber na tarja */
+                const primeiro = String(d.nome || "Persona").trim().split(/\s+/)[0] || "Persona";
+                const nomeEl = $('nome-val');
+                nomeEl.innerText = primeiro;
+                nomeEl.style.fontSize = primeiro.length > 13 ? '24px' : primeiro.length > 10 ? '30px' : '';
+
+                $('vida-atual').innerText = vida;
+                $('vida-max').innerText = vidaMax ? '/' + vidaMax : '';
+                $('san-atual').innerText = san;
+                $('san-max').innerText = sanMax ? '/' + sanMax : '';
+                $('pe-val').innerText = pe;
+                $('pe-max').innerText = peMax ? '/' + peMax : '';
+
+                $('fill-pv').style.width = pct(vida, vidaMax) + '%';
+                $('fill-luc').style.width = pct(san, sanMax) + '%';
+
+                /* dano / cura / perda de lucidez aparecem como número flutuante */
+                if (anterior) {
+                    const dv = vida - anterior.vida, ds = san - anterior.san;
+                    if (dv < 0) { flutuar('linha-pv', dv, 'perda'); $('image-frame').classList.remove('flash'); void $('image-frame').offsetWidth; $('image-frame').classList.add('flash'); }
+                    else if (dv > 0) flutuar('linha-pv', dv, 'ganho');
+                    if (ds !== 0) flutuar('linha-luc', ds, 'luc');
+                }
+                anterior = { vida, san };
+
+                renderMarcadores(d.rastreadoresCena);
+
+                /* estado do personagem (define a imagem, o brilho e o carimbo) */
                 let estado = "Normal";
-                if (d.vidaAtual <= 0) estado = "Morto";
-                else if (d.sanAtual <= 0) estado = "Enlouquecendo";
-                else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
+                if (vida <= 0) estado = "Morto";
+                else if (san <= 0) estado = "Enlouquecendo";
+                else if (vidaMax > 0 && (vida / vidaMax) <= 0.5) estado = "Machucado";
+                document.body.dataset.estado = estado;
+                $('selo').innerText = { Machucado: 'Machucado', Enlouquecendo: 'Enlouquecendo', Morto: 'Óbito' }[estado] || '';
 
                 const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait;
-                const imgEl = document.getElementById('personagem-img');
-                
-                if(imgFinal && imgEl.src !== imgFinal) {
-                    imgEl.src = imgFinal;
-                }
+                const imgEl = $('personagem-img');
+                if (imgFinal && imgEl.src !== imgFinal) imgEl.src = imgFinal;
 
-                // VALORES SALVOS NA FICHA
-                const zoom = d["p"+estado+"Zoom"] || d.pZ || 1;
-                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : 50;
-                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : 50;
-
-                // APLICANDO O RECORTE PROPORCIONAL
-                // Usar porcentagem no object-position garante que não corte as bordas (como a direita)
+                // VALORES SALVOS NA FICHA (recorte e zoom do portrait)
+                const zoom = d["p" + estado + "Zoom"] || d.pZ || 1;
+                const x = d["p" + estado + "X"] !== undefined ? d["p" + estado + "X"] : 50;
+                const y = d["p" + estado + "Y"] !== undefined ? d["p" + estado + "Y"] : 50;
                 imgEl.style.objectPosition = `${x}% ${y}%`;
                 imgEl.style.transform = `scale(${zoom})`;
-            });
+            }, err => console.error('Portrait: erro ao ler a ficha', err));
         }
     </script>
-
-<style id="arquivo-portrait-refino">
-#stats-container{gap:2px}
-#nome-val{letter-spacing:.04em;line-height:1.05}
-#vida-text,#san-text{font-size:32px}
-@media(max-width:700px){#main-wrapper{gap:16px;padding:12px}#image-frame{width:210px;height:294px}#nome-val{font-size:29px}}
-</style>
-
 </body>
 </html>
