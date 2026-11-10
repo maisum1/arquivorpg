@@ -6,203 +6,61 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap');
-
-        :root {
-            --vida: #ff2a2a;
-            --vida-claro: #ffd9d4;
-            --san: #3d8bff;
-            --san-claro: #d6e6ff;
-            /* Fôlego: amarelo queimado / marrom, igual à ficha de persona */
-            --folego: #b8863b;
-            --folego-claro: #f3dfb4;
-            --osso: #f1e9d6;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+        
         /* FORÇA TRANSPARÊNCIA TOTAL NO NAVEGADOR E NO OBS */
-        html, body {
-            margin: 0; padding: 0; overflow: hidden;
-            background: none !important;
+        html, body { 
+            margin: 0; padding: 0; overflow: hidden; 
+            background: none !important; 
             background-color: transparent !important;
         }
 
-        #main-wrapper {
-            display: flex; flex-direction: row; align-items: flex-end;
-            padding: 20px; gap: 25px;
+        #main-wrapper { 
+            display: flex; flex-direction: row; align-items: flex-end; 
+            padding: 20px; gap: 25px; 
             background: transparent !important;
         }
-
+        
         /* CAIXA DO PORTRAIT (Proporção 1 : 1.4) */
-        #image-frame {
-            position: relative;
-            width: 250px;
-            height: 350px;
-            overflow: hidden;
+        #image-frame { 
+            position: relative; 
+            width: 250px; 
+            height: 350px; 
+            overflow: hidden; 
             background: transparent !important;
             border: none;
         }
-
-        #personagem-img {
-            position: absolute;
+        
+        #personagem-img { 
+            position: absolute; 
             left: 0; top: 0;
-            width: 100%;
-            height: 100%;
+            width: 100%; 
+            height: 100%; 
             object-fit: cover; /* Mantém a proporção sem distorcer */
             background: transparent !important;
-            transition: transform 0.3s ease-out, object-position 0.3s ease-out, filter 0.6s ease;
-            /* drop-shadow não cria fundo preto, diferente de box-shadow */
+            transition: transform 0.3s ease-out, object-position 0.3s ease-out;
+            /* O Filtro drop-shadow não cria fundo preto, diferente de box-shadow */
             filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
         }
 
-        /* ---------- TEXTOS ---------- */
-        #stats-container {
-            display: flex; flex-direction: column; align-items: flex-start;
-            margin-left: -40px; position: relative; z-index: 10; pointer-events: none;
-            gap: 2px;
-        }
-
-        /* Nome: estilo "etiqueta de arquivo" com régua vermelha embaixo */
-        #nome-val {
-            display: inline-block;
-            font-family: 'Oswald', 'Special Elite', sans-serif;
-            font-weight: 700;
-            font-size: 34px;
-            line-height: 1.05;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-            color: var(--osso);
-            text-shadow: 0 0 2px #000, 2px 2px 3px #000, 0 0 10px var(--vida), 0 0 18px rgba(255, 0, 0, .55);
-            padding-bottom: 4px;
-            margin-bottom: 4px;
-            position: relative;
-        }
-        #nome-val::after {
-            content: ""; position: absolute; left: 0; bottom: 0;
-            width: 100%; height: 2px;
-            background: linear-gradient(90deg, var(--vida) 0%, rgba(255, 42, 42, .55) 55%, transparent 100%);
-            box-shadow: 0 0 6px rgba(255, 0, 0, .8);
-        }
-
-        /* Linhas de recurso: rótulo pequeno (datilografado) + valor grande */
-        .recurso { display: flex; align-items: baseline; gap: 9px; }
-        .recurso.vida { margin-left: 15px; }
-        .recurso.san  { margin-left: 30px; }
-        .rotulo {
-            font-family: 'Courier Prime', monospace;
-            font-weight: 700;
-            font-size: 12px;
-            letter-spacing: .22em;
-            min-width: 30px;
-            text-shadow: 0 0 2px #000, 1px 1px 2px #000;
-        }
-        .vida .rotulo { color: var(--vida); }
-        .san  .rotulo { color: var(--san); }
-
-        .valor {
-            display: inline-block;
-            font-family: 'Special Elite', 'Courier Prime', monospace;
-            font-size: 32px;
-            line-height: 1.05;
-            color: #fff;
-            letter-spacing: .02em;
-        }
-        .vida .valor { text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--vida), 0 0 14px var(--vida); }
-        .san  .valor { text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--san),  0 0 14px var(--san); }
-
-        /* Fôlego: canto do retrato, agora em marrom/amarelo queimado */
-        #pe-container {
-            position: absolute; bottom: 10px; left: 10px; z-index: 10;
-            display: flex; align-items: baseline; gap: 6px;
-        }
-        #pe-container .rotulo { color: var(--folego); font-size: 11px; min-width: 0; }
-        #pe-val {
-            display: inline-block;
-            font-family: 'Special Elite', 'Courier Prime', monospace;
-            font-size: 40px; line-height: 1;
-            color: var(--folego-claro);
-            text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--folego), 0 0 14px var(--folego);
-        }
-
-        /* ---------- MARCADORES DE CENA & GATILHOS ---------- */
-        #marcadores {
-            display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-            margin: 4px 0 0 36px;
-        }
-        #marcadores:empty { display: none; }
-
-        .marcador { display: flex; align-items: center; gap: 8px; }
-        .m-nome {
-            font-family: 'Courier Prime', monospace;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: .16em;
-            text-transform: uppercase;
-            color: rgba(241, 233, 214, .82);
-            max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            text-shadow: 0 0 2px #000, 1px 1px 2px #000;
-        }
-        .m-pips { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; max-width: 170px; }
-
-        /* Losango: vazio = só contorno; cheio = osso com brilho vermelho */
-        .pip {
-            width: 10px; height: 10px;
-            transform: rotate(45deg);
-            border: 1.5px solid rgba(241, 233, 214, .7);
-            background: rgba(0, 0, 0, .35);
-            box-shadow: 0 0 3px #000;
-            transition: background .25s, box-shadow .25s, border-color .25s;
-        }
-        .pip.on {
-            background: var(--osso);
-            border-color: #fff;
-            box-shadow: 0 0 3px #000, 0 0 7px var(--vida), 0 0 12px rgba(255, 0, 0, .6);
-        }
-
-        /* Marcador pronto/ativo (cheio, ou com bônus acumulado) */
-        .marcador.pronto .m-nome { color: var(--osso); }
-        .marcador.pronto .pip.on { animation: pulso 1.8s ease-in-out infinite; }
-
-        /* Bônus acumulado (Executor etc.) */
-        .m-bonus {
-            font-family: 'Special Elite', monospace;
-            font-size: 18px; line-height: 1;
-            color: var(--folego-claro);
-            text-shadow: 0 0 2px #000, 1px 1px 2px #000, 0 0 8px var(--folego);
-        }
-
-        /* ---------- ESTADOS ---------- */
-        body[data-estado="machucado"] #vida-text { color: var(--vida-claro); animation: batida 1.6s ease-in-out infinite; }
-        body[data-estado="enlouquecendo"] #san-text { color: var(--san-claro); animation: tremor .9s steps(2, end) infinite; }
-        body[data-estado="morto"] #personagem-img { filter: grayscale(1) contrast(1.1) drop-shadow(0 0 8px rgba(120, 0, 0, .9)); }
-        body[data-estado="morto"] #vida-text { color: #777; text-shadow: 0 0 2px #000, 2px 2px 2px #000; }
-
-        /* Flash quando um valor muda */
-        .flash { animation: flash .6s ease-out; }
-
-        @keyframes pulso   { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
-        @keyframes batida  { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
-        @keyframes tremor  { 0% { transform: translateX(0); } 50% { transform: translateX(1px); } 100% { transform: translateX(-1px); } }
-        @keyframes flash   { 0% { transform: scale(1.18); filter: brightness(1.8); } 100% { transform: scale(1); filter: brightness(1); } }
-
-        @media (max-width: 700px) {
-            #main-wrapper { gap: 16px; padding: 12px; }
-            #image-frame { width: 210px; height: 294px; }
-            #nome-val { font-size: 29px; }
-            .valor { font-size: 28px; }
-        }
+        /* TEXTOS */
+        #stats-container { display: flex; flex-direction: column; margin-left: -40px; position: relative; z-index: 10; pointer-events: none; }
+        #nome-val { font-size: 34px; text-transform: uppercase; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 8px #ff0000, 0 0 8px #ff0000; font-family: 'Special Elite'; margin-bottom: 5px; }
+        #vida-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #ff0000, 0 0 8px #ff0000, 0 0 8px #ff0000; margin-left: 15px; }
+        #san-text { font-size: 36px; color: white; text-shadow: 2px 2px 2px #000, 0 0 8px #0066ff, 0 0 8px #0066ff, 0 0 8px #0066ff; margin-left: 30px; }
+        #pe-container { position: absolute; bottom: 10px; left: 10px; font-size: 40px; color: #f5e6fc; text-shadow: 2px 2px 2px #000, 0 0 8px #cc66ff, 0 0 8px #cc66ff, 0 0 8px #cc66ff; z-index: 10; font-family: 'Special Elite'; }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
         <div id="image-frame">
             <img id="personagem-img" src="">
-            <div id="pe-container"><span class="rotulo">FÔL</span><span id="pe-val">0</span></div>
+            <div id="pe-container"><span id="pe-val">0</span></div>
         </div>
         <div id="stats-container">
             <div id="nome-val">...</div>
-            <div class="recurso vida"><span class="rotulo">PV</span><span class="valor" id="vida-text">0/0</span></div>
-            <div class="recurso san"><span class="rotulo">SAN</span><span class="valor" id="san-text">0/0</span></div>
-            <div id="marcadores"></div>
+            <div id="vida-text">0/0</div>
+            <div id="san-text">0/0</div>
         </div>
     </div>
 
@@ -219,103 +77,48 @@
         const db = firebase.firestore();
         const id = new URLSearchParams(window.location.search).get('id');
 
-        // Atualiza um texto e dá um "piscar" só quando o valor realmente mudou
-        const primeiraCarga = {};
-        function setTexto(elId, texto) {
-            const el = document.getElementById(elId);
-            if (el.innerText === texto) return;
-            el.innerText = texto;
-            if (primeiraCarga[elId]) {
-                el.classList.remove('flash');
-                void el.offsetWidth; // reinicia a animação
-                el.classList.add('flash');
-            }
-            primeiraCarga[elId] = true;
-        }
-
-        // MARCADORES DE CENA & GATILHOS (campo "rastreadoresCena" da ficha)
-        // - Sem limite de quantidade de marcadores nem de losangos (Vigilante = 1, Executor = ciclo + bônus acumulado)
-        let assinaturaMarcadores = "";
-        function renderMarcadores(lista) {
-            const itens = Array.isArray(lista) ? lista : [];
-            const assinatura = JSON.stringify(itens.map(r => [r.id, r.nome, r.atual, r.max, r.acumulado, r.acumulativo]));
-            if (assinatura === assinaturaMarcadores) return;
-            assinaturaMarcadores = assinatura;
-
-            const cont = document.getElementById('marcadores');
-            cont.replaceChildren();
-
-            itens.forEach(r => {
-                const nome = String(r.nome || "").trim();
-                const max = Math.max(1, Math.min(12, parseInt(r.max) || 1));
-                const atual = Math.max(0, Math.min(max, parseInt(r.atual) || 0));
-                const acumulado = parseInt(r.acumulado) || 0;
-                const empilhavel = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(nome));
-                const pronto = empilhavel ? acumulado > 0 : atual >= max;
-
-                const box = document.createElement('div');
-                box.className = 'marcador' + (pronto ? ' pronto' : '');
-
-                const lbl = document.createElement('span');
-                lbl.className = 'm-nome';
-                lbl.textContent = nome;
-                box.appendChild(lbl);
-
-                const pips = document.createElement('div');
-                pips.className = 'm-pips';
-                for (let i = 1; i <= max; i++) {
-                    const p = document.createElement('span');
-                    p.className = 'pip' + (i <= atual ? ' on' : '');
-                    pips.appendChild(p);
-                }
-                box.appendChild(pips);
-
-                if (empilhavel && acumulado > 0) {
-                    const b = document.createElement('span');
-                    b.className = 'm-bonus';
-                    b.textContent = '+' + acumulado;
-                    box.appendChild(b);
-                }
-                cont.appendChild(box);
-            });
-        }
-
         if (id) {
             db.collection("fichas").doc(id).onSnapshot(doc => {
                 const d = doc.data();
-                if (!d) return;
+                if(!d) return;
 
                 const nomeCompleto = String(d.nome || "Persona").trim();
-                setTexto('nome-val', nomeCompleto.split(/\s+/)[0] || "Persona");
-                setTexto('pe-val', String(d.peAtual || 0));
-                setTexto('vida-text', `${d.vidaAtual}/${d.vidaMax}`);
-                setTexto('san-text', `${d.sanAtual}/${d.sanMax}`);
-
-                renderMarcadores(d.rastreadoresCena);
+                document.getElementById('nome-val').innerText = nomeCompleto.split(/\s+/)[0] || "Persona";
+                document.getElementById('pe-val').innerText = d.peAtual || 0;
+                document.getElementById('vida-text').innerText = `${d.vidaAtual}/${d.vidaMax}`;
+                document.getElementById('san-text').innerText = `${d.sanAtual}/${d.sanMax}`;
 
                 let estado = "Normal";
                 if (d.vidaAtual <= 0) estado = "Morto";
                 else if (d.sanAtual <= 0) estado = "Enlouquecendo";
                 else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
-                document.body.dataset.estado = estado.toLowerCase();
 
                 const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait;
                 const imgEl = document.getElementById('personagem-img');
-
-                if (imgFinal && imgEl.src !== imgFinal) {
+                
+                if(imgFinal && imgEl.src !== imgFinal) {
                     imgEl.src = imgFinal;
                 }
 
                 // VALORES SALVOS NA FICHA
-                const zoom = d["p" + estado + "Zoom"] || d.pZ || 1;
-                const x = d["p" + estado + "X"] !== undefined ? d["p" + estado + "X"] : 50;
-                const y = d["p" + estado + "Y"] !== undefined ? d["p" + estado + "Y"] : 50;
+                const zoom = d["p"+estado+"Zoom"] || d.pZ || 1;
+                const x = d["p"+estado+"X"] !== undefined ? d["p"+estado+"X"] : 50;
+                const y = d["p"+estado+"Y"] !== undefined ? d["p"+estado+"Y"] : 50;
 
                 // APLICANDO O RECORTE PROPORCIONAL
+                // Usar porcentagem no object-position garante que não corte as bordas (como a direita)
                 imgEl.style.objectPosition = `${x}% ${y}%`;
                 imgEl.style.transform = `scale(${zoom})`;
             });
         }
     </script>
+
+<style id="arquivo-portrait-refino">
+#stats-container{gap:2px}
+#nome-val{letter-spacing:.04em;line-height:1.05}
+#vida-text,#san-text{font-size:32px}
+@media(max-width:700px){#main-wrapper{gap:16px;padding:12px}#image-frame{width:210px;height:294px}#nome-val{font-size:29px}}
+</style>
+
 </body>
 </html>
