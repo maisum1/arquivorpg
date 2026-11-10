@@ -29,6 +29,7 @@
         #main-wrapper {
             display: flex; flex-direction: row; align-items: flex-end;
             padding: 20px; gap: 25px;
+            box-sizing: border-box; width: 600px; height: 390px; /* tela fixa: 600 x 390 */
             background: transparent !important;
         }
 
@@ -57,7 +58,7 @@
         /* ---------- TEXTOS ---------- */
         #stats-container {
             display: flex; flex-direction: column; align-items: flex-start;
-            margin-left: -40px; position: relative; z-index: 10; pointer-events: none;
+            margin-left: -58px; position: relative; z-index: 10; pointer-events: none;
             gap: 2px;
         }
 
@@ -66,7 +67,7 @@
             display: inline-block;
             font-family: 'Oswald', 'Special Elite', sans-serif;
             font-weight: 700;
-            font-size: 34px;
+            font-size: 36px;
             line-height: 1.05;
             letter-spacing: .12em;
             text-transform: uppercase;
@@ -85,23 +86,13 @@
 
         /* Linhas de recurso: rótulo pequeno (datilografado) + valor grande */
         .recurso { display: flex; align-items: baseline; gap: 9px; }
-        .recurso.vida { margin-left: 15px; }
-        .recurso.san  { margin-left: 30px; }
-        .rotulo {
-            font-family: 'Courier Prime', monospace;
-            font-weight: 700;
-            font-size: 12px;
-            letter-spacing: .22em;
-            min-width: 30px;
-            text-shadow: 0 0 2px #000, 1px 1px 2px #000;
-        }
-        .vida .rotulo { color: var(--vida); }
-        .san  .rotulo { color: var(--san); }
+        .recurso.vida { margin-left: 4px; }
+        .recurso.san  { margin-left: 14px; }
 
         .valor {
             display: inline-block;
             font-family: 'Special Elite', 'Courier Prime', monospace;
-            font-size: 32px;
+            font-size: 42px;
             line-height: 1.05;
             color: #fff;
             letter-spacing: .02em;
@@ -114,11 +105,10 @@
             position: absolute; bottom: 10px; left: 10px; z-index: 10;
             display: flex; align-items: baseline; gap: 6px;
         }
-        #pe-container .rotulo { color: var(--folego); font-size: 11px; min-width: 0; }
         #pe-val {
             display: inline-block;
             font-family: 'Special Elite', 'Courier Prime', monospace;
-            font-size: 40px; line-height: 1;
+            font-size: 46px; line-height: 1;
             color: var(--folego-claro);
             text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--folego), 0 0 14px var(--folego);
         }
@@ -126,40 +116,29 @@
         /* ---------- MARCADORES DE CENA & GATILHOS ---------- */
         #marcadores {
             display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-            margin: 4px 0 0 36px;
+            margin: 6px 0 14px 10px;
         }
         #marcadores:empty { display: none; }
 
         .marcador { display: flex; align-items: center; gap: 8px; }
-        .m-nome {
-            font-family: 'Courier Prime', monospace;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: .16em;
-            text-transform: uppercase;
-            color: rgba(241, 233, 214, .82);
-            max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            text-shadow: 0 0 2px #000, 1px 1px 2px #000;
-        }
         .m-pips { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; max-width: 170px; }
 
         /* Losango: vazio = só contorno; cheio = osso com brilho vermelho */
         .pip {
             width: 10px; height: 10px;
             transform: rotate(45deg);
-            border: 1.5px solid rgba(241, 233, 214, .7);
+            border: 1.5px solid rgba(255, 42, 42, .85);
             background: rgba(0, 0, 0, .35);
             box-shadow: 0 0 3px #000;
             transition: background .25s, box-shadow .25s, border-color .25s;
         }
         .pip.on {
-            background: var(--osso);
-            border-color: #fff;
+            background: var(--vida);
+            border-color: #ff8a80;
             box-shadow: 0 0 3px #000, 0 0 7px var(--vida), 0 0 12px rgba(255, 0, 0, .6);
         }
 
         /* Marcador pronto/ativo (cheio, ou com bônus acumulado) */
-        .marcador.pronto .m-nome { color: var(--osso); }
         .marcador.pronto .pip.on { animation: pulso 1.8s ease-in-out infinite; }
 
         /* Bônus acumulado (Executor etc.) */
@@ -184,24 +163,18 @@
         @keyframes tremor  { 0% { transform: translateX(0); } 50% { transform: translateX(1px); } 100% { transform: translateX(-1px); } }
         @keyframes flash   { 0% { transform: scale(1.18); filter: brightness(1.8); } 100% { transform: scale(1); filter: brightness(1); } }
 
-        @media (max-width: 700px) {
-            #main-wrapper { gap: 16px; padding: 12px; }
-            #image-frame { width: 210px; height: 294px; }
-            #nome-val { font-size: 29px; }
-            .valor { font-size: 28px; }
-        }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
         <div id="image-frame">
             <img id="personagem-img" src="">
-            <div id="pe-container"><span class="rotulo">FÔL</span><span id="pe-val">0</span></div>
+            <div id="pe-container"><span id="pe-val">0</span></div>
         </div>
         <div id="stats-container">
             <div id="nome-val">...</div>
-            <div class="recurso vida"><span class="rotulo">PV</span><span class="valor" id="vida-text">0/0</span></div>
-            <div class="recurso san"><span class="rotulo">SAN</span><span class="valor" id="san-text">0/0</span></div>
+            <div class="recurso vida"><span class="valor" id="vida-text">0/0</span></div>
+            <div class="recurso san"><span class="valor" id="san-text">0/0</span></div>
             <div id="marcadores"></div>
         </div>
     </div>
@@ -255,11 +228,6 @@
 
                 const box = document.createElement('div');
                 box.className = 'marcador' + (pronto ? ' pronto' : '');
-
-                const lbl = document.createElement('span');
-                lbl.className = 'm-nome';
-                lbl.textContent = nome;
-                box.appendChild(lbl);
 
                 const pips = document.createElement('div');
                 pips.className = 'm-pips';
