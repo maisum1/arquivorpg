@@ -2,288 +2,193 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Portrait Transparente - A.R.Q.U.I.V.O.</title>
+    <title>Portrait Transparente</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;0,700;1,400&family=Inter:wght@700;900&family=Special+Elite&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap');
 
         :root {
-            --hp-red: #9e0b0f;
-            --hp-glow: #ff1a1f;
-            --san-blue: #2b3a4a;
-            --san-glow: #3a75b5;
-            --pe-amber: #a68a64;
-            --pe-burn: #665235;
-            --paper-ink: #f4efe3;
+            --vida: #ff2a2a;
+            --vida-claro: #ffd9d4;
+            --san: #3d8bff;
+            --san-claro: #d6e6ff;
+            /* Fôlego: amarelo queimado / marrom, igual à ficha de persona */
+            --folego: #b8863b;
+            --folego-claro: #f3dfb4;
+            --osso: #f1e9d6;
         }
 
-        /* TRANSPARÊNCIA TOTAL NO NAVEGADOR E NO OBS */
-        html, body { 
-            margin: 0; padding: 0; overflow: hidden; 
-            background: none !important; 
+        /* FORÇA TRANSPARÊNCIA TOTAL NO NAVEGADOR E NO OBS */
+        html, body {
+            margin: 0; padding: 0; overflow: hidden;
+            background: none !important;
             background-color: transparent !important;
-            user-select: none;
-            -webkit-font-smoothing: antialiased;
         }
 
-        #main-wrapper { 
-            display: flex; 
-            flex-direction: row; 
-            align-items: flex-end; 
-            padding: 24px 30px; 
-            gap: 20px; 
+        #main-wrapper {
+            display: flex; flex-direction: row; align-items: flex-end;
+            padding: 20px; gap: 25px;
             background: transparent !important;
-            position: relative;
         }
-        
+
         /* CAIXA DO PORTRAIT (Proporção 1 : 1.4) */
-        #image-frame { 
-            position: relative; 
-            width: 250px; 
-            height: 350px; 
-            overflow: hidden; 
+        #image-frame {
+            position: relative;
+            width: 250px;
+            height: 350px;
+            overflow: hidden;
             background: transparent !important;
             border: none;
-            flex-shrink: 0;
         }
 
-        /* Vinheta sutil na base do retrato para ancorar os textos */
-        #image-frame::after {
-            content: "";
+        #personagem-img {
             position: absolute;
-            left: 0; right: 0; bottom: 0;
-            height: 38%;
-            background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 4;
-        }
-        
-        #personagem-img { 
-            position: absolute; 
             left: 0; top: 0;
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Mantém a proporção sem distorcer */
             background: transparent !important;
-            transition: transform 0.35s ease-out, object-position 0.35s ease-out, filter 0.45s ease;
-            filter: drop-shadow(0 0 10px rgba(158, 11, 15, 0.75)) contrast(1.04);
-            z-index: 2;
+            transition: transform 0.3s ease-out, object-position 0.3s ease-out, filter 0.6s ease;
+            /* drop-shadow não cria fundo preto, diferente de box-shadow */
+            filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.8));
         }
 
-        /* Estados dinâmicos na imagem */
-        body.estado-machucado #personagem-img {
-            filter: drop-shadow(0 0 14px rgba(210, 20, 25, 0.95)) contrast(1.08) saturate(1.1);
-        }
-        body.estado-enlouquecendo #personagem-img {
-            filter: drop-shadow(0 0 14px rgba(45, 115, 195, 0.95)) contrast(1.12) saturate(0.75);
-        }
-        body.estado-morto #personagem-img {
-            filter: grayscale(100%) contrast(1.25) brightness(0.7) drop-shadow(0 0 12px rgba(0, 0, 0, 0.95));
-        }
-
-        /* FÔLEGO (AMARELO QUEIMADO / MARROM DA FICHA) */
-        #pe-container { 
-            position: absolute; 
-            bottom: 10px; 
-            left: 12px; 
-            z-index: 10; 
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-            font-family: 'Crimson Text', Georgia, serif;
-            font-weight: 700;
-            font-size: 46px; 
-            line-height: 0.9;
-            color: #f3e5ab; 
-            text-shadow: 
-                2px 2px 0px #000,
-                -1px -1px 0px #000,
-                0 0 10px var(--pe-burn), 
-                0 0 18px var(--pe-amber), 
-                0 0 28px rgba(102, 82, 53, 0.95);
-            letter-spacing: -0.02em;
-        }
-
-        #pe-container::before {
-            content: "PF";
-            font-family: 'Inter', sans-serif;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 0.14em;
-            color: var(--pe-amber);
-            text-shadow: 1px 1px 2px #000, 0 0 6px #000;
-            opacity: 0.9;
-            transform: translateY(-4px);
-        }
-
-        /* BLOCO DE INFORMAÇÕES E BARRAS */
-        #stats-container { 
-            display: flex; 
-            flex-direction: column; 
-            margin-left: -38px; 
-            margin-bottom: 6px;
-            position: relative; 
-            z-index: 12; 
-            pointer-events: none;
+        /* ---------- TEXTOS ---------- */
+        #stats-container {
+            display: flex; flex-direction: column; align-items: flex-start;
+            margin-left: -40px; position: relative; z-index: 10; pointer-events: none;
             gap: 2px;
         }
 
-        #nome-val { 
-            font-family: 'Crimson Text', Georgia, serif;
+        /* Nome: estilo "etiqueta de arquivo" com régua vermelha embaixo */
+        #nome-val {
+            display: inline-block;
+            font-family: 'Oswald', 'Special Elite', sans-serif;
             font-weight: 700;
-            font-size: 38px; 
-            text-transform: uppercase; 
-            color: var(--paper-ink); 
-            letter-spacing: 0.06em;
-            line-height: 0.95;
+            font-size: 34px;
+            line-height: 1.05;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--osso);
+            text-shadow: 0 0 2px #000, 2px 2px 3px #000, 0 0 10px var(--vida), 0 0 18px rgba(255, 0, 0, .55);
+            padding-bottom: 4px;
             margin-bottom: 4px;
-            text-shadow: 
-                2px 2px 0px #000,
-                -1px -1px 0px #000,
-                0 0 12px rgba(158, 11, 15, 0.85),
-                0 0 22px rgba(0, 0, 0, 0.9);
             position: relative;
         }
-
-        /* Linha editorial abaixo do nome igual à estética da Ficha Rápida */
         #nome-val::after {
-            content: "";
-            display: block;
-            width: 85%;
-            height: 1.5px;
-            margin-top: 3px;
-            background: linear-gradient(90deg, var(--hp-glow), rgba(244, 239, 227, 0.35), transparent);
-            box-shadow: 0 0 8px var(--hp-red);
+            content: ""; position: absolute; left: 0; bottom: 0;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, var(--vida) 0%, rgba(255, 42, 42, .55) 55%, transparent 100%);
+            box-shadow: 0 0 6px rgba(255, 0, 0, .8);
         }
 
-        .stat-line {
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
-            font-family: 'Crimson Text', Georgia, serif;
+        /* Linhas de recurso: rótulo pequeno (datilografado) + valor grande */
+        .recurso { display: flex; align-items: baseline; gap: 9px; }
+        .recurso.vida { margin-left: 15px; }
+        .recurso.san  { margin-left: 30px; }
+        .rotulo {
+            font-family: 'Courier Prime', monospace;
             font-weight: 700;
-            line-height: 1;
-            color: #ffffff;
+            font-size: 12px;
+            letter-spacing: .22em;
+            min-width: 30px;
+            text-shadow: 0 0 2px #000, 1px 1px 2px #000;
+        }
+        .vida .rotulo { color: var(--vida); }
+        .san  .rotulo { color: var(--san); }
+
+        .valor {
+            display: inline-block;
+            font-family: 'Special Elite', 'Courier Prime', monospace;
+            font-size: 32px;
+            line-height: 1.05;
+            color: #fff;
+            letter-spacing: .02em;
+        }
+        .vida .valor { text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--vida), 0 0 14px var(--vida); }
+        .san  .valor { text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--san),  0 0 14px var(--san); }
+
+        /* Fôlego: canto do retrato, agora em marrom/amarelo queimado */
+        #pe-container {
+            position: absolute; bottom: 10px; left: 10px; z-index: 10;
+            display: flex; align-items: baseline; gap: 6px;
+        }
+        #pe-container .rotulo { color: var(--folego); font-size: 11px; min-width: 0; }
+        #pe-val {
+            display: inline-block;
+            font-family: 'Special Elite', 'Courier Prime', monospace;
+            font-size: 40px; line-height: 1;
+            color: var(--folego-claro);
+            text-shadow: 0 0 2px #000, 2px 2px 2px #000, 0 0 8px var(--folego), 0 0 14px var(--folego);
         }
 
-        #vida-text { 
-            font-size: 36px; 
-            margin-left: 12px; 
-            text-shadow: 
-                2px 2px 0px #000,
-                -1px -1px 0px #000,
-                0 0 10px var(--hp-glow), 
-                0 0 18px var(--hp-red),
-                0 0 26px rgba(158, 11, 15, 0.9); 
+        /* ---------- MARCADORES DE CENA & GATILHOS ---------- */
+        #marcadores {
+            display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+            margin: 4px 0 0 36px;
         }
+        #marcadores:empty { display: none; }
 
-        #san-text { 
-            font-size: 32px; 
-            margin-left: 26px; 
-            color: #e6f0fa;
-            text-shadow: 
-                2px 2px 0px #000,
-                -1px -1px 0px #000,
-                0 0 10px var(--san-glow), 
-                0 0 18px var(--san-blue),
-                0 0 26px rgba(43, 58, 74, 0.95); 
-        }
-
-        .stat-sep {
-            font-family: 'Special Elite', monospace;
-            font-size: 0.72em;
-            opacity: 0.82;
-            margin: 0 1px;
-        }
-
-        /* MARCADORES DE CENA E GATILHOS (LOSANGOS ESTILO MAEL) */
-        #marcadores-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-left: 26px;
-            margin-top: 7px;
-            min-height: 18px;
-        }
-
-        #marcadores-wrapper:empty {
-            display: none;
-        }
-
-        .marcador-grupo {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            flex-wrap: wrap;
-        }
-
-        .marcador-label {
-            font-family: 'Inter', sans-serif;
-            font-size: 9px;
-            font-weight: 900;
-            letter-spacing: 0.12em;
+        .marcador { display: flex; align-items: center; gap: 8px; }
+        .m-nome {
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: .16em;
             text-transform: uppercase;
-            color: rgba(244, 239, 227, 0.85);
-            text-shadow: 1px 1px 2px #000, 0 0 5px #000;
-            margin-right: 2px;
+            color: rgba(241, 233, 214, .82);
+            max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            text-shadow: 0 0 2px #000, 1px 1px 2px #000;
         }
+        .m-pips { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; max-width: 170px; }
 
-        .marcador-losangos {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            flex-wrap: wrap;
-        }
-
-        .losango {
-            width: 9px;
-            height: 9px;
+        /* Losango: vazio = só contorno; cheio = osso com brilho vermelho */
+        .pip {
+            width: 10px; height: 10px;
             transform: rotate(45deg);
-            background: rgba(18, 18, 18, 0.75);
-            border: 1.5px solid rgba(232, 224, 206, 0.55);
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.9), inset 0 0 2px rgba(0, 0, 0, 0.8);
-            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-            box-sizing: border-box;
+            border: 1.5px solid rgba(241, 233, 214, .7);
+            background: rgba(0, 0, 0, .35);
+            box-shadow: 0 0 3px #000;
+            transition: background .25s, box-shadow .25s, border-color .25s;
+        }
+        .pip.on {
+            background: var(--osso);
+            border-color: #fff;
+            box-shadow: 0 0 3px #000, 0 0 7px var(--vida), 0 0 12px rgba(255, 0, 0, .6);
         }
 
-        .losango.ativo {
-            background: #e31b23;
-            border-color: #ffd2d4;
-            box-shadow: 
-                0 0 7px #ff1a1f, 
-                0 0 14px #9e0b0f, 
-                inset 0 0 3px #ffffff;
-            transform: rotate(45deg) scale(1.14);
-        }
+        /* Marcador pronto/ativo (cheio, ou com bônus acumulado) */
+        .marcador.pronto .m-nome { color: var(--osso); }
+        .marcador.pronto .pip.on { animation: pulso 1.8s ease-in-out infinite; }
 
-        /* Cor alternativa âmbar se o marcador vier de Fôlego/Analista */
-        .losango.ativo.ambar {
-            background: #d4a359;
-            border-color: #fff3d1;
-            box-shadow: 
-                0 0 7px #d4a359, 
-                0 0 14px #665235, 
-                inset 0 0 3px #ffffff;
-        }
-
-        .marcador-bonus-badge {
+        /* Bônus acumulado (Executor etc.) */
+        .m-bonus {
             font-family: 'Special Elite', monospace;
-            font-size: 13px;
-            font-weight: bold;
-            color: #ffd2d4;
-            text-shadow: 1px 1px 0 #000, 0 0 8px #ff1a1f, 0 0 14px #9e0b0f;
-            margin-left: 3px;
-            letter-spacing: 0.03em;
+            font-size: 18px; line-height: 1;
+            color: var(--folego-claro);
+            text-shadow: 0 0 2px #000, 1px 1px 2px #000, 0 0 8px var(--folego);
         }
 
-        @media(max-width: 700px) {
+        /* ---------- ESTADOS ---------- */
+        body[data-estado="machucado"] #vida-text { color: var(--vida-claro); animation: batida 1.6s ease-in-out infinite; }
+        body[data-estado="enlouquecendo"] #san-text { color: var(--san-claro); animation: tremor .9s steps(2, end) infinite; }
+        body[data-estado="morto"] #personagem-img { filter: grayscale(1) contrast(1.1) drop-shadow(0 0 8px rgba(120, 0, 0, .9)); }
+        body[data-estado="morto"] #vida-text { color: #777; text-shadow: 0 0 2px #000, 2px 2px 2px #000; }
+
+        /* Flash quando um valor muda */
+        .flash { animation: flash .6s ease-out; }
+
+        @keyframes pulso   { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
+        @keyframes batida  { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+        @keyframes tremor  { 0% { transform: translateX(0); } 50% { transform: translateX(1px); } 100% { transform: translateX(-1px); } }
+        @keyframes flash   { 0% { transform: scale(1.18); filter: brightness(1.8); } 100% { transform: scale(1); filter: brightness(1); } }
+
+        @media (max-width: 700px) {
             #main-wrapper { gap: 16px; padding: 12px; }
             #image-frame { width: 210px; height: 294px; }
-            #nome-val { font-size: 31px; }
-            #vida-text { font-size: 30px; }
-            #san-text { font-size: 27px; }
-            #pe-container { font-size: 38px; }
+            #nome-val { font-size: 29px; }
+            .valor { font-size: 28px; }
         }
     </style>
 </head>
@@ -291,13 +196,13 @@
     <div id="main-wrapper">
         <div id="image-frame">
             <img id="personagem-img" src="">
-            <div id="pe-container"><span id="pe-val">0</span></div>
+            <div id="pe-container"><span class="rotulo">FÔL</span><span id="pe-val">0</span></div>
         </div>
         <div id="stats-container">
             <div id="nome-val">...</div>
-            <div id="vida-text" class="stat-line">0<span class="stat-sep">/</span>0</div>
-            <div id="san-text" class="stat-line">0<span class="stat-sep">/</span>0</div>
-            <div id="marcadores-wrapper"></div>
+            <div class="recurso vida"><span class="rotulo">PV</span><span class="valor" id="vida-text">0/0</span></div>
+            <div class="recurso san"><span class="rotulo">SAN</span><span class="valor" id="san-text">0/0</span></div>
+            <div id="marcadores"></div>
         </div>
     </div>
 
@@ -310,189 +215,105 @@
             messagingSenderId: "758802032764",
             appId: "1:758802032764:web:40467e15fdc24c570081f9"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const id = new URLSearchParams(window.location.search).get('id');
 
-        let cacheFicha = null;
-        let cacheHabilidades = [];
-        let cachePoderes = [];
-
-        function renderizarMarcadores(d) {
-            const container = document.getElementById('marcadores-wrapper');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const grupos = [];
-
-            // 1. Se a ficha já tiver uma lista explícita de marcadoresCena salva, usa ela diretamente
-            if (Array.isArray(d.marcadoresCena) && d.marcadoresCena.length > 0) {
-                d.marcadoresCena.forEach(m => {
-                    if (!m || m.oculto) return;
-                    const tipo = m.tipo || 'padrao';
-                    let total = parseInt(m.total);
-                    let atual = parseInt(m.atual) || 0;
-
-                    if (tipo === 'infinito' || m.infinito) {
-                        // Para Executor ou gatilhos infinitos: mostra pelo menos 2 (ou o atual + 1 próximo passo)
-                        total = Math.max(2, atual);
-                    } else if (isNaN(total) || total <= 0) {
-                        total = Math.max(1, atual);
-                    }
-
-                    grupos.push({
-                        nome: m.nome || '',
-                        atual: atual,
-                        total: total,
-                        cor: m.cor || 'vermelho',
-                        badge: m.badge || (m.bonus ? `+${m.bonus}` : '')
-                    });
-                });
-            } else {
-                // 2. Fallback automático: detecta pelos traços/especializações ou campos legados da ficha
-                const todosTracos = [...cacheHabilidades, ...cachePoderes];
-                todosTracos.forEach(item => {
-                    const nome = String(item.nome || '').trim();
-                    const nomeNorm = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-                    if (Array.isArray(item.marcadores)) {
-                        grupos.push({
-                            nome: item.mostrarNomeMarcador ? nome : '',
-                            atual: item.marcadores.filter(Boolean).length,
-                            total: item.marcadores.length,
-                            cor: item.corMarcador || 'vermelho',
-                            badge: item.bonusAtivo ? `+${item.bonusAtivo}` : ''
-                        });
-                    } else if (nomeNorm.includes('executor')) {
-                        const falhas = parseInt(item.falhas ?? d.executorFalhas ?? 0) || 0;
-                        const bonus = Math.floor(falhas / 2);
-                        const totalSlots = Math.max(2, falhas % 2 === 0 ? falhas : falhas + 1);
-                        grupos.push({
-                            nome: '',
-                            atual: falhas,
-                            total: totalSlots,
-                            cor: 'vermelho',
-                            badge: bonus > 0 ? `+${bonus}` : ''
-                        });
-                    } else if (nomeNorm.includes('vigilante')) {
-                        const usado = !!(item.usado ?? d.vigilanteUsado);
-                        grupos.push({
-                            nome: '',
-                            atual: usado ? 1 : 0,
-                            total: 1,
-                            cor: 'vermelho',
-                            badge: ''
-                        });
-                    } else if (nomeNorm.includes('analista')) {
-                        const ativo = !!(item.ativo ?? d.analistaAtivo);
-                        grupos.push({
-                            nome: '',
-                            atual: ativo ? 1 : 0,
-                            total: 1,
-                            cor: 'ambar',
-                            badge: ativo ? '+1d3' : ''
-                        });
-                    } else if (item.gatilhoTotal || item.marcadorTotal) {
-                        const tot = parseInt(item.gatilhoTotal || item.marcadorTotal) || 1;
-                        const at = parseInt(item.gatilhoAtual || item.marcadorAtual) || 0;
-                        grupos.push({
-                            nome: '',
-                            atual: at,
-                            total: tot,
-                            cor: 'vermelho',
-                            badge: ''
-                        });
-                    }
-                });
+        // Atualiza um texto e dá um "piscar" só quando o valor realmente mudou
+        const primeiraCarga = {};
+        function setTexto(elId, texto) {
+            const el = document.getElementById(elId);
+            if (el.innerText === texto) return;
+            el.innerText = texto;
+            if (primeiraCarga[elId]) {
+                el.classList.remove('flash');
+                void el.offsetWidth; // reinicia a animação
+                el.classList.add('flash');
             }
-
-            grupos.forEach(g => {
-                if (g.total <= 0) return;
-                const row = document.createElement('div');
-                row.className = 'marcador-grupo';
-
-                if (g.nome) {
-                    const lbl = document.createElement('span');
-                    lbl.className = 'marcador-label';
-                    lbl.textContent = g.nome;
-                    row.appendChild(lbl);
-                }
-
-                const losangosBox = document.createElement('div');
-                losangosBox.className = 'marcador-losangos';
-
-                for (let i = 0; i < g.total; i++) {
-                    const dEl = document.createElement('span');
-                    dEl.className = 'losango' + (i < g.atual ? ' ativo' : '') + (g.cor === 'ambar' ? ' ambar' : '');
-                    losangosBox.appendChild(dEl);
-                }
-
-                row.appendChild(losangosBox);
-
-                if (g.badge) {
-                    const bEl = document.createElement('span');
-                    bEl.className = 'marcador-bonus-badge';
-                    bEl.textContent = g.badge;
-                    row.appendChild(bEl);
-                }
-
-                container.appendChild(row);
-            });
+            primeiraCarga[elId] = true;
         }
 
-        function atualizarPortraitUI() {
-            if (!cacheFicha) return;
-            const raw = cacheFicha;
-            const emHexa = !!(raw.hexatombe && raw.hexatombe_data);
-            const d = emHexa ? { ...raw, ...raw.hexatombe_data } : raw;
+        // MARCADORES DE CENA & GATILHOS (campo "rastreadoresCena" da ficha)
+        // - Sem limite de quantidade de marcadores nem de losangos (Vigilante = 1, Executor = ciclo + bônus acumulado)
+        let assinaturaMarcadores = "";
+        function renderMarcadores(lista) {
+            const itens = Array.isArray(lista) ? lista : [];
+            const assinatura = JSON.stringify(itens.map(r => [r.id, r.nome, r.atual, r.max, r.acumulado, r.acumulativo]));
+            if (assinatura === assinaturaMarcadores) return;
+            assinaturaMarcadores = assinatura;
 
-            const nomeCompleto = String(d.nome || "Persona").trim();
-            document.getElementById('nome-val').innerText = nomeCompleto.split(/\s+/)[0] || "Persona";
-            document.getElementById('pe-val').innerText = d.peAtual ?? 0;
-            document.getElementById('vida-text').innerHTML = `${d.vidaAtual ?? 0}<span class="stat-sep">/</span>${d.vidaMax ?? 0}`;
-            document.getElementById('san-text').innerHTML = `${d.sanAtual ?? 0}<span class="stat-sep">/</span>${d.sanMax ?? 0}`;
+            const cont = document.getElementById('marcadores');
+            cont.replaceChildren();
 
-            let estado = "Normal";
-            if ((d.vidaAtual ?? 0) <= 0) estado = "Morto";
-            else if ((d.sanAtual ?? 0) <= 0) estado = "Enlouquecendo";
-            else if ((d.vidaMax > 0) && ((d.vidaAtual / d.vidaMax) <= 0.5)) estado = "Machucado";
+            itens.forEach(r => {
+                const nome = String(r.nome || "").trim();
+                const max = Math.max(1, Math.min(12, parseInt(r.max) || 1));
+                const atual = Math.max(0, Math.min(max, parseInt(r.atual) || 0));
+                const acumulado = parseInt(r.acumulado) || 0;
+                const empilhavel = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(nome));
+                const pronto = empilhavel ? acumulado > 0 : atual >= max;
 
-            document.body.classList.remove('estado-normal', 'estado-machucado', 'estado-enlouquecendo', 'estado-morto');
-            document.body.classList.add('estado-' + estado.toLowerCase());
+                const box = document.createElement('div');
+                box.className = 'marcador' + (pronto ? ' pronto' : '');
 
-            const imgFinal = raw["portrait" + estado] || raw.portraitNormal || raw.portrait || d.portrait;
-            const imgEl = document.getElementById('personagem-img');
-            
-            if (imgFinal && imgEl.src !== imgFinal) {
-                imgEl.src = imgFinal;
-            }
+                const lbl = document.createElement('span');
+                lbl.className = 'm-nome';
+                lbl.textContent = nome;
+                box.appendChild(lbl);
 
-            const zoom = raw["p" + estado + "Zoom"] || raw.pZ || 1;
-            const x = raw["p" + estado + "X"] !== undefined ? raw["p" + estado + "X"] : (raw.pX !== undefined ? raw.pX : 50);
-            const y = raw["p" + estado + "Y"] !== undefined ? raw["p" + estado + "Y"] : (raw.pY !== undefined ? raw.pY : 50);
+                const pips = document.createElement('div');
+                pips.className = 'm-pips';
+                for (let i = 1; i <= max; i++) {
+                    const p = document.createElement('span');
+                    p.className = 'pip' + (i <= atual ? ' on' : '');
+                    pips.appendChild(p);
+                }
+                box.appendChild(pips);
 
-            imgEl.style.objectPosition = `${x}% ${y}%`;
-            imgEl.style.transform = `scale(${zoom})`;
-
-            renderizarMarcadores(d);
+                if (empilhavel && acumulado > 0) {
+                    const b = document.createElement('span');
+                    b.className = 'm-bonus';
+                    b.textContent = '+' + acumulado;
+                    box.appendChild(b);
+                }
+                cont.appendChild(box);
+            });
         }
 
         if (id) {
             db.collection("fichas").doc(id).onSnapshot(doc => {
-                cacheFicha = doc.data();
-                atualizarPortraitUI();
-            });
+                const d = doc.data();
+                if (!d) return;
 
-            db.collection("fichas").doc(id).collection("habilidades").onSnapshot(snap => {
-                cacheHabilidades = [];
-                snap.forEach(doc => cacheHabilidades.push({ id: doc.id, ...doc.data() }));
-                atualizarPortraitUI();
-            });
+                const nomeCompleto = String(d.nome || "Persona").trim();
+                setTexto('nome-val', nomeCompleto.split(/\s+/)[0] || "Persona");
+                setTexto('pe-val', String(d.peAtual || 0));
+                setTexto('vida-text', `${d.vidaAtual}/${d.vidaMax}`);
+                setTexto('san-text', `${d.sanAtual}/${d.sanMax}`);
 
-            db.collection("fichas").doc(id).collection("poderes").onSnapshot(snap => {
-                cachePoderes = [];
-                snap.forEach(doc => cachePoderes.push({ id: doc.id, ...doc.data() }));
-                atualizarPortraitUI();
+                renderMarcadores(d.rastreadoresCena);
+
+                let estado = "Normal";
+                if (d.vidaAtual <= 0) estado = "Morto";
+                else if (d.sanAtual <= 0) estado = "Enlouquecendo";
+                else if ((d.vidaAtual / d.vidaMax) <= 0.5) estado = "Machucado";
+                document.body.dataset.estado = estado.toLowerCase();
+
+                const imgFinal = d["portrait" + estado] || d.portraitNormal || d.portrait;
+                const imgEl = document.getElementById('personagem-img');
+
+                if (imgFinal && imgEl.src !== imgFinal) {
+                    imgEl.src = imgFinal;
+                }
+
+                // VALORES SALVOS NA FICHA
+                const zoom = d["p" + estado + "Zoom"] || d.pZ || 1;
+                const x = d["p" + estado + "X"] !== undefined ? d["p" + estado + "X"] : 50;
+                const y = d["p" + estado + "Y"] !== undefined ? d["p" + estado + "Y"] : 50;
+
+                // APLICANDO O RECORTE PROPORCIONAL
+                imgEl.style.objectPosition = `${x}% ${y}%`;
+                imgEl.style.transform = `scale(${zoom})`;
             });
         }
     </script>
