@@ -194,36 +194,6 @@
         const db = firebase.firestore();
         const id = new URLSearchParams(window.location.search).get('id');
 
-        // ENQUADRAMENTO IDÊNTICO AO EDITOR DE RECORTE DA FICHA
-        // O editor usa uma caixa de 130x165; aqui ela é ampliada até cobrir a moldura de 250x350
-        // (corta só alguns pixels nas laterais, o topo e a base ficam exatamente como no editor).
-        const EDIT_W = 130, EDIT_H = 165, FRAME_W = 250, FRAME_H = 350;
-        let fotoParams = { z: 1, x: 50, y: 50 };
-        function aplicarFoto() {
-            const img = document.getElementById('personagem-img');
-            const nw = img.naturalWidth, nh = img.naturalHeight;
-            if (!nw || !nh) return;
-            const zoom = parseFloat(fotoParams.z) || 1;
-            const px = isNaN(parseFloat(fotoParams.x)) ? 50 : parseFloat(fotoParams.x);
-            const py = isNaN(parseFloat(fotoParams.y)) ? 50 : parseFloat(fotoParams.y);
-
-            const k = Math.max(FRAME_W / EDIT_W, FRAME_H / EDIT_H);
-            const vw = EDIT_W * k, vh = EDIT_H * k;
-            const ox = (FRAME_W - vw) / 2, oy = (FRAME_H - vh) / 2;
-
-            const s = Math.max(vw / nw, vh / nh) * zoom;
-            const iw = nw * s, ih = nh * s;
-
-            img.style.objectFit = 'fill';
-            img.style.maxWidth = 'none';
-            img.style.transform = 'none';
-            img.style.width = iw + 'px';
-            img.style.height = ih + 'px';
-            img.style.left = (ox + (vw - iw) * (px / 100)) + 'px';
-            img.style.top  = (oy + (vh - ih) * (py / 100)) + 'px';
-        }
-        document.getElementById('personagem-img').addEventListener('load', aplicarFoto);
-
         // Atualiza um texto e dá um "piscar" só quando o valor realmente mudou
         const primeiraCarga = {};
         function setTexto(elId, texto) {
@@ -311,9 +281,9 @@
                 const x = d["p" + estado + "X"] !== undefined ? d["p" + estado + "X"] : 50;
                 const y = d["p" + estado + "Y"] !== undefined ? d["p" + estado + "Y"] : 50;
 
-                // APLICANDO O ENQUADRAMENTO (mesma matemática do editor de recorte da ficha)
-                fotoParams = { z: zoom, x: x, y: y };
-                aplicarFoto();
+                // APLICANDO O RECORTE PROPORCIONAL
+                imgEl.style.objectPosition = `${x}% ${y}%`;
+                imgEl.style.transform = `scale(${zoom})`;
             });
         }
     </script>
