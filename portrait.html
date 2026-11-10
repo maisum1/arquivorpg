@@ -6,7 +6,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Crimson+Text:ital,wght@0,700;1,700&family=Oswald:wght@600;700&family=Special+Elite&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Crimson+Text:ital,wght@0,700;1,700&family=Oswald:wght@600;700&family=Permanent+Marker&family=Special+Elite&display=swap');
 
         /* Transparência absoluta para Browser Source no OBS */
         html, body {
@@ -20,15 +20,21 @@
         }
 
         :root {
-            --hp-glow: #c9181e;
-            --hp-core: #ffdad9;
-            --san-glow: #1c52a6;
-            --san-core: #dbeaff;
-            /* Cor do Fôlego: Amarelo Queimado / Ocre Marrom da Ficha */
-            --pe-glow: #8f5d1e;
-            --pe-mid: #c88732;
-            --pe-core: #fae6c3;
-            --ink-shadow: #050505;
+            /* PV: Vermelho Sangue Vibrante */
+            --hp-glow: #d9141b;
+            --hp-mid: #8f080d;
+            --hp-core: #fff2f2;
+
+            /* Lucidez: Azul Profundo */
+            --san-glow: #1b56b5;
+            --san-mid: #0d2d66;
+            --san-core: #eef5ff;
+
+            /* Fôlego: Amarelo Queimado / Marrom Ocre da Ficha de Persona */
+            --pe-glow: #9e6518;
+            --pe-mid: #664922;
+            --pe-bright: #e09f3e;
+            --pe-core: #fff3db;
         }
 
         #main-wrapper {
@@ -36,22 +42,56 @@
             display: inline-flex;
             flex-direction: row;
             align-items: flex-end;
-            padding: 26px 42px 26px 28px;
+            padding: 28px 48px 30px 34px;
             background: transparent !important;
         }
 
         /* =========================================================
-           MOLDURA ORGÂNICA DO PERSONAGEM + FADE NA BASE
+           MOLDURA ORGÂNICA DO PERSONAGEM + AURA DE NÉVOA (MAEL/ZURI)
            ========================================================= */
-        #image-frame {
+        #character-stage {
             position: relative;
             width: 245px;
             height: 335px;
+            flex-shrink: 0;
+        }
+
+        /* Névoa sutil na base do busto para integrar com a câmera do OBS */
+        #character-stage::after {
+            content: "";
+            position: absolute;
+            left: -8%;
+            right: -8%;
+            bottom: -4%;
+            height: 42%;
+            pointer-events: none;
+            z-index: 12;
+            background:
+                radial-gradient(ellipse at 50% 78%, rgba(215, 225, 220, 0.22) 0%, rgba(160, 175, 170, 0.08) 45%, transparent 72%),
+                radial-gradient(ellipse at 30% 88%, rgba(200, 210, 205, 0.16) 0%, transparent 55%);
+            filter: blur(8px);
+            mix-blend-mode: screen;
+            transition: all 0.5s ease;
+        }
+
+        body.estado-machucado #character-stage::after {
+            background:
+                radial-gradient(ellipse at 50% 78%, rgba(200, 20, 25, 0.35) 0%, rgba(120, 10, 12, 0.14) 48%, transparent 74%);
+        }
+        body.estado-choque #character-stage::after {
+            background:
+                radial-gradient(ellipse at 50% 78%, rgba(35, 95, 195, 0.32) 0%, rgba(18, 45, 110, 0.14) 48%, transparent 74%);
+        }
+
+        #image-frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             background: transparent !important;
-            flex-shrink: 0;
-            -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 80%, rgba(0,0,0,0.4) 93%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 0%, #000 80%, rgba(0,0,0,0.4) 93%, transparent 100%);
+            /* Máscara orgânica esfumaçada na base e bordas */
+            -webkit-mask-image: radial-gradient(ellipse 92% 90% at 50% 44%, #000 64%, rgba(0,0,0,0.65) 82%, transparent 100%);
+            mask-image: radial-gradient(ellipse 92% 90% at 50% 44%, #000 64%, rgba(0,0,0,0.65) 82%, transparent 100%);
         }
 
         #personagem-img {
@@ -61,181 +101,193 @@
             display: block;
             background: transparent !important;
             transition: width 0.25s ease, height 0.25s ease, left 0.25s ease, top 0.25s ease, filter 0.45s ease;
-            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 10px rgba(158, 11, 15, 0.45));
+            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.92)) drop-shadow(0 0 12px rgba(0, 0, 0, 0.6));
         }
 
-        /* Estados visuais reativos da imagem no OBS */
         body.estado-machucado #personagem-img {
-            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 18px rgba(210, 15, 22, 0.95)) contrast(1.06);
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 18px rgba(210, 15, 22, 0.9)) contrast(1.06);
             animation: pulseBloodOBS 2.4s infinite ease-in-out;
         }
         body.estado-choque #personagem-img {
-            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 18px rgba(38, 102, 210, 0.9)) saturate(0.65) contrast(1.12);
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 18px rgba(38, 102, 210, 0.9)) saturate(0.65) contrast(1.12);
         }
         body.estado-morto #personagem-img {
-            filter: grayscale(100%) contrast(1.25) brightness(0.65) drop-shadow(0 4px 16px #000);
+            filter: grayscale(100%) contrast(1.25) brightness(0.6) drop-shadow(0 6px 16px #000);
         }
 
         @keyframes pulseBloodOBS {
-            0%, 100% { filter: drop-shadow(0 4px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 12px rgba(200,15,20,0.75)); }
-            50%      { filter: drop-shadow(0 4px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 24px rgba(255,25,30,1)); }
+            0%, 100% { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 12px rgba(200,15,20,0.75)); }
+            50%      { filter: drop-shadow(0 6px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 24px rgba(255,25,30,1)); }
         }
 
         /* =========================================================
-           PONTOS DE FÔLEGO (OCRE / AMARELO QUEIMADO - CANTO ESQUERDO)
+           PONTOS DE FÔLEGO (AMARELO QUEIMADO / OCRE MARROM DA FICHA)
+           Posicionado no canto superior esquerdo do busto (estilo Mael/Zuri)
            ========================================================= */
         #pe-container {
             position: absolute;
-            bottom: 34px;
-            left: 16px;
+            top: 28px;
+            left: 8px;
             z-index: 25;
             display: flex;
             flex-direction: column;
             align-items: center;
             pointer-events: none;
-            transform: rotate(-3deg);
+            transform: rotate(-6deg);
         }
 
         #pe-label {
-            font: 700 9px/1 'Oswald', sans-serif;
-            letter-spacing: 2px;
+            font: 700 8.5px/1 'Oswald', sans-serif;
+            letter-spacing: 2.2px;
             color: var(--pe-core);
             text-transform: uppercase;
-            opacity: 0.88;
-            margin-bottom: -3px;
-            text-shadow: 0 1px 3px #000, 0 0 6px var(--pe-glow);
+            opacity: 0.9;
+            margin-bottom: -4px;
+            text-shadow:
+                0 1px 2px #000,
+                0 0 5px #000,
+                0 0 8px var(--pe-glow);
         }
 
         #pe-val {
-            font: 700 44px/0.95 'Cinzel', 'Crimson Text', serif;
+            font-family: 'Permanent Marker', 'Special Elite', cursive;
+            font-size: 44px;
+            line-height: 0.95;
             color: var(--pe-core);
             text-shadow:
-                0 2px 4px #000,
-                0 0 6px #000,
-                0 0 12px var(--pe-mid),
-                0 0 22px var(--pe-glow),
-                0 0 32px var(--pe-glow);
+                0 2px 0 #1a1105,
+                0 3px 6px #000,
+                0 0 8px var(--pe-mid),
+                0 0 15px var(--pe-glow),
+                0 0 24px var(--pe-bright),
+                0 0 36px var(--pe-glow);
         }
 
         /* =========================================================
-           BLOCO DIREITO: NOME + PV + LUCIDEZ + LOSANGOS DE GATILHO
+           BLOCO DIREITO: NOME + PV + LUCIDEZ + LOSANGOS (ESTILO MAEL)
            ========================================================= */
         #stats-container {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            margin-left: -38px;
-            margin-bottom: 14px;
+            margin-left: -42px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 20;
-            pointer-events: none;
         }
 
         #nome-val {
-            font: 900 38px/0.92 'Cinzel', 'Crimson Text', serif;
+            font-family: 'Permanent Marker', 'Cinzel', serif;
+            font-size: 40px;
+            line-height: 0.9;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             color: #f7f4ec;
             margin-bottom: 4px;
+            transform: rotate(-1.5deg);
+            pointer-events: none;
             text-shadow:
                 0 2px 0 #000,
-                0 3px 8px rgba(0, 0, 0, 0.95),
-                0 0 14px rgba(169, 25, 30, 0.75),
-                0 0 26px rgba(169, 25, 30, 0.45);
+                0 4px 10px rgba(0, 0, 0, 0.98),
+                0 0 14px rgba(255, 255, 255, 0.28),
+                0 0 24px rgba(0, 0, 0, 0.9);
         }
 
         .stat-line {
             display: flex;
             align-items: baseline;
-            font-family: 'Crimson Text', Georgia, serif;
-            font-weight: 700;
-            font-style: italic;
-            line-height: 0.96;
-            letter-spacing: 0.5px;
+            font-family: 'Permanent Marker', 'Crimson Text', serif;
+            line-height: 0.92;
+            letter-spacing: 1px;
+            pointer-events: none;
         }
 
         #vida-text {
             font-size: 40px;
             color: var(--hp-core);
-            margin-left: 10px;
+            margin-left: 8px;
+            transform: rotate(-1.5deg);
             text-shadow:
-                0 2px 3px #000,
-                0 0 7px #000,
-                0 0 12px var(--hp-glow),
-                0 0 22px var(--hp-glow),
-                0 0 34px rgba(201, 24, 30, 0.85);
+                0 2px 0 #2b0000,
+                0 3px 6px #000,
+                0 0 10px var(--hp-glow),
+                0 0 20px var(--hp-glow),
+                0 0 32px var(--hp-mid);
         }
 
         #san-text {
-            font-size: 35px;
+            font-size: 33px;
             color: var(--san-core);
-            margin-left: 24px;
-            margin-top: 1px;
+            margin-left: 20px;
+            margin-top: 2px;
+            transform: rotate(-1.5deg);
             text-shadow:
-                0 2px 3px #000,
-                0 0 7px #000,
-                0 0 12px var(--san-glow),
-                0 0 22px var(--san-glow),
-                0 0 34px rgba(28, 82, 166, 0.85);
+                0 2px 0 #04122b,
+                0 3px 6px #000,
+                0 0 10px var(--san-glow),
+                0 0 20px var(--san-glow),
+                0 0 32px var(--san-mid);
         }
 
         .stat-slash {
             display: inline-block;
             margin: 0 3px;
-            font-weight: 700;
-            transform: skewX(-14deg) scaleY(1.08);
             opacity: 0.92;
         }
 
         .stat-max {
-            font-size: 0.86em;
-            opacity: 0.94;
+            font-size: 0.92em;
         }
 
         /* =========================================================
            LOSANGOS DE MARCADORES DE CENA E GATILHOS (ESTILO MAEL)
-           Suporta 1 losango (Vigilante) ou infinitos (Executor)
+           Suporta 1 (Vigilante), 3 (Mael) ou infinitos (Executor)
            ========================================================= */
         #gatilhos-container {
             display: none;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
-            max-width: 240px;
-            margin-top: 9px;
-            margin-left: 20px;
-            min-height: 16px;
+            gap: 9px;
+            max-width: 260px;
+            margin-top: 10px;
+            margin-left: 16px;
+            min-height: 18px;
+            pointer-events: auto;
         }
 
         .gatilho-losango {
             width: 11px;
             height: 11px;
             transform: rotate(45deg);
-            background: rgba(18, 18, 18, 0.78);
-            border: 1.8px solid rgba(235, 228, 212, 0.55);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.95);
-            transition: all 0.25s ease;
+            /* Losango inativo: cinza translúcido facetado como os 2 da direita do Mael */
+            background: rgba(180, 185, 195, 0.32);
+            border: 1.6px solid rgba(235, 238, 245, 0.65);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), inset 0 0 3px rgba(255, 255, 255, 0.25);
+            transition: all 0.22s ease;
+            cursor: pointer;
             flex-shrink: 0;
         }
 
-        /* Losango Ativo: Brilho Vermelho Intenso */
+        /* Losango Ativo: Vermelho Rubi Brilhante igual ao 1º losango do Mael */
         .gatilho-losango.ativo {
-            background: #ff2a2a;
-            border-color: #ffd2d2;
+            background: #ff2424;
+            border-color: #ffe0e0;
             box-shadow:
-                0 0 6px #ff1a1a,
-                0 0 12px #d90b0f,
-                0 0 20px rgba(217, 11, 15, 0.95);
+                0 0 6px #ff2424,
+                0 0 14px #e60000,
+                0 0 24px rgba(230, 0, 0, 0.95),
+                inset 0 0 4px #fff;
         }
 
-        /* Tags sutis de condições ativas (Sangrando, Atordoado, etc.) */
+        /* Tags sutis de condições ativas */
         #alertas-obs {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
             align-items: center;
-            margin-top: 6px;
-            margin-left: 20px;
+            margin-top: 8px;
+            margin-left: 16px;
+            pointer-events: none;
         }
         .alerta-tag-obs {
             font: 700 9px/1 'Oswald', sans-serif;
@@ -251,30 +303,31 @@
 
         @media (max-width: 700px) {
             #main-wrapper { padding: 14px 20px; }
-            #image-frame { width: 210px; height: 294px; }
-            #nome-val { font-size: 31px; }
+            #character-stage { width: 210px; height: 294px; }
+            #nome-val { font-size: 32px; }
             #vida-text { font-size: 34px; }
-            #san-text { font-size: 30px; }
+            #san-text { font-size: 28px; }
         }
     </style>
 </head>
 <body>
     <div id="main-wrapper">
-        <div id="image-frame">
-            <img id="personagem-img" src="" alt="">
-        </div>
-
-        <div id="pe-container">
-            <span id="pe-label">FÔL</span>
-            <span id="pe-val">0</span>
+        <div id="character-stage">
+            <div id="pe-container">
+                <span id="pe-label">FÔL</span>
+                <span id="pe-val">0</span>
+            </div>
+            <div id="image-frame">
+                <img id="personagem-img" src="" alt="">
+            </div>
         </div>
 
         <div id="stats-container">
             <div id="nome-val">...</div>
             <div id="vida-text" class="stat-line">0<span class="stat-slash">/</span><span class="stat-max">0</span></div>
             <div id="san-text" class="stat-line">0<span class="stat-slash">/</span><span class="stat-max">0</span></div>
-            <!-- Losangos de Marcadores de Cena / Gatilhos -->
-            <div id="gatilhos-container"></div>
+            <!-- Losangos de Marcadores de Cena / Gatilhos (Estilo Mael) -->
+            <div id="gatilhos-container" title="Clique para alternar marcador"></div>
             <div id="alertas-obs"></div>
         </div>
     </div>
@@ -295,7 +348,6 @@
         let globalHexatombe = false;
         let ultimoDoc = null;
 
-        // Mesma matemática de enquadramento da ficha e do Hub (não corta cabeças nem pés no zoom)
         function aplicarEnquadramentoOBS(img, z, x, y) {
             if (!img || !img.parentElement) return;
             const box = img.parentElement;
@@ -332,6 +384,14 @@
             }
         });
 
+        // Permite clicar diretamente no losango no OBS/Navegador se desejar
+        window.clicarLosangoOBS = function(indiceClicado) {
+            if (!id || !ultimoDoc) return;
+            const atualAtivos = Math.max(0, parseInt(ultimoDoc.gatilhosAtivos) || 0);
+            const novoAtivos = (atualAtivos === indiceClicado) ? indiceClicado - 1 : indiceClicado;
+            db.collection("fichas").doc(id).update({ gatilhosAtivos: Math.max(0, novoAtivos) });
+        };
+
         function renderizarPortraitOBS(d_raw) {
             if (!d_raw) return;
             const hF = !!d_raw.hexatombe || globalHexatombe;
@@ -350,7 +410,6 @@
             document.getElementById('vida-text').innerHTML = `${vAt}<span class="stat-slash">/</span><span class="stat-max">${vMx}</span>`;
             document.getElementById('san-text').innerHTML  = `${sAt}<span class="stat-slash">/</span><span class="stat-max">${sMx}</span>`;
 
-            // Estado fisiológico / mental para trocar foto e aura
             let estado = "Normal";
             document.body.className = "";
             if (vAt <= 0) {
@@ -379,22 +438,16 @@
                 aplicarEnquadramentoOBS(imgElGlobal, zoom, x, y);
             }
 
-            // Renderiza os Losangos de Marcadores / Gatilhos (Vigilante = 1, Executor = Livre/Infinito, 0 = Oculto)
+            // Losangos de Marcadores de Cena / Gatilhos (Vigilante = 1, Mael = 3, Executor = Infinito, 0 = Oculto)
             const gatCont = document.getElementById('gatilhos-container');
             const ativosGatilhos = Math.max(0, parseInt(d_raw.gatilhosAtivos ?? d.gatilhosAtivos) || 0);
             const maxGatilhos = Math.max(0, parseInt(d_raw.gatilhosMax ?? d.gatilhosMax) || 0);
+            const totalExibido = Math.max(maxGatilhos, ativosGatilhos);
 
-            if (ativosGatilhos > 0 || maxGatilhos > 0) {
+            if (totalExibido > 0) {
                 let htmlLosangos = '';
-                if (maxGatilhos > 0) {
-                    const total = Math.max(maxGatilhos, ativosGatilhos);
-                    for (let i = 1; i <= total; i++) {
-                        htmlLosangos += `<div class="gatilho-losango ${i <= ativosGatilhos ? 'ativo' : ''}"></div>`;
-                    }
-                } else {
-                    for (let i = 1; i <= ativosGatilhos; i++) {
-                        htmlLosangos += `<div class="gatilho-losango ativo"></div>`;
-                    }
+                for (let i = 1; i <= totalExibido; i++) {
+                    htmlLosangos += `<div class="gatilho-losango ${i <= ativosGatilhos ? 'ativo' : ''}" onclick="window.clicarLosangoOBS(${i})"></div>`;
                 }
                 gatCont.innerHTML = htmlLosangos;
                 gatCont.style.display = 'flex';
@@ -403,7 +456,6 @@
                 gatCont.style.display = 'none';
             }
 
-            // Exibe tags sutis se tiver condições clínicas ativas (Sangrando, Atordoado, etc.)
             const alertasEl = document.getElementById('alertas-obs');
             const conds = Array.isArray(d.statusAcumulados) ? d.statusAcumulados.filter(c => c && c !== 'Normal') : [];
             alertasEl.innerHTML = conds.map(c => `<span class="alerta-tag-obs">${c}</span>`).join('');
