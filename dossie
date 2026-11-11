@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.R.Q.U.I.V.O. — Dossiê de Continuidade</title>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;700;800;900&family=Special+Elite&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Libre+Barcode+39+Text&display=swap');
+
+        :root {
+            --bg-desk: #161514;
+            --bg-paper: #dcd7cb;
+            --bg-card: #ebe6dc;
+            --op-ink: #1a1a1a;
+            --op-red: #9e0b0f;
+            --op-dark-red: #5a0000;
+            --san-purple: #2b3a4a;
+            --pe-orange: #665235;
+            --cor-muted: #524c42;
+            --border-ink: rgba(26, 26, 26, 0.28);
+            --border-strong: #1a1a1a;
+            --gm-bg: #efe5c8;
+            --gm-border: #8c6d23;
+            --gm-text: #4a380d;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 80px 20px 60px 20px;
+            background-color: var(--bg-desk);
+            background-image: radial-gradient(circle at center, #242220 0%, #0d0c0c 100%);
+            color: var(--op-ink);
+            font-family: 'Courier Prime', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* BARRA SUPERIOR DE CONTROLE (NÃO SAI NO PDF) */
+        .top-toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #111111;
+            border-bottom: 2px solid var(--op-red);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 9999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            gap: 12px;
+        }
+
+        .toolbar-left, .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-back-hub {
+            background: transparent;
+            color: #dcd7cb;
+            border: 1px dashed #777;
+            padding: 7px 14px;
+            font-family: 'Special Elite', monospace;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 2px;
+            transition: 0.2s;
+        }
+
+        .btn-back-hub:hover {
+            border-color: var(--op-red);
+            color: #fff;
+            background: rgba(158, 11, 15, 0.15);
+        }
+
+        .sync-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #aaa;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border: 1px dotted #444;
+            border-radius: 2px;
+        }
+
+        .toolbar-btn {
+            background: #222;
+            color: #dcd7cb;
+            border: 1px solid #444;
+            padding: 8px 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: #333;
+            border-color: #888;
+        }
+
+        .toolbar-btn.active {
+            background: var(--san-purple);
+            color: #fff;
+            border-color: #5aa8cc;
+        }
+
+        .toolbar-btn.btn-export {
+            background: var(--op-red);
+            color: #fff;
+            border-color: #ff4d4d;
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .toolbar-btn.btn-export:hover {
+            background: #b80d12;
+        }
+
+        .toolbar-btn.btn-import-hub {
+            border-color: #a68a64;
+            color: #e0c8a0;
+        }
+
+        /* FOLHA DE ARQUIVO / DOSSIÊ */
+        .dossier-sheet {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--bg-paper);
+            background-image:
+                radial-gradient(circle at 12% 18%, rgba(139, 115, 85, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 15%, rgba(100, 80, 60, 0.07) 0%, transparent 30%),
+                radial-gradient(circle at 88% 82%, rgba(120, 100, 80, 0.08) 0%, transparent 28%),
+                linear-gradient(to right, rgba(0,0,0,0.04) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.04) 100%);
+            padding: 42px 48px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.85);
+            border: 1px solid #3a352f;
+            position: relative;
+        }
+
+        /* MODO DE VISUALIZAÇÃO DO JOGADOR & MODO EXPORTAÇÃO PDF */
+        body.modo-jogador .gm-only,
+        body.exporting-pdf .gm-only {
+            display: none !important;
+        }
+
+        body.modo-jogador .clue-row[data-secret="true"],
+        body.exporting-pdf .clue-row[data-secret="true"] {
+            display: none !important;
+        }
+
+        body.modo-jogador [contenteditable="true"],
+        body.exporting-pdf [contenteditable="true"] {
+            outline: none !important;
+            border-bottom-color: transparent !important;
+            background: transparent !important;
+            pointer-events: none !important;
+        }
+
+        body.modo-jogador .stamp-status,
+        body.exporting-pdf .stamp-status {
+            pointer-events: none !important;
+        }
+
+        /* Esconde selects e mostra badges estáticas de alto contraste na visão do jogador e no PDF */
+        .static-player-badge {
+            display: none;
+        }
+
+        body.modo-jogador .interactive-select,
+        body.exporting-pdf .interactive-select {
+            display: none !important;
+        }
+
+        body.modo-jogador .static-player-badge,
+        body.exporting-pdf .static-player-badge {
+            display: inline-block !important;
+        }
+
+        /* CABEÇALHO DO DOSSIÊ */
+        .dossier-header {
+            border-bottom: 4px double var(--op-ink);
+            padding-bottom: 18px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            position: relative;
+        }
+
+        .dossier-tag-top {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--op-red);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .dossier-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 2.6rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin: 0;
+            line-height: 1;
+            color: var(--op-ink);
+            text-transform: uppercase;
+        }
+
+        .dossier-subtitle {
+            font-family: 'Special Elite', monospace;
+            font-size: 12px;
+            color: var(--cor-muted);
+            margin-top: 6px;
+        }
+
+        .header-right-box {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .barcode {
+            font-family: 'Libre Barcode 39 Text', cursive;
+            font-size: 36px;
+            color: var(--op-ink);
+            line-height: 0.85;
+        }
+
+        /* CARIMBO DE STATUS */
+        .stamp-status {
+            border: 3px solid var(--op-red);
+            color: var(--op-red);
+            font-family: 'Special Elite', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transform: rotate(-3deg);
+            cursor: pointer;
+            user-select: none;
+            background: rgba(158, 11, 15, 0.05);
+            box-shadow: inset 0 0 0 1px rgba(158, 11, 15, 0.25);
+            transition: 0.15s;
+        }
+
+        .stamp-status:hover {
+            transform: rotate(0deg) scale(1.03);
+        }
+
+        .stamp-status[data-status="EM ANDAMENTO"] {
+            border-color: var(--san-purple);
+            color: var(--san-purple);
+            background: rgba(43, 58, 74, 0.06);
+        }
+
+        .stamp-status[data-status="INTERROMPIDA / ARQUIVADA"] {
+            border-color: var(--pe-orange);
+            color: var(--pe-orange);
+            background: rgba(102, 82, 53, 0.06);
+        }
+
+        .stamp-status[data-status="CASO EXPURGADO"] {
+            border-color: var(--op-ink);
+            color: var(--op-ink);
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        /* AVISO INICIAL AO JOGADOR (BRIEFING) */
+        .briefing-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            border-left: 5px solid var(--op-red);
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .briefing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .briefing-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--op-red);
+        }
+
+        .stamp-mini {
+            font-family: 'Special Elite', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--op-ink);
+            border: 1.5px solid var(--op-ink);
+            padding: 2px 7px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CAIXA DE INSTRUÇÃO DO MESTRE (SOME NO PDF E NA VISÃO DO JOGADOR) */
+        .gm-hint {
+            background: var(--gm-bg);
+            border: 1px dashed var(--gm-border);
+            color: var(--gm-text);
+            padding: 8px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            line-height: 1.45;
+            margin-bottom: 12px;
+            border-radius: 2px;
+        }
+
+        .gm-hint strong {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* CAMPOS EDITÁVEIS */
+        .editable-field {
+            min-height: 22px;
+            padding: 3px 6px;
+            border-bottom: 1px dotted rgba(26, 26, 26, 0.35);
+            transition: background 0.15s;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        .editable-field:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.45);
+            border-bottom: 1px solid var(--op-red);
+        }
+
+        .editable-block {
+            min-height: 60px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.28);
+            border: 1px solid var(--border-ink);
+            line-height: 1.6;
+            font-family: 'Crimson Text', serif;
+            font-size: 1.15rem;
+            color: var(--op-ink);
+            word-break: break-word;
+        }
+
+        .editable-block:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.55);
+            border-color: var(--op-red);
+        }
+
+        /* TÍTULOS DE SEÇÃO */
+        .section-block {
+            margin-bottom: 28px;
+            page-break-inside: avoid;
+        }
+
+        .section-bar {
+            background: var(--op-ink);
+            color: var(--bg-paper);
+            padding: 8px 14px;
+            border-left: 5px solid var(--op-red);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .section-bar h2 {
+            margin: 0;
+            font-family: 'Courier Prime', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #f3efe6;
+        }
+
+        .section-bar span {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #bfb8a8;
+        }
+
+        /* GRID DE IDENTIFICAÇÃO */
+        .id-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 0.8fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .id-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-ink);
+            padding: 10px 12px;
+        }
+
+        .id-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--cor-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .id-value {
+            font-family: 'Special Elite', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--op-ink);
+        }
+
+        /* TABELA DE PERSONAS REGISTRADAS */
+        .personas-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-ink);
+            padding: 12px 14px;
+        }
+
+        .personas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed var(--border-ink);
+            padding-bottom: 6px;
+        }
+
+        .personas-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--op-ink);
+        }
+
+        .personas-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .personas-table th {
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--cor-muted);
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-ink);
+        }
+
+        .personas-table td {
+            padding: 6px 8px;
+            border-bottom: 1px dotted var(--border-ink);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .persona-name-cell {
+            font-family: 'Crimson Text', serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--op-ink);
+        }
+
+        .persona-player-cell {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--san-purple);
+        }
+
+        .persona-status-select {
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            background: var(--bg-paper);
+            color: var(--op-ink);
+            border: 1px solid var(--border-ink);
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .persona-status-badge {
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border: 1px solid var(--op-ink);
+            color: var(--op-ink);
+            background: rgba(0,0,0,0.05);
+            text-transform: uppercase;
+        }
+
+        /* TIMELINE DE ACONTECIMENTOS (SEÇÃO II) */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-ink);
+            border-left: 4px solid var(--op-ink);
+            padding: 10px 12px;
+        }
+
+        .event-bullet {
+            font-family: 'Special Elite', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--op-red);
+            padding-top: 3px;
+            user-select: none;
+        }
+
+        .event-text {
+            flex: 1;
+            font-family: 'Courier Prime', monospace;
+            font-size: 13.5px;
+            color: var(--op-ink);
+        }
+
+        /* ECOS NO MUNDO (SEÇÃO III) */
+        .echoes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .echo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-ink);
+            border-top: 3px solid var(--op-ink);
+            padding: 12px 14px;
+        }
+
+        .echo-card-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--op-red);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .echo-card-body {
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            color: var(--op-ink);
+            min-height: 55px;
+        }
+
+        /* SEÇÃO IV: ANEXOS E RELATOS PESSOAIS (CORRIGIDO ALTO CONTRASTE!) */
+        .attachments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .attachment-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            padding: 14px 16px;
+            position: relative;
+        }
+
+        .attachment-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-ink);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .attachment-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        /* Select no modo Mestre e Badge no modo Jogador — COR ESCURA FORTE E LEGÍVEL */
+        .attachment-type-select {
+            background: #22201d;
+            color: #f5f1e8;
+            border: 1px solid var(--op-ink);
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            padding: 5px 10px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .attachment-type-badge {
+            background: #22201d !important;
+            color: #f5f1e8 !important;
+            border: 1px solid #1a1a1a !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            padding: 4px 10px;
+            text-transform: uppercase;
+            border-radius: 2px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .attachment-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--op-red);
+            text-transform: uppercase;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .attachment-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--op-ink);
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.03);
+            border-left: 3px solid var(--op-ink);
+        }
+
+        .attachment-card[data-type="diario"] .attachment-body {
+            font-family: 'Crimson Text', serif;
+            font-style: italic;
+            font-size: 1.15rem;
+            background: repeating-linear-gradient(transparent, transparent 25px, rgba(0,0,0,0.06) 26px);
+            border-left: 3px solid var(--pe-orange);
+        }
+
+        .attachment-card[data-type="audio"] .attachment-body {
+            font-family: 'Courier Prime', monospace;
+            border-left: 3px solid var(--op-red);
+        }
+
+        .attachment-card[data-type="prontuario"] .attachment-body {
+            font-family: 'Inter', sans-serif;
+            font-size: 12.5px;
+            border-left: 3px solid var(--san-purple);
+        }
+
+        /* SEÇÃO V: MATRIZ DE PISTAS E CONHECIMENTO */
+        .clues-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid var(--border-strong);
+        }
+
+        .clues-table th {
+            background: var(--op-ink);
+            color: #f3efe6;
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 10px 10px;
+            border: 1px solid #333;
+            text-align: left;
+        }
+
+        .clues-table td {
+            padding: 10px;
+            border: 1px solid var(--border-ink);
+            vertical-align: top;
+            font-size: 13px;
+            color: var(--op-ink);
+        }
+
+        .clue-row[data-secret="true"] {
+            background: rgba(158, 11, 15, 0.08);
+        }
+
+        .access-select {
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 5px 6px;
+            background: var(--bg-paper);
+            color: var(--op-ink);
+            border: 1px solid var(--border-strong);
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .access-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border: 1px solid var(--op-ink);
+            background: rgba(0,0,0,0.06);
+            color: var(--op-ink);
+            text-transform: uppercase;
+        }
+
+        /* SEÇÃO VI: EXCLUSIVA DO MESTRE */
+        .gm-secret-section {
+            border: 2px dashed var(--op-red);
+            background: rgba(158, 11, 15, 0.04);
+            padding: 16px;
+            margin-top: 28px;
+        }
+
+        .gm-secret-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--op-red);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .gm-secret-header h3 {
+            margin: 0;
+            font-family: 'Courier Prime', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--op-red);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* BOTÕES DE ADICIONAR / REMOVER ITEM (SÓ MESTRE) */
+        .btn-add-item {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--op-ink);
+            border: 1px dashed var(--op-ink);
+            padding: 7px 14px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-add-item:hover {
+            background: var(--op-ink);
+            color: var(--bg-paper);
+        }
+
+        .btn-del-row {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--op-red);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            padding: 2px 6px;
+            opacity: 0.65;
+        }
+
+        .btn-del-row:hover {
+            opacity: 1;
+            border-color: var(--op-red);
+            background: rgba(158, 11, 15, 0.1);
+        }
+
+        .dossier-footer {
+            margin-top: 30px;
+            padding-top: 12px;
+            border-top: 2px solid var(--op-ink);
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Special Elite', monospace;
+            font-size: 11px;
+            color: var(--cor-muted);
+        }
+
+        @media print {
+            body {
+                background: #dcd7cb !important;
+                padding: 0 !important;
+            }
+            .top-toolbar, .gm-only, .clue-row[data-secret="true"] {
+                display: none !important;
+            }
+            .dossier-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            .interactive-select {
+                display: none !important;
+            }
+            .static-player-badge {
+                display: inline-block !important;
+            }
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 110px 10px 40px 10px; }
+            .top-toolbar { height: auto; padding: 10px; flex-direction: column; align-items: stretch; }
+            .dossier-sheet { padding: 20px 16px; }
+            .id-grid, .echoes-grid { grid-template-columns: 1fr; }
+            .dossier-header { flex-direction: column; }
+            .header-right-box { align-items: flex-start; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA DE FERRAMENTAS FIXA NO TOPO -->
+    <div class="top-toolbar">
+        <div class="toolbar-left">
+            <a href="index.html" class="btn-back-hub">↩ VOLTAR AO HUB</a>
+            <span id="sync-status" class="sync-badge">💾 SALVO LOCALMENTE</span>
+        </div>
+        <div class="toolbar-right">
+            <button class="toolbar-btn btn-import-hub gm-only" onclick="importarPersonasDaCampanha()" title="Puxa automaticamente as Personas vinculadas a esta campanha no Firebase">📥 Puxar Personas da Campanha</button>
+            <button id="btn-modo-mestre" class="toolbar-btn active" onclick="alternarModoVisualizacao('mestre')">🛠️ Visão do Mestre (Editar)</button>
+            <button id="btn-modo-jogador" class="toolbar-btn" onclick="alternarModoVisualizacao('jogador')">👁️ Visão do Jogador (Preview)</button>
+            <button id="btn-exportar-pdf" class="toolbar-btn btn-export" onclick="exportarDossiePDF()">📤 Exportar PDF (Players)</button>
+        </div>
+    </div>
+
+    <!-- FOLHA DO DOSSIÊ DE CONTINUIDADE -->
+    <div id="dossier-page" class="dossier-sheet">
+
+        <!-- CABEÇALHO -->
+        <div class="dossier-header">
+            <div>
+                <div class="dossier-tag-top">A.R.Q.U.I.V.O. // DEPARTAMENTO DE REGISTROS E CONTINUIDADE</div>
+                <h1 class="dossier-title">ARQUIVO DE CONTINUIDADE</h1>
+                <div class="dossier-subtitle">Relatório Pós-Campanha & Registro Histórico de Universo</div>
+            </div>
+            <div class="header-right-box">
+                <div id="stamp-status" class="stamp-status" data-status="CONCLUÍDA" onclick="alternarStatusCampanha()" title="Clique para alternar o status da campanha">CONCLUÍDA</div>
+                <div class="barcode" id="barcode-codigo">*ARQUIVO*</div>
+            </div>
+        </div>
+
+        <!-- NOTA DE ABERTURA AO JOGADOR (ANTIGA SEÇÃO 10) -->
+        <div class="briefing-banner">
+            <div class="briefing-header">
+                <span class="briefing-title">📌 NOTA DE ACESSO À PRÓXIMA MESA</span>
+                <span class="stamp-mini">JOGADOR ≠ PERSONA</span>
+            </div>
+            <div class="gm-hint gm-only">
+                <strong>Orientação ao Mestre:</strong> Escreva de 3 a 5 linhas explicando por que este registro existe e o que as novas personas podem ou não conhecer. Este aviso some para os jogadores, ficando apenas o texto abaixo.
+            </div>
+            <div id="campo-briefing" class="editable-field" contenteditable="true" oninput="agendarSalvamento()">Este material reúne relatos, evidências e consequências que circularam após os acontecimentos registrados neste dossiê. Sua persona não precisa ter participado destes eventos nem conhecer todos os detalhes: o que você sabe como jogador serve para enriquecer sua imersão e reconhecer conexões, mas não equivale automaticamente ao conhecimento da sua persona em jogo.</div>
+        </div>
+
+        <!-- I. IDENTIFICAÇÃO DA CAMPANHA & PERSONAS -->
+        <div class="section-block">
+            <div class="section-bar">
+                <h2>I. IDENTIFICAÇÃO DA OPERAÇÃO & PERSONAS</h2>
+                <span>REGISTRO OFICIAL</span>
+            </div>
+
+            <div class="id-grid">
+                <div class="id-box">
+                    <span class="id-label">NOME DA CAMPANHA</span>
+                    <div id="campo-nome-campanha" class="id-value editable-field" contenteditable="true" oninput="agendarSalvamento()">[Nome da Campanha]</div>
+                </div>
+                <div class="id-box">
+                    <span class="id-label">PERÍODO E LOCAL</span>
+                    <div id="campo-periodo-local" class="id-value editable-field" contenteditable="true" oninput="agendarSalvamento()">Outono de 1998 — Interior de Goiás</div>
+                </div>
+                <div class="id-box">
+                    <span class="id-label">CÓDIGO / NÚCLEO</span>
+                    <div id="campo-codigo-nucleo" class="id-value editable-field" contenteditable="true" oninput="agendarSalvamento()">CASO #01</div>
+                </div>
+            </div>
+
+            <div class="personas-box">
+                <div class="personas-header">
+                    <span class="personas-title">PERSONAS REGISTRADAS NESTA CAMPANHA</span>
+                    <button class="btn-add-item gm-only" style="margin:0; padding:4px 10px; font-size:11px;" onclick="adicionarLinhaPersona()">+ ADICIONAR PERSONA</button>
+                </div>
+                <table class="personas-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 34%;">NOME DA PERSONA</th>
+                            <th style="width: 28%;">JOGADOR(A)</th>
+                            <th style="width: 30%;">DESTINO / STATUS FINAL</th>
+                            <th class="gm-only" style="width: 8%; text-align:right;">AÇÃO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-personas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- II. SINOPSE HISTÓRICA & LINHA DO TEMPO -->
+        <div class="section-block">
+            <div class="section-bar">
+                <h2>II. ABERTURA & ACONTECIMENTOS PRINCIPAIS</h2>
+                <span>CRONOLOGIA DO CASO</span>
+            </div>
+
+            <div class="gm-hint gm-only">
+                <strong>Objetivo:</strong> Situe quem não jogou a campanha em um parágrafo introdutório com tom histórico (sem parecer relatório burocrático) e, abaixo, liste os acontecimentos principais na ordem em que mudaram o cenário.
+            </div>
+
+            <div id="campo-abertura" class="editable-block" contenteditable="true" oninput="agendarSalvamento()" style="margin-bottom: 14px;">Naquele período, moradores da região começaram a relatar desaparecimentos e falhas inexplicáveis na rede elétrica local. O que parecia um caso isolado logo revelou a atuação de um grupo oculto operando nos subterrâneos da cidade...</div>
+
+            <div id="lista-acontecimentos" class="events-list"></div>
+            <button class="btn-add-item gm-only" onclick="adicionarAcontecimento()">+ ADICIONAR ACONTECIMENTO</button>
+        </div>
+
+        <!-- III. O QUE FICOU NO MUNDO (CONSEQUÊNCIAS) -->
+        <div class="section-block">
+            <div class="section-bar">
+                <h2>III. O QUE FICOU NO MUNDO — ECOS & CONSEQUÊNCIAS</h2>
+                <span>IMPACTO NO CENÁRIO</span>
+            </div>
+
+            <div class="gm-hint gm-only">
+                <strong>Orientação:</strong> Registre aqui as consequências concretas que continuam existindo no universo e que podem ser encontradas ou sentidas nas próximas campanhas.
+            </div>
+
+            <div class="echoes-grid">
+                <div class="echo-card">
+                    <span class="echo-card-title">📍 LOCAIS AFETADOS OU MODIFICADOS</span>
+                    <div id="eco-locais" class="echo-card-body editable-field" contenteditable="true" oninput="agendarSalvamento()">O antigo sanatório municipal foi interditado após o incêndio na ala leste.</div>
+                </div>
+                <div class="echo-card">
+                    <span class="echo-card-title">🏛️ ORGANIZAÇÕES, GRUPOS OU PESSOAS</span>
+                    <div id="eco-organizacoes" class="echo-card-body editable-field" contenteditable="true" oninput="agendarSalvamento()">A Fundação Aurora assumiu a custódia dos arquivos médicos locais.</div>
+                </div>
+                <div class="echo-card">
+                    <span class="echo-card-title">🌑 MUDANÇAS SOCIAIS, POLÍTICAS OU SOBRENATURAIS</span>
+                    <div id="eco-mudancas" class="echo-card-body editable-field" contenteditable="true" oninput="agendarSalvamento()">Toque de recolher informal entre moradores próximos à represa; aumento de relatos de insônia coletiva.</div>
+                </div>
+                <div class="echo-card">
+                    <span class="echo-card-title">🗝️ OBJETOS, SÍMBOLOS OU FENÔMENOS ATIVOS</span>
+                    <div id="eco-objetos" class="echo-card-body editable-field" contenteditable="true" oninput="agendarSalvamento()">O símbolo da espiral dupla passou a ser visto pichado em muros abandonados.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IV. ANEXOS — RELATOS PESSOAIS & EVIDÊNCIAS NÃO-OFICIAIS -->
+        <div class="section-block">
+            <div class="section-bar">
+                <h2>IV. ANEXOS — RELATOS PESSOAIS & EVIDÊNCIAS NÃO-OFICIAIS</h2>
+                <span>IMERSÃO & MEMÓRIAS</span>
+            </div>
+
+            <div class="gm-hint gm-only">
+                <strong>Orientação:</strong> Nem tudo precisa virar relatório formal. Adicione trechos de diários, transcrições de fitas cassete, depoimentos contraditórios de testemunhas, prontuários clínicos ou fragmentos de visões.
+            </div>
+
+            <div id="lista-anexos" class="attachments-list"></div>
+
+            <div class="gm-only" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                <button class="btn-add-item" style="margin:0;" onclick="adicionarAnexo('diario')">+ 📓 Diário / Carta</button>
+                <button class="btn-add-item" style="margin:0;" onclick="adicionarAnexo('audio')">+ 📼 Áudio Transcrito</button>
+                <button class="btn-add-item" style="margin:0;" onclick="adicionarAnexo('testemunha')">+ 👁️ Relato de Testemunha</button>
+                <button class="btn-add-item" style="margin:0;" onclick="adicionarAnexo('prontuario')">+ 📋 Prontuário / Laudo</button>
+                <button class="btn-add-item" style="margin:0;" onclick="adicionarAnexo('rumor')">+ 🗣️ Lenda / Rumor</button>
+                <button class="btn-add-item" style="margin:0;" onclick="adicionarAnexo('visao')">+ 🌀 Fragmento de Visão</button>
+            </div>
+        </div>
+
+        <!-- V. PISTAS, REFERÊNCIAS & CONTROLE DE CONHECIMENTO -->
+        <div class="section-block">
+            <div class="section-bar">
+                <h2>V. PISTAS, REFERÊNCIAS & NÍVEL DE CONHECIMENTO</h2>
+                <span>ARQUIVO CRUZADO</span>
+            </div>
+
+            <div class="gm-hint gm-only">
+                <strong>Controle de Acesso:</strong> Separe o que é conhecido dentro do universo do nível de acesso para os jogadores. Qualquer linha marcada como <strong>"🔒 Segredo do Mestre"</strong> será ocultada automaticamente na Visão do Jogador e no PDF exportado!
+            </div>
+
+            <table class="clues-table">
+                <thead>
+                    <tr>
+                        <th style="width: 22%;">PISTA / REFERÊNCIA</th>
+                        <th style="width: 18%;">ONDE APARECEU</th>
+                        <th style="width: 30%;">O QUE SE SABE<span class="gm-only"> (SEM REVELAR TUDO)</span></th>
+                        <th style="width: 15%;">QUEM SABE NO MUNDO?</th>
+                        <th style="width: 15%;">ACESSO</th>
+                        <th class="gm-only" style="width: 40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-pistas"></tbody>
+            </table>
+
+            <button class="btn-add-item gm-only" onclick="adicionarPista()">+ ADICIONAR PISTA / REFERÊNCIA</button>
+        </div>
+
+        <!-- VI. SEGREDOS DO MESTRE & PONTAS SOLTAS (100% OCULTO DOS JOGADORES E DO PDF) -->
+        <div class="gm-secret-section gm-only">
+            <div class="gm-secret-header">
+                <h3>🔒 VI. ARQUIVO CONFIDENCIAL DO MESTRE (NÃO SAI NO PDF DOS JOGADORES)</h3>
+                <span class="stamp-mini" style="border-color:var(--op-red); color:var(--op-red);">OLHOS DO DIRETOR APENAS</span>
+            </div>
+
+            <div class="gm-hint" style="margin-bottom: 10px;">
+                Esta seção inteira é <strong>automaticamente removida</strong> ao alternar para a Visão do Jogador ou clicar em Exportar PDF. Anote aqui a verdade por trás dos mistérios e os ganchos para o futuro.
+            </div>
+
+            <label class="id-label" style="color:var(--op-red); margin-top:8px;">VERDADE OCULTA, MOTIVAÇÕES REAIS & CULPADOS:</label>
+            <div id="campo-segredos-mestre" class="editable-block" contenteditable="true" oninput="agendarSalvamento()" style="margin-bottom: 14px;">[Anotações privadas do Mestre sobre o verdadeiro responsável pelos eventos e conexões ocultas...]</div>
+
+            <label class="id-label" style="color:var(--op-red);">PONTAS SOLTAS & GANCHOS PARA CAMPANHAS FUTURAS:</label>
+            <div id="lista-pontas-soltas" class="events-list" style="margin-top:6px;"></div>
+            <button class="btn-add-item" onclick="adicionarPontaSolta()">+ ADICIONAR PONTA SOLTA</button>
+        </div>
+
+        <!-- RODAPÉ DO DOCUMENTO -->
+        <div class="dossier-footer">
+            <span>DOCUMENTO DE CONTINUIDADE // A.R.Q.U.I.V.O.</span>
+            <span id="footer-data-emissao">REGISTRO OFICIAL DE CAMPANHA</span>
+        </div>
+
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO DO FIREBASE (MESMA DO SEU HUB)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzOGimCx5mgObg1ulI0SdnbyS0zlU-DkI",
+            authDomain: "fichasrpg-7fc69.firebaseapp.com",
+            projectId: "fichasrpg-7fc69",
+            storageBucket: "fichasrpg-7fc69.firebasestorage.app",
+            messagingSenderId: "758802032764",
+            appId: "1:758802032764:web:40467e15fdc24c570081f9"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const params = new URLSearchParams(window.location.search);
+        const campDocId = params.get('id') || '';
+        const campCodigo = params.get('campanha') || '';
+        const campNomeParam = params.get('nome') || '';
+
+        const STORAGE_KEY = 'arquivo_dossie_' + (campDocId || campCodigo || 'padrao');
+        let saveTimer = null;
+
+        const TIPOS_ANEXO_LABELS = {
+            diario: "📓 DIÁRIO OU CARTA PESSOAL",
+            audio: "📼 ÁUDIO TRANSCRITO / GRAVAÇÃO",
+            testemunha: "👁️ RELATO DE TESTEMUNHA",
+            prontuario: "📋 PRONTUÁRIO / ANOTAÇÃO CLÍNICA",
+            rumor: "🗣️ LENDA, RUMOR OU RELATO ORAL",
+            visao: "🌀 VISÃO EM FRAGMENTOS"
+        };
+
+        const ACESSO_LABELS = {
+            publico: "🌐 Público no Arquivo",
+            resumo: "📄 Resumo p/ Todos",
+            campanha: "🕵️ Segredo de Campanha",
+            mestre: "🔒 Segredo do Mestre"
+        };
+
+        const STATUS_CICLO = [
+            "CONCLUÍDA",
+            "EM ANDAMENTO",
+            "INTERROMPIDA / ARQUIVADA",
+            "CASO EXPURGADO"
+        ];
+
+        function alternarModoVisualizacao(modo) {
+            const btnMestre = document.getElementById('btn-modo-mestre');
+            const btnJogador = document.getElementById('btn-modo-jogador');
+            const editaveis = document.querySelectorAll('.editable-field, .editable-block');
+
+            if (modo === 'jogador') {
+                document.body.classList.add('modo-jogador');
+                btnMestre.classList.remove('active');
+                btnJogador.classList.add('active');
+                editaveis.forEach(el => el.setAttribute('contenteditable', 'false'));
+            } else {
+                document.body.classList.remove('modo-jogador');
+                btnJogador.classList.remove('active');
+                btnMestre.classList.add('active');
+                editaveis.forEach(el => el.setAttribute('contenteditable', 'true'));
+            }
+        }
+
+        function alternarStatusCampanha() {
+            if (document.body.classList.contains('modo-jogador')) return;
+            const stamp = document.getElementById('stamp-status');
+            const atual = stamp.getAttribute('data-status') || 'CONCLUÍDA';
+            const idx = (STATUS_CICLO.indexOf(atual) + 1) % STATUS_CICLO.length;
+            const novo = STATUS_CICLO[idx];
+            stamp.setAttribute('data-status', novo);
+            stamp.innerText = novo;
+            agendarSalvamento();
+        }
+
+        // --- TABELA DE PERSONAS ---
+        function adicionarLinhaPersona(dados = {}) {
+            const tbody = document.getElementById('tbody-personas');
+            const tr = document.createElement('tr');
+            const nome = dados.nome || 'Nome da Persona';
+            const jogador = dados.jogador || 'Nome do Jogador';
+            const status = dados.status || 'ATIVO / SOBREVIVENTE';
+            const editAttr = document.body.classList.contains('modo-jogador') ? 'false' : 'true';
+
+            const opcoesStatus = [
+                'ATIVO / SOBREVIVENTE',
+                'DESAPARECIDO (M.I.A.)',
+                'MORTO EM OPERAÇÃO (K.I.A.)',
+                'APOSENTADO / AFASTADO',
+                'INTERNADO / INSANO'
+            ];
+
+            tr.innerHTML = `
+                <td><div class="persona-name-cell editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${nome}</div></td>
+                <td><div class="persona-player-cell editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${jogador}</div></td>
+                <td>
+                    <select class="persona-status-select interactive-select" onchange="atualizarBadgeSelect(this); agendarSalvamento();">
+                        ${opcoesStatus.map(op => `<option value="${op}" ${op === status ? 'selected' : ''}>${op}</option>`).join('')}
+                    </select>
+                    <span class="persona-status-badge static-player-badge">${status}</span>
+                </td>
+                <td class="gm-only" style="text-align:right;">
+                    <button class="btn-del-row" onclick="this.closest('tr').remove(); agendarSalvamento();" title="Remover Persona">✕</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            agendarSalvamento();
+        }
+
+        function atualizarBadgeSelect(selectEl) {
+            const badge = selectEl.parentElement.querySelector('.static-player-badge');
+            if (badge) badge.innerText = selectEl.value;
+        }
+
+        // --- LISTA DE ACONTECIMENTOS ---
+        function adicionarAcontecimento(texto = 'Descreva aqui um acontecimento crucial da campanha e o que foi descoberto ou alterado...') {
+            const lista = document.getElementById('lista-acontecimentos');
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            const editAttr = document.body.classList.contains('modo-jogador') ? 'false' : 'true';
+            item.innerHTML = `
+                <span class="event-bullet">▪</span>
+                <div class="event-text editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${texto}</div>
+                <button class="btn-del-row gm-only" onclick="this.parentElement.remove(); agendarSalvamento();" title="Remover">✕</button>
+            `;
+            lista.appendChild(item);
+            agendarSalvamento();
+        }
+
+        // --- SEÇÃO IV: ANEXOS E RELATOS PESSOAIS ---
+        function adicionarAnexo(tipo = 'diario', titulo = '', conteudo = '') {
+            const lista = document.getElementById('lista-anexos');
+            const card = document.createElement('div');
+            card.className = 'attachment-card';
+            card.setAttribute('data-type', tipo);
+
+            const titulosPadrao = {
+                diario: 'PÁGINA RASGADA DO CADERNO DE ANOTAÇÕES',
+                audio: 'FITA CASSETE #09 — GRAVADOR ENCONTRADO NO LOCAL',
+                testemunha: 'DEPOIMENTO COLHIDO APÓS O INCIDENTE',
+                prontuario: 'LAUDO CLÍNICO / OBSERVAÇÃO INSTITUCIONAL',
+                rumor: 'RELATO ORAL QUE CIRCULA ENTRE MORADORES',
+                visao: 'FRAGMENTO DE MEMÓRIA / EXPERIÊNCIA SUBJETIVA'
+            };
+
+            const conteudosPadrao = {
+                diario: 'Faz três noites que escuto o mesmo ruído vindo do subsolo. Se alguém encontrar estas páginas, não confie nos guardas do turno da noite.',
+                audio: '"[Chiado de fita]... Eles acham que o prédio foi fechado em 94 por falta de verba. Não foi. Nós apenas trancamos o que estava lá embaixo... [Corte abrupto]"',
+                testemunha: '"Eu vi três pessoas entrando na capela, mas só duas saíram antes da neblina cobrir a estrada. Ou talvez a minha vista estivesse cansada..."',
+                prontuario: 'Paciente apresenta amnésia lacunar referente às últimas 48 horas e repete números em sequência sempre que exposto a luz fria.',
+                rumor: 'Dizem os mais velhos que ninguém atravessa a ponte velha depois da meia-noite sem ouvir o próprio nome ser chamado da água.',
+                visao: 'Um corredor infinito de portas de ferro oxidado; o cheiro de ozônio e cinzas antes de despertar sem fôlego.'
+            };
+
+            const titFinal = titulo || titulosPadrao[tipo] || 'REGISTRO ANEXO';
+            const contFinal = conteudo || conteudosPadrao[tipo] || 'Escreva o conteúdo do registro...';
+            const editAttr = document.body.classList.contains('modo-jogador') ? 'false' : 'true';
+
+            card.innerHTML = `
+                <div class="attachment-header">
+                    <div class="attachment-header-left">
+                        <select class="attachment-type-select interactive-select" onchange="mudarTipoAnexo(this)">
+                            ${Object.entries(TIPOS_ANEXO_LABELS).map(([k, label]) => `<option value="${k}" ${k === tipo ? 'selected' : ''}>${label}</option>`).join('')}
+                        </select>
+                        <span class="attachment-type-badge static-player-badge">${TIPOS_ANEXO_LABELS[tipo] || TIPOS_ANEXO_LABELS.diario}</span>
+                        <div class="attachment-title editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">— ${titFinal}</div>
+                    </div>
+                    <button class="btn-del-row gm-only" onclick="this.closest('.attachment-card').remove(); agendarSalvamento();" title="Remover Anexo">✕</button>
+                </div>
+                <div class="attachment-body editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${contFinal}</div>
+            `;
+            lista.appendChild(card);
+            agendarSalvamento();
+        }
+
+        function mudarTipoAnexo(selectEl) {
+            const card = selectEl.closest('.attachment-card');
+            const novoTipo = selectEl.value;
+            card.setAttribute('data-type', novoTipo);
+            const badge = card.querySelector('.attachment-type-badge');
+            if (badge) badge.innerText = TIPOS_ANEXO_LABELS[novoTipo] || novoTipo;
+            agendarSalvamento();
+        }
+
+        // --- SEÇÃO V: MATRIZ DE PISTAS E CONHECIMENTO ---
+        function adicionarPista(dados = {}) {
+            const tbody = document.getElementById('tbody-pistas');
+            const tr = document.createElement('tr');
+            const pista = dados.pista || 'Símbolo / Documento';
+            const onde = dados.onde || 'Capela / Arquivo Municipal';
+            const sabe = dados.sabe || 'Marca associada aos desaparecimentos da década de 70.';
+            const quem = dados.quem || 'Apenas investigadores e ex-funcionários';
+            const acesso = dados.acesso || 'publico';
+            const editAttr = document.body.classList.contains('modo-jogador') ? 'false' : 'true';
+
+            tr.className = 'clue-row';
+            tr.setAttribute('data-secret', acesso === 'mestre' ? 'true' : 'false');
+
+            tr.innerHTML = `
+                <td><div class="editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()" style="font-weight:700;">${pista}</div></td>
+                <td><div class="editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${onde}</div></td>
+                <td><div class="editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${sabe}</div></td>
+                <td><div class="editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${quem}</div></td>
+                <td>
+                    <select class="access-select interactive-select" onchange="mudarAcessoPista(this)">
+                        ${Object.entries(ACESSO_LABELS).map(([k, label]) => `<option value="${k}" ${k === acesso ? 'selected' : ''}>${label}</option>`).join('')}
+                    </select>
+                    <span class="access-badge static-player-badge">${ACESSO_LABELS[acesso] || ACESSO_LABELS.publico}</span>
+                </td>
+                <td class="gm-only" style="text-align:center;">
+                    <button class="btn-del-row" onclick="this.closest('tr').remove(); agendarSalvamento();" title="Remover Pista">✕</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            agendarSalvamento();
+        }
+
+        function mudarAcessoPista(selectEl) {
+            const tr = selectEl.closest('tr');
+            const val = selectEl.value;
+            tr.setAttribute('data-secret', val === 'mestre' ? 'true' : 'false');
+            const badge = tr.querySelector('.access-badge');
+            if (badge) badge.innerText = ACESSO_LABELS[val] || val;
+            agendarSalvamento();
+        }
+
+        // --- SEÇÃO VI: PONTAS SOLTAS DO MESTRE ---
+        function adicionarPontaSolta(texto = 'O que aconteceu com o segundo artefato levado antes da chegada do grupo?') {
+            const lista = document.getElementById('lista-pontas-soltas');
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            const editAttr = document.body.classList.contains('modo-jogador') ? 'false' : 'true';
+            item.innerHTML = `
+                <span class="event-bullet">?</span>
+                <div class="event-text editable-field" contenteditable="${editAttr}" oninput="agendarSalvamento()">${texto}</div>
+                <button class="btn-del-row gm-only" onclick="this.parentElement.remove(); agendarSalvamento();" title="Remover">✕</button>
+            `;
+            lista.appendChild(item);
+            agendarSalvamento();
+        }
+
+        // --- COLETAR E SALVAR ESTADO DO DOSSIÊ ---
+        function coletarDadosDossie() {
+            const personas = [];
+            document.querySelectorAll('#tbody-personas tr').forEach(tr => {
+                const cells = tr.querySelectorAll('.editable-field');
+                const sel = tr.querySelector('.persona-status-select');
+                if (cells.length >= 2) {
+                    personas.push({
+                        nome: cells[0].innerText.trim(),
+                        jogador: cells[1].innerText.trim(),
+                        status: sel ? sel.value : 'ATIVO / SOBREVIVENTE'
+                    });
+                }
+            });
+
+            const acontecimentos = [];
+            document.querySelectorAll('#lista-acontecimentos .event-text').forEach(el => {
+                acontecimentos.push(el.innerText.trim());
+            });
+
+            const anexos = [];
+            document.querySelectorAll('#lista-anexos .attachment-card').forEach(card => {
+                const tipo = card.getAttribute('data-type') || 'diario';
+                const titulo = card.querySelector('.attachment-title')?.innerText.replace(/^—\s*/, '').trim() || '';
+                const conteudo = card.querySelector('.attachment-body')?.innerText.trim() || '';
+                anexos.push({ tipo, titulo, conteudo });
+            });
+
+            const pistas = [];
+            document.querySelectorAll('#tbody-pistas tr').forEach(tr => {
+                const fields = tr.querySelectorAll('.editable-field');
+                const sel = tr.querySelector('.access-select');
+                if (fields.length >= 4) {
+                    pistas.push({
+                        pista: fields[0].innerText.trim(),
+                        onde: fields[1].innerText.trim(),
+                        sabe: fields[2].innerText.trim(),
+                        quem: fields[3].innerText.trim(),
+                        acesso: sel ? sel.value : 'publico'
+                    });
+                }
+            });
+
+            const pontasSoltas = [];
+            document.querySelectorAll('#lista-pontas-soltas .event-text').forEach(el => {
+                pontasSoltas.push(el.innerText.trim());
+            });
+
+            return {
+                statusCampanha: document.getElementById('stamp-status').getAttribute('data-status') || 'CONCLUÍDA',
+                briefing: document.getElementById('campo-briefing').innerText,
+                nomeCampanha: document.getElementById('campo-nome-campanha').innerText,
+                periodoLocal: document.getElementById('campo-periodo-local').innerText,
+                codigoNucleo: document.getElementById('campo-codigo-nucleo').innerText,
+                personas,
+                abertura: document.getElementById('campo-abertura').innerText,
+                acontecimentos,
+                ecos: {
+                    locais: document.getElementById('eco-locais').innerText,
+                    organizacoes: document.getElementById('eco-organizacoes').innerText,
+                    mudancas: document.getElementById('eco-mudancas').innerText,
+                    objetos: document.getElementById('eco-objetos').innerText
+                },
+                anexos,
+                pistas,
+                segredosMestre: document.getElementById('campo-segredos-mestre').innerText,
+                pontasSoltas,
+                updatedAt: new Date().toISOString()
+            };
+        }
+
+        function aplicarDadosDossie(d) {
+            if (!d) return;
+            const stamp = document.getElementById('stamp-status');
+            if (d.statusCampanha) {
+                stamp.setAttribute('data-status', d.statusCampanha);
+                stamp.innerText = d.statusCampanha;
+            }
+            if (d.briefing !== undefined) document.getElementById('campo-briefing').innerText = d.briefing;
+            if (d.nomeCampanha !== undefined) document.getElementById('campo-nome-campanha').innerText = d.nomeCampanha;
+            if (d.periodoLocal !== undefined) document.getElementById('campo-periodo-local').innerText = d.periodoLocal;
+            if (d.codigoNucleo !== undefined) document.getElementById('campo-codigo-nucleo').innerText = d.codigoNucleo;
+            if (d.abertura !== undefined) document.getElementById('campo-abertura').innerText = d.abertura;
+
+            if (d.ecos) {
+                if (d.ecos.locais !== undefined) document.getElementById('eco-locais').innerText = d.ecos.locais;
+                if (d.ecos.organizacoes !== undefined) document.getElementById('eco-organizacoes').innerText = d.ecos.organizacoes;
+                if (d.ecos.mudancas !== undefined) document.getElementById('eco-mudancas').innerText = d.ecos.mudancas;
+                if (d.ecos.objetos !== undefined) document.getElementById('eco-objetos').innerText = d.ecos.objetos;
+            }
+
+            if (d.segredosMestre !== undefined) document.getElementById('campo-segredos-mestre').innerText = d.segredosMestre;
+
+            if (Array.isArray(d.personas)) {
+                document.getElementById('tbody-personas').innerHTML = '';
+                d.personas.forEach(p => adicionarLinhaPersona(p));
+            }
+            if (Array.isArray(d.acontecimentos)) {
+                document.getElementById('lista-acontecimentos').innerHTML = '';
+                d.acontecimentos.forEach(a => adicionarAcontecimento(a));
+            }
+            if (Array.isArray(d.anexos)) {
+                document.getElementById('lista-anexos').innerHTML = '';
+                d.anexos.forEach(ax => adicionarAnexo(ax.tipo, ax.titulo, ax.conteudo));
+            }
+            if (Array.isArray(d.pistas)) {
+                document.getElementById('tbody-pistas').innerHTML = '';
+                d.pistas.forEach(pi => adicionarPista(pi));
+            }
+            if (Array.isArray(d.pontasSoltas)) {
+                document.getElementById('lista-pontas-soltas').innerHTML = '';
+                d.pontasSoltas.forEach(ps => adicionarPontaSolta(ps));
+            }
+        }
+
+        function agendarSalvamento() {
+            const badge = document.getElementById('sync-status');
+            if (badge) badge.innerText = '⏳ SALVANDO...';
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(salvarDossie, 600);
+        }
+
+        async function salvarDossie() {
+            const dados = coletarDadosDossie();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+            const badge = document.getElementById('sync-status');
+
+            if (campDocId) {
+                try {
+                    await db.collection('campanhas').doc(campDocId).set({ dossieContinuidade: dados }, { merge: true });
+                    if (badge) badge.innerText = '☁️ SINCRONIZADO NA CAMPANHA';
+                    return;
+                } catch (e) {
+                    console.warn('Salvamento local ativo (Firebase indisponível):', e);
+                }
+            }
+            if (badge) badge.innerText = '💾 SALVO NO NAVEGADOR';
+        }
+
+        async function importarPersonasDaCampanha() {
+            if (!campCodigo) {
+                alert('Nenhum código de campanha detectado na URL (abra o dossiê a partir de uma campanha no Hub).');
+                return;
+            }
+            try {
+                const snap = await db.collection('fichas').where('campanhaId', '==', campCodigo).get();
+                if (snap.empty) {
+                    alert('Nenhuma Persona vinculada a esta campanha foi encontrada no banco.');
+                    return;
+                }
+                snap.forEach(doc => {
+                    const f = doc.data();
+                    if (!f.isNpcAmeaca) {
+                        adicionarLinhaPersona({
+                            nome: f.nome || 'Persona',
+                            jogador: f.nomeJogador || 'Jogador',
+                            status: 'ATIVO / SOBREVIVENTE'
+                        });
+                    }
+                });
+                agendarSalvamento();
+            } catch (e) {
+                alert('Erro ao buscar Personas da campanha.');
+            }
+        }
+
+        // --- EXPORTAÇÃO DIRETA DE PDF NÃO-EDITÁVEL (VISÃO DO JOGADOR) ---
+        async function exportarDossiePDF() {
+            const btn = document.getElementById('btn-exportar-pdf');
+            const textoOriginal = btn.innerText;
+            btn.innerText = '⏳ GERANDO PDF...';
+            btn.disabled = true;
+
+            const estavaModoMestre = !document.body.classList.contains('modo-jogador');
+            document.body.classList.add('exporting-pdf');
+            document.body.classList.add('modo-jogador');
+
+            const nomeCamp = (document.getElementById('campo-nome-campanha').innerText || 'campanha')
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]+/gi, '_');
+
+            const elemento = document.getElementById('dossier-page');
+
+            try {
+                if (typeof html2pdf !== 'undefined') {
+                    const opt = {
+                        margin: [8, 8, 8, 8],
+                        filename: `dossie_${nomeCamp}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: {
+                            scale: 2,
+                            useCORS: true,
+                            backgroundColor: '#dcd7cb',
+                            scrollY: 0
+                        },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                    };
+                    await html2pdf().set(opt).from(elemento).save();
+                } else {
+                    window.print();
+                }
+            } catch (err) {
+                console.error('Erro no html2pdf, acionando impressão nativa:', err);
+                window.print();
+            } finally {
+                document.body.classList.remove('exporting-pdf');
+                if (estavaModoMestre) {
+                    document.body.classList.remove('modo-jogador');
+                }
+                btn.innerText = textoOriginal;
+                btn.disabled = false;
+            }
+        }
+
+        // --- INICIALIZAÇÃO ---
+        async function inicializarDossie() {
+            if (campNomeParam) {
+                document.getElementById('campo-nome-campanha').innerText = campNomeParam;
+            }
+            if (campCodigo) {
+                document.getElementById('campo-codigo-nucleo').innerText = 'CÓDIGO: ' + campCodigo;
+                document.getElementById('barcode-codigo').innerText = '*' + campCodigo + '*';
+            }
+
+            let carregado = false;
+
+            // Tenta carregar do Firebase se houver id da campanha
+            if (campDocId) {
+                try {
+                    const doc = await db.collection('campanhas').doc(campDocId).get();
+                    if (doc.exists) {
+                        const cData = doc.data();
+                        if (cData.nome && !campNomeParam) {
+                            document.getElementById('campo-nome-campanha').innerText = cData.nome;
+                        }
+                        if (cData.codigo) {
+                            document.getElementById('campo-codigo-nucleo').innerText = 'CÓDIGO: ' + cData.codigo;
+                            document.getElementById('barcode-codigo').innerText = '*' + cData.codigo + '*';
+                        }
+                        if (cData.dossieContinuidade) {
+                            aplicarDadosDossie(cData.dossieContinuidade);
+                            carregado = true;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Não foi possível ler o dossiê da nuvem, usando cache local:', e);
+                }
+            }
+
+            // Fallback: carrega do localStorage
+            if (!carregado) {
+                const salvoLocal = localStorage.getItem(STORAGE_KEY);
+                if (salvoLocal) {
+                    try {
+                        aplicarDadosDossie(JSON.parse(salvoLocal));
+                        carregado = true;
+                    } catch (e) {}
+                }
+            }
+
+            // Se for um dossiê novo em branco, popula com linhas iniciais de exemplo
+            if (!carregado) {
+                adicionarLinhaPersona({ nome: 'Arthur Cervero', jogador: 'Pedro', status: 'ATIVO / SOBREVIVENTE' });
+                adicionarLinhaPersona({ nome: 'Beatriz Vaz', jogador: 'Raphael', status: 'DESAPARECIDO (M.I.A.)' });
+
+                adicionarAcontecimento('Descoberta dos registros médicos ocultos no subsolo da clínica.');
+                adicionarAcontecimento('Confronto final na subestação e contenção parcial da anomalia.');
+
+                adicionarAnexo('audio');
+                adicionarAnexo('diario');
+
+                adicionarPista({
+                    pista: 'Fundação Aurora',
+                    onde: 'Documentos da Diretoria',
+                    sabe: 'Empresa de fachada que financia clínicas isoladas desde os anos 70.',
+                    quem: 'Sobreviventes do caso',
+                    acesso: 'publico'
+                });
+                adicionarPista({
+                    pista: 'Símbolo da Espiral Dupla',
+                    onde: 'Porta de ferro do subsolo',
+                    sabe: 'Marca usada para canalizar medo e drenar energia elétrica local.',
+                    quem: 'Ocultistas e investigadores',
+                    acesso: 'resumo'
+                });
+
+                adicionarPontaSolta('Quem enviou o telegrama anônimo antes do incêndio na clínica?');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', inicializarDossie);
+    </script>
+</body>
+</html>
