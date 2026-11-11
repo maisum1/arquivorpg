@@ -9830,5 +9830,20 @@ body:has(#ficha-rapida.open) #painel-iniciativa-combate{
 <style id="fq-romanos">
 #ficha-rapida .fq-op2-shape.rom-longo{ font-size:6.5px; letter-spacing:-.4px; }
 </style>
+<style id="fix-legibilidade-atributo-e-descricoes">
+/* Modo claro: sobre a marcação colorida (marrom/azul/vermelho) o atributo e o bônus ficavam escuros demais */
+body:not(.tema-escuro) .p-marrom .vg-chip-attr, body:not(.tema-escuro) .p-azul .vg-chip-attr, body:not(.tema-escuro) .p-vermelho .vg-chip-attr,
+body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul .vg-chip-bonus, body:not(.tema-escuro) .p-vermelho .vg-chip-bonus{
+  color: rgba(244, 239, 228, .82) !important; opacity: 1;
+}
+/* Tablet (e telas de toque grandes): descrições da ficha rápida resumidas em 3 linhas; toque abre/fecha */
+@media (min-width:601px) and (max-width:1100px), (min-width:601px) and (pointer:coarse){
+  #ficha-rapida .fq-op2-power-desc{
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden; cursor:pointer;
+  }
+  #ficha-rapida .fq-op2-power-desc.expandido{ display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; }
+  #ficha-rapida .fq-op2-power-desc.fq-op2-power-list{ display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; cursor:default; }
+}
+</style>
 </body>
 </html>
