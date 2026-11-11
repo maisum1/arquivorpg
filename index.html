@@ -596,7 +596,8 @@ body.tema-escuro .base-card .btn-open:hover {
             <div id="campanha-view" style="display:none; margin-top: 40px; text-align:left; border-top: 2px dashed var(--card-border); padding-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px;">
                     <h3 id="cv-titulo" style="font-family: 'Crimson Text', serif; font-size: 2rem; margin:0; color: var(--op-ink);">NOME DA CAMPANHA</h3>
-                    <div style="display:flex; gap:10px; align-items:center;" id="header-acoes-campanha">
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;" id="header-acoes-campanha">
+                        <button class="btn-google" style="margin:0; padding: 5px 10px; font-size:10px; border-color:var(--san-purple); color:var(--san-purple);" onclick="abrirDossieCampanha()">[📂] ABRIR DOSSIÊ</button>
                         <button class="btn-google" style="margin:0; padding: 5px 10px; font-size:10px;" onclick="copiarLinkCampanha()">[🔗] COPIAR LINK</button>
                         <span id="cv-codigo" style="font-family: 'Special Elite', monospace; font-size: 1.2rem; background: var(--card-bg); padding: 5px 15px; border: 1px dotted var(--card-border);">CÓDIGO</span>
                     </div>
@@ -1189,6 +1190,7 @@ body.tema-escuro .base-card .btn-open:hover {
             html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
             
         } else if (tipo === 'campanha') {
+            html += '<button class="dropdown-item" style="color:var(--san-purple); border-color:var(--san-purple);" onclick="abrirDossieCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">📂 Abrir Dossiê (Resumo)</button>';
             if (typeof editarCampanha === 'function') html += '<button class="dropdown-item" onclick="editarCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">✏️ Editar Nome</button>';
             html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'campanhas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
         }
@@ -1474,8 +1476,24 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
         }
 
         let unsubCampanhaFichas, unsubCampanhaAmeacas;
+        let campanhaAtivaIdDoc = null;
+        let campanhaAtivaNome = '';
+
+        function abrirDossieCampanha(idDoc, codigo, nome) {
+            const docId = idDoc || campanhaAtivaIdDoc || '';
+            const cod = codigo || campanhaAtivaView || '';
+            const nm = nome || campanhaAtivaNome || (document.getElementById('cv-titulo') ? document.getElementById('cv-titulo').innerText : '');
+            const params = new URLSearchParams();
+            if (docId) params.set('id', docId);
+            if (cod) params.set('campanha', cod);
+            if (nm) params.set('nome', nm);
+            window.location.href = 'dossie.html?' + params.toString();
+        }
+
         function abrirCampanhaView(codigo, nome, idDoc, ocultarNome) {
             campanhaAtivaView = codigo;
+            campanhaAtivaIdDoc = idDoc;
+            campanhaAtivaNome = nome;
             document.getElementById('cv-titulo').innerText = nome.toUpperCase();
             document.getElementById('cv-codigo').innerText = "CÓDIGO: " + codigo;
             
