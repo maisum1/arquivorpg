@@ -7568,9 +7568,40 @@ let filtroSubAtualAtaques = 'Todos';
         }).join('');
     }
 
+    function htmlMarcadoresFq() {
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        return rastreadoresCena.map(r => {
+            const isStackable = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(r.nome));
+            const bonusTotal = parseInt(r.acumulado) || 0;
+            const max = Math.max(1, parseInt(r.max) || 1);
+            const pronto = isStackable ? (bonusTotal > 0) : ((parseInt(r.atual) || 0) >= max);
+            let pips = '';
+            for (let i = 1; i <= max; i++) {
+                pips += `<span class="fq2-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})" title="Marca ${i}/${max}"></span>`;
+            }
+            let extra = '';
+            if (isStackable) {
+                extra = `<span class="fq2-marc-stack">
+                    <button type="button" onclick="window.ajustarAcumuloRastreador('${r.id}', -1)">−</button>
+                    <b class="fq2-marc-bonus" ${pronto ? `onclick="window.zerarRastreador('${r.id}')" title="Clique para consumir e zerar"` : ''}>+${bonusTotal}</b>
+                    <button type="button" onclick="window.ajustarAcumuloRastreador('${r.id}', 1)">+</button>
+                </span>`;
+            } else if (pronto) {
+                extra = `<b class="fq2-marc-ok" onclick="window.zerarRastreador('${r.id}')" title="${esc(r.efeito)} — clique para consumir">↻</b>`;
+            }
+            return `<div class="fq2-marc-row ${pronto ? 'ready' : ''}"><span class="fq2-marc-nome">${esc(r.nome)}</span><span class="fq2-marc-pips">${pips}</span>${extra}</div>`;
+        }).join('');
+    }
+
+    window.renderMarcadoresFq = function() {
+        const c = document.getElementById('fq2-marcadores');
+        if (c) c.innerHTML = htmlMarcadoresFq();
+    };
+
     function renderizarRastreadores() {
         const cont = document.getElementById('lista-rastreadores-cena');
         if (cont) cont.innerHTML = htmlListaRastreadores();
+        window.renderMarcadoresFq();
     }
 
     // =========================================================================
@@ -8619,6 +8650,7 @@ let filtroSubAtualAtaques = 'Todos';
                                 <button type="button" onclick="ajustar('pe', 1); setTimeout(window.renderFichaRapidaOP2, 40)">+</button>
                             </div>
                         </div>
+                        <div id="fq2-marcadores" class="fq-op2-marc"></div>
                     </div>
 
                     <div id="fq2-powers-list" class="fq-op2-powers-scroll"></div>
@@ -9738,5 +9770,32 @@ body:has(#ficha-rapida.open) #painel-iniciativa-combate{
   display:none !important;
 }
 </style>
+<style id="fq-marcadores-cena">
+#ficha-rapida .fq-op2-marc{ display:flex; flex-direction:column; gap:6px; padding-top:4px; }
+#ficha-rapida .fq-op2-marc:empty{ display:none; }
+#ficha-rapida .fq2-marc-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; color:var(--fq-ink); }
+#ficha-rapida .fq2-marc-nome{ font:700 11px/1 'Oswald',sans-serif; letter-spacing:1.4px; text-transform:uppercase; opacity:.85; }
+#ficha-rapida .fq2-marc-pips{ display:inline-flex; align-items:center; gap:10px; padding:3px 4px; }
+#ficha-rapida .fq2-pip{ position:relative; display:inline-block; width:11px; height:11px; transform:rotate(45deg); border:1.5px solid #b3171c; background:transparent; cursor:pointer; }
+#ficha-rapida .fq2-pip::after{ content:""; position:absolute; inset:-9px; }
+#ficha-rapida .fq2-pip.on{ background:#b3171c; box-shadow:0 0 5px rgba(179,23,28,.55); }
+#ficha-rapida .fq2-marc-stack{ display:inline-flex; align-items:center; gap:5px; }
+#ficha-rapida .fq2-marc-stack button{ width:22px; height:22px; padding:0; border:1px dotted var(--fq-line-guide); background:transparent; color:var(--fq-ink); font:700 13px/1 'Special Elite',monospace; cursor:pointer; }
+#ficha-rapida .fq2-marc-bonus{ font:700 17px/1 'Special Elite',monospace; min-width:22px; text-align:center; }
+#ficha-rapida .fq2-marc-row.ready .fq2-marc-bonus{ color:#b3171c; cursor:pointer; }
+#ficha-rapida .fq2-marc-ok{ color:#b3171c; font-size:16px; line-height:1; cursor:pointer; }
+</style>
+<script id="fq-marcadores-hook">
+(function(){
+  var o = window.renderFichaRapidaOP2;
+  if (typeof o !== 'function' || o.__marc) return;
+  window.renderFichaRapidaOP2 = function(){
+    var r = o.apply(this, arguments);
+    if (window.renderMarcadoresFq) window.renderMarcadoresFq();
+    return r;
+  };
+  window.renderFichaRapidaOP2.__marc = true;
+})();
+</script>
 </body>
 </html>
