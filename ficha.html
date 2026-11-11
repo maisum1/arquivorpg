@@ -3540,7 +3540,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     function gerarPericiasBase() {
         let hPe = ""; let hPr = "";
-        const opt = `<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>`;
+        const opt = `<option value="0">0</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option>`;
         
         nomesPericias.forEach(p => {
             const inf = bancoPericias[p]; let hasSubs = inf.subs || inf.subsInputs; let hasSubsMarker = hasSubs ? `<span style="color:var(--hp-red); font-size:10px; margin-left:3px; vertical-align:top;" title="Possui Subperícias">❖</span>` : "";
@@ -6892,6 +6892,9 @@ let filtroSubAtualAtaques = 'Todos';
     .vg-chip-tr.tr-12, .vg-chip-tr.tr-34, .vg-chip-tr.tr-5 {
         color: var(--op-ink); border-bottom: 1px solid currentColor;
     }
+    .vg-chip-bonus {
+        font-family: 'Special Elite', monospace; font-size: 11px; color: var(--cor-geral); opacity: .8;
+    }
     .vg-sub-diamond { color: var(--op-red); font-size: 12px; line-height: 1; }
     .vg-chip-attr {
         font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: bold;
@@ -7430,7 +7433,10 @@ let filtroSubAtualAtaques = 'Todos';
                 const ehTreinado = treinoVal > 0;
                 row.classList.toggle('pericia-leiga', !ehTreinado);
                 let classeCor = treinoVal >= 5 ? 'tr-5' : (treinoVal >= 3 ? 'tr-34' : (treinoVal >= 1 ? 'tr-12' : ''));
-                badge.innerHTML = `<span class="vg-chip-tr ${classeCor}">+${treinoVal}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
+                const bonusVal = parseInt(document.getElementById(`bonus-${p}`)?.value) || 0;
+                const romanos = ['0', 'I', 'II', 'III', 'IV', 'V'];
+                const bonusHtml = bonusVal !== 0 ? `<span class="vg-chip-bonus" title="Bônus">${bonusVal > 0 ? '+' : ''}${bonusVal}</span>` : '';
+                badge.innerHTML = `${bonusHtml}<span class="vg-chip-tr ${classeCor}">${romanos[treinoVal] ?? treinoVal}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
             }
         });
     }
@@ -7577,7 +7583,7 @@ let filtroSubAtualAtaques = 'Todos';
             const pronto = isStackable ? (bonusTotal > 0) : ((parseInt(r.atual) || 0) >= max);
             let pips = '';
             for (let i = 1; i <= max; i++) {
-                pips += `<span class="fq2-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})" title="Marca ${i}/${max}"></span>`;
+                pips += `<span class="fq2-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipFq('${r.id}', ${i})" title="Marca ${i}/${max}"></span>`;
             }
             let extra = '';
             if (isStackable) {
@@ -7592,6 +7598,14 @@ let filtroSubAtualAtaques = 'Todos';
             return `<div class="fq2-marc-row ${pronto ? 'ready' : ''}"><span class="fq2-marc-nome">${esc(r.nome)}</span><span class="fq2-marc-pips">${pips}</span>${extra}</div>`;
         }).join('');
     }
+
+    // Ficha rápida: o 2º losango só responde depois do 1º estar marcado (e assim por diante)
+    window.clicarPipFq = function(id, indice) {
+        const item = rastreadoresCena.find(r => r.id === id);
+        if (!item) return;
+        if (indice > (parseInt(item.atual) || 0) + 1) return;
+        window.clicarPipRastreador(id, indice);
+    };
 
     window.renderMarcadoresFq = function() {
         const c = document.getElementById('fq2-marcadores');
@@ -7629,6 +7643,11 @@ let filtroSubAtualAtaques = 'Todos';
     // =========================================================================
     // INICIALIZAÇÃO
     // =========================================================================
+    document.addEventListener('change', (e) => {
+        const id = e.target && e.target.id ? e.target.id : '';
+        if (/^(bonus|treino|attr)-/.test(id)) setTimeout(sincronizarBadgesPericias, 30);
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             reconstruirModalConfig();
@@ -8934,7 +8953,8 @@ let filtroSubAtualAtaques = 'Todos';
             const linhas = [];
             const fmtShape = tr => {
                 const cls = tr >= 5 ? 'dia' : (tr >= 3 ? 'sq' : 'tri');
-                return `<span class="fq-op2-shape ${cls}" title="Treino +${tr}">${tr}</span>`;
+                const rom = ['0', 'I', 'II', 'III', 'IV', 'V'][tr] ?? tr;
+                return `<span class="fq-op2-shape ${cls}${String(rom).length >= 3 ? ' rom-longo' : ''}" title="Treino ${rom}">${rom}</span>`;
             };
 
             nomesPericias.forEach(p => {
@@ -9771,20 +9791,29 @@ body:has(#ficha-rapida.open) #painel-iniciativa-combate{
 }
 </style>
 <style id="fq-marcadores-cena">
-/* Marcadores na ficha rápida: alinhados à direita (longe do retrato), menores e com halo de papel */
-#ficha-rapida .fq-op2-marc{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; padding-top:3px; position:relative; z-index:6; --mh: 0 0 3px var(--fq-paper-bg,#e9dfc6), 0 0 5px var(--fq-paper-bg,#e9dfc6), 0 0 6px var(--fq-paper-bg,#e9dfc6); }
+/* Marcadores na ficha rápida: alinhados à direita, menores, sem fundo (integrados ao papel) */
+#ficha-rapida .fq-op2-marc{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; padding-top:3px; position:relative; z-index:6; }
 #ficha-rapida .fq-op2-marc:empty{ display:none; }
 #ficha-rapida .fq2-marc-row{ display:flex; align-items:center; justify-content:flex-end; gap:6px; flex-wrap:wrap; color:var(--fq-ink); }
-#ficha-rapida .fq2-marc-nome{ font:700 10px/1 'Oswald',sans-serif; letter-spacing:1.2px; text-transform:uppercase; text-shadow:var(--mh); }
-#ficha-rapida .fq2-marc-pips{ display:inline-flex; align-items:center; gap:8px; padding:3px 4px; }
-#ficha-rapida .fq2-pip{ position:relative; display:inline-block; width:9px; height:9px; transform:rotate(45deg); border:1.5px solid #b3171c; background:var(--fq-paper-bg,#e9dfc6); box-shadow:0 0 0 2px var(--fq-paper-bg,#e9dfc6); cursor:pointer; }
-#ficha-rapida .fq2-pip::after{ content:""; position:absolute; inset:-10px; }
-#ficha-rapida .fq2-pip.on{ background:#b3171c; box-shadow:0 0 0 2px var(--fq-paper-bg,#e9dfc6), 0 0 5px rgba(179,23,28,.55); }
+#ficha-rapida .fq2-marc-nome{ font:700 10px/1 'Oswald',sans-serif; letter-spacing:1.2px; text-transform:uppercase; }
+#ficha-rapida .fq2-marc-pips{ display:inline-flex; align-items:center; gap:10px; padding:3px 4px; }
+#ficha-rapida .fq2-pip{ position:relative; display:inline-block; width:9px; height:9px; transform:rotate(45deg); border:1.5px solid #b3171c; background:transparent; cursor:pointer; }
+#ficha-rapida .fq2-pip::after{ content:""; position:absolute; inset:-3px; }
+#ficha-rapida .fq2-pip.on{ background:#b3171c; box-shadow:0 0 5px rgba(179,23,28,.55); }
 #ficha-rapida .fq2-marc-stack{ display:inline-flex; align-items:center; gap:3px; }
-#ficha-rapida .fq2-marc-stack button{ width:19px; height:19px; padding:0; border:1px dotted var(--fq-line-guide); background:var(--fq-paper-bg,#e9dfc6); color:var(--fq-ink); font:700 12px/1 'Special Elite',monospace; cursor:pointer; }
-#ficha-rapida .fq2-marc-bonus{ font:700 15px/1 'Special Elite',monospace; min-width:20px; text-align:center; text-shadow:var(--mh); }
+#ficha-rapida .fq2-marc-stack button{ width:19px; height:19px; padding:0; border:1px dotted var(--fq-line-guide); background:transparent !important; box-shadow:none; color:var(--fq-ink); font:700 12px/1 'Special Elite',monospace; cursor:pointer; }
+#ficha-rapida .fq2-marc-stack button:hover{ background:var(--fq-ink-main) !important; color:var(--fq-paper-bg); }
+#ficha-rapida .fq2-marc-bonus{ font:700 15px/1 'Special Elite',monospace; min-width:20px; text-align:center; }
 #ficha-rapida .fq2-marc-row.ready .fq2-marc-bonus{ color:#b3171c; cursor:pointer; }
-#ficha-rapida .fq2-marc-ok{ color:#b3171c; font-size:15px; line-height:1; cursor:pointer; text-shadow:var(--mh); }
+#ficha-rapida .fq2-marc-ok{ color:#b3171c; font-size:15px; line-height:1; cursor:pointer; }
+/* Celular: o retrato fica atrás, então halo de papel ajuda a leitura */
+@media (max-width:600px){
+  #ficha-rapida .fq-op2-marc{ --mh: 0 0 3px var(--fq-paper-bg), 0 0 5px var(--fq-paper-bg), 0 0 6px var(--fq-paper-bg); }
+  #ficha-rapida .fq2-marc-nome, #ficha-rapida .fq2-marc-bonus, #ficha-rapida .fq2-marc-ok{ text-shadow:var(--mh); }
+  #ficha-rapida .fq2-pip{ background:var(--fq-paper-bg); box-shadow:0 0 0 2px var(--fq-paper-bg); }
+  #ficha-rapida .fq2-pip.on{ background:#b3171c; box-shadow:0 0 0 2px var(--fq-paper-bg), 0 0 5px rgba(179,23,28,.55); }
+  #ficha-rapida .fq2-marc-stack button{ background:var(--fq-paper-bg) !important; }
+}
 </style>
 <script id="fq-marcadores-hook">
 (function(){
@@ -9798,5 +9827,8 @@ body:has(#ficha-rapida.open) #painel-iniciativa-combate{
   window.renderFichaRapidaOP2.__marc = true;
 })();
 </script>
+<style id="fq-romanos">
+#ficha-rapida .fq-op2-shape.rom-longo{ font-size:6.5px; letter-spacing:-.4px; }
+</style>
 </body>
 </html>
