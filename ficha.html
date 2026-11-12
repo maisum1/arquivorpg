@@ -2566,7 +2566,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
                     <div class="ex-round" id="ex-2" onclick="marcarExaustao(2)"></div>
                     <div class="ex-round" id="ex-3" onclick="marcarExaustao(3)"></div>
                 </div>
-                <button id="btn-exaustao" class="btn-status-action" onclick="toggleExaustao()" title="Exausto: fadiga extrema, medida em 3 níveis. Nível 1: Deslocamento pela metade. Nível 2: Desvantagem (ou -3) em todas as rolagens de Ataque. Nível 3: -1 em TODOS os testes e na defesa. Um 4º nível = Inconsciente.">EXAUSTÃO</button>
+                <button id="btn-exaustao" class="btn-status-action" onclick="toggleExaustao()" title="Níveis de Exaustão">EXAUSTÃO</button>
             </div>
             <div class="bar-bg">
                 <div id="bar-pe" class="bar-fill" style="background:var(--pe-orange)"></div>
@@ -2592,10 +2592,9 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
             <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 2px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
                 <label style="display: block; width: 100%; text-align: center; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">ESTADO CLÍNICO / MENTAL</label>
                 <select id="status-personagem" class="rit-input" style="width: 100%; text-align: center; font-size: 14px; font-family: 'Special Elite', monospace; font-weight: bold;" onchange="adicionarStatus(this.value)">
-                    <option value="Normal">Normal</option><option value="Agarrado">Agarrado</option><option value="Asfixiado">Asfixiado</option><option value="Assustado">Assustado</option><option value="Atordoado">Atordoado</option><option value="Caído">Caído</option><option value="Cego">Cego</option><option value="Desprevenido">Desprevenido</option><option value="Em Chamas">Em Chamas</option><option value="Flanqueado">Flanqueado</option><option value="Inconsciente">Inconsciente</option><option value="Machucado">Machucado</option><option value="Morrendo">Morrendo</option><option value="Sangrando">Sangrando</option><option value="Vulnerável">Vulnerável</option>
+                    <option value="Normal">Normal</option><option value="Atordoado">Atordoado</option><option value="Assustado">Assustado</option><option value="Sangrando">Sangrando</option><option value="Machucado">Machucado</option>
                 </select>
                 <div id="status-tags" style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; justify-content: center;"></div>
-                <div id="status-info"></div>
             </div>
             <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 2px; box-sizing: border-box;">
                 <input type="checkbox" id="chk-sequela" class="mini-cond-chk" onchange="toggleMiniCond('sequela'); salvarFicha();">
@@ -3465,73 +3464,9 @@ let filtroSubAtualAtaques = 'Todos';
         if (typeof carregarAtaques === 'function') carregarAtaques();
     }
 
-    // ===== CONDIÇÕES: regras (dica nas etiquetas) e camadas visuais sutis, uma por condição =====
-    var CONDICOES_INFO = {
-        "Agarrado": "Mobilidade reduzida a zero. Sofre Desvantagem em ataques contra terceiros.",
-        "Asfixiado": "A falta de oxigênio é letal. Teste oposto de Força exigido a cada rodada. 2 vitórias apagam a vítima.",
-        "Assustado": "O medo paralisa a mente. O personagem fica paralisado e sofre Desvantagem em todas as rolagens contra a origem do medo ou quando está Adjacente a ela. Além disso, ele não pode se mover voluntariamente na direção da fonte do seu medo. Um sucesso em teste de Resiliência ou em um teste social aliado no final do turno retira a condição.",
-        "Atordoado": "Choque nervoso e desorientação sensorial. Até sair da condição, não pode realizar Ações Padrão ou de Movimento, apenas Ações Livres ou Reações.",
-        "Caído": "Inimigos possuem Vantagem em ataques corpo a corpo. Exige Ação de Movimento para levantar.",
-        "Cego": "Falha automática em testes visuais. Ataca com Desvantagem e concede Vantagem a atacantes.",
-        "Desprevenido": "O alvo está de guarda baixa ou focado em outro lugar. Ele não pode usar Reações (Esquiva ou Bloqueio), mas mantém a sua Defesa Base normalmente. O atacante que pegar alguém desprevenido através de Furtividade ganha Vantagem.",
-        "Em Chamas": "Sofre 1d3 de Dano de Fogo contínuo no início do turno. Exige Ação Padrão (rolar no chão) para apagar.",
-        "Flanqueado": "Cercado por dois ou mais inimigos em corpo a corpo. Atacantes recebem Vantagem.",
-        "Inconsciente": "Por algum motivo seu cérebro apagou. Você fica Caído, perde todas as ações e não tem conhecimento in-game dos acontecimentos durante esse período.",
-        "Lesionado": "Membro sofreu falha estrutural. Impõe penalidades severas baseadas no local. Só é curado, normalmente, em Tempo de Inatividade.",
-        "Machucado": "Ao sofrer Dano Massivo, a Persona realiza uma Salvaguarda de Fortitude. Em caso de falha, cai Inconsciente. Em caso de sucesso, permanece consciente, mas entra em Sangrando caso não receba primeiros socorros.",
-        "Morrendo": "Vitalidade a zero. A Persona cai Inconsciente e o processo de morte inicia, exigindo testes de Salvaguarda com Dificuldade crescente a cada rodada.",
-        "Sangrando": "Ruptura arterial. Rola 1d6 no final de cada rodada, sofrendo 1 PV de dano com resultados de 1 a 3. Exige estancamento imediato ou intervenção de Medicina.",
-        "Vulnerável": "Exposição física extrema (ex: agarrado). O alvo sofre uma penalidade de -2 na sua Defesa Base. Não acumula com Desprevenido."
-    };
-    var FX_VALIDOS = ['atordoado','assustado','sangrando','machucado','agarrado','asfixiado','caido','cego','desprevenido','emchamas','flanqueado','inconsciente','lesionado','morrendo','vulneravel'];
-    // "Lesionado" é automático: só existe quando algum membro está em VD na aba de combate
-    function fxLesoesMembros() {
-        if (typeof membrosEstado === 'undefined' || !membrosEstado) return [];
-        const nomes = { cabeca: 'Cabeça', 'braco-dir': 'Braço dir.', torso: 'Torso', 'braco-esq': 'Braço esq.', 'perna-dir': 'Perna dir.', 'perna-esq': 'Perna esq.' };
-        return Object.keys(membrosEstado).filter(k => membrosEstado[k] === 'lesionado').map(k => nomes[k] || k);
-    }
+    function aplicarStatusVisual() { const st = document.getElementById('status-personagem').value; const o = document.getElementById('status-overlay'); const s = document.querySelector('.grid-container'); o.className = ''; s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake'); if(st === 'Sangrando') { o.classList.add('overlay-sangrando'); s.classList.add('papel-sangrando'); } if(st === 'Machucado') { o.classList.add('overlay-machucado'); s.classList.add('papel-machucado'); } if(st === 'Atordoado') o.classList.add('overlay-atordoado'); if(st === 'Assustado') { o.classList.add('overlay-assustado'); s.classList.add('blur-shake'); } }
 
-    function fxSlug(n) { return String(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
-
-    function aplicarStatusVisual() {
-        const o = document.getElementById('status-overlay');
-        const s = document.querySelector('.grid-container');
-        const sel = document.getElementById('status-personagem');
-        if (!o || !s) return;
-        let ativos = Array.isArray(window.statusAcumulados) ? window.statusAcumulados.filter(n => n !== 'Lesionado') : [];
-        if (!ativos.length && sel && sel.value && sel.value !== 'Normal' && sel.value !== 'Lesionado') ativos = [sel.value];
-        const slugs = ativos.map(fxSlug);
-        if (fxLesoesMembros().length) slugs.push('lesionado');
-
-        // marcas no "papel" da ficha (as que já existiam)
-        s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake');
-        if (slugs.includes('sangrando')) s.classList.add('papel-sangrando');
-        if (slugs.includes('machucado')) s.classList.add('papel-machucado');
-        if (slugs.includes('assustado')) s.classList.add('blur-shake');
-
-        // camadas por condição: soma efeitos e só mexe no que mudou (as animações não reiniciam a cada salvamento)
-        o.className = '';
-        const presentes = new Set(Array.from(o.children).map(c => c.dataset.fx));
-        presentes.forEach(f => { if (!slugs.includes(f)) { const el = o.querySelector('[data-fx="' + f + '"]'); if (el) el.remove(); } });
-        slugs.forEach(f => {
-            if (presentes.has(f) || !FX_VALIDOS.includes(f)) return;
-            const d = document.createElement('div');
-            d.className = 'fx fx-' + f; d.dataset.fx = f;
-            o.appendChild(d);
-        });
-    }
-
-    function mostrarInfoStatus(nome) {
-        const box = document.getElementById('status-info');
-        if (!box) return;
-        if (window.__statusInfoAberto === nome) { window.__statusInfoAberto = null; box.style.display = 'none'; return; }
-        window.__statusInfoAberto = nome;
-        box.setAttribute('data-fx', fxSlug(nome));
-        box.textContent = nome + ' — ' + (CONDICOES_INFO[nome] || '');
-        box.style.display = 'block';
-    }
-
-    function setLimbState(m, t) { if (membrosEstado[m] === t) membrosEstado[m] = 'normal'; else membrosEstado[m] = t; if (typeof aplicarStatusVisual === 'function') { aplicarStatusVisual(); renderStatusTags(); } salvarFicha(); }
+    function setLimbState(m, t) { if (membrosEstado[m] === t) membrosEstado[m] = 'normal'; else membrosEstado[m] = t; salvarFicha(); }
     
     function atualizarStatusVisual(t) { 
         let at = document.getElementById(`${t}-atual`).value; 
@@ -3605,7 +3540,7 @@ let filtroSubAtualAtaques = 'Todos';
 
     function gerarPericiasBase() {
         let hPe = ""; let hPr = "";
-        const opt = `<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>`;
+        const opt = `<option value="0">0</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option>`;
         
         nomesPericias.forEach(p => {
             const inf = bancoPericias[p]; let hasSubs = inf.subs || inf.subsInputs; let hasSubsMarker = hasSubs ? `<span style="color:var(--hp-red); font-size:10px; margin-left:3px; vertical-align:top;" title="Possui Subperícias">❖</span>` : "";
@@ -4332,23 +4267,20 @@ let filtroSubAtualAtaques = 'Todos';
     function renderStatusTags() {
         const container = document.getElementById('status-tags');
         if (!container) return;
-        if (Array.isArray(window.statusAcumulados) && window.statusAcumulados.includes('Lesionado')) window.statusAcumulados = window.statusAcumulados.filter(n => n !== 'Lesionado');
-        const lista = Array.isArray(window.statusAcumulados) ? window.statusAcumulados : [];
-        const lesoes = fxLesoesMembros();
-        const abrevs = { "Atordoado": "At.", "Assustado": "Ass.", "Sangrando": "Sang.", "Machucado": "Mach." };
-        const esc = t => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-        container.innerHTML = lista.map((st, idx) =>
-            `<span class="st-tag" data-fx="${fxSlug(st)}" title="${esc(CONDICOES_INFO[st] || '')}" onclick="mostrarInfoStatus('${st}')">${abrevs[st] || st}<span class="st-x" onclick="event.stopPropagation(); removerStatus(${idx})">×</span></span>`
-        ).join('') + (lesoes.length ? `<span class="st-tag" data-fx="lesionado" title="${esc(CONDICOES_INFO['Lesionado'])}" onclick="mostrarInfoStatus('Lesionado')">Lesionado · ${esc(lesoes.join(', '))}</span>` : '');
-
-        const sel = document.getElementById('status-personagem');
-        if (lista.length > 0) sel.value = lista[lista.length - 1];
-        else sel.value = 'Normal';
-        sel.title = CONDICOES_INFO[sel.value] || '';
-
-        // caixa de regra: some se a condição aberta foi removida
-        const box = document.getElementById('status-info');
-        if (box && window.__statusInfoAberto && !lista.includes(window.__statusInfoAberto) && !(window.__statusInfoAberto === 'Lesionado' && lesoes.length)) { window.__statusInfoAberto = null; box.style.display = 'none'; }
+        container.innerHTML = '';
+        
+        if (window.statusAcumulados.length > 1) {
+            const abrevs = { "Atordoado": "At.", "Assustado": "Ass.", "Sangrando": "Sang.", "Machucado": "Mach." };
+            window.statusAcumulados.forEach((st, idx) => {
+                container.innerHTML += `<div style="background:var(--op-ink); color:var(--bg-paper); font-size:10px; font-family:'Inter', sans-serif; font-weight:bold; padding:2px 6px; border-radius:2px; display:flex; align-items:center; gap:4px; box-shadow: 1px 1px 3px rgba(0,0,0,0.2);">${abrevs[st] || st} <span style="cursor:pointer; color:var(--hp-red); font-size:12px; margin-left:2px;" onclick="removerStatus(${idx})">×</span></div>`;
+            });
+        }
+        
+        if (window.statusAcumulados.length > 0) {
+            document.getElementById('status-personagem').value = window.statusAcumulados[window.statusAcumulados.length - 1];
+        } else {
+            document.getElementById('status-personagem').value = 'Normal';
+        }
     }
 
     function toggleMiniCond(t) { if (t === 'sequela') document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
@@ -6960,6 +6892,9 @@ let filtroSubAtualAtaques = 'Todos';
     .vg-chip-tr.tr-12, .vg-chip-tr.tr-34, .vg-chip-tr.tr-5 {
         color: var(--op-ink); border-bottom: 1px solid currentColor;
     }
+    .vg-chip-bonus {
+        font-family: 'Special Elite', monospace; font-size: 11px; color: var(--cor-geral); opacity: .8;
+    }
     .vg-sub-diamond { color: var(--op-red); font-size: 12px; line-height: 1; }
     .vg-chip-attr {
         font-family: 'Courier Prime', monospace; font-size: 10px; font-weight: bold;
@@ -7345,7 +7280,7 @@ let filtroSubAtualAtaques = 'Todos';
         const sufixo = usarNomeCompleto ? '&full=1' : '';
         const url = `${base}portrait.html?id=${atual}${sufixo}`;
         navigator.clipboard.writeText(url);
-        alert(usarNomeCompleto ? "Link do Portrait OBS (Nome Completo) copiado!" : "Link do Portrait OBS (Apenas 1º Nome) copiado!");
+        alert((usarNomeCompleto ? "Link do Portrait OBS (Nome Completo) copiado!" : "Link do Portrait OBS copiado!") + "\n\nNo OBS (Fonte de Navegador), use:\nLargura: 600  |  Altura: 390");
     };
 
     // =========================================================================
@@ -7498,7 +7433,10 @@ let filtroSubAtualAtaques = 'Todos';
                 const ehTreinado = treinoVal > 0;
                 row.classList.toggle('pericia-leiga', !ehTreinado);
                 let classeCor = treinoVal >= 5 ? 'tr-5' : (treinoVal >= 3 ? 'tr-34' : (treinoVal >= 1 ? 'tr-12' : ''));
-                badge.innerHTML = `<span class="vg-chip-tr ${classeCor}">+${treinoVal}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
+                const bonusVal = parseInt(document.getElementById(`bonus-${p}`)?.value) || 0;
+                const romanos = ['0', 'I', 'II', 'III', 'IV', 'V'];
+                const bonusHtml = bonusVal !== 0 ? `<span class="vg-chip-bonus" title="Bônus">${bonusVal > 0 ? '+' : ''}${bonusVal}</span>` : '';
+                badge.innerHTML = `${bonusHtml}<span class="vg-chip-tr ${classeCor}">${romanos[treinoVal] ?? treinoVal}</span><span class="vg-chip-attr">+ ${attrNome}</span>`;
             }
         });
     }
@@ -7518,10 +7456,9 @@ let filtroSubAtualAtaques = 'Todos';
         box.innerHTML = `
             <div class="scene-trackers-header">
                 <span class="scene-trackers-title">MARCADORES DE CENA & GATILHOS</span>
-                <div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end;">
+                <div style="display:flex; gap:4px;">
                     <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('executor')">+ Executor</button>
                     <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('analista')">+ Analista</button>
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('vigilante')">+ Vigilante</button>
                     <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.criarRastreadorCustom()">+ Novo</button>
                 </div>
             </div>
@@ -7540,8 +7477,6 @@ let filtroSubAtualAtaques = 'Todos';
         if (SOMENTE_LEITURA) return;
         if (tipo === 'executor') {
             rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Executor', atual: 0, max: 2, acumulado: 0, acumulativo: true, passoBonus: 1, efeito: 'no Teste' });
-        } else if (tipo === 'vigilante') {
-            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Vigilante', atual: 1, max: 1, acumulado: 1, acumulativo: false, efeito: 'age primeiro' });
         } else if (tipo === 'analista') {
             rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista', atual: 1, max: 1, acumulado: 1, acumulativo: false, efeito: '+1d3 na Cena' });
         }
@@ -7639,9 +7574,48 @@ let filtroSubAtualAtaques = 'Todos';
         }).join('');
     }
 
+    function htmlMarcadoresFq() {
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        return rastreadoresCena.map(r => {
+            const isStackable = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(r.nome));
+            const bonusTotal = parseInt(r.acumulado) || 0;
+            const max = Math.max(1, parseInt(r.max) || 1);
+            const pronto = isStackable ? (bonusTotal > 0) : ((parseInt(r.atual) || 0) >= max);
+            let pips = '';
+            for (let i = 1; i <= max; i++) {
+                pips += `<span class="fq2-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipFq('${r.id}', ${i})" title="Marca ${i}/${max}"></span>`;
+            }
+            let extra = '';
+            if (isStackable) {
+                extra = `<span class="fq2-marc-stack">
+                    <button type="button" onclick="window.ajustarAcumuloRastreador('${r.id}', -1)">−</button>
+                    <b class="fq2-marc-bonus" ${pronto ? `onclick="window.zerarRastreador('${r.id}')" title="Clique para consumir e zerar"` : ''}>+${bonusTotal}</b>
+                    <button type="button" onclick="window.ajustarAcumuloRastreador('${r.id}', 1)">+</button>
+                </span>`;
+            } else if (pronto) {
+                extra = `<b class="fq2-marc-ok" onclick="window.zerarRastreador('${r.id}')" title="${esc(r.efeito)} — clique para consumir">↻</b>`;
+            }
+            return `<div class="fq2-marc-row ${pronto ? 'ready' : ''}"><span class="fq2-marc-nome">${esc(r.nome)}</span><span class="fq2-marc-pips">${pips}</span>${extra}</div>`;
+        }).join('');
+    }
+
+    // Ficha rápida: o 2º losango só responde depois do 1º estar marcado (e assim por diante)
+    window.clicarPipFq = function(id, indice) {
+        const item = rastreadoresCena.find(r => r.id === id);
+        if (!item) return;
+        if (indice > (parseInt(item.atual) || 0) + 1) return;
+        window.clicarPipRastreador(id, indice);
+    };
+
+    window.renderMarcadoresFq = function() {
+        const c = document.getElementById('fq2-marcadores');
+        if (c) c.innerHTML = htmlMarcadoresFq();
+    };
+
     function renderizarRastreadores() {
         const cont = document.getElementById('lista-rastreadores-cena');
         if (cont) cont.innerHTML = htmlListaRastreadores();
+        window.renderMarcadoresFq();
     }
 
     // =========================================================================
@@ -7669,6 +7643,11 @@ let filtroSubAtualAtaques = 'Todos';
     // =========================================================================
     // INICIALIZAÇÃO
     // =========================================================================
+    document.addEventListener('change', (e) => {
+        const id = e.target && e.target.id ? e.target.id : '';
+        if (/^(bonus|treino|attr)-/.test(id)) setTimeout(sincronizarBadgesPericias, 30);
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             reconstruirModalConfig();
@@ -8690,6 +8669,7 @@ let filtroSubAtualAtaques = 'Todos';
                                 <button type="button" onclick="ajustar('pe', 1); setTimeout(window.renderFichaRapidaOP2, 40)">+</button>
                             </div>
                         </div>
+                        <div id="fq2-marcadores" class="fq-op2-marc"></div>
                     </div>
 
                     <div id="fq2-powers-list" class="fq-op2-powers-scroll"></div>
@@ -8747,30 +8727,6 @@ let filtroSubAtualAtaques = 'Todos';
         }
     }
 
-    // Botão de iniciativa: enquanto a ficha rápida está aberta ele mora DENTRO do rodapé
-    // (em vez de flutuar por cima), então nunca tampa os botões de atalho.
-    function fqMoverIniciativa(dentro) {
-        const btn = document.getElementById('btn-toggle-iniciativa');
-        const footer = document.querySelector('#ficha-rapida .fq-op2-footer');
-        if (!btn || !footer) return;
-        if (dentro) {
-            let slot = footer.querySelector('.fq-op2-ini-slot');
-            if (!slot) {
-                slot = document.createElement('div');
-                slot.className = 'fq-op2-ini-slot';
-                footer.insertBefore(slot, footer.querySelector('.fq-op2-quicknav'));
-            }
-            if (!btn.__fqPai) { btn.__fqPai = btn.parentNode; btn.__fqProx = btn.nextSibling; }
-            slot.appendChild(btn);
-            btn.classList.add('fq-ini-dentro');
-        } else if (btn.__fqPai) {
-            btn.classList.remove('fq-ini-dentro');
-            const prox = (btn.__fqProx && btn.__fqProx.parentNode === btn.__fqPai) ? btn.__fqProx : null;
-            btn.__fqPai.insertBefore(btn, prox);
-            btn.__fqPai = null; btn.__fqProx = null;
-        }
-    }
-
     window.abrirFichaRapidaOP2 = function(abrir) {
         const modal = document.getElementById('ficha-rapida');
         const backdrop = document.getElementById('fq-backdrop');
@@ -8781,14 +8737,12 @@ let filtroSubAtualAtaques = 'Todos';
             backdrop.classList.add('open');
             modal.scrollTop = 0;
             fqTravarRolagem(true);
-            fqMoverIniciativa(true);
             fqObservarBlocos();
             fqAlinharBlocos();
         } else {
             modal.classList.remove('open');
             backdrop.classList.remove('open');
             fqTravarRolagem(false);
-            fqMoverIniciativa(false);
         }
     };
 
@@ -8989,7 +8943,7 @@ let filtroSubAtualAtaques = 'Todos';
 
         const condCont = document.getElementById('fq2-conds');
         if (condCont) {
-            const conds = Array.isArray(window.statusAcumulados) ? window.statusAcumulados : [];
+            const conds = window.condicoesAtivas ? window.condicoesAtivas() : (Array.isArray(window.statusAcumulados) ? window.statusAcumulados : []);
             condCont.innerHTML = conds.map(c => `<span class="fq-status-tag">${c}</span>`).join('');
         }
 
@@ -8999,7 +8953,8 @@ let filtroSubAtualAtaques = 'Todos';
             const linhas = [];
             const fmtShape = tr => {
                 const cls = tr >= 5 ? 'dia' : (tr >= 3 ? 'sq' : 'tri');
-                return `<span class="fq-op2-shape ${cls}" title="Treino +${tr}">${tr}</span>`;
+                const rom = ['0', 'I', 'II', 'III', 'IV', 'V'][tr] ?? tr;
+                return `<span class="fq-op2-shape ${cls}${String(rom).length >= 3 ? ' rom-longo' : ''}" title="Treino ${rom}">${rom}</span>`;
             };
 
             nomesPericias.forEach(p => {
@@ -9824,127 +9779,247 @@ html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
   #ficha-rapida #fq2-powers-list{ align-self:start !important; margin-top:var(--fq-pw-offset, 0px) !important; }
 }
 </style>
-<style id="fq-x-ajuste-3">
-/* ======================================================================
-   AJUSTE 3 — botão de iniciativa dentro do rodapé da ficha rápida
-   (não flutua mais por cima dos botões de atalho; vale para celular, tablet e PC)
-   ====================================================================== */
-html.fq-lock #ficha-rapida .fq-op2-footer .fq-op2-ini-slot{
-  display:flex; align-items:center; justify-content:center; flex:0 0 auto; min-width:0;
-}
-html.fq-lock #ficha-rapida #btn-toggle-iniciativa.fq-ini-dentro{
-  position:static !important; display:inline-flex !important; align-items:center; gap:5px;
-  margin:0; padding:6px 11px !important; font-size:10px !important; letter-spacing:1px; line-height:1;
-  white-space:nowrap; box-shadow:none !important; z-index:auto !important;
-}
-html.fq-lock #ficha-rapida #btn-toggle-iniciativa.fq-ini-dentro[style*="display: none"],
-html.fq-lock #ficha-rapida #btn-toggle-iniciativa.fq-ini-dentro[style*="display:none"]{ display:none !important; }
-
-/* o painel de combate abre logo acima do rodapé, sem cobrir os atalhos */
-html.fq-lock #painel-iniciativa-combate{ right:12px !important; bottom:58px !important; max-width:calc(100vw - 24px) !important; }
-
-/* celular: o botão ganha uma linha própria acima de DEF/BLQ/ESQ e dos atalhos */
-@media (max-width: 600px){
-  html.fq-lock #ficha-rapida .fq-op2-footer{ flex-wrap:wrap !important; row-gap:0 !important; }
-  html.fq-lock #ficha-rapida .fq-op2-footer .fq-op2-ini-slot{ order:-1; flex:0 0 100%; justify-content:flex-end; }
-  html.fq-lock #ficha-rapida #btn-toggle-iniciativa.fq-ini-dentro{ margin-bottom:7px; padding:7px 13px !important; }
+<style id="fix-iniciativa-vs-ficha-rapida">
+/* Com a Ficha Rápida aberta (celular e tablet), o botão/painel flutuante de Iniciativa
+   sai de cena para não cobrir os atalhos (COMBATE, EQUIPAMENTO, ⚔️ etc.).
+   Ao fechar a Ficha Rápida, ele volta exatamente para o lugar de sempre. */
+html.fq-lock #btn-toggle-iniciativa,
+html.fq-lock #painel-iniciativa-combate,
+body:has(#ficha-rapida.open) #btn-toggle-iniciativa,
+body:has(#ficha-rapida.open) #painel-iniciativa-combate{
+  display:none !important;
 }
 </style>
-<style id="fx-condicoes">
-/* ======================================================================
-   CONDIÇÕES — um lembrete visual sutil para cada uma (somam-se quando há várias).
-   Todos ficam nas bordas/cantos da tela, sem cobrir a ficha; pointer-events: none.
-   ====================================================================== */
-#status-overlay .fx { position: absolute; inset: 0; pointer-events: none; animation: fxEntrada .8s ease-out both; }
-#status-overlay .fx::before, #status-overlay .fx::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
-@keyframes fxEntrada { from { opacity: 0; } to { opacity: 1; } }
-
-/* — as quatro que já existiam (mesma aparência de antes, agora empilháveis) — */
-.fx-sangrando   { box-shadow: inset 0 0 180px rgba(139, 28, 28, .45); border: 3px solid rgba(139, 28, 28, .3); box-sizing: border-box; }
-.fx-machucado::before { background-color: rgba(139, 28, 28, .05); animation: pulse-machucado 2s infinite alternate; }
-.fx-atordoado   { backdrop-filter: blur(1.3px); background: rgba(255, 255, 255, .015); }
-.fx-assustado   { box-shadow: inset 0 0 180px rgba(3, 67, 116, .52); backdrop-filter: saturate(.84); }
-
-/* Agarrado — as laterais se fecham devagar, como mãos apertando */
-.fx-agarrado::before { background: linear-gradient(90deg, rgba(24,16,10,.5), transparent 9%, transparent 91%, rgba(24,16,10,.5)); animation: fxAperto 3.2s ease-in-out infinite; }
-@keyframes fxAperto { 0%,100% { opacity: .5; transform: scaleX(1); } 50% { opacity: 1; transform: scaleX(.982); } }
-
-/* Asfixiado — visão de túnel que aperta e relaxa, como falta de ar */
-.fx-asfixiado::before { background: radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(8,26,48,.66) 100%); animation: fxFolego 4.2s ease-in-out infinite; }
-@keyframes fxFolego { 0%,100% { opacity: .45; transform: scale(1.1); } 42%,62% { opacity: 1; transform: scale(.97); } }
-
-/* Caído — chão de terra na base da tela */
-.fx-caido::before { background: linear-gradient(to top, rgba(74,50,28,.42), transparent 20%), linear-gradient(to bottom, rgba(0,0,0,.14), transparent 7%); }
-
-/* Cego — pálpebras escuras em cima e embaixo; de tempos em tempos "piscam" */
-.fx-cego::before { background: linear-gradient(to bottom, rgba(0,0,0,.6), transparent 14%, transparent 86%, rgba(0,0,0,.6)); }
-.fx-cego::after  { background: linear-gradient(to bottom, rgba(0,0,0,.92), transparent 38%, transparent 62%, rgba(0,0,0,.92)); opacity: 0; animation: fxPiscar 8s ease-in-out infinite; }
-@keyframes fxPiscar { 0%,88%,100% { opacity: 0; } 92% { opacity: .85; } 96% { opacity: 0; } }
-
-/* Desprevenido — um facho de luz cai de cima: exposto, pego de guarda baixa */
-.fx-desprevenido::before { background: radial-gradient(ellipse 78% 44% at 50% -8%, rgba(255,214,120,.5), transparent 74%); animation: fxHolofote 3.4s ease-in-out infinite; }
-@keyframes fxHolofote { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
-
-/* Em Chamas — brasa tremeluzindo na base e nos cantos */
-.fx-emchamas::before {
-    background:
-        radial-gradient(ellipse 88% 28% at 50% 110%, rgba(255,112,20,.52), transparent 72%),
-        radial-gradient(ellipse 14% 56% at 0% 100%,  rgba(255,92,10,.42), transparent 72%),
-        radial-gradient(ellipse 14% 56% at 100% 100%, rgba(255,92,10,.42), transparent 72%);
-    transform-origin: 50% 100%; animation: fxChama 1.8s ease-in-out infinite;
+<style id="fq-marcadores-cena">
+/* Marcadores na ficha rápida: alinhados à direita, menores, sem fundo (integrados ao papel) */
+#ficha-rapida .fq-op2-marc{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; padding-top:3px; position:relative; z-index:6; }
+#ficha-rapida .fq-op2-marc:empty{ display:none; }
+#ficha-rapida .fq2-marc-row{ display:flex; align-items:center; justify-content:flex-end; gap:6px; flex-wrap:wrap; color:var(--fq-ink); }
+#ficha-rapida .fq2-marc-nome{ font:700 10px/1 'Oswald',sans-serif; letter-spacing:1.2px; text-transform:uppercase; }
+#ficha-rapida .fq2-marc-pips{ display:inline-flex; align-items:center; gap:10px; padding:3px 4px; }
+#ficha-rapida .fq2-pip{ position:relative; display:inline-block; width:9px; height:9px; transform:rotate(45deg); border:1.5px solid #b3171c; background:transparent; cursor:pointer; }
+#ficha-rapida .fq2-pip::after{ content:""; position:absolute; inset:-3px; }
+#ficha-rapida .fq2-pip.on{ background:#b3171c; box-shadow:0 0 5px rgba(179,23,28,.55); }
+#ficha-rapida .fq2-marc-stack{ display:inline-flex; align-items:center; gap:3px; }
+#ficha-rapida .fq2-marc-stack button{ width:19px; height:19px; padding:0; border:1px dotted var(--fq-line-guide); background:transparent !important; box-shadow:none; color:var(--fq-ink); font:700 12px/1 'Special Elite',monospace; cursor:pointer; }
+#ficha-rapida .fq2-marc-stack button:hover{ background:var(--fq-ink-main) !important; color:var(--fq-paper-bg); }
+#ficha-rapida .fq2-marc-bonus{ font:700 15px/1 'Special Elite',monospace; min-width:20px; text-align:center; }
+#ficha-rapida .fq2-marc-row.ready .fq2-marc-bonus{ color:#b3171c; cursor:pointer; }
+#ficha-rapida .fq2-marc-ok{ color:#b3171c; font-size:15px; line-height:1; cursor:pointer; }
+/* Celular: o retrato fica atrás, então halo de papel ajuda a leitura */
+@media (max-width:600px){
+  #ficha-rapida .fq-op2-marc{ --mh: 0 0 3px var(--fq-paper-bg), 0 0 5px var(--fq-paper-bg), 0 0 6px var(--fq-paper-bg); }
+  #ficha-rapida .fq2-marc-nome, #ficha-rapida .fq2-marc-bonus, #ficha-rapida .fq2-marc-ok{ text-shadow:var(--mh); }
+  #ficha-rapida .fq2-pip{ background:var(--fq-paper-bg); box-shadow:0 0 0 2px var(--fq-paper-bg); }
+  #ficha-rapida .fq2-pip.on{ background:#b3171c; box-shadow:0 0 0 2px var(--fq-paper-bg), 0 0 5px rgba(179,23,28,.55); }
+  #ficha-rapida .fq2-marc-stack button{ background:var(--fq-paper-bg) !important; }
 }
-@keyframes fxChama { 0% { opacity: .75; transform: scaleY(1); } 12% { opacity: 1; transform: scaleY(1.07); } 27% { opacity: .6; transform: scaleY(.97); }
-                     41% { opacity: .95; transform: scaleY(1.04); } 58% { opacity: .68; transform: scaleY(.98); } 76% { opacity: 1; transform: scaleY(1.06); } 100% { opacity: .75; transform: scaleY(1); } }
-
-/* Flanqueado — duas ameaças, uma de cada lado, pulsando alternadas */
-.fx-flanqueado::before { background: linear-gradient(90deg, rgba(150,26,26,.36), transparent 11%); animation: fxPinca 2.4s ease-in-out infinite; }
-.fx-flanqueado::after  { background: linear-gradient(270deg, rgba(150,26,26,.36), transparent 11%); animation: fxPinca 2.4s ease-in-out 1.2s infinite; }
-@keyframes fxPinca { 0%,100% { opacity: .22; } 50% { opacity: 1; } }
-
-/* Inconsciente — tudo escurece e dessatura, com respiração lenta */
-.fx-inconsciente { background: rgba(14,18,42,.1); backdrop-filter: grayscale(.4) brightness(.95); }
-.fx-inconsciente::before { background: radial-gradient(ellipse at 50% 50%, transparent 46%, rgba(5,8,24,.42) 100%); animation: fxSono 6s ease-in-out infinite; }
-@keyframes fxSono { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
-
-/* Lesionado — rachaduras nos cantos: o membro cedeu */
-.fx-lesionado::before {
-    background:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%237a1d1d' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' opacity='.62'%3E%3Cpath d='M0 0 L26 14 L40 40 L70 52 L84 84 L118 96'/%3E%3Cpath d='M40 40 L28 78 L34 112'/%3E%3Cpath d='M70 52 L104 36 L132 40'/%3E%3Cpath d='M84 84 L74 124'/%3E%3C/g%3E%3C/svg%3E") top left / 230px 230px no-repeat,
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%237a1d1d' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' opacity='.62' transform='rotate(180 100 100)'%3E%3Cpath d='M0 0 L26 14 L40 40 L70 52 L84 84 L118 96'/%3E%3Cpath d='M40 40 L28 78 L34 112'/%3E%3Cpath d='M70 52 L104 36 L132 40'/%3E%3Cpath d='M84 84 L74 124'/%3E%3C/g%3E%3C/svg%3E") bottom right / 230px 230px no-repeat;
-}
-
-/* Morrendo — batimento fraco e irregular (duas batidas), vermelho escuro nas bordas */
-.fx-morrendo { backdrop-filter: saturate(.6); }
-.fx-morrendo::before { background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(120,8,8,.62) 100%); animation: fxCoracao 1.6s ease-in-out infinite; }
-@keyframes fxCoracao { 0%,100% { opacity: .3; } 12% { opacity: 1; } 24% { opacity: .5; } 36% { opacity: .92; } 62% { opacity: .3; } }
-
-/* Vulnerável — a guarda "rachou": moldura tracejada que oscila */
-.fx-vulneravel::before { inset: 5px; border: 2px dashed rgba(190,58,48,.4); animation: fxEscudo 5s ease-in-out infinite; }
-@keyframes fxEscudo { 0%,100% { opacity: .3; } 50% { opacity: .9; } }
-
-@media (prefers-reduced-motion: reduce) { #status-overlay .fx::before, #status-overlay .fx::after { animation: none !important; } }
-
-/* — etiquetas de condição e caixa de regra — */
-.st-tag { display: inline-flex; align-items: center; gap: 5px; background: var(--op-ink); color: var(--bg-paper); font: 700 10px/1 'Inter', sans-serif;
-          padding: 3px 6px 3px 7px; border-radius: 2px; box-shadow: 1px 1px 3px rgba(0,0,0,.2); cursor: pointer; border-left: 3px solid var(--st-cor, #888); }
-.st-x { cursor: pointer; color: var(--hp-red); font-size: 12px; margin-left: 2px; }
-#status-info { display: none; margin-top: 8px; padding: 6px 9px; text-align: left; border-left: 3px solid var(--st-cor, #888);
-               background: rgba(0,0,0,.04); font: italic 13px/1.35 'Crimson Text', serif; color: var(--op-ink); }
-.st-tag[data-fx="agarrado"], #status-info[data-fx="agarrado"]         { --st-cor: #5a4636; }
-.st-tag[data-fx="asfixiado"], #status-info[data-fx="asfixiado"]       { --st-cor: #2c5a8a; }
-.st-tag[data-fx="assustado"], #status-info[data-fx="assustado"]       { --st-cor: #1a6aa8; }
-.st-tag[data-fx="atordoado"], #status-info[data-fx="atordoado"]       { --st-cor: #9a9a9a; }
-.st-tag[data-fx="caido"], #status-info[data-fx="caido"]               { --st-cor: #7a5a34; }
-.st-tag[data-fx="cego"], #status-info[data-fx="cego"]                 { --st-cor: #111; }
-.st-tag[data-fx="desprevenido"], #status-info[data-fx="desprevenido"] { --st-cor: #d8b04a; }
-.st-tag[data-fx="emchamas"], #status-info[data-fx="emchamas"]         { --st-cor: #e8701a; }
-.st-tag[data-fx="flanqueado"], #status-info[data-fx="flanqueado"]     { --st-cor: #a42a2a; }
-.st-tag[data-fx="inconsciente"], #status-info[data-fx="inconsciente"] { --st-cor: #3a4478; }
-.st-tag[data-fx="lesionado"], #status-info[data-fx="lesionado"]       { --st-cor: #7a1d1d; }
-.st-tag[data-fx="machucado"], #status-info[data-fx="machucado"]       { --st-cor: #8b1c1c; }
-.st-tag[data-fx="morrendo"], #status-info[data-fx="morrendo"]         { --st-cor: #6a0a0a; }
-.st-tag[data-fx="sangrando"], #status-info[data-fx="sangrando"]       { --st-cor: #b32222; }
-.st-tag[data-fx="vulneravel"], #status-info[data-fx="vulneravel"]     { --st-cor: #be3a30; }
 </style>
+<script id="fq-marcadores-hook">
+(function(){
+  var o = window.renderFichaRapidaOP2;
+  if (typeof o !== 'function' || o.__marc) return;
+  window.renderFichaRapidaOP2 = function(){
+    var r = o.apply(this, arguments);
+    if (window.renderMarcadoresFq) window.renderMarcadoresFq();
+    return r;
+  };
+  window.renderFichaRapidaOP2.__marc = true;
+})();
+</script>
+<style id="fq-romanos">
+#ficha-rapida .fq-op2-shape.rom-longo{ font-size:6.5px; letter-spacing:-.4px; }
+</style>
+<style id="fix-legibilidade-atributo-e-descricoes">
+/* Modo claro: sobre a marcação colorida (marrom/azul/vermelho) o atributo e o bônus ficavam escuros demais */
+body:not(.tema-escuro) .p-marrom .vg-chip-attr, body:not(.tema-escuro) .p-azul .vg-chip-attr, body:not(.tema-escuro) .p-vermelho .vg-chip-attr,
+body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul .vg-chip-bonus, body:not(.tema-escuro) .p-vermelho .vg-chip-bonus{
+  color: rgba(244, 239, 228, .82) !important; opacity: 1;
+}
+/* Tablet (e telas de toque grandes): descrições da ficha rápida resumidas em 3 linhas; toque abre/fecha */
+@media (min-width:601px) and (max-width:1100px), (min-width:601px) and (pointer:coarse){
+  #ficha-rapida .fq-op2-power-desc{
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden; cursor:pointer;
+  }
+  #ficha-rapida .fq-op2-power-desc.expandido{ display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; }
+  #ficha-rapida .fq-op2-power-desc.fq-op2-power-list{ display:block; -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; cursor:default; }
+}
+</style>
+<style id="condicoes-visuais">
+/* ===== Camadas visuais das condições (sutis, só para lembrar o estado) ===== */
+#status-fx{ position:fixed; inset:0; pointer-events:none; z-index:9998; }
+#status-fx .fx{ position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .6s ease; }
+#status-fx .fx.on{ opacity:1; }
+
+/* já existentes (mantidos como estavam) */
+.fx-sangrando{ box-shadow:inset 0 0 180px rgba(139,28,28,.45); border:3px solid rgba(139,28,28,.3); }
+.fx-machucado{ animation:pulse-machucado 2s infinite alternate; background-color:rgba(139,28,28,.05); }
+.fx-atordoado{ backdrop-filter:blur(1.3px); background:rgba(255,255,255,.015); }
+.fx-assustado{ box-shadow:inset 0 0 180px rgba(3,67,116,.52); backdrop-filter:saturate(.8) contrast(1.06); }
+
+/* novas */
+.fx-agarrado{ background:
+  radial-gradient(circle at 0 0, rgba(25,25,25,.5), transparent 130px),
+  radial-gradient(circle at 100% 0, rgba(25,25,25,.5), transparent 130px),
+  radial-gradient(circle at 0 100%, rgba(25,25,25,.5), transparent 130px),
+  radial-gradient(circle at 100% 100%, rgba(25,25,25,.5), transparent 130px); }
+.fx-asfixiado{ box-shadow:inset 0 0 170px 30px rgba(8,38,58,.55); animation:fx-respira 4s ease-in-out infinite alternate; }
+.fx-caido{ background:linear-gradient(to top, rgba(45,30,18,.55) 0, rgba(45,30,18,.18) 60px, transparent 110px); }
+.fx-cego{ background:
+  linear-gradient(to bottom, rgba(0,0,0,.65), transparent 80px),
+  linear-gradient(to top, rgba(0,0,0,.65), transparent 80px); }
+.fx-desprevenido{ inset:6px !important; border:2px dashed rgba(212,160,40,.5); animation:fx-respira 2.4s ease-in-out infinite alternate; }
+.fx-emchamas{ background:linear-gradient(to top, rgba(255,110,20,.42), rgba(255,60,0,.14) 90px, transparent 170px); animation:fx-chama 1.2s ease-in-out infinite alternate; }
+.fx-flanqueado{ background:
+  linear-gradient(to right, rgba(158,11,15,.38), transparent 70px),
+  linear-gradient(to left, rgba(158,11,15,.38), transparent 70px); animation:fx-respira 2.6s ease-in-out infinite alternate; }
+.fx-inconsciente{ background:rgba(6,8,20,.42); backdrop-filter:grayscale(.7) blur(.6px); }
+.fx-morrendo{ box-shadow:inset 0 0 150px rgba(95,0,0,.7); animation:fx-batida 1.3s ease-in-out infinite; }
+.fx-vulneravel{ opacity:.55; background:
+  linear-gradient(#b3171c,#b3171c) left 10px top 10px/28px 2px no-repeat,
+  linear-gradient(#b3171c,#b3171c) left 10px top 10px/2px 28px no-repeat,
+  linear-gradient(#b3171c,#b3171c) right 10px top 10px/28px 2px no-repeat,
+  linear-gradient(#b3171c,#b3171c) right 10px top 10px/2px 28px no-repeat,
+  linear-gradient(#b3171c,#b3171c) left 10px bottom 10px/28px 2px no-repeat,
+  linear-gradient(#b3171c,#b3171c) left 10px bottom 10px/2px 28px no-repeat,
+  linear-gradient(#b3171c,#b3171c) right 10px bottom 10px/28px 2px no-repeat,
+  linear-gradient(#b3171c,#b3171c) right 10px bottom 10px/2px 28px no-repeat; }
+#status-fx .fx-vulneravel.on{ opacity:.55; }
+.fx-lesionado{ border-left:3px dashed rgba(158,11,15,.6); }
+
+@keyframes fx-respira{ from{ opacity:.45; } to{ opacity:1; } }
+@keyframes fx-chama{ from{ opacity:.55; } to{ opacity:1; } }
+@keyframes fx-batida{ 0%{opacity:.35;} 12%{opacity:1;} 24%{opacity:.45;} 36%{opacity:.9;} 60%,100%{opacity:.35;} }
+
+/* tags de condição ativas */
+#status-tags .cond-tag{ background:var(--op-ink); color:var(--bg-paper); font:700 10px 'Inter',sans-serif; padding:2px 6px; border-radius:2px; display:flex; align-items:center; gap:4px; box-shadow:1px 1px 3px rgba(0,0,0,.2); cursor:pointer; }
+#status-tags .cond-tag.auto{ background:transparent; color:var(--op-red); border:1px dashed var(--op-red); box-shadow:none; }
+#status-tags .cond-tag .x{ color:var(--hp-red); font-size:12px; margin-left:2px; }
+#status-desc{ display:none; margin-top:8px; padding:6px 8px; border-left:2px solid var(--op-red); font:400 11px/1.4 'Inter',sans-serif; color:var(--op-ink); text-align:left; background:rgba(0,0,0,.04); }
+#status-desc b{ display:block; font-size:10px; letter-spacing:1px; text-transform:uppercase; margin-bottom:2px; }
+@media (prefers-reduced-motion: reduce){ #status-fx .fx{ animation:none !important; } }
+</style>
+<script id="condicoes-extra">
+(function(){
+  var REGRAS = {
+    'Agarrado': 'Mobilidade reduzida a zero. Sofre Desvantagem em ataques contra terceiros.',
+    'Asfixiado': 'A falta de oxigênio é letal. Teste oposto de força exigido a cada rodada. 2 vitórias apagam a vítima.',
+    'Assustado': 'O medo paralisa a mente. O personagem fica paralisado e sofre Desvantagem em todas as rolagens contra a origem do medo ou quando está Adjacente a ela. Além disso, ele não pode se mover voluntariamente na direção da fonte do seu medo. Um sucesso em teste de Resiliência ou em um teste social aliado no final do turno retira a condição.',
+    'Atordoado': 'Choque nervoso e desorientação sensorial. Até sair da condição, não pode realizar Ações Padrão ou de Movimento, apenas Ações Livres ou Reações.',
+    'Caído': 'Inimigos possuem Vantagem em ataques corpo a corpo. Exige Ação de Movimento para levantar.',
+    'Cego': 'Falha automática em testes visuais. Ataca com Desvantagem e concede Vantagem a atacantes.',
+    'Desprevenido': 'O alvo está de guarda baixa ou focado em outro lugar. Ele não pode usar Reações (Esquiva ou Bloqueio), mas mantém a sua Defesa Base normalmente. O atacante que pegar alguém desprevenido através de Furtividade ganha Vantagem.',
+    'Em Chamas': 'Sofre 1d3 de Dano de Fogo contínuo no início do turno. Exige Ação Padrão (rolar no chão) para apagar.',
+    'Flanqueado': 'Cercado por dois ou mais inimigos em corpo a corpo. Atacantes recebem Vantagem.',
+    'Inconsciente': 'Por algum motivo seu cérebro apagou. Você fica Caído, perde todas as ações e não tem conhecimento in-game dos acontecimentos durante esse período.',
+    'Lesionado': 'Membro sofreu falha estrutural. Impõe penalidades severas baseadas no local. Só é curado, normalmente, em Tempo de Inatividade.',
+    'Machucado': 'Ao sofrer Dano Massivo, a Persona realiza uma Salvaguarda de Fortitude. Em caso de falha, cai Inconsciente. Em caso de sucesso, permanece consciente, mas entra em Sangrando caso não receba primeiros socorros.',
+    'Morrendo': 'Vitalidade a zero. A Persona cai Inconsciente e o processo de morte inicia, exigindo testes de Salvaguarda com Dificuldade crescente a cada rodada.',
+    'Sangrando': 'Ruptura arterial. Rola 1d6 no final de cada rodada, sofrendo 1 PV de dano com resultados de 1 a 3. Exige estancamento imediato ou intervenção de Medicina.',
+    'Vulnerável': 'Exposição física extrema (ex: agarrado). O alvo sofre uma penalidade de -2 na sua Defesa Base. Não acumula com Desprevenido.'
+  };
+  var SELECIONAVEIS = ['Agarrado','Asfixiado','Assustado','Atordoado','Caído','Cego','Desprevenido','Em Chamas','Flanqueado','Inconsciente','Machucado','Morrendo','Sangrando','Vulnerável'];
+  var NOMES_MEMBROS = { cabeca:'Cabeça', 'braco-esq':'Braço Esq.', torso:'Torso', 'braco-dir':'Braço Dir.', 'perna-esq':'Perna Esq.', 'perna-dir':'Perna Dir.' };
+  var slug = function(n){ return n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]/g,''); };
+  var descAberta = null;
+
+  // Lesionado é automático: só aparece com VD marcado em algum membro (aba Combate). DEC não conta.
+  function membrosLesionados(){
+    if (typeof membrosEstado === 'undefined') return [];
+    return Object.keys(membrosEstado).filter(function(k){ return membrosEstado[k] === 'lesionado'; });
+  }
+  window.condicoesAtivas = function(){
+    var base = Array.isArray(window.statusAcumulados) ? window.statusAcumulados.slice() : [];
+    if (membrosLesionados().length) base.push('Lesionado');
+    return base;
+  };
+
+  // opções do seletor
+  function montarSelect(){
+    var sel = document.getElementById('status-personagem'); if (!sel) return;
+    var atual = sel.value;
+    sel.innerHTML = '<option value="Normal">Normal</option>' + SELECIONAVEIS.map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('');
+    sel.value = atual && (atual==='Normal' || SELECIONAVEIS.indexOf(atual) >= 0) ? atual : 'Normal';
+  }
+
+  // camadas visuais (todas as condições ao mesmo tempo)
+  function garantirFx(){
+    var c = document.getElementById('status-fx');
+    if (!c){ c = document.createElement('div'); c.id = 'status-fx'; document.body.appendChild(c); }
+    return c;
+  }
+  window.aplicarStatusVisual = function(){
+    var ativos = window.condicoesAtivas();
+    var o = document.getElementById('status-overlay'); if (o) o.className = '';
+    var s = document.querySelector('.grid-container');
+    if (s){
+      s.classList.toggle('papel-sangrando', ativos.indexOf('Sangrando') >= 0);
+      s.classList.toggle('papel-machucado', ativos.indexOf('Machucado') >= 0);
+      s.classList.toggle('blur-shake', ativos.indexOf('Assustado') >= 0);
+    }
+    var c = garantirFx();
+    var querem = ativos.map(slug);
+    Array.prototype.slice.call(c.children).forEach(function(el){
+      var k = el.getAttribute('data-c');
+      if (querem.indexOf(k) < 0) el.remove();
+    });
+    querem.forEach(function(k){
+      if (c.querySelector('[data-c="'+k+'"]')) return;
+      var d = document.createElement('div'); d.className = 'fx fx-' + k; d.setAttribute('data-c', k);
+      c.appendChild(d);
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.classList.add('on'); }); });
+    });
+  };
+
+  // tags (sempre visíveis; toque no nome mostra a regra; × remove)
+  window.mostrarRegraCondicao = function(n){
+    descAberta = (descAberta === n) ? null : n;
+    renderDesc();
+  };
+  function renderDesc(){
+    var box = document.getElementById('status-desc'); if (!box) return;
+    if (!descAberta || window.condicoesAtivas().indexOf(descAberta) < 0){ descAberta = null; box.style.display = 'none'; return; }
+    var extra = '';
+    if (descAberta === 'Lesionado'){ extra = ' — ' + membrosLesionados().map(function(k){ return NOMES_MEMBROS[k] || k; }).join(', '); }
+    box.innerHTML = '<b>' + descAberta + extra + '</b>' + (REGRAS[descAberta] || '');
+    box.style.display = 'block';
+  }
+  window.renderStatusTags = function(){
+    var container = document.getElementById('status-tags'); if (!container) return;
+    if (!document.getElementById('status-desc')){
+      var dv = document.createElement('div'); dv.id = 'status-desc'; container.insertAdjacentElement('afterend', dv);
+    }
+    container.innerHTML = '';
+    (window.statusAcumulados || []).forEach(function(st, idx){
+      var el = document.createElement('div'); el.className = 'cond-tag';
+      var nm = document.createElement('span'); nm.textContent = st; nm.onclick = function(){ window.mostrarRegraCondicao(st); };
+      var x = document.createElement('span'); x.className = 'x'; x.textContent = '×'; x.onclick = function(e){ e.stopPropagation(); window.removerStatus(idx); };
+      el.appendChild(nm); el.appendChild(x); container.appendChild(el);
+    });
+    var les = membrosLesionados();
+    if (les.length){
+      var a = document.createElement('div'); a.className = 'cond-tag auto';
+      a.textContent = 'Lesionado: ' + les.map(function(k){ return NOMES_MEMBROS[k] || k; }).join(', ');
+      a.onclick = function(){ window.mostrarRegraCondicao('Lesionado'); };
+      container.appendChild(a);
+    }
+    var sel = document.getElementById('status-personagem');
+    if (sel){ var lista = window.statusAcumulados || []; sel.value = lista.length ? lista[lista.length - 1] : 'Normal'; }
+    renderDesc();
+  };
+
+  // marcar/desmarcar VD num membro atualiza tag e efeito na hora
+  var limbOrig = window.setLimbState;
+  if (typeof limbOrig === 'function'){
+    window.setLimbState = function(m, tp){
+      limbOrig.apply(this, arguments);
+      window.renderStatusTags(); window.aplicarStatusVisual();
+    };
+  }
+
+  function iniciar(){ montarSelect(); window.renderStatusTags(); window.aplicarStatusVisual(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+})();
+</script>
 </body>
 </html>
