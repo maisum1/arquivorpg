@@ -2592,7 +2592,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
             <div style="flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 2px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
                 <label style="display: block; width: 100%; text-align: center; color: var(--cor-geral); font-family: 'Inter', sans-serif; font-size: 10px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;">ESTADO CLÍNICO / MENTAL</label>
                 <select id="status-personagem" class="rit-input" style="width: 100%; text-align: center; font-size: 14px; font-family: 'Special Elite', monospace; font-weight: bold;" onchange="adicionarStatus(this.value)">
-                    <option value="Normal">Normal</option><option value="Agarrado">Agarrado</option><option value="Asfixiado">Asfixiado</option><option value="Assustado">Assustado</option><option value="Atordoado">Atordoado</option><option value="Caído">Caído</option><option value="Cego">Cego</option><option value="Desprevenido">Desprevenido</option><option value="Em Chamas">Em Chamas</option><option value="Flanqueado">Flanqueado</option><option value="Inconsciente">Inconsciente</option><option value="Lesionado">Lesionado</option><option value="Machucado">Machucado</option><option value="Morrendo">Morrendo</option><option value="Sangrando">Sangrando</option><option value="Vulnerável">Vulnerável</option>
+                    <option value="Normal">Normal</option><option value="Agarrado">Agarrado</option><option value="Asfixiado">Asfixiado</option><option value="Assustado">Assustado</option><option value="Atordoado">Atordoado</option><option value="Caído">Caído</option><option value="Cego">Cego</option><option value="Desprevenido">Desprevenido</option><option value="Em Chamas">Em Chamas</option><option value="Flanqueado">Flanqueado</option><option value="Inconsciente">Inconsciente</option><option value="Machucado">Machucado</option><option value="Morrendo">Morrendo</option><option value="Sangrando">Sangrando</option><option value="Vulnerável">Vulnerável</option>
                 </select>
                 <div id="status-tags" style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; justify-content: center;"></div>
                 <div id="status-info"></div>
@@ -3484,6 +3484,13 @@ let filtroSubAtualAtaques = 'Todos';
         "Vulnerável": "Exposição física extrema (ex: agarrado). O alvo sofre uma penalidade de -2 na sua Defesa Base. Não acumula com Desprevenido."
     };
     var FX_VALIDOS = ['atordoado','assustado','sangrando','machucado','agarrado','asfixiado','caido','cego','desprevenido','emchamas','flanqueado','inconsciente','lesionado','morrendo','vulneravel'];
+    // "Lesionado" é automático: só existe quando algum membro está em VD na aba de combate
+    function fxLesoesMembros() {
+        if (typeof membrosEstado === 'undefined' || !membrosEstado) return [];
+        const nomes = { cabeca: 'Cabeça', 'braco-dir': 'Braço dir.', torso: 'Torso', 'braco-esq': 'Braço esq.', 'perna-dir': 'Perna dir.', 'perna-esq': 'Perna esq.' };
+        return Object.keys(membrosEstado).filter(k => membrosEstado[k] === 'lesionado').map(k => nomes[k] || k);
+    }
+
     function fxSlug(n) { return String(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
     function aplicarStatusVisual() {
@@ -3491,9 +3498,10 @@ let filtroSubAtualAtaques = 'Todos';
         const s = document.querySelector('.grid-container');
         const sel = document.getElementById('status-personagem');
         if (!o || !s) return;
-        let ativos = Array.isArray(window.statusAcumulados) ? window.statusAcumulados.slice() : [];
-        if (!ativos.length && sel && sel.value && sel.value !== 'Normal') ativos = [sel.value];
+        let ativos = Array.isArray(window.statusAcumulados) ? window.statusAcumulados.filter(n => n !== 'Lesionado') : [];
+        if (!ativos.length && sel && sel.value && sel.value !== 'Normal' && sel.value !== 'Lesionado') ativos = [sel.value];
         const slugs = ativos.map(fxSlug);
+        if (fxLesoesMembros().length) slugs.push('lesionado');
 
         // marcas no "papel" da ficha (as que já existiam)
         s.classList.remove('papel-sangrando', 'papel-machucado', 'blur-shake');
@@ -3523,7 +3531,7 @@ let filtroSubAtualAtaques = 'Todos';
         box.style.display = 'block';
     }
 
-    function setLimbState(m, t) { if (membrosEstado[m] === t) membrosEstado[m] = 'normal'; else membrosEstado[m] = t; salvarFicha(); }
+    function setLimbState(m, t) { if (membrosEstado[m] === t) membrosEstado[m] = 'normal'; else membrosEstado[m] = t; if (typeof aplicarStatusVisual === 'function') { aplicarStatusVisual(); renderStatusTags(); } salvarFicha(); }
     
     function atualizarStatusVisual(t) { 
         let at = document.getElementById(`${t}-atual`).value; 
@@ -4324,12 +4332,14 @@ let filtroSubAtualAtaques = 'Todos';
     function renderStatusTags() {
         const container = document.getElementById('status-tags');
         if (!container) return;
+        if (Array.isArray(window.statusAcumulados) && window.statusAcumulados.includes('Lesionado')) window.statusAcumulados = window.statusAcumulados.filter(n => n !== 'Lesionado');
         const lista = Array.isArray(window.statusAcumulados) ? window.statusAcumulados : [];
+        const lesoes = fxLesoesMembros();
         const abrevs = { "Atordoado": "At.", "Assustado": "Ass.", "Sangrando": "Sang.", "Machucado": "Mach." };
         const esc = t => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         container.innerHTML = lista.map((st, idx) =>
             `<span class="st-tag" data-fx="${fxSlug(st)}" title="${esc(CONDICOES_INFO[st] || '')}" onclick="mostrarInfoStatus('${st}')">${abrevs[st] || st}<span class="st-x" onclick="event.stopPropagation(); removerStatus(${idx})">×</span></span>`
-        ).join('');
+        ).join('') + (lesoes.length ? `<span class="st-tag" data-fx="lesionado" title="${esc(CONDICOES_INFO['Lesionado'])}" onclick="mostrarInfoStatus('Lesionado')">Lesionado · ${esc(lesoes.join(', '))}</span>` : '');
 
         const sel = document.getElementById('status-personagem');
         if (lista.length > 0) sel.value = lista[lista.length - 1];
@@ -4338,7 +4348,7 @@ let filtroSubAtualAtaques = 'Todos';
 
         // caixa de regra: some se a condição aberta foi removida
         const box = document.getElementById('status-info');
-        if (box && window.__statusInfoAberto && !lista.includes(window.__statusInfoAberto)) { window.__statusInfoAberto = null; box.style.display = 'none'; }
+        if (box && window.__statusInfoAberto && !lista.includes(window.__statusInfoAberto) && !(window.__statusInfoAberto === 'Lesionado' && lesoes.length)) { window.__statusInfoAberto = null; box.style.display = 'none'; }
     }
 
     function toggleMiniCond(t) { if (t === 'sequela') document.getElementById('desc-sequela').style.display = document.getElementById('chk-sequela').checked ? 'block' : 'none'; }
