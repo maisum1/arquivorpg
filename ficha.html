@@ -9868,23 +9868,23 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
 .fx-cego{ background:
   linear-gradient(to bottom, rgba(0,0,0,.65), transparent 80px),
   linear-gradient(to top, rgba(0,0,0,.65), transparent 80px); }
-.fx-desprevenido{ inset:6px !important; border:2px dashed rgba(212,160,40,.5); animation:fx-respira 2.4s ease-in-out infinite alternate; }
+.fx-desprevenido{ inset:5px !important; border:3px dashed rgba(196,98,0,.85); box-shadow:inset 0 0 70px rgba(214,120,0,.38); animation:fx-respira 2s ease-in-out infinite alternate; }
 .fx-emchamas{ background:linear-gradient(to top, rgba(255,110,20,.42), rgba(255,60,0,.14) 90px, transparent 170px); animation:fx-chama 1.2s ease-in-out infinite alternate; }
 .fx-flanqueado{ background:
   linear-gradient(to right, rgba(158,11,15,.38), transparent 70px),
   linear-gradient(to left, rgba(158,11,15,.38), transparent 70px); animation:fx-respira 2.6s ease-in-out infinite alternate; }
 .fx-inconsciente{ background:rgba(6,8,20,.42); backdrop-filter:grayscale(.7) blur(.6px); }
 .fx-morrendo{ box-shadow:inset 0 0 150px rgba(95,0,0,.7); animation:fx-batida 1.3s ease-in-out infinite; }
-.fx-vulneravel{ opacity:.55; background:
-  linear-gradient(#b3171c,#b3171c) left 10px top 10px/28px 2px no-repeat,
-  linear-gradient(#b3171c,#b3171c) left 10px top 10px/2px 28px no-repeat,
-  linear-gradient(#b3171c,#b3171c) right 10px top 10px/28px 2px no-repeat,
-  linear-gradient(#b3171c,#b3171c) right 10px top 10px/2px 28px no-repeat,
-  linear-gradient(#b3171c,#b3171c) left 10px bottom 10px/28px 2px no-repeat,
-  linear-gradient(#b3171c,#b3171c) left 10px bottom 10px/2px 28px no-repeat,
-  linear-gradient(#b3171c,#b3171c) right 10px bottom 10px/28px 2px no-repeat,
-  linear-gradient(#b3171c,#b3171c) right 10px bottom 10px/2px 28px no-repeat; }
-#status-fx .fx-vulneravel.on{ opacity:.55; }
+.fx-vulneravel{ box-shadow:inset 0 0 90px rgba(193,18,31,.28); background:
+  linear-gradient(#c1121f,#c1121f) left 8px top 8px/64px 4px no-repeat,
+  linear-gradient(#c1121f,#c1121f) left 8px top 8px/4px 64px no-repeat,
+  linear-gradient(#c1121f,#c1121f) left 8px bottom 8px/64px 4px no-repeat,
+  linear-gradient(#c1121f,#c1121f) left 8px bottom 8px/4px 64px no-repeat,
+  linear-gradient(#c1121f,#c1121f) right 8px top 8px/64px 4px no-repeat,
+  linear-gradient(#c1121f,#c1121f) right 8px top 8px/4px 64px no-repeat,
+  linear-gradient(#c1121f,#c1121f) right 8px bottom 8px/64px 4px no-repeat,
+  linear-gradient(#c1121f,#c1121f) right 8px bottom 8px/4px 64px no-repeat; animation:fx-respira 1.8s ease-in-out infinite alternate; }
+#status-fx .fx-vulneravel.on{ opacity:1; }
 .fx-lesionado{ border-left:3px dashed rgba(158,11,15,.6); }
 
 @keyframes fx-respira{ from{ opacity:.45; } to{ opacity:1; } }
@@ -10018,6 +10018,55 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
   }
 
   function iniciar(){ montarSelect(); window.renderStatusTags(); window.aplicarStatusVisual(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+})();
+</script>
+<style id="reacoes-rodada-css">
+#reacoes-rodada{ display:none; align-items:center; justify-content:center; gap:8px; margin:6px 0 4px; padding:3px 0; border-top:1px dotted var(--card-border); border-bottom:1px dotted var(--card-border); font-family:'Inter',sans-serif; }
+#reacoes-rodada.on{ display:flex; }
+#reacoes-rodada .rr-label{ font-size:9px; font-weight:700; letter-spacing:1.2px; color:var(--cor-geral); }
+#reacoes-rodada .rr-n{ font-family:'Special Elite',monospace; font-size:16px; min-width:18px; text-align:center; color:var(--op-ink); }
+#reacoes-rodada button{ width:22px; height:22px; padding:0; border:1px dotted var(--card-border); background:transparent; color:var(--op-ink); font:700 13px/1 'Special Elite',monospace; cursor:pointer; }
+#reacoes-rodada button:hover{ background:var(--op-ink); color:var(--bg-paper); }
+</style>
+<script id="reacoes-rodada-js">
+(function(){
+  var estado = { r: 0, n: 0 };
+  function chave(){ return 'reacoesGastas:' + (typeof minhaFichaId !== 'undefined' && minhaFichaId ? minhaFichaId : 'ficha'); }
+  function salvar(){ try { localStorage.setItem(chave(), JSON.stringify(estado)); } catch(e){} }
+  function carregar(){ try { var s = JSON.parse(localStorage.getItem(chave())); if (s && typeof s.r === 'number') return s; } catch(e){} return null; }
+  function limpar(){ try { localStorage.removeItem(chave()); } catch(e){} }
+  function pintar(){ var n = document.getElementById('rr-n'); if (n) n.textContent = estado.n; }
+
+  function montar(){
+    if (document.getElementById('reacoes-rodada')) return;
+    var grid = document.querySelector('#aba-combate .combat-stats-grid'); if (!grid) return;
+    var d = document.createElement('div'); d.id = 'reacoes-rodada';
+    d.innerHTML = '<span class="rr-label">REAÇÕES GASTAS</span><button type="button" id="rr-menos" title="Desfazer">−</button><span class="rr-n" id="rr-n">0</span><button type="button" id="rr-mais" title="Gastei uma reação">+</button>';
+    grid.insertAdjacentElement('afterend', d);
+    document.getElementById('rr-mais').onclick = function(){ estado.n++; salvar(); pintar(); };
+    document.getElementById('rr-menos').onclick = function(){ if (estado.n > 0) estado.n--; salvar(); pintar(); };
+  }
+
+  // acompanha a rodada mostrada no painel de iniciativa (RODADA 0 = sem combate)
+  function aoMudarRodada(){
+    var el = document.getElementById('display-rodada'); var box = document.getElementById('reacoes-rodada');
+    if (!el || !box) return;
+    var m = /RODADA\s+(\d+)/i.exec(el.textContent || ''); var rodada = m ? parseInt(m[1], 10) : 0;
+    if (rodada < 1){ estado = { r: 0, n: 0 }; limpar(); box.classList.remove('on'); return; }
+    if (estado.r !== rodada){
+      var salvo = carregar();
+      estado = (salvo && salvo.r === rodada) ? salvo : { r: rodada, n: 0 };   // rodada nova = zera
+      salvar();
+    }
+    pintar(); box.classList.add('on');
+  }
+
+  function iniciar(){
+    montar();
+    var el = document.getElementById('display-rodada'); if (!el) return;
+    new MutationObserver(aoMudarRodada).observe(el, { childList: true, characterData: true, subtree: true });
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
 </script>
