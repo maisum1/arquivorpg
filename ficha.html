@@ -7483,7 +7483,7 @@ let filtroSubAtualAtaques = 'Todos';
         if (tipo === 'executor') {
             rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Executor', atual: 0, max: 2, acumulado: 0, acumulativo: true, passoBonus: 1, efeito: 'no Teste' });
         } else if (tipo === 'analista') {
-            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista', atual: 1, max: 1, acumulado: 1, acumulativo: false, efeito: '+1d3 na Cena' });
+            rastreadoresCena.push({ id: Date.now().toString(36), nome: 'Analista', atual: 0, max: 1, acumulado: 0, acumulativo: false, efeito: '+1d3 na Cena' });
         }
         renderizarRastreadores();
         salvarRastreadoresNoBanco();
@@ -10030,12 +10030,19 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
 })();
 </script>
 <style id="reacoes-rodada-css">
-#reacoes-rodada{ display:none; align-items:center; justify-content:center; gap:8px; margin:6px 0 4px; padding:3px 0; border-top:1px dotted var(--card-border); border-bottom:1px dotted var(--card-border); font-family:'Inter',sans-serif; }
-#reacoes-rodada.on{ display:flex; }
-#reacoes-rodada .rr-label{ font-size:9px; font-weight:700; letter-spacing:1.2px; color:var(--cor-geral); }
-#reacoes-rodada .rr-n{ font-family:'Special Elite',monospace; font-size:16px; min-width:18px; text-align:center; color:var(--op-ink); }
-#reacoes-rodada button{ width:22px; height:22px; padding:0; border:1px dotted var(--card-border); background:transparent; color:var(--op-ink); font:700 13px/1 'Special Elite',monospace; cursor:pointer; }
+#reacoes-rodada{ display:none; align-items:center; justify-content:center; gap:10px; margin:10px auto 8px; padding:6px 14px; width:fit-content; max-width:100%; box-sizing:border-box; border:1.5px solid var(--op-ink); border-radius:2px; background:rgba(0,0,0,.05); box-shadow:2px 2px 0 var(--op-ink); font-family:'Inter',sans-serif; }
+#reacoes-rodada.on{ display:flex; animation:rr-entra .35s ease-out; }
+#reacoes-rodada .rr-label{ font-size:10px; font-weight:900; letter-spacing:1.6px; color:var(--op-ink); }
+#reacoes-rodada .rr-n{ font-family:'Special Elite',monospace; font-size:22px; line-height:1; min-width:34px; padding:4px 0; text-align:center; background:var(--op-ink); color:var(--bg-paper); border-radius:2px; }
+#reacoes-rodada button{ width:28px; height:28px; padding:0; border:1.5px solid var(--op-ink); border-radius:2px; background:transparent; color:var(--op-ink); font:700 16px/1 'Special Elite',monospace; cursor:pointer; }
 #reacoes-rodada button:hover{ background:var(--op-ink); color:var(--bg-paper); }
+/* Modo escuro: dourado queimado padrão */
+body.tema-escuro #reacoes-rodada{ border-color:var(--accent-gold); background:rgba(176,141,87,.07); box-shadow:2px 2px 0 var(--accent-gold); }
+body.tema-escuro #reacoes-rodada .rr-label{ color:var(--accent-gold); }
+body.tema-escuro #reacoes-rodada .rr-n{ background:var(--accent-gold); color:#121211; }
+body.tema-escuro #reacoes-rodada button{ border-color:var(--accent-gold); color:var(--accent-gold); }
+body.tema-escuro #reacoes-rodada button:hover{ background:var(--accent-gold); color:#121211; }
+@keyframes rr-entra{ from{ transform:scale(.92); opacity:0; } to{ transform:scale(1); opacity:1; } }
 </style>
 <script id="reacoes-rodada-js">
 (function(){
