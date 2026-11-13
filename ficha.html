@@ -7454,15 +7454,20 @@ let filtroSubAtualAtaques = 'Todos';
         box.id = 'painel-rastreadores-cena';
         box.className = 'scene-trackers-box';
         box.innerHTML = `
-            <div class="scene-trackers-header">
-                <span class="scene-trackers-title">MARCADORES DE CENA & GATILHOS</span>
-                <div style="display:flex; gap:4px;">
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('executor')">+ Executor</button>
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.adicionarRastreadorPreset('analista')">+ Analista</button>
-                    <button type="button" class="arq-pill-btn" style="padding:3px 7px; font-size:9px;" onclick="window.criarRastreadorCustom()">+ Novo</button>
+            <div class="scene-trackers-header sc-header">
+                <span class="scene-trackers-title">MARCADORES DE CENA</span>
+                <div class="sc-right">
+                    <div id="lista-rastreadores-cena" class="sc-lista"></div>
+                    <span class="sc-add-wrap">
+                        <button type="button" class="sc-add" onclick="window.toggleMenuMarcador(event)" title="Adicionar marcador">+</button>
+                        <div class="sc-menu" id="sc-menu">
+                            <button type="button" onclick="window.adicionarRastreadorPreset('executor'); window.fecharMenuMarcador()">Executor</button>
+                            <button type="button" onclick="window.adicionarRastreadorPreset('analista'); window.fecharMenuMarcador()">Analista</button>
+                            <button type="button" onclick="window.criarRastreadorCustom(); window.fecharMenuMarcador()">Novo…</button>
+                        </div>
+                    </span>
                 </div>
             </div>
-            <div id="lista-rastreadores-cena" class="tracker-list"></div>
         `;
         colEsq.appendChild(box);
         renderizarRastreadores();
@@ -7536,41 +7541,33 @@ let filtroSubAtualAtaques = 'Todos';
         salvarRastreadoresNoBanco();
     };
 
+    const escMarc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    window.toggleMenuMarcador = function(ev) {
+        if (ev) ev.stopPropagation();
+        document.getElementById('sc-menu')?.classList.toggle('open');
+    };
+    window.fecharMenuMarcador = function() { document.getElementById('sc-menu')?.classList.remove('open'); };
+    document.addEventListener('click', () => window.fecharMenuMarcador());
+
     function htmlListaRastreadores() {
-        if (!rastreadoresCena.length) {
-            return `<div style="font-size:11px; color:var(--cor-geral); font-family:'Special Elite', monospace; padding:3px 0;">Sem marcadores ativos.</div>`;
-        }
         return rastreadoresCena.map(r => {
             const isStackable = r.acumulativo !== false && (r.acumulativo === true || /executor/i.test(r.nome));
             const bonusTotal = parseInt(r.acumulado) || 0;
-            const pronto = isStackable ? (bonusTotal > 0) : (r.atual >= r.max);
+            const max = Math.max(1, parseInt(r.max) || 1);
+            const pronto = isStackable ? (bonusTotal > 0) : ((parseInt(r.atual) || 0) >= max);
 
             let pips = '';
-            for (let i = 1; i <= r.max; i++) {
-                pips += `<span class="tracker-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipRastreador('${r.id}', ${i})" title="Marca ${i}/${r.max}"></span>`;
+            for (let i = 1; i <= max; i++) {
+                pips += `<span class="sc-pip ${i <= r.atual ? 'on' : ''}" onclick="window.clicarPipFq('${r.id}', ${i})" title="Marca ${i}/${max}"></span>`;
             }
-
-            let badgeHtml = isStackable
-                ? `<span class="tracker-stack-controls">
-                       <button type="button" class="tracker-stack-btn" onclick="window.ajustarAcumuloRastreador('${r.id}', -1)">−</button>
-                       <span class="tracker-effect-badge" onclick="${pronto ? `window.zerarRastreador('${r.id}')` : ''}" title="${pronto ? 'Clique para consumir e zerar' : ''}">
-                           +${bonusTotal} ${r.efeito || 'no Teste'}${pronto ? ' ↻' : ''}
-                       </span>
-                       <button type="button" class="tracker-stack-btn" onclick="window.ajustarAcumuloRastreador('${r.id}', 1)">+</button>
-                   </span>`
-                : `<span class="tracker-effect-badge" onclick="${pronto ? `window.zerarRastreador('${r.id}')` : ''}">
-                       ${pronto ? `${r.efeito} ↻` : `${r.atual}/${r.max} → ${r.efeito}`}
-                   </span>`;
-
-            return `
-                <div class="tracker-card ${pronto ? 'ready' : ''}">
-                    <div class="tracker-info">
-                        <div class="tracker-name"><span>${r.nome}</span>${badgeHtml}</div>
-                    </div>
-                    <div class="tracker-pips">${pips}</div>
-                    <button class="tracker-del" onclick="window.removerRastreador('${r.id}')">×</button>
-                </div>
-            `;
+            let extra = '';
+            if (isStackable) {
+                extra = `<b class="sc-bonus ${pronto ? 'ready' : ''}" ${pronto ? `onclick="window.zerarRastreador('${r.id}')" title="Clique para consumir e zerar"` : ''}>+${bonusTotal}</b>`;
+            } else if (pronto) {
+                extra = `<b class="sc-ok" onclick="window.zerarRastreador('${r.id}')" title="${escMarc(r.efeito)} — clique para consumir">↻</b>`;
+            }
+            return `<div class="sc-item ${pronto ? 'ready' : ''}"><span class="sc-nome">${escMarc(r.nome)}</span><span class="sc-pips">${pips}</span>${extra}<button type="button" class="sc-del" onclick="window.removerRastreador('${r.id}')" title="Remover marcador">×</button></div>`;
         }).join('');
     }
 
@@ -7587,11 +7584,7 @@ let filtroSubAtualAtaques = 'Todos';
             }
             let extra = '';
             if (isStackable) {
-                extra = `<span class="fq2-marc-stack">
-                    <button type="button" onclick="window.ajustarAcumuloRastreador('${r.id}', -1)">−</button>
-                    <b class="fq2-marc-bonus" ${pronto ? `onclick="window.zerarRastreador('${r.id}')" title="Clique para consumir e zerar"` : ''}>+${bonusTotal}</b>
-                    <button type="button" onclick="window.ajustarAcumuloRastreador('${r.id}', 1)">+</button>
-                </span>`;
+                extra = `<b class="fq2-marc-bonus ${pronto ? '' : 'zero'}" ${pronto ? `onclick="window.zerarRastreador('${r.id}')" title="Clique para consumir e zerar"` : ''}>+${bonusTotal}</b>`;
             } else if (pronto) {
                 extra = `<b class="fq2-marc-ok" onclick="window.zerarRastreador('${r.id}')" title="${esc(r.efeito)} — clique para consumir">↻</b>`;
             }
@@ -10070,5 +10063,33 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
 </script>
+<style id="marcadores-cena-compacto">
+/* Marcadores de Cena (ficha principal): marcadores no lugar dos antigos botões, um único "+" */
+.sc-header{ flex-wrap:wrap; }
+.sc-right{ display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px 14px; margin-left:auto; min-width:0; }
+.sc-lista{ display:contents; }
+.sc-item{ display:inline-flex; align-items:center; gap:8px; }
+.sc-nome{ font:700 11px/1 'Oswald',sans-serif; letter-spacing:1.3px; text-transform:uppercase; color:var(--op-ink); }
+.sc-pips{ display:inline-flex; align-items:center; gap:10px; padding:3px 4px; }
+.sc-pip{ position:relative; display:inline-block; width:10px; height:10px; transform:rotate(45deg); border:1.5px solid #b3171c; background:transparent; cursor:pointer; }
+.sc-pip::after{ content:""; position:absolute; inset:-3px; }
+.sc-pip.on{ background:#b3171c; box-shadow:0 0 5px rgba(179,23,28,.5); }
+.sc-bonus{ font:700 16px/1 'Special Elite',monospace; min-width:22px; text-align:center; color:var(--op-ink); opacity:.55; }
+.sc-bonus.ready{ color:#b3171c; opacity:1; cursor:pointer; }
+.sc-ok{ color:#b3171c; font-size:16px; line-height:1; cursor:pointer; }
+.sc-del{ background:none; border:none; padding:0 2px; color:var(--cor-geral); font-size:13px; line-height:1; cursor:pointer; opacity:.35; }
+.sc-del:hover{ opacity:1; color:var(--op-red); }
+.sc-add-wrap{ position:relative; display:inline-flex; }
+.sc-add{ width:22px; height:22px; padding:0; border:1px dotted var(--card-border); background:transparent; color:var(--op-ink); font:700 14px/1 'Special Elite',monospace; cursor:pointer; }
+.sc-add:hover{ background:var(--op-ink); color:var(--bg-paper); }
+.sc-menu{ display:none; position:absolute; right:0; top:26px; z-index:50; flex-direction:column; min-width:110px; background:var(--bg-paper); border:1px solid var(--op-ink); box-shadow:var(--paper-shadow); }
+.sc-menu.open{ display:flex; }
+.sc-menu button{ background:transparent; border:none; border-bottom:1px dotted var(--card-border); padding:7px 10px; text-align:left; font:700 11px 'Courier Prime',monospace; color:var(--op-ink); cursor:pointer; }
+.sc-menu button:last-child{ border-bottom:none; }
+.sc-menu button:hover{ background:var(--op-ink); color:var(--bg-paper); }
+body.somente-leitura .sc-add-wrap, body.somente-leitura .sc-del{ display:none !important; }
+/* Ficha rápida: valor sem −/+ ; zerado fica apagado */
+#ficha-rapida .fq2-marc-bonus.zero{ opacity:.55; }
+</style>
 </body>
 </html>
