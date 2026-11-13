@@ -7543,12 +7543,27 @@ let filtroSubAtualAtaques = 'Todos';
 
     const escMarc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+    // Menu do "+": vai para o <body> e abre em posição fixa (não é cortado nem fica atrás de abas/rodapé)
     window.toggleMenuMarcador = function(ev) {
         if (ev) ev.stopPropagation();
-        document.getElementById('sc-menu')?.classList.toggle('open');
+        const menu = document.getElementById('sc-menu');
+        const btn = ev && ev.currentTarget ? ev.currentTarget : document.querySelector('.sc-add');
+        if (!menu || !btn) return;
+        if (menu.parentElement !== document.body) document.body.appendChild(menu);
+        if (menu.classList.contains('open')) { menu.classList.remove('open'); return; }
+        menu.classList.add('open');
+        const r = btn.getBoundingClientRect();
+        const w = menu.offsetWidth, h = menu.offsetHeight;
+        let left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
+        let top = r.bottom + 4;
+        if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 4);   // sem espaço embaixo: abre para cima
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
     };
     window.fecharMenuMarcador = function() { document.getElementById('sc-menu')?.classList.remove('open'); };
-    document.addEventListener('click', () => window.fecharMenuMarcador());
+    document.addEventListener('click', (e) => { if (!e.target.closest || !e.target.closest('#sc-menu')) window.fecharMenuMarcador(); });
+    window.addEventListener('scroll', () => window.fecharMenuMarcador(), true);
+    window.addEventListener('resize', () => window.fecharMenuMarcador());
 
     function htmlListaRastreadores() {
         return rastreadoresCena.map(r => {
@@ -10082,7 +10097,8 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
 .sc-add-wrap{ position:relative; display:inline-flex; }
 .sc-add{ width:22px; height:22px; padding:0; border:1px dotted var(--card-border); background:transparent; color:var(--op-ink); font:700 14px/1 'Special Elite',monospace; cursor:pointer; }
 .sc-add:hover{ background:var(--op-ink); color:var(--bg-paper); }
-.sc-menu{ display:none; position:absolute; right:0; top:26px; z-index:50; flex-direction:column; min-width:110px; background:var(--bg-paper); border:1px solid var(--op-ink); box-shadow:var(--paper-shadow); }
+.sc-menu{ display:none; position:fixed; z-index:10050; flex-direction:column; min-width:120px; background:#e6dfcd; border:1px solid var(--op-ink); box-shadow:0 6px 18px rgba(0,0,0,.35); }
+body.tema-escuro .sc-menu{ background:#1d1c1a; }
 .sc-menu.open{ display:flex; }
 .sc-menu button{ background:transparent; border:none; border-bottom:1px dotted var(--card-border); padding:7px 10px; text-align:left; font:700 11px 'Courier Prime',monospace; color:var(--op-ink); cursor:pointer; }
 .sc-menu button:last-child{ border-bottom:none; }
