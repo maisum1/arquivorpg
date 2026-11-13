@@ -10030,19 +10030,17 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
 })();
 </script>
 <style id="reacoes-rodada-css">
-#reacoes-rodada{ display:none; align-items:center; justify-content:center; gap:10px; margin:10px auto 8px; padding:6px 14px; width:fit-content; max-width:100%; box-sizing:border-box; border:1.5px solid var(--op-ink); border-radius:2px; background:rgba(0,0,0,.05); box-shadow:2px 2px 0 var(--op-ink); font-family:'Inter',sans-serif; }
-#reacoes-rodada.on{ display:flex; animation:rr-entra .35s ease-out; }
-#reacoes-rodada .rr-label{ font-size:10px; font-weight:900; letter-spacing:1.6px; color:var(--op-ink); }
-#reacoes-rodada .rr-n{ font-family:'Special Elite',monospace; font-size:22px; line-height:1; min-width:34px; padding:4px 0; text-align:center; background:var(--op-ink); color:var(--bg-paper); border-radius:2px; }
-#reacoes-rodada button{ width:28px; height:28px; padding:0; border:1.5px solid var(--op-ink); border-radius:2px; background:transparent; color:var(--op-ink); font:700 16px/1 'Special Elite',monospace; cursor:pointer; }
-#reacoes-rodada button:hover{ background:var(--op-ink); color:var(--bg-paper); }
-/* Modo escuro: dourado queimado padrão */
-body.tema-escuro #reacoes-rodada{ border-color:var(--accent-gold); background:rgba(176,141,87,.07); box-shadow:2px 2px 0 var(--accent-gold); }
+/* Mesmo "idioma" dos outros quadros da ficha: fundo de cartão, borda fina, barra lateral, tipografia de arquivo */
+#reacoes-rodada{ display:none; align-items:center; justify-content:space-between; gap:12px; margin:12px 0 10px; padding:8px 12px; box-sizing:border-box; background:var(--card-bg); border:1px solid var(--card-border); border-left:4px solid var(--op-ink); border-radius:2px; }
+#reacoes-rodada.on{ display:flex; }
+#reacoes-rodada .rr-label{ font:900 11px 'Crimson Text',serif; letter-spacing:1.5px; text-transform:uppercase; color:var(--op-ink); }
+#reacoes-rodada .rr-ctrl{ display:inline-flex; align-items:center; gap:8px; }
+#reacoes-rodada .rr-n{ font:400 22px/1 'Special Elite',monospace; min-width:30px; padding:0 4px 2px; text-align:center; color:var(--op-ink); border-bottom:2px double var(--op-ink); }
+#reacoes-rodada button{ width:24px; height:24px; padding:0; border:1px dotted var(--card-border); background:transparent; color:var(--op-ink); font:700 14px/1 'Special Elite',monospace; cursor:pointer; }
+#reacoes-rodada button:hover{ background:rgba(128,128,128,.2); }
+body.tema-escuro #reacoes-rodada{ border-left-color:var(--accent-gold); }
 body.tema-escuro #reacoes-rodada .rr-label{ color:var(--accent-gold); }
-body.tema-escuro #reacoes-rodada .rr-n{ background:var(--accent-gold); color:#121211; }
-body.tema-escuro #reacoes-rodada button{ border-color:var(--accent-gold); color:var(--accent-gold); }
-body.tema-escuro #reacoes-rodada button:hover{ background:var(--accent-gold); color:#121211; }
-@keyframes rr-entra{ from{ transform:scale(.92); opacity:0; } to{ transform:scale(1); opacity:1; } }
+body.tema-escuro #reacoes-rodada .rr-n{ border-bottom-color:var(--accent-gold); }
 </style>
 <script id="reacoes-rodada-js">
 (function(){
@@ -10057,7 +10055,7 @@ body.tema-escuro #reacoes-rodada button:hover{ background:var(--accent-gold); co
     if (document.getElementById('reacoes-rodada')) return;
     var grid = document.querySelector('#aba-combate .combat-stats-grid'); if (!grid) return;
     var d = document.createElement('div'); d.id = 'reacoes-rodada';
-    d.innerHTML = '<span class="rr-label">REAÇÕES GASTAS</span><button type="button" id="rr-menos" title="Desfazer">−</button><span class="rr-n" id="rr-n">0</span><button type="button" id="rr-mais" title="Gastei uma reação">+</button>';
+    d.innerHTML = '<span class="rr-label">Reações gastas na rodada</span><span class="rr-ctrl"><button type="button" id="rr-menos" title="Desfazer">−</button><span class="rr-n" id="rr-n">0</span><button type="button" id="rr-mais" title="Gastei uma reação">+</button></span>';
     grid.insertAdjacentElement('afterend', d);
     document.getElementById('rr-mais').onclick = function(){ estado.n++; salvar(); pintar(); };
     document.getElementById('rr-menos').onclick = function(){ if (estado.n > 0) estado.n--; salvar(); pintar(); };
