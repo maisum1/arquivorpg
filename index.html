@@ -611,19 +611,25 @@ body.tema-escuro .base-card .btn-open:hover {
 
                 <details class="hub-sec" id="cv-sec-personas">
                     <summary><span class="sec-tit">Personas vinculadas</span><span class="cnt" id="cv-cnt-personas">0</span>
-                        <button class="btn-google" style="margin:0; padding: 4px 9px; font-size: 10px;" onclick="event.preventDefault(); event.stopPropagation(); abrirModalVinculoMestre('ficha')">[+] ADD PERSONA</button></summary>
+                        <button class="btn-google" style="margin:0; padding: 4px 9px; font-size: 10px;" onclick="event.preventDefault(); event.stopPropagation(); abrirModalVinculoMestre('ficha')">[+] ADD PERSONA</button>
+                        <button type="button" class="btn-busca-hub" style="padding:4px 8px; font-size:11px;" onclick="event.preventDefault(); event.stopPropagation(); const d=document.getElementById('cv-sec-personas'); if(d) d.open=true; toggleBuscaHub('cv-fichas','busca-cv-fichas')" title="Pesquisar">[🔍]</button></summary>
+                    <div id="busca-cv-fichas" class="busca-hub" style="display:none;"><input type="text" class="hub-input" placeholder="Pesquisar pelo nome..." autocomplete="off" oninput="filtrarListaHub('cv-fichas', this.value)"><button type="button" class="busca-x" onclick="toggleBuscaHub('cv-fichas','busca-cv-fichas')" title="Fechar pesquisa">×</button></div><p class="busca-vazio" id="vazio-cv-fichas" style="display:none;">Nenhum resultado.</p>
                     <div id="cv-fichas" class="grid"></div>
                 </details>
 
                 <details class="hub-sec" id="cv-sec-npcs">
                     <summary><span class="sec-tit">NPCs<small>humanos não hostis</small></span><span class="cnt" id="cv-cnt-npcs">0</span>
-                        <button class="btn-google" style="margin:0; padding: 4px 9px; font-size: 10px;" onclick="event.preventDefault(); event.stopPropagation(); abrirModalVinculoMestre('ameaca','npc')">[+] ADD NPC</button></summary>
+                        <button class="btn-google" style="margin:0; padding: 4px 9px; font-size: 10px;" onclick="event.preventDefault(); event.stopPropagation(); abrirModalVinculoMestre('ameaca','npc')">[+] ADD NPC</button>
+                        <button type="button" class="btn-busca-hub" style="padding:4px 8px; font-size:11px;" onclick="event.preventDefault(); event.stopPropagation(); const d=document.getElementById('cv-sec-npcs'); if(d) d.open=true; toggleBuscaHub('cv-npcs','busca-cv-npcs')" title="Pesquisar">[🔍]</button></summary>
+                    <div id="busca-cv-npcs" class="busca-hub" style="display:none;"><input type="text" class="hub-input" placeholder="Pesquisar pelo nome..." autocomplete="off" oninput="filtrarListaHub('cv-npcs', this.value)"><button type="button" class="busca-x" onclick="toggleBuscaHub('cv-npcs','busca-cv-npcs')" title="Fechar pesquisa">×</button></div><p class="busca-vazio" id="vazio-cv-npcs" style="display:none;">Nenhum resultado.</p>
                     <div id="cv-npcs" class="grid"></div>
                 </details>
 
                 <details class="hub-sec" id="cv-sec-ameacas">
                     <summary><span class="sec-tit">Ameaças da campanha</span><span class="cnt" id="cv-cnt-ameacas">0</span>
-                        <button class="btn-google" style="margin:0; padding: 4px 9px; font-size: 10px;" onclick="event.preventDefault(); event.stopPropagation(); abrirModalVinculoMestre('ameaca','ameaca')">[+] ADD AMEAÇA</button></summary>
+                        <button class="btn-google" style="margin:0; padding: 4px 9px; font-size: 10px;" onclick="event.preventDefault(); event.stopPropagation(); abrirModalVinculoMestre('ameaca','ameaca')">[+] ADD AMEAÇA</button>
+                        <button type="button" class="btn-busca-hub" style="padding:4px 8px; font-size:11px;" onclick="event.preventDefault(); event.stopPropagation(); const d=document.getElementById('cv-sec-ameacas'); if(d) d.open=true; toggleBuscaHub('cv-ameacas','busca-cv-ameacas')" title="Pesquisar">[🔍]</button></summary>
+                    <div id="busca-cv-ameacas" class="busca-hub" style="display:none;"><input type="text" class="hub-input" placeholder="Pesquisar pelo nome..." autocomplete="off" oninput="filtrarListaHub('cv-ameacas', this.value)"><button type="button" class="busca-x" onclick="toggleBuscaHub('cv-ameacas','busca-cv-ameacas')" title="Fechar pesquisa">×</button></div><p class="busca-vazio" id="vazio-cv-ameacas" style="display:none;">Nenhum resultado.</p>
                     <div id="cv-ameacas" class="sec-corpo"></div>
                 </details>
             </div>
@@ -2285,7 +2291,7 @@ document.addEventListener('click', function() {
             else { inp.value = ''; filtrarListaHub(listaId, ''); }
         }
         // reaplica o filtro quando a lista é redesenhada (snapshot do Firebase)
-        ['lista-npcs', 'lista-ameacas'].forEach(id => {
+        ['lista-npcs', 'lista-ameacas', 'cv-fichas', 'cv-npcs', 'cv-ameacas'].forEach(id => {
             const el = document.getElementById(id); if (!el) return;
             new MutationObserver(() => { if (buscasHub[id]) aplicarBuscaHub(id); }).observe(el, { childList: true, subtree: true });
         });
