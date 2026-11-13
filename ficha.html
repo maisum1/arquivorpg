@@ -10030,17 +10030,17 @@ body:not(.tema-escuro) .p-marrom .vg-chip-bonus, body:not(.tema-escuro) .p-azul 
 })();
 </script>
 <style id="reacoes-rodada-css">
-/* Mesmo "idioma" dos outros quadros da ficha: fundo de cartão, borda fina, barra lateral, tipografia de arquivo */
-#reacoes-rodada{ display:none; align-items:center; justify-content:space-between; gap:12px; margin:12px 0 10px; padding:8px 12px; box-sizing:border-box; background:var(--card-bg); border:1px solid var(--card-border); border-left:4px solid var(--op-ink); border-radius:2px; }
+/* Compacto e centralizado, no estilo dos botões de abas / filtros de ataque (TODOS, CORPO A CORPO...) */
+#reacoes-rodada{ display:none; align-items:center; justify-content:center; gap:6px; width:fit-content; max-width:100%; margin:12px auto 10px; padding:0; background:none; border:none; box-shadow:none; }
 #reacoes-rodada.on{ display:flex; }
-#reacoes-rodada .rr-label{ font:900 11px 'Crimson Text',serif; letter-spacing:1.5px; text-transform:uppercase; color:var(--op-ink); }
-#reacoes-rodada .rr-ctrl{ display:inline-flex; align-items:center; gap:8px; }
-#reacoes-rodada .rr-n{ font:400 22px/1 'Special Elite',monospace; min-width:30px; padding:0 4px 2px; text-align:center; color:var(--op-ink); border-bottom:2px double var(--op-ink); }
-#reacoes-rodada button{ width:24px; height:24px; padding:0; border:1px dotted var(--card-border); background:transparent; color:var(--op-ink); font:700 14px/1 'Special Elite',monospace; cursor:pointer; }
-#reacoes-rodada button:hover{ background:rgba(128,128,128,.2); }
-body.tema-escuro #reacoes-rodada{ border-left-color:var(--accent-gold); }
-body.tema-escuro #reacoes-rodada .rr-label{ color:var(--accent-gold); }
-body.tema-escuro #reacoes-rodada .rr-n{ border-bottom-color:var(--accent-gold); }
+#reacoes-rodada .rr-label, #reacoes-rodada .rr-n, #reacoes-rodada button{ box-sizing:border-box; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:2px; font-family:'Inter',sans-serif; font-weight:700; text-transform:uppercase; }
+#reacoes-rodada .rr-label{ padding:0 12px; border:1px solid var(--card-border); color:var(--cor-geral); font-size:10px; letter-spacing:1px; white-space:nowrap; }
+#reacoes-rodada .rr-ctrl{ display:contents; }
+#reacoes-rodada button{ width:28px; padding:0; border:1px solid var(--card-border); background:transparent; color:var(--cor-geral); font-size:14px; cursor:pointer; }
+#reacoes-rodada button:hover{ background:var(--op-ink); border-color:var(--op-ink); color:var(--bg-paper); }
+#reacoes-rodada .rr-n{ min-width:34px; padding:0 10px; background:var(--op-ink); border:1px solid var(--op-ink); color:var(--bg-paper); font-size:12px; }
+body.tema-escuro #reacoes-rodada .rr-n{ background:#252524; border-color:var(--accent-gold); color:var(--accent-gold); }
+body.tema-escuro #reacoes-rodada button:hover{ background:#252524; border-color:var(--accent-gold); color:var(--accent-gold); }
 </style>
 <script id="reacoes-rodada-js">
 (function(){
@@ -10055,7 +10055,7 @@ body.tema-escuro #reacoes-rodada .rr-n{ border-bottom-color:var(--accent-gold); 
     if (document.getElementById('reacoes-rodada')) return;
     var grid = document.querySelector('#aba-combate .combat-stats-grid'); if (!grid) return;
     var d = document.createElement('div'); d.id = 'reacoes-rodada';
-    d.innerHTML = '<span class="rr-label">Reações gastas na rodada</span><span class="rr-ctrl"><button type="button" id="rr-menos" title="Desfazer">−</button><span class="rr-n" id="rr-n">0</span><button type="button" id="rr-mais" title="Gastei uma reação">+</button></span>';
+    d.innerHTML = '<span class="rr-label">Reações gastas</span><span class="rr-ctrl"><button type="button" id="rr-menos" title="Desfazer">−</button><span class="rr-n" id="rr-n">0</span><button type="button" id="rr-mais" title="Gastei uma reação">+</button></span>';
     grid.insertAdjacentElement('afterend', d);
     document.getElementById('rr-mais').onclick = function(){ estado.n++; salvar(); pintar(); };
     document.getElementById('rr-menos').onclick = function(){ if (estado.n > 0) estado.n--; salvar(); pintar(); };
