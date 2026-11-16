@@ -1094,6 +1094,7 @@ if(new URLSearchParams(location.search).get("embed")==="1"){ document.documentEl
             if(!pendingUpdates['exp']) exp=(d.exp!==undefined)?d.exp:EXPS[Math.min(5,Math.max(0,parseInt(d.na)||0))][0];
             const dm=(hexatombeFinal&&d_raw.hexatombe_data)?{...d_raw,...d_raw.hexatombe_data}:d_raw;
             if(!pendingUpdates['pericias_npc']) PNPC=normPer(dm);
+            if(!pendingUpdates['membrosEstado']){ const me=(dm.membrosEstado&&typeof dm.membrosEstado==='object')?dm.membrosEstado:{}; MEMB={}; Object.keys(me).forEach(k=>{ if(me[k]==='lesionado'||me[k]==='decepado') MEMB[k]=me[k]; }); }
             papel=d.papel||(d.tipoAmeaca==='mundana'?'neutro':'hostil'); if(!pendingUpdates['perfil']) perfil=LEGADO_PERFIL[d.perfil]||d.perfil||''; if(!pendingUpdates['comp']) comp=(d.comp!==undefined)?d.comp:-1;
             usaPE=(d.usaPE!==undefined)?d.usaPE:(d.tipoAmeaca==='ocultista'); modoCivil=!!d.modoCivil;
             aplicarTipo(tipoAtual);
@@ -2459,6 +2460,28 @@ if (campanhaParam) {
         if (t !== 'criatura' && papelOk !== 'hostil') return 'NPC';
         return (t === 'criatura' && num('consciencia') < 80) ? 'Bestiário' : 'Acervo Humanoide';
     }
+    // ---------- integridade anatômica (VD / DEC) — o "corpinho" da ficha de personagem, enxuto ----------
+    // Abaixo do VD: só tira PV. Entre VD e DEC: Lesionado. DEC ou mais: membro decepado/destruído (+ Sangrando).
+    const MEMBROS=[['cabeca','Cabeça'],['torso','Torso'],['braco-esq','Braço E.'],['braco-dir','Braço D.'],['perna-esq','Perna E.'],['perna-dir','Perna D.']];
+    const SVG_MEMB={cabeca:'M85,20 C85,5 115,5 115,20 C115,35 85,35 85,20 Z',torso:'M75,40 L125,40 L115,130 L85,130 Z','braco-esq':'M65,45 L40,110 L55,115 L70,50 Z','braco-dir':'M135,45 L160,110 L145,115 L130,50 Z','perna-esq':'M85,140 L75,220 L92,220 L100,140 Z','perna-dir':'M115,140 L125,220 L108,220 L100,140 Z'};
+    const X_MEMB={cabeca:'M85,10 L115,30 M115,10 L85,30',torso:'M80,50 L120,120 M120,50 L80,120','braco-esq':'M40,55 L65,105 M65,55 L40,105','braco-dir':'M160,55 L135,105 M135,55 L160,105','perna-esq':'M75,150 L92,210 M95,150 L75,210','perna-dir':'M125,150 L108,210 M105,150 L125,210'};
+    let MEMB={};
+    function anatomiaHTML(){
+        const pv=num('pv-max'), vd=Math.floor(pv/4), dec=Math.floor(pv/2);
+        const rot={normal:'intacto',lesionado:'lesionado',decepado:'decepado'};
+        const svg=`<svg class="anat-svg" viewBox="32 0 136 228" aria-label="Integridade dos membros">`+MEMBROS.map(([k,n])=>{ const e=MEMB[k]||'normal';
+            return `<path class="anat-m ${e}" d="${SVG_MEMB[k]}" onclick="ciclarMembro('${k}')"><title>${n}: ${rot[e]} (clique para mudar)</title></path>`+(e==='decepado'?`<path class="anat-x" d="${X_MEMB[k]}"/>`:''); }).join('')+`</svg>`;
+        const feridos=MEMBROS.filter(([k])=>MEMB[k]);
+        const chips=feridos.length?feridos.map(([k,n])=>`<span class="anat-chip ${MEMB[k]}" onclick="ciclarMembro('${k}')" title="Clique para mudar">${n}: ${MEMB[k]==='decepado'?'Decepado':'Lesionado'}</span>`).join(''):'<span class="anat-chip">Intacto</span>';
+        return `<section class="d-sec d-anat"><h3 class="d-bar">INTEGRIDADE</h3><div class="anat-grid">${svg}<div class="anat-info"><div class="d-list"><div><b>VD · LESIONA</b><span>${vd}</span></div><div><b>DEC · DECEPA</b><span>${dec}</span></div></div><div class="anat-chips">${chips}</div><small class="anat-dica">Dano num só golpe ≥ VD lesiona; ≥ DEC decepa (e Sangrando). Clique no membro: lesionado → decepado → intacto.</small></div></div></section>`;
+    }
+    function ciclarMembro(k){
+        if(SOMENTE_LEITURA) return;
+        const prox={normal:'lesionado',lesionado:'decepado',decepado:'normal'}[MEMB[k]||'normal'];
+        MEMB={...MEMB}; if(prox==='normal') delete MEMB[k]; else MEMB[k]=prox;
+        updateField('membrosEstado',MEMB); renderDossie();
+    }
+
     // ---------- dossiê: só aparece o que está preenchido ----------
     const H=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     const val=id=>($(id).value||'').trim();
@@ -2479,8 +2502,9 @@ if (campanhaParam) {
         let b='';
         if(!civil){
             if(t!=='mundana') b+=`<div class="d-sec">${dKv('Resistências',val('resistencias'))}${dKv('Vulnerabilidades',val('vulnerabilidades'))}${dKv('Imunidades',val('imunidades'))}</div>`;
-            const ex=cri?'':`<div><b>ESQUIVA</b><span>${$('d-esq').innerText}</span></div><div><b>BLOQUEIO</b><span>${$('d-blq').innerText}</span></div><div><b>LIMIAR VD/DEC</b><span>${$('d-lim').innerText}</span></div>`;
+            const ex=cri?'':`<div><b>ESQUIVA</b><span>${$('d-esq').innerText}</span></div><div><b>BLOQUEIO</b><span>${$('d-blq').innerText}</span></div>`;
             b+=`<section class="d-sec d-def"><div class="d-defl"><h3 class="d-bar">DEFESA</h3><b class="d-big">${H(val('defesa')||0)}</b></div><div class="d-list"><div><b>FORTITUDE</b><span>${pt('Fortitude')}</span></div><div><b>REFLEXOS</b><span>${pt('Reflexos')}</span></div><div><b>RESILIÊNCIA</b><span>${pt('Resiliência')}</span></div>${ex}</div></section>`;
+            if(!cri) b+=anatomiaHTML();
             if(val('deslocamento')) b+=`<section class="d-sec"><div class="d-linha"><h3 class="d-bar">DESLOCAMENTO</h3><span>${H(val('deslocamento'))}</span></div></section>`;
             b+=dSec('Combate',`<div class="d-list"><div><b>PERCEPÇÃO</b><span>${pt('Percepção')}</span></div><div><b>PROATIVIDADE</b><span>${pt('Proatividade')}</span></div></div>`);
             const outras=PNPC.filter(p=>!ESS.includes(p.n));
@@ -2728,6 +2752,22 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 .btn-ini-olho.off{ border:1px dashed var(--op-red); background:rgba(158,11,15,.08); }
 .btn-ini-dado{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
+
+.anat-grid{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center}
+.anat-svg{width:72px;height:121px;display:block;overflow:visible}
+.anat-m{fill:var(--card-bg);stroke:var(--op-ink);stroke-width:4;cursor:pointer;transition:fill .15s,stroke .15s}
+.anat-m:hover{fill:var(--card-hover,rgba(0,0,0,.08))}
+.anat-m.lesionado{fill:rgba(139,28,28,.45);stroke:var(--op-red)}
+.anat-m.decepado{fill:transparent;stroke:var(--card-border);stroke-dasharray:7 5}
+.anat-x{stroke:var(--op-red);stroke-width:5;fill:none;pointer-events:none}
+.anat-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.anat-chip{font:700 10px 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border:1px dotted var(--card-border);color:var(--cor-geral)}
+.anat-chip.lesionado{border:1px solid var(--op-red);color:var(--op-red);background:rgba(139,28,28,.08);cursor:pointer}
+.anat-chip.decepado{border:1px solid var(--op-ink);background:var(--op-ink);color:var(--bg-paper);cursor:pointer}
+body.tema-escuro .anat-chip.decepado{background:#222;color:var(--accent-gold);border-color:#333}
+.anat-dica{display:block;margin-top:6px;font:10px/1.4 'Inter',sans-serif;color:var(--cor-geral)}
+body.somente-leitura .anat-m,body.somente-leitura .anat-chip{pointer-events:none}
+body.somente-leitura .anat-dica{display:none}
 .d-tag-cond{ background:var(--op-ink); color:var(--bg-paper); padding:2px 6px; letter-spacing:.04em; }
 body.tema-escuro .d-tag-cond{ background:#222; color:var(--accent-gold); }
 /* aberta dentro da Mesa do Mestre */
