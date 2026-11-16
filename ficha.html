@@ -2178,6 +2178,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 </style>
 </head>
 <body>
+<script>if (new URLSearchParams(location.search).get('embed') === '1') { document.documentElement.classList.add('embed'); document.body.classList.add('embed'); }</script>
 
 <div id="status-overlay"></div>
 
@@ -2801,57 +2802,77 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
     // =========================================================
 
     const templatesOrigens = {
-        "Academico": { nome: "Acadêmico", p1: "Educação", p2: "Avaliação", ncBase: 0, search: "educacao avaliacao academico professor estudante", desc: "Um estudioso dedicado à pesquisa, à ciência e ao ensino, acostumado a buscar respostas em bibliotecas e laboratórios." },
-        "Agente de Saude": { nome: "Agente de Saúde", p1: "Intuição", p2: "Medicina", ncBase: 0, search: "medicina intuicao agente saude", desc: "Profissional focado em cuidar de pessoas, realizar triagens e atuar rapidamente em situações de emergência." },
-        "Artista": { nome: "Celebridade", p1: "Artes", p2: "Persuasão", ncBase: 2, search: "artes persuasao", desc: "Uma figura pública, expressiva e criativa, que usa a sua fama ou o carisma a seu favor." },
-        "Atleta": { nome: "Atleta Profissional", p1: "Atletismo", p2: "Acrobacia", ncBase: 1, search: "atletismo acrobacia", desc: "Alguém que dedicou grande parte da vida ao condicionamento físico, esportes e competições de alto nível." },
+        // Livro v1.2 — a 1ª perícia é a principal (+3) e a 2ª a secundária (+1). s1/s2 = subperícia indicada pela origem.
+        "Academico": { nome: "Acadêmico", p1: "Ciências", p2: "Avaliação", ncBase: 1, search: "ciencias avaliacao academico professor estudante", desc: "Um estudioso dedicado à pesquisa, à ciência e ao ensino, acostumado a buscar respostas em bibliotecas e laboratórios; pode ser tanto professor quanto estudante." },
+        "Agente de Saude": { nome: "Agente de Saúde", p1: "Medicina", p2: "Intuição", ncBase: 1, search: "medicina intuicao agente saude enfermeiro", desc: "Profissional focado em cuidar de pessoas, realizar triagens e atuar rapidamente em situações de emergência." },
+        "Artista": { nome: "Celebridade", p1: "Artes", p2: "Persuasão", ncBase: 1, search: "artes persuasao celebridade artista", desc: "Uma figura pública, expressiva e criativa, que usa a sua fama ou o carisma a seu favor." },
+        "Atleta": { nome: "Atleta Profissional", p1: "Atletismo", p2: "Acrobacia", ncBase: 1, search: "atletismo acrobacia atleta", desc: "Alguém que dedicou grande parte da vida ao condicionamento físico, esportes e competições de alto nível." },
         "Chef": { nome: "Chef de Cozinha", p1: "Gastronomia", p2: "Percepção", ncBase: 1, search: "gastronomia percepcao chef cozinheiro", desc: "O domínio dos ingredientes e a gestão de uma cozinha sob estresse constante deram a você mãos firmes, precisão cortante e sentidos extremamente apurados." },
-        "Delinquente": { nome: "Delinquente", p1: "Crime", p2: "Atletismo", ncBase: -1, search: "crime atletismo delinquente", desc: "Cresceu lidando com a dura realidade das ruas, sobreviveu com pequenos delitos e conhece bem as vielas da cidade." },
-        "Desgarrado": { nome: "Desgarrado", p1: "Sobrevivência", p2: "Adestramento", ncBase: -2, search: "sobrevivencia adestramento ermitao", desc: "Indivíduo que viveu muito tempo afastado da civilização, nos ermos, ou completamente isolado do resto da sociedade." },
-        "Engenheiro": { nome: "Engenheiro", p1: "Engenharia", p2: "Tecnologia", ncBase: 2, search: "engenharia tecnologia mecanico", desc: "Especialista na criação, compreensão e conserto de estruturas físicas e maquinários complexos." },
+        "Delinquente": { nome: "Delinquente", p1: "Crime", p2: "Atletismo", ncBase: 0, search: "crime atletismo delinquente", desc: "Cresceu lidando com a dura realidade das ruas, sobreviveu com pequenos delitos e conhece bem as vielas da cidade." },
+        "Desgarrado": { nome: "Desgarrado", p1: "Sobrevivência", p2: "Adestramento", ncBase: -2, search: "sobrevivencia adestramento ermitao desgarrado", desc: "Indivíduo que viveu muito tempo afastado da civilização, nos ermos, ou completamente isolado do resto da sociedade." },
+        "Engenheiro": { nome: "Engenheiro", p1: "Engenharia", p2: "Tecnologia", ncBase: 2, search: "engenharia tecnologia engenheiro mecanico", desc: "Especialista na criação, compreensão e conserto de estruturas físicas e maquinários complexos." },
         "Executivo": { nome: "Executivo", p1: "Persuasão", p2: "Atualidades", ncBase: 2, search: "persuasao atualidades executivo", desc: "Atua no mundo corporativo, focado em negócios e lucros. Acostumado a lidar com dinheiro e exercer influência." },
-        "Hacker": { nome: "Especialista em TI", p1: "Tecnologia", p2: "Investigação", ncBase: 2, search: "tecnologia investigacao ti especialista", desc: "Mestre no ambiente digital, capaz de manipular, proteger ou invadir sistemas virtuais e bancos de dados." },
-        "Mercenario": { nome: "Ex-Militar", p1: "Balística", p2: "Tática", ncBase: 2, search: "balistica tatica militar", desc: "Soldado bem treinado que atuou em zonas de conflito ou fez operações sob contrato para entidades privadas." },
-        "Investigador": { nome: "Investigador Particular", p1: "Investigação", p2: "Percepção", ncBase: 1, search: "investigacao percepcao investigador particular", desc: "Acostumado a juntar pistas ocultas, analisar cenas, interrogar pessoas e desvendar mistérios complexos." },
-        "Jornalista": { nome: "Jornalista Investigativo", p1: "Atualidades", p2: "Investigação", ncBase: 0, search: "atualidades investigacao jornalista", desc: "Profissional da mídia sempre em busca da verdade (ou de um furo de reportagem), custe o que custar." },
+        "Hacker": { nome: "Especialista em TI", p1: "Tecnologia", p2: "Educação", s2: "Exatas", ncBase: 2, search: "tecnologia educacao exatas ti especialista hacker", desc: "Mestre no ambiente digital, capaz de manipular, proteger ou invadir sistemas virtuais e bancos de dados." },
+        "Mercenario": { nome: "Ex-Militar", p1: "Balística", p2: "Combate", ncBase: 1, search: "balistica combate militar mercenario soldado", desc: "Soldado bem treinado que atuou em zonas de conflito ou fez operações sob contrato para entidades privadas." },
+        "Investigador": { nome: "Investigador Particular", p1: "Investigação", p2: "Percepção", ncBase: 1, search: "investigacao percepcao investigador particular detetive", desc: "Acostumado a juntar pistas ocultas, analisar cenas, interrogar pessoas e desvendar mistérios complexos." },
+        "Jornalista": { nome: "Jornalista Investigativo", p1: "Atualidades", p2: "Investigação", ncBase: 1, search: "atualidades investigacao jornalista", desc: "Profissional da mídia sempre em busca da verdade (ou de um furo de reportagem), custe o que custar." },
         "Criminoso": { nome: "Mafioso", p1: "Crime", p2: "Intuição", ncBase: 2, search: "crime intuicao mafioso", desc: "Vive ou viveu à margem da lei, acostumado com o submundo e familiarizado com contatos e táticas ilícitas." },
-        "Cirurgiao": { nome: "Médico Cirurgião", p1: "Medicina", p2: "Persuasão", ncBase: 2, search: "medicina resiliencia medico legista", desc: "Profissional especializado na prática de cirurgias e atendimentos de mesa complexos." },
-        "Legista": { nome: "Médico Legista", p1: "Resiliência", p2: "Medicina", ncBase: 2, search: "medicina resiliencia medico legista", desc: "Profissional avançado, focado em anatomia profunda ou análise e perícia de cadáveres." },
-        "Morador de Rua": { nome: "Morador de Rua", p1: "Sobrevivência", p2: "Furtividade", ncBase: -2, search: "sobrevivencia furtividade morador de rua", desc: "Sem teto, aprendeu a sobreviver com quase nada. Sabe passar despercebido e conhece segredos que a cidade tenta esconder." },
-        "Operario": { nome: "Operário", p1: "Fortitude", p2: "Engenharia", ncBase: 0, search: "fortitude engenharia operario", desc: "Trabalhador braçal, que construiu resistência através de esforço físico contínuo e rotinas extremamente desgastantes." },
-        "Policial": { nome: "Policial", p1: "Investigação", p2: "Balística", ncBase: 1, search: "balistica investigacao pontaria", desc: "Treinado pela academia e pelo Estado para manter a ordem, lidar com cenas de crime e neutralizar ameaças físicas." },
-        "Religioso": { nome: "Religioso", p1: "Religião", p2: "Resiliência", ncBase: 0, search: "religiao resiliência religioso", desc: "Guiado pela fé, dedica a vida aos dogmas de sua crença, prestando conforto espiritual e buscando respostas no divino." },
+        "Cirurgiao": { nome: "Médico Cirurgião", p1: "Medicina", p2: "Persuasão", ncBase: 2, search: "medicina persuasao medico cirurgiao", desc: "Profissional especializado na prática de cirurgias e atendimentos de mesa complexos." },
+        "Legista": { nome: "Médico Legista", p1: "Resiliência", p2: "Medicina", ncBase: 2, search: "medicina resiliencia medico legista", desc: "Profissional avançado, focado em anatomia profunda, cirurgias complexas ou análise e perícia de cadáveres." },
+        "Morador de Rua": { nome: "Morador de Rua", p1: "Sobrevivência", s1: "Urbana", p2: "Furtividade", ncBase: -2, search: "sobrevivencia urbana furtividade morador de rua", desc: "Sem teto, aprendeu a sobreviver com quase nada. Sabe passar despercebido e conhece segredos que a cidade tenta esconder." },
+        "Operario": { nome: "Operário", p1: "Fortitude", p2: "Engenharia", ncBase: 1, search: "fortitude engenharia operario", desc: "Trabalhador braçal, que construiu resistência através de esforço físico contínuo e rotinas extremamente desgastantes." },
+        "Policial": { nome: "Policial", p1: "Investigação", p2: "Balística", s2: "Pistolas", ncBase: 1, search: "investigacao balistica pistolas policial", desc: "Treinado pela academia e pelo Estado para manter a ordem, lidar com cenas de crime e, raramente, neutralizar ameaças físicas." },
+        "Religioso": { nome: "Religioso", p1: "Religião", p2: "Resiliência", ncBase: 1, search: "religiao resiliencia religioso", desc: "Guiado pela fé, dedica a vida aos dogmas de sua crença, prestando conforto espiritual e buscando respostas no divino." },
         "Vigarista": { nome: "Vigarista", p1: "Persuasão", p2: "Crime", ncBase: -1, search: "persuasao crime vigarista", desc: "Sobrevive de pequenos golpes. Usa a lábia, esquemas e blefes para obter ganhos rápidos e enganar pessoas." }
     };
 
     const templatesAtaques = { 
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
-        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Escopeta": { nome: "Escopeta", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Espingardas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        // Livro v1.2 — Tabelas de Itens Expandidas (Apêndice)
+        "Soco": { nome: "Soco (Desarmado)", dano: "1d3+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
         "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
         "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
-        "Fuzil": { nome: "Fuzil de Assalto", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
-        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Longo" },
-        "Glock": { nome: "Glock", dano: "1d8", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Katana": { nome: "Katana", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "TacoBasebol": { nome: "Taco de Basebol", dano: "1d6+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "PeDeCabraArma": { nome: "Pé de Cabra", dano: "1d6", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 2, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "BengalaEspada": { nome: "Bengala-Espada", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d6+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "MachadoLenhador": { nome: "Machado de Lenhador", dano: "1d8+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Marreta": { nome: "Marreta de Demolição", dano: "1d10+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
         "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
+        "Taser": { nome: "Taser de Contato", dano: "1", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Soco": { nome: "Soco (Ataque)", dano: "1+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "PistolaSilenciada": { nome: "Pistola Silenciada", dano: "1d6", tipo: "Balístico", alcance: "Curto", municao: "10/10", bonus: 1, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Revolver": { nome: "Revólver .38", dano: "1d8", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Glock": { nome: "Glock 19", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "DesertEagle": { nome: "Desert Eagle", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "7/7", bonus: -1, pericia: "Balística (Pistolas)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "Submetralhadora": { nome: "Submetralhadora", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Taser": { nome: "Taser", dano: "1d4+Atordoado", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" }
+        "Escopeta": { nome: "Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Espingardas)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Fuzil": { nome: "AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Metralhadora": { nome: "Metralhadora Ligeira", dano: "3d8", tipo: "Balístico", alcance: "Médio", municao: "100", bonus: -2, pericia: "Balística (Artilharia)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo/Extremo", municao: "5/5", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Longo" },
+        "Dinamite": { nome: "Granada / Dinamite", dano: "4d6", tipo: "Fogo/Impacto", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" }
     };
 
     const templatesTracos = {
     "EuConhecoUmCara": { nome: "Eu Conheço Um Cara", descricao: "Você tem um contato que lhe deve um favor.\nNível 1: Feirante, porteiro;\nNível 2: Policial, gerente;\nNível 3: Diretor de hospital, chefe do crime organizado." },
     "Executor": { nome: "Executor", descricao: "Você age primeiro e pensa depois. E, se não der certo da primeira vez, tenta de novo até conseguir, vencendo pela força de sua perseverança. A cada 2 falhas você recebe +1 no seu próximo teste." },
     "Analista": { nome: "Analista", descricao: "Voce observa, entende e se prepara, para so então agir com precisão. Você pode gastar uma ação e 2 PF para observar um ser ou um ambiente. Você recebe +1d3 que pode usar em testes relativos àquele ser ou ambiente até o fim da cena." },
-    "Vigilante": { nome: "Vigilante", descricao: "Você está sempre atento aos arredores, aproveitando brechas perfeitas para agir e não tem problemas em tomar decisões sob pressão. No início de qualquer conflito, você pode gastar 2 PF para ganhar uma rodada na qual pode agir antes dos demais personagens e NPCs." }
+    "Vigilante": { nome: "Vigilante", descricao: "Você está sempre atento aos arredores, aproveitando brechas perfeitas para agir e não tem problemas em tomar decisões sob pressão. No início de qualquer conflito, você pode gastar 2 PF para ganhar uma rodada na qual pode agir antes dos demais personagens e NPCs." },
+    // ---- Livro v1.2: traço de exemplo e modificadores de idade ----
+    "FocoDeterminado": { nome: "Foco Determinado", descricao: "Pré-requisito: SAG 2.\nVocê é um especialista obsessivo que abdicou de seus conhecimentos gerais para focar em um assunto. Você tem −4 pontos para as perícias iniciais, mas sua Perícia Principal de Origem começa direto com +5 (Especialista), e você pode rerrolar resultados 1 nos dados sempre que usá-la." },
+    "IdadePequeno": { nome: "Pequeno (Criança)", descricao: "Menoridade — obrigatório (9 a 13 anos). +2 em Furtividade, mas o limite de FOR e VIG é 1." },
+    "IdadeIngenuo": { nome: "Ingênuo (Menoridade)", descricao: "Menoridade — obrigatório (9 a 17 anos). Ao escolher a Origem, qualquer bônus inicial de +3 se torna apenas +1." },
+    "IdadeImpeto": { nome: "Ímpeto Juvenil (Adolescente)", descricao: "Menoridade — obrigatório (14 a 17 anos). +3 PF máximos: a confiança exagerada permite forçar o corpo um pouco mais antes de ceder." },
+    "MarcaCatarata": { nome: "Marca da Idade: Catarata", descricao: "Seus olhos já não são os mesmos. −2 em Percepção e ataques à distância." },
+    "MarcaArticulacoes": { nome: "Marca da Idade: Articulações Rígidas", descricao: "Suas articulações já não respondem como antes. Não pode utilizar a ação Disparada." },
+    "MarcaDistraido": { nome: "Marca da Idade: Distraído", descricao: "Você demora um pouco mais para perceber quando uma situação se altera ao redor. Fica Desprevenido na primeira rodada de todo combate e perde o primeiro turno em investigação." },
+    "MarcaTeimoso": { nome: "Marca da Idade: Teimoso", descricao: "Você prefere resolver tudo do seu jeito. Não pode receber benefícios da ação Ajudar." },
+    "MarcaSonoLeve": { nome: "Marca da Idade: Sono Leve", descricao: "Você raramente consegue uma noite realmente reparadora. Recupera apenas metade dos valores obtidos durante um descanso." },
+    "MarcaRabugento": { nome: "Marca da Idade: Rabugento", descricao: "Você tem dificuldade para lidar com as pessoas. −3 em testes de Persuasão." }
     };
     
     const templatesEspecializacoes = {};
@@ -2859,18 +2880,39 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
     
 
     const templatesInventario = { 
-        "Adrenalina": { nome: "Seringa de Adrenalina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação rápida. Remove a condição 'Atordoado' e cura 5 PV temporários que somem e causam Exaustão no fim da cena." },
+        // Livro v1.2 — Inventário (cap. 6) e Tabelas de Itens Expandidas (Apêndice)
+        "Adrenalina": { nome: "Seringa de Adrenalina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação rápida. Remove a condição Atordoado e concede 10 PV temporários, que somem no fim da cena." },
+        "Aspirina": { nome: "Comprimido de Aspirina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação de Movimento. Alivia dores de cabeça e estresse mental, recuperando 1d3 de Lucidez. Automedicação: 1 vez por dia; antes de um descanso longo, cada nova aplicação exige uma dose a mais (2, 3...)." },
+        "Bandagem": { nome: "Bandagem", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Esterilização rápida e tampão. +1 em Medicina e cura 1d3 PV." },
+        "CantilBebida": { nome: "Cantil com Uísque", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Um gole para acalmar os nervos. Recupera 1d4 de Lucidez, mas você sofre −1 em testes de AGI e SAG por 1 hora." },
+        "KitPrimeirosSocorros": { nome: "Kit de Primeiros Socorros", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Garante +3 no teste de Medicina (2 usos) ou pode ser consumido para curar 1d3+4 PV (uso único). Recurso abstrato: após usar, role 1d6 — com 1 ou 2 os suprimentos acabam." },
+        "MunicaoPontaOca": { nome: "Munição Ponta Oca", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "+2 de dano contra alvos de carne, mas o dano é cortado pela metade se o alvo tiver colete ou cobertura maior que RD 4." },
+        "MunicaoPerfurante": { nome: "Munição Perfurante", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ignora até 4 pontos de RD de coberturas ou coletes. Dano normal contra carne." },
         "Algemas": { nome: "Algemas Táticas", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Feitas de aço reforçado. Exigem um teste de Força DT 25 ou Crime DT 20 para escapar." },
-        "Aspirina": { nome: "Pote de Aspirina", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Ação rápida. Alivia dores de cabeça e estresse mental, recuperando 1d3 de lucidez." },
-        "Bandagem": { nome: "Bandagem", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Cura 1d3 PV." },
-        "CantilBebida": { nome: "Cantil com Uísque", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Um gole para acalmar os nervos. Cura 1d4 de Sanidade, mas você sofre -2 em testes com Agilidade por 1 hora." },
-        "ColeteLeve": { nome: "Colete Balístico Leve", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Concede +2 Resistência de Dano (RD) (Balístico)." },
-        "ColetePesado": { nome: "Colete Balístico Pesado", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "PRÉ-REQ: FOR 1; Concede +1 Defesa e +4 Resistência de Dano (RD) (Balístico). Mas diminui o Deslocamento em -4m." },
-        "KitInvestigacao": { nome: "Maleta de Investigação", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Luvas, pinças, pó de digital e luz UV. Garante Vantagem em Investigação." },
-        "KitPrimeirosSocorros": { nome: "Kit de Primeiros Socorros", categoria: "Consumível", pressao: 0, quantidade: 1, descricao: "Garante +3 no teste de Medicina ou pode ser consumido (uso único) para curar 1d4+2 PV." },
-        "LanternaComum": { nome: "Lanterna Comum", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Ilumina áreas." },
-        "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas maiores. Além disso, você pode gastar uma ação de movimento para mirar a luz nos olhos de um ser em alcance curto. Ele fica 'Cego' por 1 rodada, mas imune à lanterna pelo resto da cena." },
-        "PeDeCabra": { nome: "Pé de Cabra", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Ajuda a abrir portas trancadas (+2 Atletismo/Crime). Pode servir de arma (1d6 Impacto)." }
+        "ColeteLeve": { nome: "Colete Balístico Leve", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Transforma todo dano Balístico recebido no tronco em dano de Impacto e reduz esse dano base pela metade." },
+        "ColetePesado": { nome: "Colete Tático Pesado", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Transforma dano Balístico em Impacto e concede RD 8 no tronco. Reduz o Deslocamento do usuário pela metade." },
+        "KitInvestigacao": { nome: "Maleta de Investigação", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Luvas, pinças, pó de digital e luz UV. Garante +2 em Investigação." },
+        "KitForense": { nome: "Kit Forense Avançado", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Contém luz UV, reagente de luminol, pinças e pó para impressões digitais. Garante +2 em testes de Investigação. Recurso abstrato: após usar, role 1d6 — com 1 ou 2 acaba." },
+        "KitArrombamento": { nome: "Kit de Arrombamento", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Gazuas, clipes de tensão e chaves-mestras. Sem isto, testes de Crime para fechaduras têm Desvantagem." },
+        "Lanterna": { nome: "Lanterna Tática", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina áreas. Permite gastar uma Ação de Movimento para apontar o foco nos olhos de um alvo em alcance curto: ele fica Cego por 1 rodada (ficando imune a este efeito pelo resto da cena)." },
+        "Binoculo": { nome: "Binóculo", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Permite observar alvos e cenários a Longo e Extremo alcance com clareza, sem sofrer Desvantagem em Percepção." },
+        "ComputadorTatico": { nome: "Computador Portátil Tático", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Bateria de longa duração e resistente a quedas. Essencial para testes de Tecnologia em campo." },
+        "MascaraGas": { nome: "Máscara de Gás", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Protege os olhos e vias respiratórias. Torna o utilizador imune a gases lacrimogêneos, fumo denso e toxinas inaláveis." },
+        "VisaoNoturna": { nome: "Óculos de Visão Noturna", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Permite ver no escuro absoluto em tons de verde. Qualquer fonte de luz forte e súbita causa a condição Cego por 1 rodada." },
+        "Supressor": { nome: "Supressor (Silenciador)", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Abafa o som do disparo: exige Percepção DT 16 de quem estiver noutra sala para ouvir. Reduz o dano máximo da arma em −2." },
+        "MiraLaser": { nome: "Mira Laser", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Concede +1 de bônus fixo em rolagens de Pontaria em alcance Curto." },
+        "MiraTelescopica": { nome: "Mira Telescópica", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Permite engajar alvos nos alcances Longo e Extremo sem Desvantagem. Exige a ação Mirar." },
+        "LanternaAcoplada": { nome: "Lanterna Acoplada", categoria: "Equipamento", pressao: 0, quantidade: 1, descricao: "Ilumina o cone de visão da arma, removendo penalidades por escuridão, mas revela a sua posição." },
+        "LanternaComum": { nome: "Lanterna Comum", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Ilumina áreas escuras em um cone à frente." },
+        "PeDeCabra": { nome: "Pé de Cabra", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Ajuda a abrir portas trancadas (+2 Crime). Pode servir de arma (1d6 Impacto)." },
+        "Lupa": { nome: "Lupa", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Instrumento de ampliação óptica. Concede +1 em testes de Investigação para examinar detalhes minuciosos e documentos." },
+        "Luvas": { nome: "Luvas Táticas / Cirúrgicas", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Evitam deixar impressões digitais em cenas de crime e protegem as mãos contra contaminação leiga." },
+        "FitaAdesiva": { nome: "Fita Adesiva", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Fita reforçada tipo silvertape. Útil para conter alvos, lacrar acessos ou improvisar reparos e estancamentos." },
+        "Gravador": { nome: "Gravador de Voz", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Dispositivo compacto de gravação de áudio. Garante registro fiel de depoimentos, chantagens e interrogatórios." },
+        "CameraFilmadora": { nome: "Câmera Filmadora", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Registra áudio e vídeo contínuos. Útil para documentar eventos e revisar detalhes de movimentação posteriormente." },
+        "CameraReflex": { nome: "Câmera Fotográfica Reflex", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Registra provas em alta resolução com flash. Concede Vantagem para recordar detalhes de cenas passadas." },
+        "Radio": { nome: "Rádio de Curta Frequência", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Comunicação limpa até 5 km. Interceptável se não for encriptado." },
+        "TelefoneDescartavel": { nome: "Telefone Descartável", categoria: "Geral", pressao: 0, quantidade: 1, descricao: "Aparelho sem rastreio de GPS nem plano de dados. Seguro para contactar o submundo." }
     };
 
     const bancoPericias = {
@@ -3360,7 +3402,7 @@ let filtroSubAtualAtaques = 'Todos';
         else if (tipo === 'espec') { d = templatesEspecializacoes[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'anomalia') { d = templatesAnomalias[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}${d.preRequisitos ? '<br><strong>Pré-requisitos:</strong> ' + d.preRequisitos : ''}<br><strong>Efeito:</strong> ${d.efeito || d.descricao}`; }
         else if (tipo === 'item') { d = templatesInventario[val]; if(d) p.innerHTML = `<strong>Categoria:</strong> ${d.categoria} | <strong>Efeito:</strong> ${d.descricao}`; }
-        else if (tipo === 'origem') { d = templatesOrigens[val]; if(d) p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${d.desc}</span><strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${d.p1} (+3), ${d.p2} (+1)<br><strong style="color:var(--op-red)">Nível de Crédito:</strong> ${d.ncBase}`; }
+        else if (tipo === 'origem') { d = templatesOrigens[val]; if(d) p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${d.desc}</span><strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${d.p1}${d.s1 ? ' (' + d.s1 + ')' : ''} (+3), ${d.p2}${d.s2 ? ' (' + d.s2 + ')' : ''} (+1)<br><strong style="color:var(--op-red)">Nível de Crédito:</strong> ${d.ncBase}`; }
     }
 
     async function aplicarTemplateModal(c) { 
@@ -4822,9 +4864,18 @@ let filtroSubAtualAtaques = 'Todos';
                 }
             };
 
-            // Aplica nas duas perícias da origem
-            if (origem.p1) aplicarTreino(origem.p1, "3");
-            if (origem.p2) aplicarTreino(origem.p2, "1");
+            // Aplica nas duas perícias da origem; se o livro indicar a subperícia, ela recebe o grau
+            const aplicarTreinoSub = (nomePericia, sub, valorBonus) => {
+                const subs = (bancoPericias[nomePericia] || {}).subs || [];
+                const idx = subs.indexOf(sub);
+                const sel = idx >= 0 ? document.getElementById(`sub-treino-${nomePericia}-${idx}`) : null;
+                if (!sel) return aplicarTreino(nomePericia, valorBonus);
+                sel.value = valorBonus; atualizarCorSub(nomePericia, idx, valorBonus);
+                const inputBase = document.getElementById('base-treino-' + nomePericia);
+                if (inputBase) { inputBase.value = "true"; atualizarTreinoBase(nomePericia, true); }
+            };
+            if (origem.p1) { if (origem.s1) aplicarTreinoSub(origem.p1, origem.s1, "3"); else aplicarTreino(origem.p1, "3"); }
+            if (origem.p2) { if (origem.s2) aplicarTreinoSub(origem.p2, origem.s2, "1"); else aplicarTreino(origem.p2, "1"); }
 
             // Atualiza a nova base financeira realista
             let ncAtualInput = document.getElementById('nivel-credito');
@@ -5091,13 +5142,16 @@ let filtroSubAtualAtaques = 'Todos';
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (V5.1)
+        // MOTOR COOPERATIVO DE INICIATIVA (V6)
+        // O mestre liga/desliga o combate: o painel só aparece para os
+        // jogadores enquanto o combate estiver ativo.
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
         let opcoesDeCombatentes = [];
         let escutaCombateRealtime = null;
         let dragSourceIndex = null;
+        window.__ultimoCombate = {};
 
         if (!document.getElementById('pulse-anim')) {
             const style = document.createElement('style');
@@ -5106,16 +5160,61 @@ let filtroSubAtualAtaques = 'Todos';
             document.head.appendChild(style);
         }
 
+        // combate sem o campo "ativo" (versões antigas) conta como ativo se já tiver alguém na ordem
+        const combateEstaAtivo = c => !!c && (c.ativo === true || (c.ativo === undefined && Array.isArray(c.ordem) && c.ordem.length > 0));
+        // livro: maior valor; empate -> maior AGI; persistindo -> 1d20 puro (desempate)
+        const ordenarIniciativa = arr => arr.sort((a, b) => ((parseInt(b.valor) || 0) - (parseInt(a.valor) || 0)) || ((parseInt(b.agi) || 0) - (parseInt(a.agi) || 0)) || ((parseInt(b.desempate) || 0) - (parseInt(a.desempate) || 0)));
+        const rolarD20 = () => 1 + Math.floor(Math.random() * 20);
+        const refCombate = () => db.collection("combates").doc(idDaCampanhaAtiva);
+        const escIni = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        // grava numa transação (evita que duas pessoas sobrescrevam a ordem ao mesmo tempo)
+        async function mutarCombateFicha(fn) {
+            if (!idDaCampanhaAtiva) return;
+            try {
+                await db.runTransaction(async t => {
+                    const s = await t.get(refCombate());
+                    const atualC = s.exists ? JSON.parse(JSON.stringify(s.data())) : {};
+                    const up = fn(atualC);
+                    if (!up) return;
+                    if (s.exists) t.update(refCombate(), up); else t.set(refCombate(), up);
+                });
+            } catch (e) { console.log(e); alert("Não foi possível atualizar o combate. Tente de novo."); }
+        }
+        // insere/atualiza um combatente mantendo a vez com quem já estava agindo
+        function inserirOrdenado(c, entrada) {
+            const ordemAnt = Array.isArray(c.ordem) ? c.ordem : [];
+            const idAtual = (ordemAnt[parseInt(c.turnoAtual) || 0] || {}).id;
+            const ordem = ordemAnt.filter(x => x.id !== entrada.id);
+            ordem.push(entrada); ordenarIniciativa(ordem);
+            let t = idAtual ? ordem.findIndex(x => x.id === idAtual) : 0; if (t < 0) t = 0;
+            return { ordem, turnoAtual: t, rodadaAtual: Math.max(1, parseInt(c.rodadaAtual) || 1) };
+        }
+
         function togglePainelIniciativa() {
             const painel = document.getElementById('painel-iniciativa-combate');
             if (painel) painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
         }
 
+        // mestre sempre vê o botão (para iniciar o combate); jogador só com o combate ativo
+        window.atualizarVisibilidadeCombate = function() {
+            const btn = document.getElementById('btn-toggle-iniciativa');
+            const painel = document.getElementById('painel-iniciativa-combate');
+            if (!btn || !idDaCampanhaAtiva) return;
+            const ativo = combateEstaAtivo(window.__ultimoCombate);
+            const mostrar = ativo || souMestreDestaCampanha;
+            btn.style.display = mostrar ? 'block' : 'none';
+            if (!mostrar && painel) painel.style.display = 'none';
+            const tg = document.getElementById('btn-combate-toggle');
+            if (tg) { tg.textContent = ativo ? '■ ENCERRAR COMBATE' : '⚔ INICIAR COMBATE'; tg.classList.toggle('ativo', ativo); }
+            const lm = document.getElementById('link-mesa-mestre');
+            if (lm) lm.href = 'mesa.html?campanha=' + encodeURIComponent(idDaCampanhaAtiva);
+        };
+
         async function inicializarSistemaIniciativa(campanhaId, usuarioLogado) {
             if (!campanhaId || !usuarioLogado) return;
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => inicializarSistemaIniciativa(campanhaId, usuarioLogado), { once: true }); return; }
             idDaCampanhaAtiva = campanhaId; 
-
-            document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
@@ -5133,6 +5232,7 @@ let filtroSubAtualAtaques = 'Todos';
                     const n = (document.getElementById('nome-personagem')?.value || '').trim();
                     lblNome.textContent = n ? ('⚔️ ' + n.split(/\s+/)[0]) : '';
                 }
+                window.atualizarVisibilidadeCombate();
             };
 
             const chavePapel = campanhaId + '|' + usuarioLogado.uid;
@@ -5172,27 +5272,51 @@ let filtroSubAtualAtaques = 'Todos';
                 });
             }
 
+            // a ficha chama isto a cada salvamento: mantém a mesma escuta enquanto a campanha não muda
+            if (escutaCombateRealtime && window.__iniEscutaCamp === campanhaId) return;
             if (escutaCombateRealtime) escutaCombateRealtime();
+            window.__iniEscutaCamp = campanhaId;
             escutaCombateRealtime = db.collection("combates").doc(campanhaId).onSnapshot(doc => {
                 if (!listaContainer) return;
+                const dados = doc.exists ? (doc.data() || {}) : {};
+                window.__ultimoCombate = dados;
+                const ativo = combateEstaAtivo(dados);
                 listaContainer.innerHTML = "";
 
                 let isMinhaVez = false;
                 let meuIndexNaOrdem = -1;
+                const ordem = Array.isArray(dados.ordem) ? dados.ordem : [];
+                const turnoAtual = parseInt(dados.turnoAtual) || 0;
+                const rodadaAtual = parseInt(dados.rodadaAtual) || 1;
 
-                if (doc.exists && doc.data().ordem && doc.data().ordem.length > 0) {
-                    const ordem = doc.data().ordem;
-                    const turnoAtual = doc.data().turnoAtual || 0;
-                    const rodadaAtual = doc.data().rodadaAtual || 1;
+                // "INATIVO" (sem número) também desliga o contador de reações da aba Combate
+                document.getElementById('display-rodada').innerText = ativo ? `RODADA ${rodadaAtual}` : 'INATIVO';
 
-                    document.getElementById('display-rodada').innerText = `RODADA ${rodadaAtual}`;
+                if (!ativo && souMestreDestaCampanha) {
+                    const aviso = document.createElement('div');
+                    aviso.style.cssText = "font-size:10px; color:var(--cor-geral); font-family:'Inter',sans-serif; letter-spacing:.04em; text-align:center; padding:2px 0 6px;";
+                    aviso.textContent = ordem.length ? 'PREPARANDO — oculto dos jogadores até iniciar.' : 'Combate inativo — os jogadores não veem este painel.';
+                    listaContainer.appendChild(aviso);
+                }
 
+                if (ordem.length > 0) {
                     ordem.forEach((combatente, index) => {
-                        const isCurrentTurn = (index === turnoAtual);
+                        const isCurrentTurn = ativo && (index === turnoAtual);
                         
                         if (combatente.id === minhaFichaId) {
                             meuIndexNaOrdem = index;
                             if (isCurrentTurn) isMinhaVez = true;
+                        }
+
+                        // jogadores consecutivos: o livro permite que reorganizem a ordem entre si
+                        const aliado = combatente.tipo !== 'ameaca';
+                        const antAliado = index > 0 && ordem[index - 1].tipo !== 'ameaca';
+                        const proxAliado = index + 1 < ordem.length && ordem[index + 1].tipo !== 'ameaca';
+                        if (aliado && !antAliado && proxAliado) {
+                            const g = document.createElement('div');
+                            g.className = 'ini-grupo-aliados';
+                            g.textContent = 'ALIADOS · ordem livre entre si';
+                            listaContainer.appendChild(g);
                         }
 
                         const bgCor = isCurrentTurn ? "var(--op-red)" : "var(--card-bg)";
@@ -5202,7 +5326,7 @@ let filtroSubAtualAtaques = 'Todos';
                         const item = document.createElement('div');
                         item.className = 'draggable-item';
                         item.dataset.index = index;
-                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
+                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; ${aliado ? 'border-left: 3px solid ' + (isCurrentTurn ? '#fff' : 'var(--san-purple)') + ';' : ''} background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
                         
                         if (souMestreDestaCampanha) {
                             item.draggable = true;
@@ -5235,26 +5359,29 @@ let filtroSubAtualAtaques = 'Todos';
                         let botoesMestre = '';
                         if (souMestreDestaCampanha) {
                             if (index < ordem.length - 1 && combatente.valor === ordem[index+1].valor && combatente.agi === ordem[index+1].agi) {
-                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de Agilidade! Clique para inverter">🔃</span>`;
+                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de valor e Agilidade (desempatado por 1d20). Clique para inverter">🔃</span>`;
                             }
                             botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
                         }
 
                         const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
                         const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
+                        const nomeExibido = combatente.tipo === 'ameaca' ? combatente.nome : String(combatente.nome || '').trim().split(/\s+/)[0];
 
                         item.innerHTML = `
-                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${combatente.tipo === 'ameaca' ? combatente.nome : String(combatente.nome || '').trim().split(/\s+/)[0]}</span>
+                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${escIni(nomeExibido)}</span>
                             <div style="display: flex; align-items: center;">
                                 ${botoesMestre}
-                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${combatente.agi}">${combatente.valor}</span>
+                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${parseInt(combatente.agi) || 0}">${parseInt(combatente.valor) || 0}</span>
                             </div>
                         `;
                         listaContainer.appendChild(item);
                     });
                 } else {
-                    document.getElementById('display-rodada').innerText = `RODADA 0`;
-                    listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px;'>Nenhum combate ativo.</div>";
+                    const vazio = document.createElement('div');
+                    vazio.style.cssText = "text-align:center; font-size:11px; color:#888; padding:10px;";
+                    vazio.textContent = ativo ? 'Combate iniciado — envie sua iniciativa.' : 'Nenhum combate ativo.';
+                    listaContainer.appendChild(vazio);
                 }
 
                 const btnToggle = document.getElementById('btn-toggle-iniciativa');
@@ -5271,12 +5398,12 @@ let filtroSubAtualAtaques = 'Todos';
                     btnToggle.style.color = "var(--bg-paper)";
                     btnToggle.style.borderColor = "var(--card-border)";
                     btnToggle.style.animation = "none";
-                    btnToggle.innerText = "⚔️ Iniciativa";
+                    btnToggle.innerText = ativo ? "⚔️ Iniciativa" : "⚔️ Combate";
                 }
 
                 // LIBERA A AMPULHETA PARA O JOGADOR A QUALQUER MOMENTO (desde que não seja o último)
                 if (btnAtrasar) {
-                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < (doc.data()?.ordem?.length || 0) - 1);
+                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < ordem.length - 1);
                     if (podeAtrasar) {
                         btnAtrasar.style.borderColor = "var(--op-red)";
                         btnAtrasar.style.opacity = "1";
@@ -5287,6 +5414,9 @@ let filtroSubAtualAtaques = 'Todos';
                         btnAtrasar.style.pointerEvents = "none";
                     }
                 }
+
+                window.atualizarVisibilidadeCombate();
+                if (typeof window.renderRelogioJogador === 'function') window.renderRelogioJogador(dados.relogio);
             });
         }
 
@@ -5301,55 +5431,57 @@ let filtroSubAtualAtaques = 'Todos';
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
+        // ---- MESTRE: liga/desliga o combate ----
+        window.alternarCombateFicha = async function() {
+            if (!souMestreDestaCampanha || !idDaCampanhaAtiva) return;
+            const ativo = combateEstaAtivo(window.__ultimoCombate);
+            if (ativo) {
+                if (!confirm("Encerrar o combate? A ordem de iniciativa será limpa e o painel some para os jogadores.")) return;
+                await mutarCombateFicha(() => ({ ativo: false, ordem: [], turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {} }));
+            } else {
+                await mutarCombateFicha(c => ({ ativo: true, turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ordem: Array.isArray(c.ordem) ? c.ordem : [] }));
+            }
+        };
+
         window.executarReordenacaoMestre = async function(origem, destino) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    const [combatenteMovido] = ordem.splice(origem, 1);
-                    ordem.splice(destino, 0, combatenteMovido);
-                    await docRef.update({ ordem: ordem, turnoAtual: 0 });
-                }
-            } catch (e) { console.log(e); }
+            await mutarCombateFicha(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem.slice() : [];
+                if (origem < 0 || origem >= ordem.length) return null;
+                const idAtual = (ordem[parseInt(c.turnoAtual) || 0] || {}).id;
+                const [combatenteMovido] = ordem.splice(origem, 1);
+                ordem.splice(destino, 0, combatenteMovido);
+                return { ordem: ordem, turnoAtual: Math.max(0, ordem.findIndex(x => x.id === idAtual)) };
+            });
         };
 
         window.atrasarMinhaVez = async function() {
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
             if (!minhaFichaId || !idDaCampanhaAtiva) return;
+            await mutarCombateFicha(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem.slice() : [];
+                let turno = parseInt(c.turnoAtual) || 0;
+                const meuIndex = ordem.findIndex(x => x.id === minhaFichaId);
+                if (meuIndex === -1) return null;
+                if (meuIndex >= ordem.length - 1) { alert("Você já é o último da ordem."); return null; }
+                const idDoTurnoAtual = ordem[turno] ? ordem[turno].id : null;
+                // Troca de lugar com o combatente logo abaixo na lista
+                const temp = ordem[meuIndex]; ordem[meuIndex] = ordem[meuIndex + 1]; ordem[meuIndex + 1] = temp;
+                // Garante que o turno não pule quem já estava jogando
+                if (meuIndex !== turno && idDoTurnoAtual) turno = ordem.findIndex(x => x.id === idDoTurnoAtual);
+                return { ordem: ordem, turnoAtual: turno };
+            });
+        };
 
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    let turno = doc.data().turnoAtual || 0;
-
-                    const meuIndex = ordem.findIndex(c => c.id === minhaFichaId);
-
-                    if (meuIndex !== -1) {
-                        if (meuIndex >= ordem.length - 1) {
-                            alert("Você já é o último da ordem.");
-                            return;
-                        }
-
-                        let idDoTurnoAtual = ordem[turno] ? ordem[turno].id : null;
-
-                        // Troca de lugar com o cara logo abaixo na lista
-                        let temp = ordem[meuIndex];
-                        ordem[meuIndex] = ordem[meuIndex + 1];
-                        ordem[meuIndex + 1] = temp;
-
-                        // Garante que o turno não pule quem já estava jogando
-                        if (meuIndex !== turno && idDoTurnoAtual) {
-                            turno = ordem.findIndex(c => c.id === idDoTurnoAtual);
-                        }
-
-                        await docRef.update({ ordem: ordem, turnoAtual: turno });
-                    }
-                }
-            } catch (e) { console.log(e); }
+        // 1d20 + AGI + Proatividade (treino + bônus) — livro, cap. Combate
+        window.rolarIniciativaJogador = function() {
+            const agi = parseInt(document.getElementById('attr-agi')?.value) || 0;
+            const pro = (parseInt(document.getElementById('treino-Proatividade')?.value) || 0) + (parseInt(document.getElementById('bonus-Proatividade')?.value) || 0);
+            const dado = rolarD20(), total = dado + agi + pro;
+            const inp = document.getElementById('input-minha-iniciativa');
+            if (inp) { inp.value = total; inp.dataset.dado = dado; inp.title = `d20 ${dado} + AGI ${agi} + Proatividade ${pro}`; }
+            const lbl = document.getElementById('init-meu-personagem');
+            if (lbl) lbl.textContent = `🎲 d20 ${dado} ${agi >= 0 ? '+' : ''}${agi} AGI ${pro >= 0 ? '+' : ''}${pro} PROAT. = ${total}${dado === 20 ? ' (20 natural!)' : dado === 1 ? ' (1 natural)' : ''}`;
         };
 
         window.enviarMinhaIniciativa = async function() {
@@ -5359,7 +5491,11 @@ let filtroSubAtualAtaques = 'Todos';
             const minhaFichaId = myUrlParams.get('id');
 
             if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) {
-                alert("Insira um valor.");
+                alert("Insira um valor (ou use 🎲 para rolar).");
+                return;
+            }
+            if (!combateEstaAtivo(window.__ultimoCombate) && !souMestreDestaCampanha) {
+                alert("O mestre ainda não iniciou o combate.");
                 return;
             }
 
@@ -5371,6 +5507,7 @@ let filtroSubAtualAtaques = 'Todos';
                 if (snap.exists) {
                     meuNome = snap.data().nome || "Persona";
                     minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
+                    if (snap.data().isNpcAmeaca) meuTipo = "ameaca";
                     const uAtualIni = firebase.auth().currentUser;
                     if (!souMestreDestaCampanha && uAtualIni && snap.data().dono && snap.data().dono !== uAtualIni.uid) {
                         alert("Você só pode enviar a iniciativa da sua própria ficha.");
@@ -5386,26 +5523,11 @@ let filtroSubAtualAtaques = 'Todos';
                     } else { return; }
                 }
 
-                const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-                const doc = await docRef.get();
-                let ordemAtual = [], turnoSalvo = 0, rodadaSalva = 1;
-
-                if (doc.exists && doc.data().ordem) {
-                    ordemAtual = doc.data().ordem;
-                    turnoSalvo = doc.data().turnoAtual || 0;
-                    rodadaSalva = doc.data().rodadaAtual || 1;
-                }
-
-                ordemAtual = ordemAtual.filter(c => c.id !== minhaFichaId);
-                ordemAtual.push({ id: minhaFichaId, nome: meuNome, tipo: meuTipo, valor: valorInic, agi: minhaAgi });
-
-                ordemAtual.sort((a, b) => {
-                    if (b.valor !== a.valor) return b.valor - a.valor;
-                    return b.agi - a.agi;
-                });
-
-                await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
+                const entrada = { id: minhaFichaId, nome: meuNome, tipo: meuTipo, col: 'fichas', valor: valorInic, agi: minhaAgi, desempate: rolarD20() };
+                if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+                await mutarCombateFicha(c => inserirOrdenado(c, entrada));
                 inputVal.value = "";
+                delete inputVal.dataset.dado;
                 inputVal.placeholder = "Ok!";
                 setTimeout(() => inputVal.placeholder = "Valor...", 1500);
             } catch (e) { inputVal.placeholder = "Valor..."; }
@@ -5419,22 +5541,35 @@ let filtroSubAtualAtaques = 'Todos';
                 const fichasSnap = await db.collection("fichas").where("campanhaId", "==", idDaCampanhaAtiva).get();
                 fichasSnap.forEach(doc => {
                     const d = doc.data();
-                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Persona", tipo: "ficha", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
+                    const p = (d.pericias || {}).Proatividade || {};
+                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Persona", tipo: d.isNpcAmeaca ? "ameaca" : "ficha", col: 'fichas', agi: parseInt(d.agi) || parseInt(d.agilidade) || 0, pro: (parseInt(p.treino) || 0) + (parseInt(p.bonus) || 0) });
                 });
                 const ameacasSnap = await db.collection("ameacas").where("campanhasIds", "array-contains", idDaCampanhaAtiva).get();
                 ameacasSnap.forEach(doc => {
                     const d = doc.data();
-                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
+                    const p = (d.pericias_npc || []).find(x => x.n === 'Proatividade');
+                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", col: 'ameacas', agi: parseInt(d.agi) || parseInt(d.agilidade) || 0, pro: p ? (parseInt(p.v) || 0) : 0 });
                 });
                 select.innerHTML = '<option value="">Selecionar Combatente...</option>';
                 opcoesDeCombatentes.forEach(opt => {
                     const tag = opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] ';
-                    select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome} (AGI ${opt.agi})</option>`;
+                    select.innerHTML += `<option value="${opt.id}">${tag}${escIni(opt.nome)} (AGI ${opt.agi})</option>`;
                 });
                 const fichaAberta = new URLSearchParams(window.location.search).get('id');
                 if (fichaAberta && opcoesDeCombatentes.some(o => o.id === fichaAberta)) select.value = fichaAberta;
             } catch (e) {}
         }
+
+        // mestre: rola 1d20 + AGI + Proatividade do combatente selecionado
+        window.rolarIniciativaMestre = function() {
+            const select = document.getElementById('select-ficha-combate');
+            const inputVal = document.getElementById('input-valor-iniciativa');
+            const info = opcoesDeCombatentes.find(o => o.id === select.value);
+            if (!info) { alert("Selecione um combatente para rolar."); return; }
+            const dado = rolarD20(), total = dado + info.agi + (info.pro || 0);
+            inputVal.value = total; inputVal.dataset.dado = dado;
+            inputVal.title = `d20 ${dado} + AGI ${info.agi} + Proatividade ${info.pro || 0}`;
+        };
 
         window.adicionarCombatenteIniciativa = async function() {
             const select = document.getElementById('select-ficha-combate');
@@ -5446,73 +5581,82 @@ let filtroSubAtualAtaques = 'Todos';
             const combatenteInfo = opcoesDeCombatentes.find(o => o.id === idEscolhido);
             if (!combatenteInfo) return;
 
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                let ordemAtual = [], turnoSalvo = 0, rodadaSalva = 1;
-                if (doc.exists && doc.data().ordem) {
-                    ordemAtual = doc.data().ordem;
-                    turnoSalvo = doc.data().turnoAtual || 0;
-                    rodadaSalva = doc.data().rodadaAtual || 1;
-                }
-                ordemAtual = ordemAtual.filter(c => c.id !== idEscolhido);
-                ordemAtual.push({ id: idEscolhido, nome: combatenteInfo.nome, tipo: combatenteInfo.tipo, valor: valorInic, agi: combatenteInfo.agi });
-                
-                ordemAtual.sort((a, b) => {
-                    if (b.valor !== a.valor) return b.valor - a.valor;
-                    return b.agi - a.agi;
-                });
-
-                await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
-                inputVal.value = ""; select.value = "";
-            } catch (e) {}
+            const entrada = { id: idEscolhido, nome: combatenteInfo.nome, tipo: combatenteInfo.tipo, col: combatenteInfo.col, valor: valorInic, agi: combatenteInfo.agi, desempate: rolarD20() };
+            if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+            await mutarCombateFicha(c => inserirOrdenado(c, entrada));
+            inputVal.value = ""; select.value = ""; delete inputVal.dataset.dado;
         };
 
         window.passarTurnoIniciativa = async function() {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    let turno = doc.data().turnoAtual || 0;
-                    let rodada = doc.data().rodadaAtual || 1;
-                    turno++;
-                    if (turno >= ordem.length) { turno = 0; rodada++; }
-                    await docRef.update({ turnoAtual: turno, rodadaAtual: rodada });
-                }
-            } catch(e) {}
+            await mutarCombateFicha(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem : [];
+                if (!ordem.length) return null;
+                let turno = (parseInt(c.turnoAtual) || 0) + 1;
+                let rodada = parseInt(c.rodadaAtual) || 1;
+                const up = {};
+                if (turno >= ordem.length) { turno = 0; rodada++; up.reacoes = {}; }
+                up.turnoAtual = turno; up.rodadaAtual = rodada;
+                return up;
+            });
+        };
+
+        window.voltarTurnoIniciativa = async function() {
+            await mutarCombateFicha(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem : [];
+                if (!ordem.length) return null;
+                let turno = (parseInt(c.turnoAtual) || 0) - 1;
+                let rodada = parseInt(c.rodadaAtual) || 1;
+                if (turno < 0) { if (rodada > 1) { turno = ordem.length - 1; rodada--; } else turno = 0; }
+                return { turnoAtual: turno, rodadaAtual: rodada };
+            });
         };
 
         window.desempatarIniciativa = async function(index) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordemAtual = doc.data().ordem;
-                    let temp = ordemAtual[index];
-                    ordemAtual[index] = ordemAtual[index+1];
-                    ordemAtual[index+1] = temp;
-                    await docRef.update({ ordem: ordemAtual });
-                }
-            } catch (e) { console.log(e); }
+            await mutarCombateFicha(c => {
+                const ordemAtual = Array.isArray(c.ordem) ? c.ordem.slice() : [];
+                if (index < 0 || index + 1 >= ordemAtual.length) return null;
+                const idAtual = (ordemAtual[parseInt(c.turnoAtual) || 0] || {}).id;
+                const temp = ordemAtual[index]; ordemAtual[index] = ordemAtual[index + 1]; ordemAtual[index + 1] = temp;
+                return { ordem: ordemAtual, turnoAtual: Math.max(0, ordemAtual.findIndex(x => x.id === idAtual)) };
+            });
         };
 
         window.removerCombatenteIniciativa = async function(idCombatente) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordemAtual = doc.data().ordem;
-                    ordemAtual = ordemAtual.filter(c => c.id !== idCombatente);
-                    await docRef.set({ ordem: ordemAtual, turnoAtual: 0 }, { merge: true }); 
-                }
-            } catch (e) { console.log(e); }
+            await mutarCombateFicha(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem : [];
+                const idAtual = (ordem[parseInt(c.turnoAtual) || 0] || {}).id;
+                const nova = ordem.filter(x => x.id !== idCombatente);
+                let t = nova.findIndex(x => x.id === idAtual);
+                if (t < 0) t = Math.min(parseInt(c.turnoAtual) || 0, Math.max(0, nova.length - 1));
+                return { ordem: nova, turnoAtual: t };
+            });
         };
 
+        // mantido por compatibilidade: encerrar = desligar o combate (o relógio de tensão é preservado)
         window.limparTodaIniciativa = async function() {
-            if (confirm("Deseja encerrar o combate atual?")) {
-                try { await db.collection("combates").doc(idDaCampanhaAtiva).delete(); } catch (e) {}
+            if (combateEstaAtivo(window.__ultimoCombate)) return window.alternarCombateFicha();
+            if (confirm("Limpar a ordem de iniciativa em preparo?")) await mutarCombateFicha(() => ({ ordem: [], turnoAtual: 0, rodadaAtual: 1 }));
+        };
+
+        // ---- RELÓGIO DE TENSÃO (perseguições) visível ao jogador quando o mestre permitir ----
+        window.renderRelogioJogador = function(r) {
+            let el = document.getElementById('relogio-tensao-jog');
+            const mostrar = !!(r && r.ativo && r.visivel !== false);
+            if (!mostrar) { if (el) el.style.display = 'none'; return; }
+            if (!el) {
+                el = document.createElement('div'); el.id = 'relogio-tensao-jog'; el.title = 'Clique para recolher/expandir';
+                if (sessionStorage.getItem('relogioJogMin') === '1') el.classList.add('min');
+                el.onclick = () => { el.classList.toggle('min'); sessionStorage.setItem('relogioJogMin', el.classList.contains('min') ? '1' : '0'); };
+                document.body.appendChild(el);
             }
+            const meta = Math.max(1, parseInt(r.meta) || 3), s = Math.min(meta, parseInt(r.s) || 0), f = Math.min(meta, parseInt(r.f) || 0);
+            const pips = (n, cls) => Array.from({ length: meta }, (_, i) => `<i class="${cls}${i < n ? ' on' : ''}"></i>`).join('');
+            const perigo = r.tipo === 'perigo';
+            const fim = s >= meta ? (perigo ? 'CONCLUÍDO' : 'ESCAPARAM') : f >= meta ? (perigo ? 'O PIOR ACONTECE' : 'ALCANÇADOS') : '';
+            el.innerHTML = `<b>${perigo ? '💣 PERIGO' : '🏃 PERSEGUIÇÃO'}<span class="rt-mini"> ${s}✓ ${f}✗</span></b>${r.titulo ? `<small>${escIni(r.titulo)}</small>` : ''}`
+                + `<div class="rt-l"><span>✓</span>${pips(s, 'ok')}</div><div class="rt-l rt-falha"><span>✗</span>${pips(f, 'mal')}</div>`
+                + (fim ? `<em class="${s >= meta ? 'rt-bom' : 'rt-ruim'}">${fim}</em>` : '');
+            el.style.display = 'block';
         };
         // ==========================================
 
@@ -6057,27 +6201,33 @@ let filtroSubAtualAtaques = 'Todos';
     <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
         <div id="init-meu-personagem" style="font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: var(--cor-geral); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
         <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
-            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." oninput="delete this.dataset.dado" onkeydown="if(event.key==='Enter') enviarMinhaIniciativa()" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button type="button" onclick="rolarIniciativaJogador()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade">🎲</button>
             <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">Enviar</button>
             <button id="btn-atrasar-vez-jog" onclick="atrasarMinhaVez()" style="background: transparent; border: 1px solid var(--cor-geral); color: var(--op-ink); font-size: 12px; cursor: pointer; border-radius: 2px; width: 35px; height: 28px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;" title="Atrasar a Vez (Passar um combatente na frente)">⏳</button>
         </div>
     </div>
 
     <div id="controles-mestre-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <button type="button" id="btn-combate-toggle" class="btn-combate-toggle" onclick="alternarCombateFicha()" title="Os jogadores só veem a iniciativa com o combate ativo">⚔ INICIAR COMBATE</button>
+            <a id="link-mesa-mestre" class="btn-link-mesa" href="mesa.html" title="Abrir a Mesa do Mestre (todas as fichas da campanha)">🗂 MESA</a>
+        </div>
         <select id="select-ficha-combate" style="width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 11px; margin-bottom: 6px; outline: none; border-radius: 2px; height: 28px;"></select>
 
         <div style="display: flex; gap: 6px;">
-            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." oninput="delete this.dataset.dado" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button type="button" onclick="rolarIniciativaMestre()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade do selecionado">🎲</button>
             <button onclick="adicionarCombatenteIniciativa()" class="btn-incluir" style="flex: 1; border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
         </div>
 
-        <button onclick="passarTurnoIniciativa()" style="width: 100%; margin-top: 10px; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
+        <div class="ini-linha-vez" style="display: flex; gap: 6px; margin-top: 10px; align-items: stretch;">
+        <button type="button" onclick="voltarTurnoIniciativa()" class="btn-voltar-vez" title="Voltar a vez">⏪</button>
+        <button onclick="passarTurnoIniciativa()" style="flex: 1; width: auto; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
             ⏩ PASSAR A VEZ
         </button>
 
-        <button onclick="limparTodaIniciativa()" style="width: 100%; margin-top: 6px; background: transparent; border: 1px dashed var(--op-red); color: var(--op-red); padding: 4px; font-size: 10px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
-            🗑️ Encerrar Combate
-        </button>
+        </div>
     </div>
 </div>
 
@@ -10111,6 +10261,44 @@ body.tema-escuro .sc-menu{ background:#1d1c1a; }
 body.somente-leitura .sc-add-wrap, body.somente-leitura .sc-del{ display:none !important; }
 /* Ficha rápida: valor sem −/+ ; zerado fica apagado */
 #ficha-rapida .fq2-marc-bonus.zero{ opacity:.55; }
+</style>
+<style id="combate-v6-css">
+#controles-mestre-iniciativa .ini-linha-vez button[onclick="passarTurnoIniciativa()"]{ width:auto !important; flex:1 1 auto !important; margin-right:0 !important; }
+#controles-mestre-iniciativa .ini-linha-vez button.btn-voltar-vez{ flex:0 0 32px; }
+/* ===== Combate v6: liga/desliga, rolagem e relógio de tensão ===== */
+.btn-combate-toggle{ flex:1; height:28px; background:var(--op-ink); color:var(--bg-paper); border:1px solid var(--op-ink); font:700 11px 'Courier Prime',monospace; letter-spacing:1px; cursor:pointer; border-radius:2px; text-transform:uppercase; }
+.btn-combate-toggle.ativo{ background:transparent; color:var(--op-red); border:1px dashed var(--op-red); }
+body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--accent-gold); border-color:var(--accent-gold); }
+.btn-link-mesa{ display:inline-flex; align-items:center; justify-content:center; height:28px; padding:0 8px; border:1px dashed var(--card-border); color:var(--op-ink); text-decoration:none; font:700 10px 'Inter',sans-serif; letter-spacing:.06em; border-radius:2px; white-space:nowrap; }
+.btn-link-mesa:hover{ border-color:var(--op-ink); background:var(--card-hover); }
+.btn-ini-dado{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
+.btn-ini-dado:hover{ border-color:var(--op-ink); }
+#controles-mestre-iniciativa button.btn-voltar-vez{ width:32px !important; height:28px !important; padding:0 !important; vertical-align:bottom !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; background:transparent; border:1px dashed var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:12px; }
+.ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
+#relogio-tensao-jog{ display:none; position:fixed; left:14px; bottom:14px; z-index:9997; min-width:170px; padding:9px 12px 8px; background:var(--bg-paper); border:1px solid var(--op-ink); box-shadow:3px 3px 0 rgba(0,0,0,.3); font-family:'Inter',sans-serif; color:var(--op-ink); }
+body.tema-escuro #relogio-tensao-jog{ background:#1a1a1a; border-color:#333; }
+#relogio-tensao-jog > b{ display:block; font:900 10px 'Inter',sans-serif; letter-spacing:.16em; color:var(--op-red); }
+#relogio-tensao-jog > small{ display:block; font:italic 13px 'Crimson Text',serif; margin-top:2px; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#relogio-tensao-jog .rt-l{ display:flex; align-items:center; gap:9px; margin-top:6px; }
+#relogio-tensao-jog .rt-l span{ font:900 11px 'Inter',sans-serif; width:12px; }
+#relogio-tensao-jog i{ display:inline-block; width:11px; height:11px; transform:rotate(45deg); border:1.5px solid var(--op-ink); }
+#relogio-tensao-jog i.ok.on{ background:var(--op-ink); }
+#relogio-tensao-jog i.mal{ border-color:#b3171c; }
+#relogio-tensao-jog i.mal.on{ background:#b3171c; box-shadow:0 0 5px rgba(179,23,28,.5); }
+#relogio-tensao-jog{ cursor:pointer; user-select:none; }
+#relogio-tensao-jog .rt-mini{ display:none; color:var(--op-ink); letter-spacing:.06em; }
+#relogio-tensao-jog.min{ min-width:0; padding:6px 10px; }
+#relogio-tensao-jog.min .rt-mini{ display:inline; }
+#relogio-tensao-jog.min > small, #relogio-tensao-jog.min .rt-l{ display:none; }
+#relogio-tensao-jog em{ display:block; margin-top:6px; font:900 10px 'Inter',sans-serif; letter-spacing:.14em; font-style:normal; }
+#relogio-tensao-jog em.rt-ruim{ color:#b3171c; }
+html.fq-lock #relogio-tensao-jog, body:has(#ficha-rapida.open) #relogio-tensao-jog{ display:none !important; }
+@media (max-width:600px){ #relogio-tensao-jog{ left:8px; bottom:8px; min-width:0; padding:7px 9px; } #relogio-tensao-jog > small{ max-width:150px; } }
+/* ===== Modo embutido (ficha aberta dentro da Mesa do Mestre) ===== */
+html.embed #btn-toggle-iniciativa, html.embed #painel-iniciativa-combate, html.embed #fq-open,
+html.embed #relogio-tensao-jog, html.embed .btn-theme, html.embed #badge-simulacao-ficha, html.embed #btn-assumir-posse,
+html.embed #grid-container > section:first-child > div:first-child > button[onclick*="index.html"]{ display:none !important; }
+html.embed #grid-container > section:first-child > div:first-child{ margin-bottom:8px !important; }
 </style>
 </body>
 </html>
