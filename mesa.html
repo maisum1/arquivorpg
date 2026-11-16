@@ -205,6 +205,7 @@
         button.cond { cursor: pointer; }
         button.cond:hover { background: var(--op-red); color: #fff; }
         .cond.leve { background: transparent; color: var(--op-red); border: 1px dashed var(--op-red); }
+        .cond.leve.decepado { border-style: solid; text-decoration: line-through; }
         .cond.add { background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); cursor: pointer; }
         .ent-ctl { display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
         .ent-ctl input { width: 40px; height: 24px; text-align: center; padding: 0 2px; font-size: 12px; }
@@ -808,10 +809,16 @@
             pv, pvMax, luc: atual('sanAtual', 0), lucMax: num(m.sanMax), pf: atual('peAtual', 0), pfMax: num(m.peMax),
             defesa, esquiva: defesa + tr('Reflexos') + num(m.bonusEsquiva), bloqueio: defesa + tr('Fortitude') + num(m.bonusBloqueio),
             desloc: m.deslocamento || '', agi: attr.agi, pro: tr('Proatividade') + bo('Proatividade'),
-            conds, exaustao, obitos: m.obitoAtivo ? num(m.obitoNivel) : 0, nex: raw.nex || '', hexatombe: !!hx
+            conds, exaustao, obitos: m.obitoAtivo ? num(m.obitoNivel) : 0, nex: raw.nex || '', hexatombe: !!hx, membros: membrosFeridos(m)
         };
     }
 
+    // membros lesionados/decepados (o "corpinho" das fichas)
+    const NOMES_MEMBROS = { cabeca: 'Cabeça', torso: 'Torso', 'braco-esq': 'Braço E.', 'braco-dir': 'Braço D.', 'perna-esq': 'Perna E.', 'perna-dir': 'Perna D.' };
+    function membrosFeridos(m) {
+        const me = (m && m.membrosEstado && typeof m.membrosEstado === 'object') ? m.membrosEstado : {};
+        return Object.keys(NOMES_MEMBROS).filter(k => me[k] === 'lesionado' || me[k] === 'decepado').map(k => ({ n: NOMES_MEMBROS[k], e: me[k] }));
+    }
     function viewAmeaca(id, raw) {
         const hx = hexAtivo(raw) && raw.hexatombe_data;
         const m = hx ? { ...raw, ...raw.hexatombe_data, agi: raw.agi, for: raw.for, sag: raw.sag, von: raw.von, vig: raw.vig } : raw;
@@ -829,7 +836,7 @@
         const conds = Array.isArray(raw.condicoes) ? raw.condicoes.filter(Boolean) : [];
         if (num(m.pvMax) > 0 && num(pv) <= 0 && !conds.includes('Morrendo') && tipo !== 'criatura') conds.push('Morrendo');
         return {
-            id, col: 'ameacas', raw, aliado: false, kind: cl.npc ? 'npc' : 'ameaca', npc: cl.npc, tipo, hexatombe: !!hx,
+            id, col: 'ameacas', raw, aliado: false, kind: cl.npc ? 'npc' : 'ameaca', npc: cl.npc, tipo, hexatombe: !!hx, membros: membrosFeridos(m),
             nome: (m.nome || 'Entidade').trim(), sub: `${rotTipo} · NA ${num(m.na)}${desc ? ' · ' + desc : ''}${raw.papel === 'aliado' ? ' · 🤝' : raw.papel === 'neutro' ? ' · ⚪' : ''}`,
             cat: tipo === 'criatura' ? 'var(--cat-cri)' : tipo === 'ocultista' ? 'var(--cat-ocu)' : 'var(--cat-hum)',
             portrait: raw.portrait, px: raw.pX, py: raw.pY,
@@ -1412,6 +1419,7 @@
             : `<span class="cond" title="${esc(CONDICOES[c] || '')}">${esc(c)}</span>`).join('')
             + (v.exaustao ? `<span class="cond leve" title="${esc(CONDICOES.Exausto)}">Exausto ${v.exaustao}</span>` : '')
             + (v.obitos ? `<span class="cond leve" title="Marcadores de morte: +2 cada na DT inicial da Salvaguarda">✝ ${v.obitos}</span>` : '')
+            + (v.membros || []).map(x => `<span class="cond leve${x.e === 'decepado' ? ' decepado' : ''}" title="${x.e === 'decepado' ? 'Membro decepado/destruído' : 'Membro lesionado: penalidades do local até ser tratado'}">🦴 ${esc(x.n)}${x.e === 'decepado' ? ' ✕' : ''}</span>`).join('')
             + (editavel ? `<button type="button" class="cond add" data-cond-add="${v.col}:${esc(v.id)}" title="Marcar condição">+ condição</button>` : '');
         const caido = v.pvMax > 0 && v.pv <= 0;
         let barras = barra('pv', v.pv, v.pvMax, 'PV');
