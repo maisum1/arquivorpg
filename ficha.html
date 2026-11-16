@@ -5299,90 +5299,9 @@ let filtroSubAtualAtaques = 'Todos';
                     listaContainer.appendChild(aviso);
                 }
 
-                if (ordem.length > 0) {
-                    ordem.forEach((combatente, index) => {
-                        const isCurrentTurn = ativo && (index === turnoAtual);
-                        
-                        if (combatente.id === minhaFichaId) {
-                            meuIndexNaOrdem = index;
-                            if (isCurrentTurn) isMinhaVez = true;
-                        }
-
-                        // jogadores consecutivos: o livro permite que reorganizem a ordem entre si
-                        const aliado = combatente.tipo !== 'ameaca';
-                        const antAliado = index > 0 && ordem[index - 1].tipo !== 'ameaca';
-                        const proxAliado = index + 1 < ordem.length && ordem[index + 1].tipo !== 'ameaca';
-                        if (aliado && !antAliado && proxAliado) {
-                            const g = document.createElement('div');
-                            g.className = 'ini-grupo-aliados';
-                            g.textContent = 'ALIADOS · ordem livre entre si';
-                            listaContainer.appendChild(g);
-                        }
-
-                        const bgCor = isCurrentTurn ? "var(--op-red)" : "var(--card-bg)";
-                        const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
-                        const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
-
-                        const item = document.createElement('div');
-                        item.className = 'draggable-item';
-                        item.dataset.index = index;
-                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; ${aliado ? 'border-left: 3px solid ' + (isCurrentTurn ? '#fff' : 'var(--san-purple)') + ';' : ''} background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
-                        
-                        if (souMestreDestaCampanha) {
-                            item.draggable = true;
-                            item.style.cursor = "grab";
-                            
-                            item.addEventListener('dragstart', (e) => { 
-                                item.classList.add('dragging'); 
-                                item.style.opacity = "0.4"; 
-                                item.style.border = "1px dashed var(--op-red)";
-                            });
-                            
-                            item.addEventListener('dragend', () => { 
-                                item.classList.remove('dragging'); 
-                                item.style.opacity = "1"; 
-                                
-                                const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
-                                const newIndex = currentList.indexOf(item);
-                                const oldIndex = parseInt(item.dataset.index);
-
-                                if (oldIndex !== newIndex && newIndex !== -1) {
-                                    executarReordenacaoMestre(oldIndex, newIndex);
-                                } else {
-                                    item.style.border = `1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}`;
-                                }
-                            });
-                        }
-
-                        const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
-                        
-                        let botoesMestre = '';
-                        if (souMestreDestaCampanha) {
-                            if (index < ordem.length - 1 && combatente.valor === ordem[index+1].valor && combatente.agi === ordem[index+1].agi) {
-                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de valor e Agilidade (desempatado por 1d20). Clique para inverter">🔃</span>`;
-                            }
-                            botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
-                        }
-
-                        const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
-                        const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
-                        const nomeExibido = combatente.tipo === 'ameaca' ? combatente.nome : String(combatente.nome || '').trim().split(/\s+/)[0];
-
-                        item.innerHTML = `
-                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${escIni(nomeExibido)}</span>
-                            <div style="display: flex; align-items: center;">
-                                ${botoesMestre}
-                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${parseInt(combatente.agi) || 0}">${parseInt(combatente.valor) || 0}</span>
-                            </div>
-                        `;
-                        listaContainer.appendChild(item);
-                    });
-                } else {
-                    const vazio = document.createElement('div');
-                    vazio.style.cssText = "text-align:center; font-size:11px; color:#888; padding:10px;";
-                    vazio.textContent = ativo ? 'Combate iniciado — envie sua iniciativa.' : 'Nenhum combate ativo.';
-                    listaContainer.appendChild(vazio);
-                }
+                const resLista = desenharListaIniciativa(listaContainer, ordem, ativo, turnoAtual, minhaFichaId);
+                isMinhaVez = resLista.isMinhaVez; meuIndexNaOrdem = resLista.meuIndexNaOrdem;
+                if (souMestreDestaCampanha) renderSelectCombatentes();
 
                 const btnToggle = document.getElementById('btn-toggle-iniciativa');
                 const btnAtrasar = document.getElementById('btn-atrasar-vez-jog');
@@ -5403,7 +5322,7 @@ let filtroSubAtualAtaques = 'Todos';
 
                 // LIBERA A AMPULHETA PARA O JOGADOR A QUALQUER MOMENTO (desde que não seja o último)
                 if (btnAtrasar) {
-                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < ordem.length - 1);
+                    const podeAtrasar = resLista.podeAtrasar;
                     if (podeAtrasar) {
                         btnAtrasar.style.borderColor = "var(--op-red)";
                         btnAtrasar.style.opacity = "1";
@@ -5416,7 +5335,7 @@ let filtroSubAtualAtaques = 'Todos';
                 }
 
                 window.atualizarVisibilidadeCombate();
-                if (typeof window.renderRelogioJogador === 'function') window.renderRelogioJogador(dados.relogio);
+                if (typeof window.renderMesaJogador === 'function') window.renderMesaJogador(dados);
             });
         }
 
@@ -5430,18 +5349,6 @@ let filtroSubAtualAtaques = 'Todos';
                 } else { return closest; }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
-
-        // ---- MESTRE: liga/desliga o combate ----
-        window.alternarCombateFicha = async function() {
-            if (!souMestreDestaCampanha || !idDaCampanhaAtiva) return;
-            const ativo = combateEstaAtivo(window.__ultimoCombate);
-            if (ativo) {
-                if (!confirm("Encerrar o combate? A ordem de iniciativa será limpa e o painel some para os jogadores.")) return;
-                await mutarCombateFicha(() => ({ ativo: false, ordem: [], turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {} }));
-            } else {
-                await mutarCombateFicha(c => ({ ativo: true, turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ordem: Array.isArray(c.ordem) ? c.ordem : [] }));
-            }
-        };
 
         window.executarReordenacaoMestre = async function(origem, destino) {
             await mutarCombateFicha(c => {
@@ -5473,17 +5380,6 @@ let filtroSubAtualAtaques = 'Todos';
             });
         };
 
-        // 1d20 + AGI + Proatividade (treino + bônus) — livro, cap. Combate
-        window.rolarIniciativaJogador = function() {
-            const agi = parseInt(document.getElementById('attr-agi')?.value) || 0;
-            const pro = (parseInt(document.getElementById('treino-Proatividade')?.value) || 0) + (parseInt(document.getElementById('bonus-Proatividade')?.value) || 0);
-            const dado = rolarD20(), total = dado + agi + pro;
-            const inp = document.getElementById('input-minha-iniciativa');
-            if (inp) { inp.value = total; inp.dataset.dado = dado; inp.title = `d20 ${dado} + AGI ${agi} + Proatividade ${pro}`; }
-            const lbl = document.getElementById('init-meu-personagem');
-            if (lbl) lbl.textContent = `🎲 d20 ${dado} ${agi >= 0 ? '+' : ''}${agi} AGI ${pro >= 0 ? '+' : ''}${pro} PROAT. = ${total}${dado === 20 ? ' (20 natural!)' : dado === 1 ? ' (1 natural)' : ''}`;
-        };
-
         window.enviarMinhaIniciativa = async function() {
             const inputVal = document.getElementById('input-minha-iniciativa');
             const valorInic = parseInt(inputVal.value);
@@ -5491,7 +5387,7 @@ let filtroSubAtualAtaques = 'Todos';
             const minhaFichaId = myUrlParams.get('id');
 
             if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) {
-                alert("Insira um valor (ou use 🎲 para rolar).");
+                alert("Digite o valor que você rolou (1d20 + AGI + Proatividade).");
                 return;
             }
             if (!combateEstaAtivo(window.__ultimoCombate) && !souMestreDestaCampanha) {
@@ -5523,11 +5419,10 @@ let filtroSubAtualAtaques = 'Todos';
                     } else { return; }
                 }
 
-                const entrada = { id: minhaFichaId, nome: meuNome, tipo: meuTipo, col: 'fichas', valor: valorInic, agi: minhaAgi, desempate: rolarD20() };
-                if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+                // empate de valor e AGI: o mestre desempata com o 🔃 depois do d20 rolado na mesa
+                const entrada = { id: minhaFichaId, nome: meuNome, tipo: meuTipo, col: 'fichas', valor: valorInic, agi: minhaAgi };
                 await mutarCombateFicha(c => inserirOrdenado(c, entrada));
                 inputVal.value = "";
-                delete inputVal.dataset.dado;
                 inputVal.placeholder = "Ok!";
                 setTimeout(() => inputVal.placeholder = "Valor...", 1500);
             } catch (e) { inputVal.placeholder = "Valor..."; }
@@ -5550,41 +5445,164 @@ let filtroSubAtualAtaques = 'Todos';
                     const p = (d.pericias_npc || []).find(x => x.n === 'Proatividade');
                     opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", col: 'ameacas', agi: parseInt(d.agi) || parseInt(d.agilidade) || 0, pro: p ? (parseInt(p.v) || 0) : 0 });
                 });
-                select.innerHTML = '<option value="">Selecionar Combatente...</option>';
-                opcoesDeCombatentes.forEach(opt => {
-                    const tag = opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] ';
-                    select.innerHTML += `<option value="${opt.id}">${tag}${escIni(opt.nome)} (AGI ${opt.agi})</option>`;
-                });
-                const fichaAberta = new URLSearchParams(window.location.search).get('id');
-                if (fichaAberta && opcoesDeCombatentes.some(o => o.id === fichaAberta)) select.value = fichaAberta;
+                renderSelectCombatentes();
             } catch (e) {}
         }
 
-        // mestre: rola 1d20 + AGI + Proatividade do combatente selecionado
+        // desenha a ordem; jogadores não veem quem o mestre escondeu (🙈)
+        function desenharListaIniciativa(listaContainer, ordem, ativo, turnoAtual, minhaFichaId) {
+            let isMinhaVez = false, meuIndexNaOrdem = -1;
+            const vis = ordem.map((c, i) => ({ c, i })).filter(x => souMestreDestaCampanha || !x.c.oculto);
+            const ehAliado = x => x && x.c.tipo !== 'ameaca';
+            vis.forEach((x, k) => {
+                const combatente = x.c, index = x.i;
+                const isCurrentTurn = ativo && (index === turnoAtual);
+                if (combatente.id === minhaFichaId) { meuIndexNaOrdem = index; if (isCurrentTurn) isMinhaVez = true; }
+
+                // jogadores consecutivos: o livro permite que reorganizem a ordem entre si
+                const aliado = ehAliado(x);
+                if (aliado && !ehAliado(vis[k - 1]) && ehAliado(vis[k + 1])) {
+                    const g = document.createElement('div');
+                    g.className = 'ini-grupo-aliados';
+                    g.textContent = 'ALIADOS · ordem livre entre si';
+                    listaContainer.appendChild(g);
+                }
+
+                const bgCor = isCurrentTurn ? "var(--op-red)" : (combatente.id === minhaFichaId ? "var(--card-hover)" : "var(--card-bg)");
+                const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
+                const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
+
+                const item = document.createElement('div');
+                item.className = 'draggable-item';
+                item.dataset.index = index;
+                item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; ${aliado ? 'border-left: 3px solid ' + (isCurrentTurn ? '#fff' : 'var(--san-purple)') + ';' : ''} background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;${combatente.oculto ? ' opacity: .75; font-style: italic;' : ''}`;
+
+                if (souMestreDestaCampanha) {
+                    item.draggable = true;
+                    item.style.cursor = "grab";
+                    item.addEventListener('dragstart', () => {
+                        item.classList.add('dragging');
+                        item.style.opacity = "0.4";
+                        item.style.border = "1px dashed var(--op-red)";
+                    });
+                    item.addEventListener('dragend', () => {
+                        item.classList.remove('dragging');
+                        item.style.opacity = "1";
+                        const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
+                        const newIndex = currentList.indexOf(item);
+                        const oldIndex = parseInt(item.dataset.index);
+                        if (oldIndex !== newIndex && newIndex !== -1) executarReordenacaoMestre(oldIndex, newIndex);
+                        else item.style.border = `1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}`;
+                    });
+                }
+
+                const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
+                let botoesMestre = '';
+                if (souMestreDestaCampanha) {
+                    if (combatente.oculto) botoesMestre += `<span style="cursor: pointer; font-size: 12px; margin-right: 6px;" onclick="revelarCombatenteIniciativa('${escIni(combatente.id)}')" title="Escondida dos jogadores — clique para revelar">🙈</span>`;
+                    const prox = ordem[index + 1];
+                    if (prox && combatente.valor === prox.valor && combatente.agi === prox.agi) {
+                        botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de valor e Agilidade (o livro manda rolar 1d20 entre os empatados). Clique para inverter">🔃</span>`;
+                    }
+                    botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${escIni(combatente.id)}')">[X]</span>`;
+                }
+
+                const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
+                const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
+                const nomeExibido = combatente.tipo === 'ameaca' ? combatente.nome : String(combatente.nome || '').trim().split(/\s+/)[0];
+
+                item.innerHTML = `
+                    <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${k + 1}° ${icone} ${escIni(nomeExibido)}</span>
+                    <div style="display: flex; align-items: center;">
+                        ${botoesMestre}
+                        <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${parseInt(combatente.agi) || 0}">${parseInt(combatente.valor) || 0}</span>
+                    </div>
+                `;
+                listaContainer.appendChild(item);
+            });
+            if (!vis.length) {
+                const vazio = document.createElement('div');
+                vazio.style.cssText = "text-align:center; font-size:11px; color:#888; padding:10px;";
+                vazio.textContent = ativo ? 'Combate iniciado — envie o valor que você rolou.' : 'Nenhum combate ativo.';
+                listaContainer.appendChild(vazio);
+            }
+            const ultimoVisivel = vis.length ? vis[vis.length - 1].i : -1;
+            return { isMinhaVez, meuIndexNaOrdem, podeAtrasar: meuIndexNaOrdem !== -1 && meuIndexNaOrdem !== ultimoVisivel };
+        }
+
+        // lista do mestre: só quem ainda não está na ordem
+        function renderSelectCombatentes() {
+            const select = document.getElementById('select-ficha-combate');
+            if (!select || !opcoesDeCombatentes.length) return;
+            const dentro = new Set(((window.__ultimoCombate || {}).ordem || []).map(e => e.id));
+            const antes = select.value;
+            const livres = opcoesDeCombatentes.filter(o => !dentro.has(o.id));
+            select.innerHTML = `<option value="">${livres.length ? 'Selecionar combatente...' : 'Todos já estão na ordem'}</option>` + livres.map(opt =>
+                `<option value="${escIni(opt.id)}">${opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] '}${escIni(opt.nome)} (AGI ${opt.agi})</option>`).join('');
+            const aberta = new URLSearchParams(window.location.search).get('id');
+            if (livres.some(o => o.id === antes)) select.value = antes;
+            else if (aberta && livres.some(o => o.id === aberta)) select.value = aberta;
+        }
+
+        // mestre: rolagem virtual só para ameaças/NPCs (personas rolam na mesa)
         window.rolarIniciativaMestre = function() {
             const select = document.getElementById('select-ficha-combate');
             const inputVal = document.getElementById('input-valor-iniciativa');
             const info = opcoesDeCombatentes.find(o => o.id === select.value);
             if (!info) { alert("Selecione um combatente para rolar."); return; }
+            if (info.tipo !== 'ameaca') { alert("Personas rolam na mesa: digite o valor que o jogador tirou."); inputVal.focus(); return; }
             const dado = rolarD20(), total = dado + info.agi + (info.pro || 0);
             inputVal.value = total; inputVal.dataset.dado = dado;
             inputVal.title = `d20 ${dado} + AGI ${info.agi} + Proatividade ${info.pro || 0}`;
         };
 
+        window.alternarOcultoIniciativa = function(btn) {
+            const off = btn.classList.toggle('off');
+            btn.textContent = off ? '🙈' : '👁';
+            btn.title = off ? 'Vai entrar ESCONDIDA dos jogadores (clique para mostrar)' : 'Vai entrar visível aos jogadores (clique para esconder)';
+        };
+
         window.adicionarCombatenteIniciativa = async function() {
             const select = document.getElementById('select-ficha-combate');
             const inputVal = document.getElementById('input-valor-iniciativa');
+            const btnOlho = document.getElementById('btn-ini-oculto');
             const idEscolhido = select.value;
             const valorInic = parseInt(inputVal.value);
-
-            if (!idEscolhido || isNaN(valorInic)) return;
-            const combatenteInfo = opcoesDeCombatentes.find(o => o.id === idEscolhido);
-            if (!combatenteInfo) return;
-
-            const entrada = { id: idEscolhido, nome: combatenteInfo.nome, tipo: combatenteInfo.tipo, col: combatenteInfo.col, valor: valorInic, agi: combatenteInfo.agi, desempate: rolarD20() };
+            if (!idEscolhido) { alert("Selecione um combatente."); return; }
+            const info = opcoesDeCombatentes.find(o => o.id === idEscolhido);
+            if (!info) return;
+            if (isNaN(valorInic)) { alert(info.tipo === 'ameaca' ? "Digite o valor ou use 🎲." : "Digite o valor que o jogador rolou."); inputVal.focus(); return; }
+            const entrada = { id: idEscolhido, nome: info.nome, tipo: info.tipo, col: info.col, valor: valorInic, agi: info.agi };
+            if (info.tipo === 'ameaca') entrada.desempate = rolarD20();
             if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+            if (btnOlho && btnOlho.classList.contains('off') && info.tipo === 'ameaca') entrada.oculto = true;
             await mutarCombateFicha(c => inserirOrdenado(c, entrada));
             inputVal.value = ""; select.value = ""; delete inputVal.dataset.dado;
+            if (btnOlho && btnOlho.classList.contains('off')) window.alternarOcultoIniciativa(btnOlho);
+        };
+
+        window.revelarCombatenteIniciativa = async function(id) {
+            await mutarCombateFicha(c => ({ ordem: (Array.isArray(c.ordem) ? c.ordem : []).map(e => { if (e.id !== id) return e; const n = { ...e }; delete n.oculto; return n; }) }));
+        };
+
+        // seções do livro que entram/saem sozinhas com a cena (o mestre pode mudar pela Mesa)
+        function consultaCom(c, sec, ligar) {
+            const lista = new Set(Array.isArray(c.consulta) ? c.consulta : []);
+            const auto = new Set(Array.isArray(c.consultaAuto) ? c.consultaAuto : []);
+            if (ligar) { if (!lista.has(sec)) { lista.add(sec); auto.add(sec); } }
+            else if (auto.has(sec)) { lista.delete(sec); auto.delete(sec); }
+            return { consulta: [...lista], consultaAuto: [...auto] };
+        }
+
+        window.alternarCombateFicha = async function() {
+            if (!souMestreDestaCampanha || !idDaCampanhaAtiva) return;
+            const ativo = combateEstaAtivo(window.__ultimoCombate);
+            if (ativo) {
+                if (!confirm("Encerrar o combate? A ordem de iniciativa será limpa e o painel some para os jogadores.")) return;
+                await mutarCombateFicha(c => ({ ativo: false, ordem: [], turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ...consultaCom(c, 'combate', false) }));
+            } else {
+                await mutarCombateFicha(c => ({ ativo: true, turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ordem: Array.isArray(c.ordem) ? c.ordem : [], ...consultaCom(c, 'combate', true) }));
+            }
         };
 
         window.passarTurnoIniciativa = async function() {
@@ -5638,26 +5656,195 @@ let filtroSubAtualAtaques = 'Todos';
             if (confirm("Limpar a ordem de iniciativa em preparo?")) await mutarCombateFicha(() => ({ ordem: [], turnoAtual: 0, rodadaAtual: 1 }));
         };
 
-        // ---- RELÓGIO DE TENSÃO (perseguições) visível ao jogador quando o mestre permitir ----
-        window.renderRelogioJogador = function(r) {
-            let el = document.getElementById('relogio-tensao-jog');
-            const mostrar = !!(r && r.ativo && r.visivel !== false);
-            if (!mostrar) { if (el) el.style.display = 'none'; return; }
-            if (!el) {
-                el = document.createElement('div'); el.id = 'relogio-tensao-jog'; el.title = 'Clique para recolher/expandir';
-                if (sessionStorage.getItem('relogioJogMin') === '1') el.classList.add('min');
-                el.onclick = () => { el.classList.toggle('min'); sessionStorage.setItem('relogioJogMin', el.classList.contains('min') ? '1' : '0'); };
-                document.body.appendChild(el);
+        // ==========================================
+        // PAINEL DO JOGADOR NA CENA: relógio de tensão (cada um marca o seu) + consulta liberada pelo mestre
+        // ==========================================
+    // ---- Relógio de tensão em trilhas: o grupo pode estar junto, separado ou dividido em vários grupos ----
+    // relogio = { ativo, tipo, titulo, meta, visivel, trilhas: { id: { s, f, ult } }, membros: { fichaId: { t: idTrilha, n: nome } } }
+    // sem "membros" (versão antiga) = todos na primeira trilha
+    const RelogioTensao = (() => {
+        const n0 = v => { const x = parseInt(v, 10); return isNaN(x) ? 0 : x; };
+        function norm(r) {
+            if (!r) return null;
+            const n = JSON.parse(JSON.stringify(r));
+            n.meta = Math.max(1, Math.min(8, n0(n.meta) || 3));
+            if (!n.trilhas || typeof n.trilhas !== 'object' || !Object.keys(n.trilhas).length) n.trilhas = { g1: { s: n0(n.s), f: n0(n.f) } };
+            delete n.s; delete n.f;
+            Object.keys(n.trilhas).forEach(k => { const t = n.trilhas[k] || {}; t.s = Math.min(n.meta, Math.max(0, n0(t.s))); t.f = Math.min(n.meta, Math.max(0, n0(t.f))); n.trilhas[k] = t; });
+            if (n.membros !== undefined && (typeof n.membros !== 'object' || n.membros === null)) delete n.membros;
+            return n;
+        }
+        const ids = r => Object.keys(r.trilhas).sort((a, b) => (a > b ? 1 : -1));
+        function trilhaDe(r, fid) {
+            if (!r.membros) return ids(r)[0];
+            const m = r.membros[fid];
+            return m && r.trilhas[m.t] ? m.t : null;
+        }
+        function membrosDe(r, tid) {
+            if (!r.membros) return null;
+            return Object.keys(r.membros).filter(k => r.membros[k].t === tid).map(k => ({ id: k, nome: r.membros[k].n || '?' })).sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+        }
+        const novoId = () => 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        function limpar(r) {
+            if (!r.membros) return r;
+            const usadas = new Set(Object.values(r.membros).map(m => m.t));
+            if (!usadas.size) { const [p, ...resto] = ids(r); resto.forEach(k => delete r.trilhas[k]); return r; }
+            Object.keys(r.trilhas).forEach(k => { if (!usadas.has(k)) delete r.trilhas[k]; });
+            return r;
+        }
+        function marcar(r, tid, campo, delta, quem) {
+            const t = r.trilhas[tid]; if (!t) return r;
+            const antes = n0(t[campo]);
+            t[campo] = Math.min(r.meta, Math.max(0, antes + delta));
+            if (t[campo] !== antes) t.ult = { q: quem || '', d: (delta > 0 ? '+' : '−') + Math.abs(delta) + (campo === 's' ? '✓' : '✗'), em: Date.now() };
+            return r;
+        }
+        function definir(r, tid, campo, valor, quem) {
+            const t = r.trilhas[tid]; if (!t) return r;
+            return marcar(r, tid, campo, Math.min(r.meta, Math.max(0, valor)) - n0(t[campo]), quem);
+        }
+        // destino: id de trilha | 'nova' (copia o placar de onde estava) | 'fora'
+        function mover(r, fid, destino, nome) {
+            if (!r.membros) r.membros = {};
+            const atual = trilhaDe(r, fid);
+            if (destino === 'fora') delete r.membros[fid];
+            else if (destino === 'nova') {
+                const id = novoId(), base = atual ? r.trilhas[atual] : { s: 0, f: 0 };
+                r.trilhas[id] = { s: n0(base.s), f: n0(base.f) };
+                r.membros[fid] = { t: id, n: nome || (r.membros[fid] || {}).n || '?' };
+            } else if (r.trilhas[destino]) r.membros[fid] = { t: destino, n: nome || (r.membros[fid] || {}).n || '?' };
+            return limpar(r);
+        }
+        const fim = (r, t) => (n0(t.s) >= r.meta ? 'ok' : n0(t.f) >= r.meta ? 'ruim' : '');
+        const textoFim = (r, ok, sozinho) => r.tipo === 'perigo' ? (ok ? 'Concluído' : 'O pior acontece') : (ok ? (sozinho ? 'Escapou' : 'Escaparam') : (sozinho ? 'Alcançado' : 'Alcançados'));
+        const primeiroNome = s => String(s || '').trim().split(/\s+/)[0] || '?';
+        return { norm, ids, trilhaDe, membrosDe, novoId, limpar, marcar, definir, mover, fim, textoFim, primeiroNome };
+    })();
+        const SECOES_CONSULTA = [["testes", "Testes"], ["combate", "Combate"], ["distancia", "Distância"], ["ferimentos", "Ferimentos"], ["mente", "Mente"], ["perigos", "Perseguição"], ["condicoes", "Condições"], ["descanso", "Descanso"]];
+        let desfazerRelogio = [];
+        function dockMesa() {
+            let d = document.getElementById('mesa-jog-dock');
+            if (!d) {
+                d = document.createElement('div'); d.id = 'mesa-jog-dock';
+                d.innerHTML = '<button type="button" id="btn-consulta-jog" title="Regras liberadas pelo mestre">📖 CONSULTA</button><div id="relogio-tensao-jog"></div>';
+                document.body.appendChild(d);
+                document.getElementById('btn-consulta-jog').onclick = () => abrirConsultaJogador();
+                document.getElementById('relogio-tensao-jog').addEventListener('click', cliqueRelogioJogador);
             }
-            const meta = Math.max(1, parseInt(r.meta) || 3), s = Math.min(meta, parseInt(r.s) || 0), f = Math.min(meta, parseInt(r.f) || 0);
-            const pips = (n, cls) => Array.from({ length: meta }, (_, i) => `<i class="${cls}${i < n ? ' on' : ''}"></i>`).join('');
-            const perigo = r.tipo === 'perigo';
-            const fim = s >= meta ? (perigo ? 'CONCLUÍDO' : 'ESCAPARAM') : f >= meta ? (perigo ? 'O PIOR ACONTECE' : 'ALCANÇADOS') : '';
-            el.innerHTML = `<b>${perigo ? '💣 PERIGO' : '🏃 PERSEGUIÇÃO'}<span class="rt-mini"> ${s}✓ ${f}✗</span></b>${r.titulo ? `<small>${escIni(r.titulo)}</small>` : ''}`
-                + `<div class="rt-l"><span>✓</span>${pips(s, 'ok')}</div><div class="rt-l rt-falha"><span>✗</span>${pips(f, 'mal')}</div>`
-                + (fim ? `<em class="${s >= meta ? 'rt-bom' : 'rt-ruim'}">${fim}</em>` : '');
-            el.style.display = 'block';
+            return d;
+        }
+        const meuIdFicha = () => new URLSearchParams(window.location.search).get('id');
+        const meuNomeFicha = () => (document.getElementById('nome-personagem')?.value || '').trim() || 'Persona';
+
+        window.renderMesaJogador = function(dados) {
+            const dock = dockMesa();
+            renderRelogioJogador(dados.relogio);
+            const lista = (Array.isArray(dados.consulta) ? dados.consulta : []).filter(k => SECOES_CONSULTA.some(s => s[0] === k));
+            window.__consultaLiberada = lista;
+            document.getElementById('btn-consulta-jog').style.display = lista.length ? '' : 'none';
+            const aberta = document.getElementById('consulta-jog');
+            if (aberta && aberta.classList.contains('on')) abrirConsultaJogador(true);
+            dock.style.display = (lista.length || document.getElementById('relogio-tensao-jog').style.display !== 'none') ? 'flex' : 'none';
         };
+
+        function renderRelogioJogador(bruto) {
+            const el = document.getElementById('relogio-tensao-jog');
+            const r = RelogioTensao.norm(bruto), fid = meuIdFicha();
+            const tid = r && r.ativo && (r.visivel !== false || souMestreDestaCampanha) ? RelogioTensao.trilhaDe(r, fid) : null;
+            if (!tid) { el.style.display = 'none'; el.innerHTML = ''; return; }
+            const t = r.trilhas[tid], meta = r.meta, mem = RelogioTensao.membrosDe(r, tid);
+            const outros = mem ? mem.filter(m => m.id !== fid).map(m => RelogioTensao.primeiroNome(m.nome)) : null;
+            const pips = (n, cls) => Array.from({ length: meta }, (_, i) => `<i class="${cls}${i < n ? ' on' : ''}"></i>`).join('');
+            const perigo = r.tipo === 'perigo', fim = RelogioTensao.fim(r, t);
+            const grupo = outros === null ? 'Todo o grupo' : outros.length ? 'Em grupo com ' + outros.join(', ') : 'Sozinho';
+            const outrasTrilhas = r.membros ? RelogioTensao.ids(r).filter(x => x !== tid) : [];
+            const aberto = el.querySelector('.rt-menu:not([hidden])') !== null;
+            const ult = t.ult && t.ult.d ? `<div class="rt-ult">último: ${escIni(RelogioTensao.primeiroNome(t.ult.q) || 'mestre')} ${escIni(t.ult.d)}</div>` : '';
+            el.innerHTML = `<div class="rt-cab"><b>${perigo ? '💣 PERIGO' : '🏃 PERSEGUIÇÃO'}</b><span class="rt-mini">${t.s}✓ ${t.f}✗</span><button type="button" class="rt-min" data-rt="min" title="Recolher/expandir">–</button></div>`
+                + (r.titulo ? `<small class="rt-tit">${escIni(r.titulo)}</small>` : '')
+                + `<div class="rt-grupo">${escIni(grupo)}</div>`
+                + `<div class="rt-l"><span>✓</span>${pips(t.s, 'ok')}</div><div class="rt-l rt-falha"><span>✗</span>${pips(t.f, 'mal')}</div>`
+                + (fim ? `<em class="${fim === 'ok' ? 'rt-bom' : 'rt-ruim'}">${RelogioTensao.textoFim(r, fim === 'ok', outros && !outros.length).toUpperCase()}</em>` : '')
+                + `<div class="rt-bts">
+                    <button type="button" data-rt="s:1" title="Sucesso">✓</button>
+                    <button type="button" data-rt="f:1" class="mal" title="Falha">✗</button>
+                    <button type="button" data-rt="s:2" title="Sucesso crítico (20 natural) ou Cortar Caminho bem-sucedido: +2">✓✓</button>
+                    <button type="button" data-rt="f:2" class="mal" title="Falha crítica (1 natural): +2">✗✗</button>
+                    <button type="button" data-rt="desfazer" title="Desfazer minha última marcação"${desfazerRelogio.length ? '' : ' disabled'}>↶</button>
+                    ${r.membros && (outros && outros.length || outrasTrilhas.length) ? '<button type="button" data-rt="menu" title="Desvincular-se do grupo ou juntar-se a outro">⇆</button>' : ''}
+                  </div>`
+                + `<div class="rt-menu"${aberto ? '' : ' hidden'}>`
+                + (outros && outros.length ? '<button type="button" data-rt="sozinho">⇆ Desvincular-se (seguir sozinho)</button>' : '')
+                + outrasTrilhas.map(x => `<button type="button" data-rt="juntar:${x}">→ Juntar-se a ${escIni((RelogioTensao.membrosDe(r, x) || []).map(m => RelogioTensao.primeiroNome(m.nome)).join(', ') || '—')}</button>`).join('')
+                + '</div>' + ult;
+            if (sessionStorage.getItem('relogioJogMin') === '1') el.classList.add('min'); else el.classList.remove('min');
+            el.style.display = 'block';
+        }
+
+        function cliqueRelogioJogador(ev) {
+            const b = ev.target.closest('[data-rt]'); if (!b) return;
+            const acao = b.dataset.rt, fid = meuIdFicha(), nome = meuNomeFicha();
+            const el = document.getElementById('relogio-tensao-jog');
+            if (acao === 'min') { const min = !el.classList.contains('min'); el.classList.toggle('min', min); sessionStorage.setItem('relogioJogMin', min ? '1' : '0'); return; }
+            if (acao === 'menu') { const m = el.querySelector('.rt-menu'); if (m) m.hidden = !m.hidden; return; }
+            if (acao === 'desfazer') {
+                const u = desfazerRelogio.pop(); if (!u) return;
+                mutarCombateFicha(c => { const r = RelogioTensao.norm(c.relogio); if (!r || !r.trilhas[u.t]) return null; RelogioTensao.marcar(r, u.t, u.k, -u.n, nome); return { relogio: r }; })
+                    .then(() => renderRelogioJogador((window.__ultimoCombate || {}).relogio));
+                return;
+            }
+            if (acao.startsWith('s:') || acao.startsWith('f:')) {
+                const [k, n] = acao.split(':');
+                let reg = null;
+                mutarCombateFicha(c => {
+                    reg = null;
+                    const r = RelogioTensao.norm(c.relogio); if (!r || !r.ativo) return null;
+                    const tid = RelogioTensao.trilhaDe(r, fid); if (!tid) return null;
+                    const antes = r.trilhas[tid][k];
+                    RelogioTensao.marcar(r, tid, k, parseInt(n), nome);
+                    const real = r.trilhas[tid][k] - antes; if (!real) return null;
+                    reg = { t: tid, k, n: real };
+                    return { relogio: r };
+                }).then(() => {
+                    if (!reg) return;
+                    desfazerRelogio.push(reg); if (desfazerRelogio.length > 20) desfazerRelogio.shift();
+                    renderRelogioJogador((window.__ultimoCombate || {}).relogio);
+                });
+                return;
+            }
+            if (acao === 'sozinho' || acao.startsWith('juntar:')) {
+                const destino = acao === 'sozinho' ? 'nova' : acao.slice(7);
+                const menu = el.querySelector('.rt-menu'); if (menu) menu.hidden = true;
+                if (acao === 'sozinho' && !confirm('Desvincular-se do grupo? A partir de agora só os seus resultados contam para você (as falhas do grupo não te afetam mais).')) return;
+                desfazerRelogio = [];
+                mutarCombateFicha(c => { const r = RelogioTensao.norm(c.relogio); if (!r || !r.membros) return null; RelogioTensao.mover(r, fid, destino, nome); return { relogio: r }; });
+            }
+        }
+
+        function abrirConsultaJogador(soAtualizar) {
+            const lista = window.__consultaLiberada || [];
+            let g = document.getElementById('consulta-jog');
+            if (!g) {
+                g = document.createElement('aside'); g.id = 'consulta-jog';
+                g.innerHTML = '<div class="cj-abas"></div><div class="cj-corpo"></div>';
+                document.body.appendChild(g);
+                g.addEventListener('click', ev => {
+                    const b = ev.target.closest('[data-cj]'); if (!b) return;
+                    if (b.dataset.cj === 'fechar') { g.classList.remove('on'); return; }
+                    g.dataset.aba = b.dataset.cj; abrirConsultaJogador(true);
+                });
+            }
+            if (!lista.length) { g.classList.remove('on'); return; }
+            if (!soAtualizar) { if (g.classList.contains('on')) { g.classList.remove('on'); return; } g.classList.add('on'); }
+            const aba = lista.includes(g.dataset.aba) ? g.dataset.aba : lista[0];
+            g.dataset.aba = aba;
+            g.querySelector('.cj-abas').innerHTML = SECOES_CONSULTA.filter(s => lista.includes(s[0])).map(([k, l]) => `<button type="button" data-cj="${k}" class="${k === aba ? 'on' : ''}">${l}</button>`).join('') + '<button type="button" data-cj="fechar" class="cj-x" title="Fechar">✕</button>';
+            const tpl = document.getElementById('tpl-consulta-regras');
+            const sec = tpl ? tpl.content.querySelector(`[data-sec="${aba}"]`) : null;
+            g.querySelector('.cj-corpo').innerHTML = sec ? sec.innerHTML : '';
+            g.querySelector('.cj-corpo').scrollTop = 0;
+        }
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { const g = document.getElementById('consulta-jog'); if (g) g.classList.remove('on'); } });
         // ==========================================
 
     // ==========================================
@@ -6201,9 +6388,8 @@ let filtroSubAtualAtaques = 'Todos';
     <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
         <div id="init-meu-personagem" style="font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: var(--cor-geral); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
         <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
-            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." oninput="delete this.dataset.dado" onkeydown="if(event.key==='Enter') enviarMinhaIniciativa()" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
-            <button type="button" onclick="rolarIniciativaJogador()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade">🎲</button>
-            <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">Enviar</button>
+            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." title="Role 1d20 + AGI + Proatividade na mesa e digite o total" onkeydown="if(event.key==='Enter') enviarMinhaIniciativa()" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;" title="Enviar o valor que você rolou na mesa">Enviar</button>
             <button id="btn-atrasar-vez-jog" onclick="atrasarMinhaVez()" style="background: transparent; border: 1px solid var(--cor-geral); color: var(--op-ink); font-size: 12px; cursor: pointer; border-radius: 2px; width: 35px; height: 28px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;" title="Atrasar a Vez (Passar um combatente na frente)">⏳</button>
         </div>
     </div>
@@ -6216,16 +6402,15 @@ let filtroSubAtualAtaques = 'Todos';
         <select id="select-ficha-combate" style="width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 11px; margin-bottom: 6px; outline: none; border-radius: 2px; height: 28px;"></select>
 
         <div style="display: flex; gap: 6px;">
-            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." oninput="delete this.dataset.dado" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
-            <button type="button" onclick="rolarIniciativaMestre()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade do selecionado">🎲</button>
-            <button onclick="adicionarCombatenteIniciativa()" class="btn-incluir" style="flex: 1; border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
+            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." oninput="delete this.dataset.dado" onkeydown="if(event.key==='Enter') adicionarCombatenteIniciativa()" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button type="button" onclick="rolarIniciativaMestre()" class="btn-ini-dado" title="Rolagem virtual: só ameaças e NPCs (1d20 + AGI + Proatividade)">🎲</button>
+            <button type="button" id="btn-ini-oculto" onclick="alternarOcultoIniciativa(this)" class="btn-ini-olho" title="Vai entrar visível aos jogadores (clique para esconder)">👁</button>
+            <button onclick="adicionarCombatenteIniciativa()" class="btn-incluir" title="Incluir na ordem" style="flex: 1; border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
         </div>
 
         <div class="ini-linha-vez" style="display: flex; gap: 6px; margin-top: 10px; align-items: stretch;">
         <button type="button" onclick="voltarTurnoIniciativa()" class="btn-voltar-vez" title="Voltar a vez">⏪</button>
-        <button onclick="passarTurnoIniciativa()" style="flex: 1; width: auto; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
-            ⏩ PASSAR A VEZ
-        </button>
+        <button onclick="passarTurnoIniciativa()" title="Passar a vez" style="flex: 1; width: auto; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 13px; cursor: pointer; border-radius: 2px;">⏩</button>
 
         </div>
     </div>
@@ -10275,30 +10460,275 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 .btn-ini-dado:hover{ border-color:var(--op-ink); }
 #controles-mestre-iniciativa button.btn-voltar-vez{ width:32px !important; height:28px !important; padding:0 !important; vertical-align:bottom !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; background:transparent; border:1px dashed var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:12px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
-#relogio-tensao-jog{ display:none; position:fixed; left:14px; bottom:14px; z-index:9997; min-width:170px; padding:9px 12px 8px; background:var(--bg-paper); border:1px solid var(--op-ink); box-shadow:3px 3px 0 rgba(0,0,0,.3); font-family:'Inter',sans-serif; color:var(--op-ink); }
+/* ---- painel do jogador na cena: consulta + relógio de tensão ---- */
+#mesa-jog-dock{ display:none; position:fixed; left:14px; bottom:14px; z-index:9997; flex-direction:column; align-items:flex-start; gap:8px; max-width:calc(100vw - 28px); }
+#btn-consulta-jog{ background:var(--bg-paper); color:var(--op-ink); border:1px solid var(--op-ink); box-shadow:3px 3px 0 rgba(0,0,0,.3); padding:7px 11px; font:900 10px 'Inter',sans-serif; letter-spacing:.14em; cursor:pointer; }
+#btn-consulta-jog:hover{ background:var(--op-ink); color:var(--bg-paper); }
+body.tema-escuro #btn-consulta-jog{ background:#1a1a1a; border-color:#333; color:var(--accent-gold); }
+#relogio-tensao-jog{ display:none; position:static !important; min-width:200px; max-width:260px; padding:9px 12px 8px; background:var(--bg-paper); border:1px solid var(--op-ink); box-shadow:3px 3px 0 rgba(0,0,0,.3); font-family:'Inter',sans-serif; color:var(--op-ink); cursor:default !important; }
 body.tema-escuro #relogio-tensao-jog{ background:#1a1a1a; border-color:#333; }
-#relogio-tensao-jog > b{ display:block; font:900 10px 'Inter',sans-serif; letter-spacing:.16em; color:var(--op-red); }
-#relogio-tensao-jog > small{ display:block; font:italic 13px 'Crimson Text',serif; margin-top:2px; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#relogio-tensao-jog .rt-cab{ display:flex; align-items:center; gap:6px; }
+#relogio-tensao-jog .rt-cab b{ font:900 10px 'Inter',sans-serif; letter-spacing:.16em; color:var(--op-red); flex:1; }
+#relogio-tensao-jog .rt-mini{ display:none !important; font:900 10px 'Inter',sans-serif; letter-spacing:.06em; }
+#relogio-tensao-jog .rt-min{ background:none; border:1px solid transparent; color:var(--op-ink); cursor:pointer; font-size:14px; line-height:1; padding:0 4px; }
+#relogio-tensao-jog .rt-min:hover{ border-color:var(--card-border); }
+#relogio-tensao-jog .rt-tit{ display:block; font:italic 13px 'Crimson Text',serif; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#relogio-tensao-jog .rt-grupo{ font:700 9px 'Inter',sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--cor-geral); margin-top:3px; }
 #relogio-tensao-jog .rt-l{ display:flex; align-items:center; gap:9px; margin-top:6px; }
 #relogio-tensao-jog .rt-l span{ font:900 11px 'Inter',sans-serif; width:12px; }
 #relogio-tensao-jog i{ display:inline-block; width:11px; height:11px; transform:rotate(45deg); border:1.5px solid var(--op-ink); }
 #relogio-tensao-jog i.ok.on{ background:var(--op-ink); }
 #relogio-tensao-jog i.mal{ border-color:#b3171c; }
 #relogio-tensao-jog i.mal.on{ background:#b3171c; box-shadow:0 0 5px rgba(179,23,28,.5); }
-#relogio-tensao-jog{ cursor:pointer; user-select:none; }
-#relogio-tensao-jog .rt-mini{ display:none; color:var(--op-ink); letter-spacing:.06em; }
+#relogio-tensao-jog em{ display:block; margin-top:6px; font:900 10px 'Inter',sans-serif; letter-spacing:.14em; font-style:normal; padding:3px 0; text-align:center; border:1.5px solid currentColor; }
+#relogio-tensao-jog em.rt-bom{ color:var(--san-purple); }
+#relogio-tensao-jog em.rt-ruim{ color:var(--op-red); }
+#relogio-tensao-jog .rt-bts{ display:flex; gap:4px; margin-top:8px; }
+#relogio-tensao-jog .rt-bts button{ flex:1; min-width:0; height:28px; background:transparent; border:1px solid var(--op-ink); color:var(--op-ink); cursor:pointer; font:900 12px 'Inter',sans-serif; padding:0; border-radius:2px; }
+#relogio-tensao-jog .rt-bts button.mal{ border-color:var(--op-red); color:var(--op-red); }
+#relogio-tensao-jog .rt-bts button:hover:not(:disabled){ background:var(--op-ink); color:var(--bg-paper); }
+#relogio-tensao-jog .rt-bts button.mal:hover{ background:var(--op-red); color:#fff; }
+#relogio-tensao-jog .rt-bts button:disabled{ opacity:.3; cursor:default; }
+#relogio-tensao-jog .rt-bts [data-rt="desfazer"], #relogio-tensao-jog .rt-bts [data-rt="menu"]{ flex:0 0 28px; border-style:dotted; border-color:var(--card-border); }
+#relogio-tensao-jog .rt-menu{ display:flex; flex-direction:column; margin-top:6px; border:1px dotted var(--card-border); }
+#relogio-tensao-jog .rt-menu[hidden]{ display:none; }
+#relogio-tensao-jog .rt-menu button{ background:transparent; border:none; border-bottom:1px dotted var(--card-border); color:var(--op-ink); text-align:left; padding:6px 8px; font:700 11px 'Courier Prime',monospace; cursor:pointer; }
+#relogio-tensao-jog .rt-menu button:last-child{ border-bottom:none; }
+#relogio-tensao-jog .rt-menu button:hover{ background:var(--op-ink); color:var(--bg-paper); }
+#relogio-tensao-jog .rt-ult{ font:10px 'Inter',sans-serif; color:var(--cor-geral); margin-top:5px; }
 #relogio-tensao-jog.min{ min-width:0; padding:6px 10px; }
-#relogio-tensao-jog.min .rt-mini{ display:inline; }
-#relogio-tensao-jog.min > small, #relogio-tensao-jog.min .rt-l{ display:none; }
-#relogio-tensao-jog em{ display:block; margin-top:6px; font:900 10px 'Inter',sans-serif; letter-spacing:.14em; font-style:normal; }
-#relogio-tensao-jog em.rt-ruim{ color:#b3171c; }
-html.fq-lock #relogio-tensao-jog, body:has(#ficha-rapida.open) #relogio-tensao-jog{ display:none !important; }
-@media (max-width:600px){ #relogio-tensao-jog{ left:8px; bottom:8px; min-width:0; padding:7px 9px; } #relogio-tensao-jog > small{ max-width:150px; } }
+#relogio-tensao-jog.min .rt-mini{ display:inline !important; }
+#relogio-tensao-jog.min > :not(.rt-cab){ display:none !important; }
+#consulta-jog{ position:fixed; top:0; right:0; bottom:0; width:min(520px,100vw); z-index:10050; background:var(--bg-paper); border-left:4px double var(--op-ink); box-shadow:-10px 0 40px rgba(0,0,0,.35); transform:translateX(105%); transition:transform .2s ease; display:flex; flex-direction:column; text-align:left; }
+body.tema-escuro #consulta-jog{ background:#161616; }
+#consulta-jog.on{ transform:none; }
+#consulta-jog .cj-abas{ display:flex; flex-wrap:wrap; gap:4px; padding:10px; border-bottom:1px dotted var(--card-border); }
+#consulta-jog .cj-abas button{ border:1px solid var(--card-border); background:transparent; color:var(--op-ink); padding:5px 8px; cursor:pointer; font:700 10px 'Inter',sans-serif; letter-spacing:.06em; text-transform:uppercase; }
+#consulta-jog .cj-abas button.on{ background:var(--op-ink); color:var(--bg-paper); border-color:var(--op-ink); }
+#consulta-jog .cj-abas .cj-x{ margin-left:auto; }
+#consulta-jog .cj-corpo{ flex:1; overflow-y:auto; padding:12px 16px 30px; font:12.5px/1.55 'Inter',sans-serif; color:var(--op-ink); }
+#consulta-jog h4{ font:900 1.05rem 'Crimson Text',serif; letter-spacing:1.5px; text-transform:uppercase; margin:16px 0 6px; border-bottom:1px dotted var(--card-border); padding-bottom:3px; }
+#consulta-jog h4:first-child{ margin-top:0; }
+#consulta-jog table{ border-collapse:collapse; width:100%; margin:6px 0; }
+#consulta-jog th, #consulta-jog td{ border:1px solid var(--card-border); padding:4px 7px; text-align:left; vertical-align:top; font-size:12px; }
+#consulta-jog th{ font:900 10px 'Inter',sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+#consulta-jog dl{ margin:0; } #consulta-jog dt{ font-weight:900; margin-top:7px; } #consulta-jog dd{ margin:1px 0 0 0; }
+#consulta-jog ul{ margin:4px 0; padding-left:18px; } #consulta-jog p{ margin:6px 0; }
+html.embed #mesa-jog-dock, html.embed #consulta-jog{ display:none !important; }
+.btn-ini-olho{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
+.btn-ini-olho.off{ border:1px dashed var(--op-red); background:rgba(158,11,15,.08); }
+html.fq-lock #mesa-jog-dock, body:has(#ficha-rapida.open) #mesa-jog-dock{ display:none !important; }
+@media (max-width:600px){ #mesa-jog-dock{ left:8px; bottom:8px; } #relogio-tensao-jog{ min-width:0; padding:7px 9px; } }
 /* ===== Modo embutido (ficha aberta dentro da Mesa do Mestre) ===== */
 html.embed #btn-toggle-iniciativa, html.embed #painel-iniciativa-combate, html.embed #fq-open,
 html.embed #relogio-tensao-jog, html.embed .btn-theme, html.embed #badge-simulacao-ficha, html.embed #btn-assumir-posse,
 html.embed #grid-container > section:first-child > div:first-child > button[onclick*="index.html"]{ display:none !important; }
 html.embed #grid-container > section:first-child > div:first-child{ margin-bottom:8px !important; }
 </style>
+<template id="tpl-consulta-regras">
+        <div class="gaveta-sec" data-sec="testes">
+            <h4>Base dos testes</h4>
+            <p><b>d20 + Atributo + Perícia ≥ DT.</b> O atributo varia com a narrativa (ex.: Persuasão + SAG para argumentar, + VON para impor). Sem consequência relevante para a falha, o sucesso é automático. Frações sempre arredondam para baixo.</p>
+            <table><tr><th>DT</th><th>Nível</th><th>Referência</th></tr>
+                <tr><td>8</td><td>Fácil</td><td>Tarefa comum sob leve pressão</td></tr>
+                <tr><td>12</td><td>Médio</td><td>Simples para um profissional focado</td></tr>
+                <tr><td>16</td><td>Difícil</td><td>Esforço real e concentração absoluta</td></tr>
+                <tr><td>20</td><td>Crítico</td><td>No limite das capacidades humanas</td></tr>
+                <tr><td>24</td><td>Extremo</td><td>Quase impossível; sorte e perícia de elite</td></tr></table>
+            <dl>
+                <dt>20 natural</dt><dd>Sucesso excepcional se atingir a DT (não ignora a DT). Em ataque: dano máximo dos dados base.</dd>
+                <dt>1 natural</dt><dd>Falha crítica: algo externo dá muito errado. Destreinado em conhecimento técnico agrava a catástrofe.</dd>
+                <dt>Conhecimento técnico destreinado</dt><dd>Pode tentar, mas com Desvantagem.</dd>
+                <dt>Vantagem / Desvantagem</dt><dd>+1d20 por fonte; fica o maior (vantagem) ou o menor (desvantagem). Anulam-se 1 para 1.</dd>
+                <dt>Forçar o teste (Preço do Desespero)</dt><dd>Após falha comum em teste crucial, o Mestre pode dar sucesso automático ou nova rolagem cobrando um preço (ferramenta quebra; excedendo o corpo, o membro fica Lesionado e só cura com tratamento hospitalar).</dd>
+                <dt>Ajudar</dt><dd>Descreve como ajuda e testa perícia complementar DT 12: +1 (+3 no crítico) para o aliado; falha crítica dá −2. Quem ajuda falha automaticamente em Percepção passiva.</dd>
+                <dt>Oposição</dt><dd>Maior resultado vence; empate favorece o atacante.</dd>
+                <dt>Cooperativo</dt><dd>DT × 2; a soma das duas rolagens precisa alcançar.</dd>
+                <dt>Dados de tempo e desgaste (1d6)</dt><dd>Condições voláteis encerram com resultados altos (em geral 5–6). Kits abstratos acabam com 1–2 após o uso.</dd>
+            </dl>
+            <h4>Investigação</h4>
+            <ul>
+                <li>Descrição precisa → sucesso automático; busca abstrata → teste (consome tempo).</li>
+                <li>Falhou? Só nova tentativa com nova abordagem, ferramenta ou informação.</li>
+                <li>Destravar a mesa (1×/cena/jogador): Compartilhar informação, Revisar/Recapitular, Insight mecânico (DT 16–20, oferecido pelo Mestre).</li>
+                <li>Pesquisa em arquivo: o teste define tempo e qualidade; falha = madrugada perdida (1 nível de Exaustão ou inimigos avançam).</li>
+            </ul>
+        </div>
+
+        <div class="gaveta-sec" data-sec="combate">
+            <h4>Iniciativa e turnos</h4>
+            <p><b>1d20 + AGI + Proatividade.</b> Empate: maior AGI; persistindo, 1d20 puro entre os empatados (não altera o valor). Ameaças agem no seu número; <b>entre os turnos das ameaças os jogadores reorganizam livremente a ordem entre si</b>. Em conflito de intenções entre jogadores, vale o maior valor original. Rodada ≈ 6 s.</p>
+            <dl>
+                <dt>Ação Padrão</dt><dd>Atacar, estabilizar, arrombar.</dd>
+                <dt>Ação de Movimento</dt><dd>Deslocamento 6 + 2×AGI metros; sacar, recarregar, levantar.</dd>
+                <dt>Ação Completa</dt><dd>Padrão + Movimento (Disparada, Mirar, Estancar).</dd>
+                <dt>Reação</dt><dd>Ilimitadas; cada uma após a primeira na rodada sofre −2 cumulativo.</dd>
+                <dt>Disparada</dt><dd>Usa a Ação Padrão para mover o deslocamento outra vez.</dd>
+                <dt>Preparar ação</dt><dd>Gasta a Padrão declarando gatilho; executa como Reação até seu próximo turno, interrompendo quem disparou. Ação coordenada: todos no mesmo gatilho agem juntos.</dd>
+            </dl>
+            <h4>Ações táticas</h4>
+            <dl>
+                <dt>Mirar (completa)</dt><dd>Próximo ataque com Vantagem. Sofrer dano: Fortitude ou perde a mira.</dd>
+                <dt>Ataque localizado</dt><dd>Braços/pernas −5; cabeça com Desvantagem. Dano vai ao VD do membro. Ignora RD de equipamento que não protege o membro.</dd>
+                <dt>Ataque furtivo</dt><dd>Furtividade vs Percepção: alvo Desprevenido e você com Vantagem; depois todos rolam iniciativa.</dd>
+                <dt>Nocautear</dt><dd>Localizado na cabeça; se causar Lesão, alvo faz Fortitude ou fica Inconsciente.</dd>
+                <dt>Manobras (Padrão)</dt><dd>Briga vs Briga/Acrobacia/Reflexos. Só se a diferença de FOR ≤ 1. Agarrar · Asfixiar (2 vitórias = Inconsciente; +1 rodada = Morrendo) · Derrubar (Caído) · Desarmar · Empurrar 3 m · Fintar (Movimento; Persuasão vs Intuição/Combate: Vantagem no próximo ataque).</dd>
+                <dt>Ler o oponente (livre)</dt><dd>Combate+SAG ou Intuição+SAG: revela se o ataque inimigo é localizado.</dd>
+            </dl>
+            <h4>Defesas</h4>
+            <dl>
+                <dt>Defesa Base</dt><dd>10 + AGI + Nível + bônus.</dd>
+                <dt>Esquiva (reação)</dt><dd>Defesa + Reflexos.</dd>
+                <dt>Bloqueio (reação)</dt><dd>Defesa + Fortitude; RD igual ao grau em Fortitude; excedente vai ao membro que bloqueou.</dd>
+                <dt>Contra-ataque (reação)</dt><dd>Exige Combate +1 ou Briga +2. Só Defesa Base; se o inimigo errar, você ataca na hora.</dd>
+                <dt>Crítico no ataque</dt><dd>Maximiza os dados base da arma (antes de bônus fixos).</dd>
+                <dt>Desprevenido × Vulnerável</dt><dd>Desprevenido não reage; Vulnerável −2 na Defesa. Não acumulam.</dd>
+            </dl>
+        </div>
+
+        <div class="gaveta-sec" data-sec="distancia">
+            <h4>Margens de engajamento</h4>
+            <table><tr><th>Margem</th><th>Efeito</th></tr>
+                <tr><td>Queima-roupa</td><td>Acerto automático, sem reações; localizado sem penalidade. Só com alvo rendido, imobilizado, surpreso ou já mirado.</td></tr>
+                <tr><td>Adjacente (1,5 m)</td><td>Pistolas/escopetas com Vantagem; fuzis/rifles com Desvantagem.</td></tr>
+                <tr><td>Curto (até 9 m)</td><td>Normal para pistolas, SMGs e escopetas.</td></tr>
+                <tr><td>Médio (10–40 m)</td><td>Fuzis e rifles; limite das armas curtas.</td></tr>
+                <tr><td>Longo (41–100 m)</td><td>Armas curtas/escopetas com Desvantagem.</td></tr>
+                <tr><td>Extremo (100 m+)</td><td>Só com luneta, posição estável e Mirar.</td></tr></table>
+            <h4>Cobertura (RD)</h4>
+            <table><tr><th>Material</th><th>RD</th><th>Exemplos</th></tr>
+                <tr><td>Carne</td><td>2</td><td>Refém, cadáver</td></tr>
+                <tr><td>Madeira / plástico</td><td>4</td><td>Mesas, portas internas, drywall</td></tr>
+                <tr><td>Metal / areia</td><td>8</td><td>Lataria, sacos de areia</td></tr>
+                <tr><td>Concreto / pedra</td><td>15</td><td>Pilastras, paredes estruturais</td></tr></table>
+            <p><b>Parcial:</b> tiro de precisão com Desvantagem ignora a RD; ou varar o objeto (rolagem normal, subtrai a RD). <b>Total:</b> só às cegas, com Desvantagem e acertando a posição. <b>Terreno difícil:</b> deslocamento pela metade e Desvantagem em testes de AGI.</p>
+            <h4>Veículos</h4>
+            <table><tr><th>Veículo</th><th>Desloc.</th><th>RD</th></tr>
+                <tr><td>Bicicleta</td><td>12 m</td><td>—</td></tr><tr><td>Moto</td><td>24 m</td><td>2</td></tr>
+                <tr><td>Carro comum</td><td>21 m</td><td>8</td></tr><tr><td>SUV</td><td>18 m</td><td>10</td></tr>
+                <tr><td>Furgão blindado</td><td>15 m</td><td>15</td></tr><tr><td>Caminhão</td><td>12 m</td><td>12</td></tr></table>
+            <p>Atirar em movimento: 1 Desvantagem numa das ações. Golpe de mais de 15 no veículo: Direção DT 16 ou despista/morre o motor. Atropelar (Padrão): Direção vs Reflexos, 3d6 (leve) ou 5d6 (pesado) de impacto.</p>
+        </div>
+
+        <div class="gaveta-sec" data-sec="ferimentos">
+            <h4>Membros (VD / DEC)</h4>
+            <p>VD = ¼ da Vida máxima; DEC = ½. Dano num golpe abaixo do VD: superficial. Entre VD e DEC: <b>Lesionado</b>. Igual ou acima do DEC: amputação/destruição, choque, cai e Sangrando.</p>
+            <ul>
+                <li><b>Braço:</b> solta o que segura; sem duas mãos; ataques de uma mão com Desvantagem.</li>
+                <li><b>Perna:</b> Caído, deslocamento pela metade, sem Atletismo/Acrobacia.</li>
+                <li><b>Tronco:</b> Desvantagem em testes de Vigor.</li>
+                <li><b>Cabeça:</b> Atordoado e Desvantagem em testes de SAG.</li>
+            </ul>
+            <p>Corte/perfuração que causam Lesão: Fortitude ou Sangrando. Impacto que causa Lesão: Fortitude ou Atordoado. Remendo em combate (Padrão, até 1 rodada após): anula penalidades, Atordoado por 1 rodada; cura só com cirurgia.</p>
+            <h4>Espiral da morte</h4>
+            <dl>
+                <dt>Dano massivo</dt><dd>Machucado + Fortitude: falha = Inconsciente e Sangrando; sucesso = de pé, mas Sangrando.</dd>
+                <dt>Inconsciente (dano massivo)</dt><dd>Fim de cada turno 1d6: 1–3 continua; 4–6 desperta (ainda Sangrando).</dd>
+                <dt>Sangrando</dt><dd>Fim da rodada 1d6: 1–3 perde 1 PV; 4–5 continua; 6 estanca. Estancar (completa) pausa; Medicina DT 16 resolve.</dd>
+                <dt>PV 0 → Morrendo</dt><dd>Aliados têm o resto da rodada. No fim dela, Salvaguarda de Fortitude <b>DT 12</b>, +2 por rodada seguinte. Falha: morte.</dd>
+                <dt>Agravantes da DT inicial</dt><dd>+2 se o golpe excedeu a vida em ≥ 50% da Vida máxima (dano catastrófico); +2 por marcador de morte (óbito) na ficha.</dd>
+                <dt>Estabilizar</dt><dd>Medicina DT 16 (Padrão): sai de Morrendo com 1 PV.</dd>
+            </dl>
+            <h4>Testes de resistência</h4>
+            <dl>
+                <dt>Reflexos · Fortitude · Resiliência</dt><dd>Reflexos evita o perigo com agilidade; Fortitude suporta impacto e dor; Resiliência blinda a mente.</dd>
+                <dt>DT fixa</dt><dd>Perigo impessoal, súbito ou em área (explosão, desabamento): o Mestre define a DT.</dd>
+                <dt>Oposição</dt><dd>Intenções contrárias: os dados se enfrentam. <b>Empate: o atacante vence.</b></dd>
+                <dt>Cooperativo</dt><dd>Duas personas num único fim: DT × 2 e a soma das rolagens precisa alcançar.</dd>
+            </dl>
+            <h4>Tipos de dano</h4>
+            <dl>
+                <dt>Impacto</dt><dd>Quedas, socos, marretas, colisões. Esmaga, concussão, fraturas; pode Atordoar.</dd>
+                <dt>Cortante</dt><dd>Lâminas e garras. Maior chance de Sangrando; acima do DEC, amputação.</dd>
+                <dt>Perfurante</dt><dd>Estocadas e presas. Risco de órgãos vitais e hemorragia interna silenciosa.</dd>
+                <dt>Balístico</dt><dd>Projéteis. Onda de choque que destrói músculo e osso; colete de Kevlar converte em Impacto e reduz pela RD.</dd>
+                <dt>Fogo</dt><dd>Chamas, explosões, calor extremo. Causa Em Chamas.</dd>
+                <dt>Frio</dt><dd>Hipotermia, necrose e perda de funções motoras e reflexos.</dd>
+                <dt>Eletricidade</dt><dd>Contrações violentas (pode arremessar ou prender à fonte), arritmia e queimaduras de saída.</dd>
+                <dt>Químico</dt><dd>Ácidos, toxinas e venenos. Exige neutralizador específico; bandagem simples é inútil.</dd>
+            </dl>
+        </div>
+
+        <div class="gaveta-sec" data-sec="mente">
+            <h4>Ponto de quebra e choque</h4>
+            <p>Perder o <b>máximo do dado</b> de Lucidez num evento força teste com VON (DT pela gravidade). Falha: <b>Estado de Choque</b> — o jogador escolhe ou rola 1d3: 1 Lutar, 2 Fugir, 3 Congelar (sem ações, Defesa nula). Fim de cada turno 1d6: 5–6 retoma o controle. Depois: trauma temporário até o fim da cena (tremores, hiperventilação ou visão de túnel).</p>
+            <h4>Fases da loucura</h4>
+            <ul>
+                <li><b>Temporária:</b> Estado de Choque + trauma temporário.</li>
+                <li><b>Indefinida:</b> LUC atual na metade da máxima atual → fobia ligada ao evento (exposição: Resiliência ou choque).</li>
+                <li><b>Estrutural:</b> LUC máxima corroída até metade da inicial → trauma permanente.</li>
+                <li><b>Permanente:</b> LUC 0 → a persona vira NPC do Mestre.</li>
+            </ul>
+            <h4>Trauma da primeira vez</h4>
+            <p>Perda fixa na LUC atual <b>e</b> máxima: base − VON (mín. 1). Choque severo 4 · Ato hediondo 6 · Ruptura 8. Depois, só a atual. <b>Saturação:</b> ao perder o máximo do dado para a mesma fonte na cena, para de perder Lucidez por ela.</p>
+            <h4>Recuperar Lucidez</h4>
+            <ul>
+                <li>Roleplay genuíno de alívio emocional (Mestre define; quem acolhe também pode recuperar).</li>
+                <li>Automedicação (Movimento): 1d3; 1×/dia, ou dose crescente (2, 3...) antes de descanso longo.</li>
+                <li>Intensiva: treinado em Medicina ou Medicina DT 12 → 1d6, sai do choque; Desvantagem em raciocínio e destreza por 1d3 h.</li>
+                <li>Inatividade: terapia 10 + 2d6 + 2×VON; rotina mundana 5 + 1d6 + 2×VON.</li>
+            </ul>
+        </div>
+
+        <div class="gaveta-sec" data-sec="perigos">
+            <h4>Relógio de tensão</h4>
+            <p>Duas colunas: o grupo precisa de <b>3 sucessos antes de 3 falhas</b>. Cada jogador descreve e rola por rodada. Sucesso +1 · Falha +1 · <b>20 natural +2 sucessos</b> · <b>1 natural +2 falhas</b> (ou dano direto em quem rolou). O Preço do Desespero também vale aqui.</p>
+            <h4>Ações de perseguição</h4>
+            <dl>
+                <dt>Disparada</dt><dd>Atletismo DT 12. Sucesso avança a fuga; falha atrasa o grupo.</dd>
+                <dt>Cortar caminho</dt><dd>Perícia variável DT 16. Sucesso: +2 sucessos. Falha: +1 falha e 1d4 de dano.</dd>
+                <dt>Forçar obstáculo</dt><dd>Perícia variável DT 16. Sucesso: +1 e reduz a próxima DT do grupo. Falha: +1 falha.</dd>
+                <dt>Chamar atenção</dt><dd>Persuasão ou Intimidação vs Vontade do caçador. Sucesso: não pontua, fica com Desvantagem na próxima rodada e o grupo ganha 1 sucesso automático.</dd>
+                <dt>Desvincular-se</dt><dd>Sem teste: sai do relógio do grupo e passa a valer só o próprio resultado (na ficha: botão ⇆ do relógio).</dd>
+                <dt>Sacrificar-se</dt><dd>Encerra a perseguição: os outros escapam e quem ficou entra em corpo a corpo isolado.</dd>
+            </dl>
+        </div>
+
+        <div class="gaveta-sec" data-sec="condicoes">
+            <h4>Lista de condições</h4>
+            <dl>
+                <dt>Agarrado</dt><dd>Mobilidade reduzida a zero. Desvantagem em ataques contra terceiros.</dd>
+                <dt>Asfixiado</dt><dd>Teste oposto de força a cada rodada; 2 vitórias apagam a vítima.</dd>
+                <dt>Assustado</dt><dd>Desvantagem contra a origem do medo ou adjacente a ela; não se move em direção a ela. Resiliência ou teste social aliado no fim do turno remove.</dd>
+                <dt>Atordoado</dt><dd>Sem Ações Padrão ou de Movimento; só Livres e Reações. Fim do turno 1d6: 5–6 encerra.</dd>
+                <dt>Caído</dt><dd>Inimigos têm Vantagem corpo a corpo. Levantar exige Ação de Movimento.</dd>
+                <dt>Cego</dt><dd>Falha automática em testes visuais; ataca com Desvantagem e concede Vantagem.</dd>
+                <dt>Desprevenido</dt><dd>Não pode usar Reações; mantém a Defesa Base.</dd>
+                <dt>Em Chamas</dt><dd>1d3 de dano de fogo no início do turno. Ação Padrão (rolar no chão) apaga.</dd>
+                <dt>Exausto</dt><dd>1) deslocamento ½ · 2) Desvantagem (ou −3) em ataques · 3) −1 em tudo e na defesa · 4º nível: Inconsciente.</dd>
+                <dt>Flanqueado</dt><dd>Cercado por dois ou mais inimigos corpo a corpo: atacantes com Vantagem.</dd>
+                <dt>Inconsciente</dt><dd>Caído, sem ações e sem conhecimento do que acontece.</dd>
+                <dt>Lesionado</dt><dd>Membro com falha estrutural; penalidade conforme o local. Cura em Tempo de Inatividade.</dd>
+                <dt>Machucado</dt><dd>Dano massivo: Salvaguarda de Fortitude; falha = Inconsciente; e Sangrando sem primeiros socorros.</dd>
+                <dt>Morrendo</dt><dd>PV 0: Inconsciente; Salvaguarda de Fortitude no fim da rodada, DT 12 +2 por rodada.</dd>
+                <dt>Sangrando</dt><dd>Fim da rodada 1d6: 1–3 perde 1 PV · 4–5 continua · 6 estanca.</dd>
+                <dt>Vulnerável</dt><dd>−2 na Defesa Base. Não acumula com Desprevenido.</dd>
+            </dl>
+        </div>
+
+        <div class="gaveta-sec" data-sec="descanso">
+            <h4>Fôlego e descanso</h4>
+            <ul>
+                <li>PF a 0: 1 nível de Exaustão e sem habilidades de Fôlego até recuperar 1 PF.</li>
+                <li>Exaustão: 1) deslocamento ½; 2) Desvantagem (ou −3) em ataques; 3) −1 em todos os testes e defesa; 4º nível: Inconsciente.</li>
+                <li>Descanso curto (15–30 min): metade do Fôlego e −1 Exaustão.</li>
+                <li>Longo precário: VIG em PV (mín. 1), sem tirar Exaustão. Normal: 1d3+VIG PV, VON em LUC, −1 Exaustão. Luxo: 3+VIG PV, 2×VON LUC, zera Exaustão. Medicina de aliado: +1d3 PV.</li>
+            </ul>
+            <h4>Interlúdio</h4>
+            <p>Pausa tática de poucas horas dentro da missão, em segurança: estabilizar ferimentos, primeiros socorros, reparar armas, treinamento cotidiano.</p>
+            <h4>Tempo de inatividade (entre missões)</h4>
+            <p>Cada jogador tem <b>2 ações</b>; focar numa coisa é negligenciar outra.</p>
+            <dl>
+                <dt>Terapia psiquiátrica</dt><dd>Recupera 10 + 2d6 + 2×VON de Lucidez e afasta fobias adquiridas.</dd>
+                <dt>Cirurgia e reabilitação</dt><dd>Remove uma Lesão estrutural da última campanha (amputação não regenera; adapta-se à prótese).</dd>
+                <dt>Pesquisa de campo</dt><dd>+1 Ponto de Preparação (não acumula, não expira): o Mestre revela algo valioso do próximo local e você adiciona ao inventário um equipamento coerente para aquilo.</dd>
+                <dt>Rotina mundana</dt><dd>Restaura o Fundo de Gastos e os laços; recupera 5 + 1d6 + 2×VON de Lucidez.</dd>
+                <dt>Treinamento simples</dt><dd>+1 Ponto de Treinamento.</dd>
+                <dt>Treinamento obsessivo</dt><dd>Gasta as 2 ações: +3 PT, sem curar traumas nem lesões. Responda: a <b>Cicatriz</b> (que falha te provou fraco?) e a <b>Obsessão</b> (o que você sacrificou?).</dd>
+            </dl>
+            <p><b>Pontos de Treinamento:</b> 1 PT = +1 grau numa perícia; 3 PT = 1 Talento.</p>
+        </div>
+
+</template>
 </body>
 </html>
