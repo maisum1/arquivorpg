@@ -178,9 +178,10 @@
         .ent.turno { border-color: var(--op-red); box-shadow: 0 0 0 1px var(--op-red); }
         .ent.aberto { outline: 1px dashed var(--op-ink); outline-offset: -3px; }
         .ent.caido { opacity: .7; }
-        .ent-foto { width: 52px; height: 66px; border: 2px solid #fff; background: #cfcabb; overflow: hidden; cursor: pointer; box-shadow: 1px 1px 4px rgba(0,0,0,.3); transform: rotate(-2deg); }
+        .ent-foto { position: relative; width: 52px; height: 66px; border: 2px solid #fff; background: #cfcabb; overflow: hidden; cursor: pointer; box-shadow: 1px 1px 4px rgba(0,0,0,.3); transform: rotate(-2deg); }
         body.tema-escuro .ent-foto { border-color: #cfcabb; }
         .ent-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ent-foto img.ajustada { position: absolute; object-fit: fill; max-width: none; }
         .ent-cab { display: flex; align-items: flex-start; gap: 6px; }
         .ent-nome { flex: 1; min-width: 0; background: none; border: none; padding: 0; text-align: left; cursor: pointer; font: 900 1.05rem/1.05 'Crimson Text', serif; letter-spacing: .5px; text-transform: uppercase; overflow-wrap: anywhere; }
         body.tema-escuro .ent-nome { color: var(--accent-gold); }
@@ -208,7 +209,8 @@
         .cond.leve.decepado { border-style: solid; text-decoration: line-through; }
         .cond.add { background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); cursor: pointer; }
         .ent-ctl { display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
-        .ent-ctl input { width: 40px; height: 24px; text-align: center; padding: 0 2px; font-size: 12px; }
+        .ent-ctl input { width: 40px; height: 24px; text-align: center; padding: 0 2px; font-size: 12px; -moz-appearance: textfield; appearance: textfield; }
+        .ent-ctl input::-webkit-outer-spin-button, .ent-ctl input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .ent-ctl .btn { padding: 3px 7px; font-size: 11px; height: 24px; }
         .ent-ctl .ordem { font: 700 10px 'Inter', sans-serif; color: var(--cor-geral); letter-spacing: .05em; margin-left: auto; }
 
@@ -1410,8 +1412,21 @@
     }
     function fotoHTML(v) {
         const pos = `${isNaN(parseFloat(v.px)) ? 50 : parseFloat(v.px)}% ${isNaN(parseFloat(v.py)) ? 50 : parseFloat(v.py)}%`;
-        return `<div class="ent-foto" data-abrir="${v.col}:${esc(v.id)}" title="Abrir ficha">${v.portrait ? `<img src="${esc(v.portrait)}" alt="" loading="lazy" style="object-position:${pos}">` : ''}</div>`;
+        const z = v.raw && v.raw.pZ !== undefined && v.raw.pZ !== '' ? v.raw.pZ : 1;
+        return `<div class="ent-foto" data-abrir="${v.col}:${esc(v.id)}" title="Abrir ficha">${v.portrait ? `<img src="${esc(v.portrait)}" alt="" loading="lazy" style="object-position:${pos}" data-px="${esc(v.px ?? 50)}" data-py="${esc(v.py ?? 50)}" data-pz="${esc(z)}">` : ''}</div>`;
     }
+    // mesmo enquadramento das fichas: "cover" × zoom, deslocado pelos % de X/Y salvos no recorte
+    function enquadrarFoto(img) {
+        const box = img.parentElement, nw = img.naturalWidth, nh = img.naturalHeight, w = box.clientWidth, h = box.clientHeight;
+        if (!nw || !nh || !w || !h) return;
+        const z = parseFloat(img.dataset.pz) || 1, x = parseFloat(img.dataset.px), y = parseFloat(img.dataset.py);
+        const s = Math.max(w / nw, h / nh) * z, iw = nw * s, ih = nh * s;
+        img.classList.add('ajustada');
+        img.style.width = iw + 'px'; img.style.height = ih + 'px';
+        img.style.left = ((w - iw) * (isNaN(x) ? 50 : x) / 100) + 'px';
+        img.style.top = ((h - ih) * (isNaN(y) ? 50 : y) / 100) + 'px';
+    }
+    document.addEventListener('load', e => { if (e.target.matches && e.target.matches('.ent-foto img')) enquadrarFoto(e.target); }, true);
     function cartao(v, ordemPos, ativo, ehTurno) {
         const editavel = v.col === 'ameacas' || (v.kind === 'ameaca' && !v.hexatombe);
         const conds = v.conds.map(c => editavel && c !== 'Morrendo'
