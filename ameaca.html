@@ -1487,84 +1487,9 @@ if (campanhaParam) {
                     listaContainer.appendChild(aviso);
                 }
 
-                if (ordem.length > 0) {
-                    ordem.forEach((combatente, index) => {
-                        const isCurrentTurn = ativo && (index === turnoAtual);
-                        
-                        if (combatente.id === minhaFichaId) {
-                            meuIndexNaOrdem = index;
-                            if (isCurrentTurn) isMinhaVez = true;
-                        }
-
-                        const aliado = combatente.tipo !== 'ameaca';
-                        const antAliado = index > 0 && ordem[index - 1].tipo !== 'ameaca';
-                        const proxAliado = index + 1 < ordem.length && ordem[index + 1].tipo !== 'ameaca';
-                        if (aliado && !antAliado && proxAliado) {
-                            const g = document.createElement('div');
-                            g.className = 'ini-grupo-aliados';
-                            g.textContent = 'ALIADOS · ordem livre entre si';
-                            listaContainer.appendChild(g);
-                        }
-
-                        const bgCor = isCurrentTurn ? "var(--op-red)" : (combatente.id === minhaFichaId ? "var(--card-hover)" : "var(--card-bg)");
-                        const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
-                        const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
-
-                        const item = document.createElement('div');
-                        item.className = 'draggable-item';
-                        item.dataset.index = index;
-                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; ${aliado ? 'border-left: 3px solid ' + (isCurrentTurn ? '#fff' : 'var(--san-purple)') + ';' : ''} background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
-                        
-                        if (souMestreDestaCampanha) {
-                            item.draggable = true;
-                            item.style.cursor = "grab";
-                            item.addEventListener('dragstart', () => { 
-                                item.classList.add('dragging'); 
-                                item.style.opacity = "0.4"; 
-                                item.style.border = "1px dashed var(--op-red)";
-                            });
-                            item.addEventListener('dragend', () => { 
-                                item.classList.remove('dragging'); 
-                                item.style.opacity = "1"; 
-                                const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
-                                const newIndex = currentList.indexOf(item);
-                                const oldIndex = parseInt(item.dataset.index);
-                                if (oldIndex !== newIndex && newIndex !== -1) {
-                                    executarReordenacaoMestre(oldIndex, newIndex);
-                                } else {
-                                    item.style.border = `1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}`;
-                                }
-                            });
-                        }
-
-                        const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
-                        
-                        let botoesMestre = '';
-                        if (souMestreDestaCampanha) {
-                            if (index < ordem.length - 1 && combatente.valor === ordem[index+1].valor && combatente.agi === ordem[index+1].agi) {
-                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de valor e Agilidade (desempatado por 1d20). Clique para inverter">🔃</span>`;
-                            }
-                            botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
-                        }
-
-                        const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
-                        const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
-
-                        item.innerHTML = `
-                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${escIni(combatente.nome)}</span>
-                            <div style="display: flex; align-items: center;">
-                                ${botoesMestre}
-                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${parseInt(combatente.agi) || 0}">${parseInt(combatente.valor) || 0}</span>
-                            </div>
-                        `;
-                        listaContainer.appendChild(item);
-                    });
-                } else {
-                    const vazio = document.createElement('div');
-                    vazio.style.cssText = "text-align:center; font-size:11px; color:#888; padding:10px;";
-                    vazio.textContent = ativo ? 'Combate iniciado — aguardando iniciativas.' : 'Nenhum combate ativo.';
-                    listaContainer.appendChild(vazio);
-                }
+                const resLista = desenharListaIniciativa(listaContainer, ordem, ativo, turnoAtual, minhaFichaId);
+                isMinhaVez = resLista.isMinhaVez; meuIndexNaOrdem = resLista.meuIndexNaOrdem;
+                if (souMestreDestaCampanha) renderSelectCombatentes();
 
                 const btnToggle = document.getElementById('btn-toggle-iniciativa');
                 const btnAtrasar = document.getElementById('btn-atrasar-vez-jog');
@@ -1584,7 +1509,7 @@ if (campanhaParam) {
                 }
 
                 if (btnAtrasar) {
-                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < ordem.length - 1);
+                    const podeAtrasar = resLista.podeAtrasar;
                     btnAtrasar.style.borderColor = podeAtrasar ? "var(--op-red)" : "var(--card-border)";
                     btnAtrasar.style.opacity = podeAtrasar ? "1" : "0.3";
                     btnAtrasar.style.pointerEvents = podeAtrasar ? "auto" : "none";
@@ -1606,17 +1531,6 @@ if (campanhaParam) {
                 } else { return closest; }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
-
-        window.alternarCombateFicha = async function() {
-            if (!souMestreDestaCampanha || !idDaCampanhaAtiva) return;
-            const ativo = combateEstaAtivo(window.__ultimoCombate);
-            if (ativo) {
-                if (!confirm("Encerrar o combate? A ordem de iniciativa será limpa e o painel some para os jogadores.")) return;
-                await mutarCombateAmeaca(() => ({ ativo: false, ordem: [], turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {} }));
-            } else {
-                await mutarCombateAmeaca(c => ({ ativo: true, turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ordem: Array.isArray(c.ordem) ? c.ordem : [] }));
-            }
-        };
 
         window.executarReordenacaoMestre = async function(origem, destino) {
             await mutarCombateAmeaca(c => {
@@ -1644,32 +1558,19 @@ if (campanhaParam) {
             });
         };
 
-        // valores desta ameaça: 1d20 + AGI + Proatividade
-        function iniciativaDestaAmeaca() {
-            const agi = num('agi'), p = (PNPC || []).find(x => x.n === 'Proatividade'), pro = p ? (parseInt(p.v) || 0) : 0;
-            const dado = rolarD20();
-            return { dado, agi, pro, total: dado + agi + pro };
-        }
-        window.rolarIniciativaJogador = function() {
-            const r = iniciativaDestaAmeaca();
-            const inp = document.getElementById('input-minha-iniciativa');
-            if (inp) { inp.value = r.total; inp.dataset.dado = r.dado; inp.title = `d20 ${r.dado} + AGI ${r.agi} + Proatividade ${r.pro}`; }
-        };
-
         window.enviarMinhaIniciativa = async function() {
             const inputVal = document.getElementById('input-minha-iniciativa');
             const valorInic = parseInt(inputVal.value);
             const minhaFichaId = new URLSearchParams(window.location.search).get('id');
-            if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) { alert("Insira um valor (ou use 🎲)."); return; }
+            if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) { alert("Digite o valor de iniciativa."); return; }
             if (!combateEstaAtivo(window.__ultimoCombate) && !souMestreDestaCampanha) { alert("O mestre ainda não iniciou o combate."); return; }
             try {
                 inputVal.placeholder = "...";
                 const snap = await db.collection("ameacas").doc(minhaFichaId).get();
                 if (!snap.exists) return;
                 const entrada = { id: minhaFichaId, nome: snap.data().nome || "Entidade", tipo: "ameaca", col: 'ameacas', valor: valorInic, agi: parseInt(snap.data().agi) || 0, desempate: rolarD20() };
-                if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
                 await mutarCombateAmeaca(c => inserirOrdenado(c, entrada));
-                inputVal.value = ""; delete inputVal.dataset.dado;
+                inputVal.value = "";
                 inputVal.placeholder = "Ok!";
                 setTimeout(() => inputVal.placeholder = "Valor...", 1500);
             } catch (e) { inputVal.placeholder = "Valor..."; }
@@ -1692,38 +1593,164 @@ if (campanhaParam) {
                     const p = (d.pericias_npc || []).find(x => x.n === 'Proatividade');
                     opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", col: 'ameacas', agi: parseInt(d.agi) || parseInt(d.agilidade) || 0, pro: p ? (parseInt(p.v) || 0) : 0 });
                 });
-                select.innerHTML = '<option value="">Selecionar Combatente...</option>';
-                opcoesDeCombatentes.forEach(opt => {
-                    const tag = opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] ';
-                    select.innerHTML += `<option value="${opt.id}">${tag}${escIni(opt.nome)} (AGI ${opt.agi})</option>`;
-                });
-                const aberta = new URLSearchParams(window.location.search).get('id');
-                if (aberta && opcoesDeCombatentes.some(o => o.id === aberta)) select.value = aberta;   // já vem com esta ameaça selecionada
+                renderSelectCombatentes();
             } catch (e) {}
         }
 
+        // desenha a ordem; jogadores não veem quem o mestre escondeu (🙈)
+        function desenharListaIniciativa(listaContainer, ordem, ativo, turnoAtual, minhaFichaId) {
+            let isMinhaVez = false, meuIndexNaOrdem = -1;
+            const vis = ordem.map((c, i) => ({ c, i })).filter(x => souMestreDestaCampanha || !x.c.oculto);
+            const ehAliado = x => x && x.c.tipo !== 'ameaca';
+            vis.forEach((x, k) => {
+                const combatente = x.c, index = x.i;
+                const isCurrentTurn = ativo && (index === turnoAtual);
+                if (combatente.id === minhaFichaId) { meuIndexNaOrdem = index; if (isCurrentTurn) isMinhaVez = true; }
+
+                // jogadores consecutivos: o livro permite que reorganizem a ordem entre si
+                const aliado = ehAliado(x);
+                if (aliado && !ehAliado(vis[k - 1]) && ehAliado(vis[k + 1])) {
+                    const g = document.createElement('div');
+                    g.className = 'ini-grupo-aliados';
+                    g.textContent = 'ALIADOS · ordem livre entre si';
+                    listaContainer.appendChild(g);
+                }
+
+                const bgCor = isCurrentTurn ? "var(--op-red)" : (combatente.id === minhaFichaId ? "var(--card-hover)" : "var(--card-bg)");
+                const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
+                const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
+
+                const item = document.createElement('div');
+                item.className = 'draggable-item';
+                item.dataset.index = index;
+                item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; ${aliado ? 'border-left: 3px solid ' + (isCurrentTurn ? '#fff' : 'var(--san-purple)') + ';' : ''} background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;${combatente.oculto ? ' opacity: .75; font-style: italic;' : ''}`;
+
+                if (souMestreDestaCampanha) {
+                    item.draggable = true;
+                    item.style.cursor = "grab";
+                    item.addEventListener('dragstart', () => {
+                        item.classList.add('dragging');
+                        item.style.opacity = "0.4";
+                        item.style.border = "1px dashed var(--op-red)";
+                    });
+                    item.addEventListener('dragend', () => {
+                        item.classList.remove('dragging');
+                        item.style.opacity = "1";
+                        const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
+                        const newIndex = currentList.indexOf(item);
+                        const oldIndex = parseInt(item.dataset.index);
+                        if (oldIndex !== newIndex && newIndex !== -1) executarReordenacaoMestre(oldIndex, newIndex);
+                        else item.style.border = `1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}`;
+                    });
+                }
+
+                const icone = combatente.tipo === 'ameaca' ? '🩸' : '👤';
+                let botoesMestre = '';
+                if (souMestreDestaCampanha) {
+                    if (combatente.oculto) botoesMestre += `<span style="cursor: pointer; font-size: 12px; margin-right: 6px;" onclick="revelarCombatenteIniciativa('${escIni(combatente.id)}')" title="Escondida dos jogadores — clique para revelar">🙈</span>`;
+                    const prox = ordem[index + 1];
+                    if (prox && combatente.valor === prox.valor && combatente.agi === prox.agi) {
+                        botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de valor e Agilidade (o livro manda rolar 1d20 entre os empatados). Clique para inverter">🔃</span>`;
+                    }
+                    botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${escIni(combatente.id)}')">[X]</span>`;
+                }
+
+                const bgValor = isCurrentTurn ? "rgba(255,255,255,0.2)" : "var(--op-ink)";
+                const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
+                const nomeExibido = combatente.tipo === 'ameaca' ? combatente.nome : String(combatente.nome || '').trim().split(/\s+/)[0];
+
+                item.innerHTML = `
+                    <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${k + 1}° ${icone} ${escIni(nomeExibido)}</span>
+                    <div style="display: flex; align-items: center;">
+                        ${botoesMestre}
+                        <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${parseInt(combatente.agi) || 0}">${parseInt(combatente.valor) || 0}</span>
+                    </div>
+                `;
+                listaContainer.appendChild(item);
+            });
+            if (!vis.length) {
+                const vazio = document.createElement('div');
+                vazio.style.cssText = "text-align:center; font-size:11px; color:#888; padding:10px;";
+                vazio.textContent = ativo ? 'Combate iniciado — envie o valor que você rolou.' : 'Nenhum combate ativo.';
+                listaContainer.appendChild(vazio);
+            }
+            const ultimoVisivel = vis.length ? vis[vis.length - 1].i : -1;
+            return { isMinhaVez, meuIndexNaOrdem, podeAtrasar: meuIndexNaOrdem !== -1 && meuIndexNaOrdem !== ultimoVisivel };
+        }
+
+        // lista do mestre: só quem ainda não está na ordem
+        function renderSelectCombatentes() {
+            const select = document.getElementById('select-ficha-combate');
+            if (!select || !opcoesDeCombatentes.length) return;
+            const dentro = new Set(((window.__ultimoCombate || {}).ordem || []).map(e => e.id));
+            const antes = select.value;
+            const livres = opcoesDeCombatentes.filter(o => !dentro.has(o.id));
+            select.innerHTML = `<option value="">${livres.length ? 'Selecionar combatente...' : 'Todos já estão na ordem'}</option>` + livres.map(opt =>
+                `<option value="${escIni(opt.id)}">${opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] '}${escIni(opt.nome)} (AGI ${opt.agi})</option>`).join('');
+            const aberta = new URLSearchParams(window.location.search).get('id');
+            if (livres.some(o => o.id === antes)) select.value = antes;
+            else if (aberta && livres.some(o => o.id === aberta)) select.value = aberta;
+        }
+
+        // mestre: rolagem virtual só para ameaças/NPCs (personas rolam na mesa)
         window.rolarIniciativaMestre = function() {
             const select = document.getElementById('select-ficha-combate');
             const inputVal = document.getElementById('input-valor-iniciativa');
             const info = opcoesDeCombatentes.find(o => o.id === select.value);
             if (!info) { alert("Selecione um combatente para rolar."); return; }
+            if (info.tipo !== 'ameaca') { alert("Personas rolam na mesa: digite o valor que o jogador tirou."); inputVal.focus(); return; }
             const dado = rolarD20(), total = dado + info.agi + (info.pro || 0);
             inputVal.value = total; inputVal.dataset.dado = dado;
             inputVal.title = `d20 ${dado} + AGI ${info.agi} + Proatividade ${info.pro || 0}`;
         };
 
+        window.alternarOcultoIniciativa = function(btn) {
+            const off = btn.classList.toggle('off');
+            btn.textContent = off ? '🙈' : '👁';
+            btn.title = off ? 'Vai entrar ESCONDIDA dos jogadores (clique para mostrar)' : 'Vai entrar visível aos jogadores (clique para esconder)';
+        };
+
         window.adicionarCombatenteIniciativa = async function() {
             const select = document.getElementById('select-ficha-combate');
             const inputVal = document.getElementById('input-valor-iniciativa');
+            const btnOlho = document.getElementById('btn-ini-oculto');
             const idEscolhido = select.value;
             const valorInic = parseInt(inputVal.value);
-            if (!idEscolhido || isNaN(valorInic)) return;
+            if (!idEscolhido) { alert("Selecione um combatente."); return; }
             const info = opcoesDeCombatentes.find(o => o.id === idEscolhido);
             if (!info) return;
-            const entrada = { id: idEscolhido, nome: info.nome, tipo: info.tipo, col: info.col, valor: valorInic, agi: info.agi, desempate: rolarD20() };
+            if (isNaN(valorInic)) { alert(info.tipo === 'ameaca' ? "Digite o valor ou use 🎲." : "Digite o valor que o jogador rolou."); inputVal.focus(); return; }
+            const entrada = { id: idEscolhido, nome: info.nome, tipo: info.tipo, col: info.col, valor: valorInic, agi: info.agi };
+            if (info.tipo === 'ameaca') entrada.desempate = rolarD20();
             if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+            if (btnOlho && btnOlho.classList.contains('off') && info.tipo === 'ameaca') entrada.oculto = true;
             await mutarCombateAmeaca(c => inserirOrdenado(c, entrada));
-            inputVal.value = ""; delete inputVal.dataset.dado;
+            inputVal.value = ""; select.value = ""; delete inputVal.dataset.dado;
+            if (btnOlho && btnOlho.classList.contains('off')) window.alternarOcultoIniciativa(btnOlho);
+        };
+
+        window.revelarCombatenteIniciativa = async function(id) {
+            await mutarCombateAmeaca(c => ({ ordem: (Array.isArray(c.ordem) ? c.ordem : []).map(e => { if (e.id !== id) return e; const n = { ...e }; delete n.oculto; return n; }) }));
+        };
+
+        // seções do livro que entram/saem sozinhas com a cena (o mestre pode mudar pela Mesa)
+        function consultaCom(c, sec, ligar) {
+            const lista = new Set(Array.isArray(c.consulta) ? c.consulta : []);
+            const auto = new Set(Array.isArray(c.consultaAuto) ? c.consultaAuto : []);
+            if (ligar) { if (!lista.has(sec)) { lista.add(sec); auto.add(sec); } }
+            else if (auto.has(sec)) { lista.delete(sec); auto.delete(sec); }
+            return { consulta: [...lista], consultaAuto: [...auto] };
+        }
+
+        window.alternarCombateFicha = async function() {
+            if (!souMestreDestaCampanha || !idDaCampanhaAtiva) return;
+            const ativo = combateEstaAtivo(window.__ultimoCombate);
+            if (ativo) {
+                if (!confirm("Encerrar o combate? A ordem de iniciativa será limpa e o painel some para os jogadores.")) return;
+                await mutarCombateAmeaca(c => ({ ativo: false, ordem: [], turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ...consultaCom(c, 'combate', false) }));
+            } else {
+                await mutarCombateAmeaca(c => ({ ativo: true, turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ordem: Array.isArray(c.ordem) ? c.ordem : [], ...consultaCom(c, 'combate', true) }));
+            }
         };
 
         window.passarTurnoIniciativa = async function() {
@@ -2435,8 +2462,7 @@ if (campanhaParam) {
 
     <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
         <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
-            <button type="button" onclick="rolarIniciativaJogador()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade desta ameaça">🎲</button>
-            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." oninput="delete this.dataset.dado" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
             <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">Enviar</button>
             <button id="btn-atrasar-vez-jog" onclick="atrasarMinhaVez()" style="background: transparent; border: 1px solid var(--cor-geral); color: var(--op-ink); font-size: 12px; cursor: pointer; border-radius: 2px; width: 35px; height: 28px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;" title="Atrasar a Vez (Passar um combatente na frente)">⏳</button>
         </div>
@@ -2450,16 +2476,15 @@ if (campanhaParam) {
         <select id="select-ficha-combate" style="width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 11px; margin-bottom: 6px; outline: none; border-radius: 2px; height: 28px;"></select>
 
         <div style="display: flex; gap: 6px;">
-            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." oninput="delete this.dataset.dado" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
-            <button type="button" onclick="rolarIniciativaMestre()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade do selecionado">🎲</button>
-            <button onclick="adicionarCombatenteIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
+            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." oninput="delete this.dataset.dado" onkeydown="if(event.key==='Enter') adicionarCombatenteIniciativa()" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button type="button" onclick="rolarIniciativaMestre()" class="btn-ini-dado" title="Rolagem virtual: só ameaças e NPCs (1d20 + AGI + Proatividade)">🎲</button>
+            <button type="button" id="btn-ini-oculto" onclick="alternarOcultoIniciativa(this)" class="btn-ini-olho" title="Vai entrar visível aos jogadores (clique para esconder)">👁</button>
+            <button onclick="adicionarCombatenteIniciativa()" title="Incluir na ordem" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 17px; line-height: 1; font-weight: bold; cursor: pointer; border-radius: 2px; height: 28px;">＋</button>
         </div>
 
         <div style="display: flex; gap: 6px; margin-top: 10px;">
         <button type="button" onclick="voltarTurnoIniciativa()" title="Voltar a vez" style="width: 34px; background: transparent; border: 1px dashed var(--card-border); color: var(--op-ink); cursor: pointer; border-radius: 2px;">⏪</button>
-        <button onclick="passarTurnoIniciativa()" style="flex: 1; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
-            ⏩ PASSAR A VEZ
-        </button>
+        <button onclick="passarTurnoIniciativa()" title="Passar a vez" style="flex: 1; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 13px; cursor: pointer; border-radius: 2px;">⏩</button>
         </div>
     </div>
 </div>
@@ -2643,6 +2668,8 @@ if (campanhaParam) {
 body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--accent-gold); border-color:var(--accent-gold); }
 .btn-link-mesa{ display:inline-flex; align-items:center; justify-content:center; height:28px; padding:0 8px; border:1px dashed var(--card-border); color:var(--op-ink); text-decoration:none; font:700 10px 'Inter',sans-serif; letter-spacing:.06em; border-radius:2px; white-space:nowrap; }
 .btn-link-mesa:hover{ border-color:var(--op-ink); }
+.btn-ini-olho{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
+.btn-ini-olho.off{ border:1px dashed var(--op-red); background:rgba(158,11,15,.08); }
 .btn-ini-dado{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
 .d-tag-cond{ background:var(--op-ink); color:var(--bg-paper); padding:2px 6px; letter-spacing:.04em; }
