@@ -603,7 +603,7 @@ body.tema-escuro .base-card .btn-open:hover {
             <div id="campanha-view" style="display:none; margin-top: 40px; text-align:left; border-top: 2px dashed var(--card-border); padding-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px;">
                     <h3 id="cv-titulo" style="font-family: 'Crimson Text', serif; font-size: 2rem; margin:0; color: var(--op-ink);">NOME DA CAMPANHA</h3>
-                    <div style="display:flex; gap:10px; align-items:center;" id="header-acoes-campanha">
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;" id="header-acoes-campanha">
                         <button class="btn-google" style="margin:0; padding: 5px 10px; font-size:10px;" onclick="copiarLinkCampanha()">[🔗] COPIAR LINK</button>
                         <span id="cv-codigo" style="font-family: 'Special Elite', monospace; font-size: 1.2rem; background: var(--card-bg); padding: 5px 15px; border: 1px dotted var(--card-border);">CÓDIGO</span>
                     </div>
@@ -1214,6 +1214,8 @@ body.tema-escuro .base-card .btn-open:hover {
             html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'ameacas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Ameaça</button>';
             
         } else if (tipo === 'campanha') {
+            html += '<button class="dropdown-item" style="color:var(--op-red);" onclick="location.href=\'mesa.html?campanha=\' + encodeURIComponent(\'' + extraContext + '\')">🗂 Mesa do Mestre</button>';
+            html += '<button class="dropdown-item" onclick="location.href=\'dossie.html?id=' + id + '&campanha=\' + encodeURIComponent(\'' + extraContext + '\') + \'&nome=\' + encodeURIComponent(\'' + nomeTratado + '\')">📁 Dossiê</button>';
             if (typeof editarCampanha === 'function') html += '<button class="dropdown-item" onclick="editarCampanha(\'' + id + '\', \'' + extraContext + '\', \'' + nomeTratado + '\')">✏️ Editar Nome</button>';
             html += '<button class="dropdown-item danger" onclick="deletarDocumento(\'campanhas\', \'' + id + '\', \'' + nomeTratado + '\')">🗑️ Excluir Campanha</button>';
         }
@@ -1549,6 +1551,19 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                 btnRev.onclick = () => revelarCampanha(idDoc, codigo);
                 areaAcoes.prepend(btnRev);
             }
+
+            // atalhos de condução da sessão
+            document.querySelectorAll('.cv-atalho').forEach(el => el.remove());
+            const qCod = encodeURIComponent(codigo);
+            const atalho = (txt, href, cor, dica) => {
+                const a = document.createElement('a');
+                a.className = 'btn-google cv-atalho';
+                a.href = href; a.innerText = txt; a.title = dica;
+                a.style = `margin:0; padding:5px 10px; font-size:10px; text-decoration:none; display:inline-block; border-color:${cor}; color:${cor};`;
+                return a;
+            };
+            areaAcoes.prepend(atalho('[📁] DOSSIÊ', `dossie.html?id=${encodeURIComponent(idDoc)}&campanha=${qCod}&nome=${encodeURIComponent(nome)}`, 'var(--op-ink)', 'Dossiê da campanha'));
+            areaAcoes.prepend(atalho('[🗂] MESA DO MESTRE', `mesa.html?campanha=${qCod}`, 'var(--op-red)', 'Todas as fichas, combate e relógio de tensão numa tela só'));
 
             document.getElementById('campanha-view').style.display = 'block';
 
