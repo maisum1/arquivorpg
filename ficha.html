@@ -300,6 +300,8 @@ body.tema-escuro #btn-toggle-iniciativa {
         .inv-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; background: var(--card-bg); padding: 15px; border: 1px solid var(--card-border); border-radius: 2px; }
         .inv-stats-grid > div { display: flex; flex-direction: column; align-items: center; text-align: center; }
         .inv-stats-grid label { font-size: 10px; color: var(--cor-geral); font-weight: bold; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .inv-stats-grid select { width: 100%; text-align: center; text-align-last: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; padding: 0; }
+        .inv-stats-grid select option { background: var(--bg-paper); color: var(--op-ink); font-size: 14px; }
         .inv-stats-grid input { width: 100%; text-align: center; background: transparent; border: none; border-bottom: 1px dotted var(--card-border); color: var(--op-ink); font-family: 'Special Elite', monospace; font-size: 18px; outline: none; }
 
         
@@ -392,7 +394,7 @@ body.tema-escuro #btn-toggle-iniciativa {
 
             .inv-stats-grid { gap: 5px; padding: 10px; margin-bottom: 15px; }
             .inv-stats-grid label { font-size: 7px; letter-spacing: 0; }
-            .inv-stats-grid input { font-size: 13px; }
+            .inv-stats-grid input, .inv-stats-grid select { font-size: 13px; }
 
 /* 1. Reduz o espaço vertical para a barra não ficar gorda, mas mantém a largura para o toque */
             .bar-btn { font-size: 24px !important; padding: 2px 16px !important; }
@@ -2754,9 +2756,16 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 
         <div id="aba-inventario" class="tab-content">
             <div class="inv-stats-grid">
-                <div><label>NÍVEL DE CRÉDITO</label><input type="number" id="nivel-credito" onchange="atualizarCredito(); salvarFicha();" value="-1"></div>
+                <div><label>NÍVEL DE CRÉDITO</label>
+                    <select id="nivel-credito-sel" onchange="escolherNivelCredito(this.value)" title="Define o padrão de vida e preenche os valores ao lado">
+                        <option value="-2">Pobretão</option><option value="-1">Pobre</option><option value="0">Médio</option><option value="1">Abastado</option><option value="2">Rico</option>
+                        <option value="outro">✎ Exceção…</option>
+                    </select>
+                    <input type="text" id="nivel-credito-txt" placeholder="Ex.: Ricaço" title="Só com permissão do mestre" style="display:none; margin-top:6px; font-size:15px" onchange="escreverNivelCredito(this.value)">
+                    <input type="hidden" id="nivel-credito" value="-1">
+                </div>
                 <div><label>DINHEIRO ATUAL</label><input type="text" id="dinheiro-especie" onchange="salvarFicha();" value="R$ 0"></div>
-                <div><label>FUNDO DE GASTOS</label><input type="text" id="fundo-gastos" onchange="salvarFicha();" value="R$ 0"></div>
+                <div><label>PATRIMÔNIO</label><input type="text" id="fundo-gastos" onchange="salvarFicha();" value="R$ 0"></div>
                 <div style="display: none;"><input type="text" id="patrimonio-recursos" onchange="salvarFicha();" value="R$ 0"></div>
             </div>
 
@@ -2828,22 +2837,22 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
 
     const templatesAtaques = { 
         // Livro v1.2 — Tabelas de Itens Expandidas (Apêndice)
-        "Soco": { nome: "Soco (Desarmado)", dano: "1d3+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
-        "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "TacoBasebol": { nome: "Taco de Basebol", dano: "1d6+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "PeDeCabraArma": { nome: "Pé de Cabra", dano: "1d6", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 2, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "BengalaEspada": { nome: "Bengala-Espada", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d6+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "MachadoLenhador": { nome: "Machado de Lenhador", dano: "1d8+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Marreta": { nome: "Marreta de Demolição", dano: "1d10+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Soco": { nome: "Soco (Desarmado)", dano: "1d3+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais", efeito: "Ataque natural. Usado com Briga." },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais", efeito: "Ocultável. Concede +1 em manobras de Agarrar." },
+        "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve", efeito: "Ocultável." },
+        "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve", efeito: "Ocultável. Lâmina reforçada." },
+        "TacoBasebol": { nome: "Taco de Basebol", dano: "1d6+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve", efeito: "Comum, fácil de improvisar." },
+        "PeDeCabraArma": { nome: "Pé de Cabra", dano: "1d6", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 2, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve", efeito: "Concede +2 em testes de Crime (arrombamento)." },
+        "BengalaEspada": { nome: "Bengala-Espada", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve", efeito: "Exige teste de Investigação (DT 16) para detectar a lâmina." },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d6+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada", efeito: "Concede Vantagem para destruir portas." },
+        "MachadoLenhador": { nome: "Machado de Lenhador", dano: "1d8+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada", efeito: "Duas Mãos. Focado em corte bruto." },
+        "Marreta": { nome: "Marreta de Demolição", dano: "1d10+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada", efeito: "Duas Mãos. Requisito: FOR 1. Ignora 2 pontos de RD de Coberturas." },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada", efeito: "Duas Mãos. Frágil se usada contra alvos de Concreto/Metal." },
+        "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada", efeito: "Duas Mãos. Requisito: FOR 1. Usa Combustível. Inviabiliza Furtividade." },
         "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
         "Taser": { nome: "Taser de Contato", dano: "1", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "PistolaSilenciada": { nome: "Pistola Silenciada", dano: "1d6", tipo: "Balístico", alcance: "Curto", municao: "10/10", bonus: 1, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "PistolaSilenciada": { nome: "Pistola Silenciada", dano: "1d6", tipo: "Balístico", alcance: "Curto", municao: "10/10", bonus: 1, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto", efeito: "Silenciada: abafa o disparo — quem estiver noutra sala precisa de Percepção (DT 16) para ouvir." },
         "Revolver": { nome: "Revólver .38", dano: "1d8", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "Glock": { nome: "Glock 19", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "DesertEagle": { nome: "Desert Eagle", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "7/7", bonus: -1, pericia: "Balística (Pistolas)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
@@ -3370,6 +3379,41 @@ let filtroSubAtualAtaques = 'Todos';
         });
     }
     
+    // Nível de Crédito por nome (o valor numérico continua salvo em "nivelCredito")
+    const NOMES_CREDITO = { '-2': 'Pobretão', '-1': 'Pobre', '0': 'Médio', '1': 'Abastado', '2': 'Rico', '3': 'Ricaço' };
+    function nomeNivelCredito(n) {
+        n = parseInt(n); if (isNaN(n)) return '—';
+        return NOMES_CREDITO[String(Math.max(-2, Math.min(3, n)))];
+    }
+    function lerNivelCredito(t) {
+        const s = String(t || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (!s) return null;
+        const nomes = { pobretao: -2, pobre: -1, medio: 0, abastado: 1, rico: 2, ricaco: 3 };
+        if (nomes[s] !== undefined) return nomes[s];
+        const n = parseInt(s); return (!isNaN(n) && n >= -2 && n <= 3) ? n : null;
+    }
+    function mostrarNivelCredito(n) {
+        const sel = document.getElementById('nivel-credito-sel'), txt = document.getElementById('nivel-credito-txt');
+        if (!sel || !txt) return;
+        n = parseInt(n); if (isNaN(n)) n = -1;
+        if (n >= -2 && n <= 2) { sel.value = String(n); txt.style.display = 'none'; txt.value = ''; }
+        else { sel.value = 'outro'; txt.style.display = ''; txt.value = nomeNivelCredito(n); }
+    }
+    window.escolherNivelCredito = function(v) {
+        const txt = document.getElementById('nivel-credito-txt');
+        if (v === 'outro') { txt.style.display = ''; txt.value = ''; txt.focus(); return; }
+        document.getElementById('nivel-credito').value = v;
+        mostrarNivelCredito(v); atualizarCredito(); salvarFicha();
+    };
+    window.escreverNivelCredito = function(t) {
+        const n = lerNivelCredito(t), oculto = document.getElementById('nivel-credito');
+        if (n === null) {
+            alert('Escreva um destes níveis: Pobretão, Pobre, Médio, Abastado, Rico — ou Ricaço (exceção, só com permissão do mestre).');
+            mostrarNivelCredito(oculto.value); return;
+        }
+        oculto.value = n; mostrarNivelCredito(n); atualizarCredito(); salvarFicha();
+    };
+
     function atualizarCredito() {
         let nc = parseInt(document.getElementById('nivel-credito').value); if (isNaN(nc)) nc = -2;
         let gastos = "R$ 0", dinheiro = "R$ 0", patrimonio = "R$ 0";
@@ -3396,13 +3440,13 @@ let filtroSubAtualAtaques = 'Todos';
             d = templatesAtaques[val]; 
             if(d) {
                 let txtClasse = (d.categoria === 'Corpo a Corpo' || !d.categoria) && d.classificacao ? ` | <strong>Classe:</strong> ${d.classificacao}` : '';
-                p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}${txtClasse}`; 
+                p.innerHTML = `<strong>Dano:</strong> ${d.dano} | <strong>Tipo:</strong> ${d.tipo}<br><strong>Alcance:</strong> ${d.alcance}${txtClasse}${d.efeito ? `<br><strong>Efeito:</strong> ${d.efeito}` : ''}`; 
             }
         }        else if (tipo === 'traco') { d = templatesTracos[val]; if(d) p.innerHTML = `<strong>Descrição:</strong> ${d.descricao}`; }
         else if (tipo === 'espec') { d = templatesEspecializacoes[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}<br><strong>Efeito:</strong> ${d.descricao}`; }
         else if (tipo === 'anomalia') { d = templatesAnomalias[val]; if(d) p.innerHTML = `<strong>Elemento:</strong> ${d.elemento}${d.preRequisitos ? '<br><strong>Pré-requisitos:</strong> ' + d.preRequisitos : ''}<br><strong>Efeito:</strong> ${d.efeito || d.descricao}`; }
         else if (tipo === 'item') { d = templatesInventario[val]; if(d) p.innerHTML = `<strong>Categoria:</strong> ${d.categoria} | <strong>Efeito:</strong> ${d.descricao}`; }
-        else if (tipo === 'origem') { d = templatesOrigens[val]; if(d) p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${d.desc}</span><strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${d.p1}${d.s1 ? ' (' + d.s1 + ')' : ''} (+3), ${d.p2}${d.s2 ? ' (' + d.s2 + ')' : ''} (+1)<br><strong style="color:var(--op-red)">Nível de Crédito:</strong> ${d.ncBase}`; }
+        else if (tipo === 'origem') { d = templatesOrigens[val]; if(d) p.innerHTML = `<span style="display:block; margin-bottom:8px;"><strong>Descrição:</strong> ${d.desc}</span><strong style="color:var(--op-red)">Perícias Treinadas:</strong> ${d.p1}${d.s1 ? ' (' + d.s1 + ')' : ''} (+3), ${d.p2}${d.s2 ? ' (' + d.s2 + ')' : ''} (+1)<br><strong style="color:var(--op-red)">Nível de Crédito:</strong> ${nomeNivelCredito(d.ncBase)}`; }
     }
 
     async function aplicarTemplateModal(c) { 
@@ -3945,7 +3989,7 @@ let filtroSubAtualAtaques = 'Todos';
             if (d.ressonancia) document.getElementById('grau-ressonancia').value = d.ressonancia; 
             else { let gC = "1º Grau"; if (nx === 0) gC = "Nulo"; else if (nx >= 5 && nx <= 20) gC = "1º Grau"; else if (nx >= 25 && nx <= 40) gC = "2º Grau"; else if (nx >= 45 && nx <= 60) gC = "3º Grau"; else if (nx >= 65 && nx <= 80) gC = "4º Grau"; else if (nx >= 85 && nx <= 99) gC = "5º Grau"; else if (nx >= 100) gC = "I̵̒̅ͅṃ̴̢͇̿̔͒͝e̷̹̩̲͈̋͊n̵̥̔͛̚ṡ̷̻͟ͅu̵̳̪̯͡r̷̡̬̯̲̱̃̓͛͘̕á̵̪͇͇͈̋̑͜͝͝v̴̛̲̰̬̅̔̈e̴̫̩͎̖͆̇͝l̷̪͍̎̽͘͡"; document.getElementById('grau-ressonancia').value = gC; }
             if (typeof forcarAtualizacaoRessonancia === 'function') forcarAtualizacaoRessonancia();
-            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; document.getElementById('fundo-gastos').value = d.fundoGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
+            document.getElementById('nivel-credito').value = d.nivelCredito !== undefined ? d.nivelCredito : -1; mostrarNivelCredito(document.getElementById('nivel-credito').value); document.getElementById('fundo-gastos').value = d.fundoGastos || "R$ 0"; document.getElementById('dinheiro-especie').value = d.dinheiroEspecie || "R$ 0"; document.getElementById('patrimonio-recursos').value = d.patrimonioRecursos || "R$ 0";
 
             let pLoad = hF ? (d_raw.pericias_hexa || d_raw.pericias || {}) : (d_raw.pericias || {});
             nomesPericias.forEach(p => {
@@ -4670,6 +4714,10 @@ let filtroSubAtualAtaques = 'Todos';
                             <span class="rit-label">Pressão</span>
                             <input type="number" class="rit-input" value="${a.pressao || 0}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'pressao', this.value)">
                         </div>
+                        <div class="rit-field" style="margin-bottom:10px;">
+                            <span class="rit-label">Efeito Especial / Características</span>
+                            <textarea class="cris-textarea atq-efeito-input" placeholder="Ex.: Silenciada — abafa o disparo. Ocultável. Duas mãos..." onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'efeito', this.value)" style="min-height:52px">${ritEsc(a.efeito || '')}</textarea>
+                        </div>
                         <div style="text-align:right; margin-top:10px;">
                             ${subBtnConcluir('ataques', id)}${btnAdminCopy}
                             <button class="cris-btn" style="border-color:var(--op-red); color:var(--op-red);" onclick="event.stopPropagation(); removerSub('${id}', 'ataques')">DESCARTAR ARMA</button>
@@ -4880,6 +4928,7 @@ let filtroSubAtualAtaques = 'Todos';
             // Atualiza a nova base financeira realista
             let ncAtualInput = document.getElementById('nivel-credito');
             ncAtualInput.value = origem.ncBase !== undefined ? origem.ncBase : -2; 
+            mostrarNivelCredito(ncAtualInput.value);
             
             atualizarCredito(); 
             salvarFicha(); 
@@ -4979,7 +5028,7 @@ let filtroSubAtualAtaques = 'Todos';
                 const atqId = a.nome ? a.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase() : 'nova_arma';
                 const cat = a.categoria || getAtaqueCat(a);
                 const classif = a.classificacao || '';
-                const template = `    "${atqId}": { nome: "${a.nome || ''}", dano: "${a.dano || ''}", tipo: "${a.tipo || ''}", alcance: "${a.alcance || ''}", pericia: "${a.pericia || ''}", atributo: "${a.atributo || ''}", bonus: ${parseInt(a.bonus)||0}, municao: "${a.municao || ''}", pressao: ${parseInt(a.pressao)||0}, categoria: "${cat}", classificacao: "${classif}" },`;
+                const template = `    "${atqId}": { nome: "${a.nome || ''}", dano: "${a.dano || ''}", tipo: "${a.tipo || ''}", alcance: "${a.alcance || ''}", pericia: "${a.pericia || ''}", atributo: "${a.atributo || ''}", bonus: ${parseInt(a.bonus)||0}, municao: "${a.municao || ''}", pressao: ${parseInt(a.pressao)||0}, categoria: "${cat}", classificacao: "${classif}"${a.efeito ? `, efeito: ${JSON.stringify(a.efeito)}` : ''} },`;
                 await navigator.clipboard.writeText(template);
                 alert("✅ ARMA EXPORTADA!\n\nCopiada em formato compacto de linha única para colar em 'templatesAtaques'.");
             }
@@ -6092,7 +6141,8 @@ let filtroSubAtualAtaques = 'Todos';
             const temMun = (mun && mun !== '-') || (v.categoria || getAtaqueCat(v)) === 'À Distância';
             // munição fica editável direto na visualização (sem entrar no modo de edição)
             const campoMun = temMun ? `<div class="d-kv"><b>Munição</b><input type="text" class="rit-input" style="width:110px;font-size:13px" placeholder="Ex: 12/12" value="${E(mun === '-' ? '' : mun)}" onclick="event.stopPropagation()" onchange="updateSub('${id}', 'ataques', 'municao', this.value)"></div>` : '';
-            corpo = kv('Perícia', v.pericia) + kv('Atributo', v.atributo) + kv('Bônus de ataque', bn ? (bn > 0 ? '+' + bn : bn) : '') + kv('Alcance', v.alcance) + campoMun;
+            corpo = kv('Perícia', v.pericia) + kv('Atributo', v.atributo) + kv('Bônus de ataque', bn ? (bn > 0 ? '+' + bn : bn) : '') + kv('Alcance', v.alcance) + campoMun
+                + (String(v.efeito || '').trim() ? `<div class="d-kv" style="margin-top:6px"><b>Efeito especial</b></div><p class="d-atq-efeito" style="margin-top:2px">${E(v.efeito)}</p>` : '');
         } else if (col === 'inventario') {
             const pr = parseInt(v.pressao) || 0, q = parseInt(v.quantidade), qq = isNaN(q) ? 1 : q;
             nome = v.nome || 'Item'; custo = [qq > 1 ? '×' + qq : '', (pr * qq) ? 'Pressão ' + (pr * qq) : ''].filter(Boolean).join(' • ');
@@ -7482,7 +7532,8 @@ let filtroSubAtualAtaques = 'Todos';
                       + kv('Alcance', v.alcance)
                       + kv('Perícia', `${v.pericia || '-'} (${v.atributo || '-'})`)
                       + kv('Bônus / Munição', `+${v.bonus || 0} | ${v.municao || '-'}`)
-                      + kv('Pressão', String(v.pressao || 0));
+                      + kv('Pressão', String(v.pressao || 0))
+                      + (v.efeito ? `<p class="d-atq-efeito">${E(v.efeito)}</p>` : '');
             } else if (col === 'inventario') {
                 const q = parseInt(v.quantidade) || 1, pr = parseInt(v.pressao) || 0;
                 meta = `${v.categoria || 'Geral'} • Qtd ${q} • Pressão ${pr * q}`;
@@ -9448,14 +9499,16 @@ let filtroSubAtualAtaques = 'Todos';
                     const metaTxt = metaEl ? metaEl.innerText.trim() : '';
                     if (metaEl) metaEl.remove();
                     const nomeArma = clone.innerText.replace('❖', '').trim();
-                    armasFormatadas.push(metaTxt ? `<b>${nomeArma}</b> (${metaTxt})` : `<b>${nomeArma}</b>`);
+                    const efEl = card.querySelector('.d-atq-efeito'), ef = efEl ? efEl.textContent.trim() : '';
+                    armasFormatadas.push((metaTxt ? `<b>${nomeArma}</b> (${metaTxt})` : `<b>${nomeArma}</b>`) + (ef ? ` — <i>${ritEsc(ef)}</i>` : ''));
                 } else {
                     const inputs = card.querySelectorAll('.card-body input.rit-input');
                     const nomeArma = inputs[0]?.value?.trim() || card.querySelector('.card-header > span:first-child')?.innerText?.trim() || 'Arma';
                     const danoArma = inputs[1]?.value?.trim() || '';
                     const tipoArma = inputs[2]?.value?.trim() || '';
                     const info = [danoArma, tipoArma].filter(Boolean).join(' ');
-                    armasFormatadas.push(info ? `<b>${nomeArma}</b> (${info})` : `<b>${nomeArma}</b>`);
+                    const ef = (card.querySelector('.atq-efeito-input')?.value || '').trim();
+                    armasFormatadas.push((info ? `<b>${nomeArma}</b> (${info})` : `<b>${nomeArma}</b>`) + (ef ? ` — <i>${ritEsc(ef)}</i>` : ''));
                 }
             });
             if (armasFormatadas.length) {
@@ -10722,7 +10775,7 @@ html.embed #grid-container > section:first-child > div:first-child{ margin-botto
                 <dt>Terapia psiquiátrica</dt><dd>Recupera 10 + 2d6 + 2×VON de Lucidez e afasta fobias adquiridas.</dd>
                 <dt>Cirurgia e reabilitação</dt><dd>Remove uma Lesão estrutural da última campanha (amputação não regenera; adapta-se à prótese).</dd>
                 <dt>Pesquisa de campo</dt><dd>+1 Ponto de Preparação (não acumula, não expira): o Mestre revela algo valioso do próximo local e você adiciona ao inventário um equipamento coerente para aquilo.</dd>
-                <dt>Rotina mundana</dt><dd>Restaura o Fundo de Gastos e os laços; recupera 5 + 1d6 + 2×VON de Lucidez.</dd>
+                <dt>Rotina mundana</dt><dd>Restaura o Patrimônio e os laços; recupera 5 + 1d6 + 2×VON de Lucidez.</dd>
                 <dt>Treinamento simples</dt><dd>+1 Ponto de Treinamento.</dd>
                 <dt>Treinamento obsessivo</dt><dd>Gasta as 2 ações: +3 PT, sem curar traumas nem lesões. Responda: a <b>Cicatriz</b> (que falha te provou fraco?) e a <b>Obsessão</b> (o que você sacrificou?).</dd>
             </dl>
