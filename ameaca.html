@@ -2116,6 +2116,10 @@ if (campanhaParam) {
     function setPapel(k){ papel=k; updateField('papel',k); renderPapel(); }
     function togglePE(){ usaPE=!usaPE; updateField('usaPE',usaPE); if(usaPE&&tipoAtual==='ocultista') calc(); else refresh(); }
     function toggleCivil(){ modoCivil=!modoCivil; updateField('modoCivil',modoCivil); aplicarTipo(tipoAtual); }
+    function avisoFicha(msg){
+        let t=$('aviso-ficha'); if(!t){ t=document.createElement('div'); t.id='aviso-ficha'; document.body.appendChild(t); }
+        t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),4500);
+    }
     function aplicaPV(s,ev){
         if(SOMENTE_LEITURA) return;
         if(ev){ ev.preventDefault(); ev.stopPropagation(); }
@@ -2125,6 +2129,9 @@ if (campanhaParam) {
             // dano: nunca abaixo de 0 | cura: nunca acima do máximo (sem reduzir quem já estiver acima, ex.: Hexatombe)
             const v=s<0?Math.max(0,at-n):Math.min(Math.max(mx,at),at+n);
             $('pv-atual').value=v; updateField('pv-atual',v); atualizarVisualBarra('pv'); refresh();
+            if(s<0&&tipoAtual!=='criatura'){ const vd=Math.floor(mx/4), dec=Math.floor(mx/2);
+                if(dec>0&&n>=dec) avisoFicha(`☠ ${n} de dano ≥ DEC (${dec}) — amputação/destruição se o golpe foi localizado.`);
+                else if(vd>0&&n>=vd) avisoFicha(`${n} de dano ≥ VD (${vd}) — Lesão se o golpe foi localizado ou bloqueado.`); }
         }
         campo.value=0;
     }
@@ -2495,7 +2502,8 @@ if (campanhaParam) {
         const cv=Math.min(100,Math.max(0,num('consciencia'))), gr=[...CONS].reverse().find(x=>cv>=x[0]);
         $('d-nome').innerText=val('nome')||'SEM NOME'; $('d-sub').innerText=val('tipo-criatura');
         const modelo=(ARQ[t]||{})[perfil], papelNome={hostil:'Hostil',neutro:'Neutro',aliado:'Aliado'}[papel]||'Hostil';
-        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+`<span>• ${categoriaFicha()}</span>`+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`)+CONDS.map(c=>`<span class="d-tag-cond" title="Condição marcada na Mesa do Mestre">${H(c)}</span>`).join('');
+        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+`<span>• ${categoriaFicha()}</span>`+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`)+CONDS.map(c=>`<span class="d-tag-cond" title="Condição marcada na Mesa do Mestre">${H(c)}</span>`).join('')
+            +(cri?'':MEMBROS.filter(([k])=>MEMB[k]).map(([k,n])=>`<span class="d-tag-memb ${MEMB[k]}" title="${MEMB[k]==='decepado'?'Membro decepado/destruído':'Membro lesionado: penalidades do local até ser tratado'}">🦴 ${n}${MEMB[k]==='decepado'?' ✕':''}</span>`).join(''));
         const ats=Object.keys(ATR).map(k=>`<span class="d-at"><b>${k}</b><i>${num(ATR[k])}</i></span>`).join('');
         $('d-corpo-a').innerHTML=civil?'':dSec('Atributos',`<div class="d-ats">${ats}</div>`);
         $('slot-rec').hidden=civil;
@@ -2753,6 +2761,11 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 .btn-ini-dado{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
 
+.d-tag-memb{ color:var(--op-red); border:1px dashed var(--op-red); padding:1px 6px; letter-spacing:.04em; }
+.d-tag-memb.decepado{ border-style:solid; text-decoration:line-through; }
+#aviso-ficha{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); z-index:10060; max-width:min(520px,92vw); background:var(--op-ink); color:var(--bg-paper); padding:9px 14px; font:700 12px/1.4 'Inter',sans-serif; box-shadow:4px 4px 0 rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; }
+#aviso-ficha.on{ opacity:1; transform:translate(-50%,0); }
+body.tema-escuro #aviso-ficha{ background:#222; color:var(--accent-gold); }
 .anat-grid{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center}
 .anat-svg{width:72px;height:121px;display:block;overflow:visible}
 .anat-m{fill:var(--card-bg);stroke:var(--op-ink);stroke-width:4;cursor:pointer;transition:fill .15s,stroke .15s}
