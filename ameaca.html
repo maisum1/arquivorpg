@@ -668,7 +668,8 @@ body.somente-leitura::after { content: "👁️ SOMENTE VISUALIZAÇÃO"; positio
 </style>
 </head>
 <body class="carregando">
-<script>if(new URLSearchParams(location.search).get("view")==="true") document.body.classList.add("somente-leitura");</script>
+<script>if(new URLSearchParams(location.search).get("view")==="true") document.body.classList.add("somente-leitura");
+if(new URLSearchParams(location.search).get("embed")==="1"){ document.documentElement.classList.add("embed"); document.body.classList.add("embed"); }</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
     <filter id="carimbo" x="-6%" y="-6%" width="112%" height="112%">
         <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="ruido"/>
@@ -1086,6 +1087,7 @@ body.somente-leitura::after { content: "👁️ SOMENTE VISUALIZAÇÃO"; positio
             }
 
             let d = d_raw;
+            CONDS = Array.isArray(d_raw.condicoes) ? d_raw.condicoes.filter(Boolean) : [];
             aplicarTipo(d.tipoAmeaca==='mundana'?'mundana':d.tipoAmeaca==='ocultista'?'ocultista':'criatura');
             if(!pendingUpdates['na'] && document.activeElement!==$('na')) $('na').value=d.na||0;
             if(!pendingUpdates['exp']) exp=(d.exp!==undefined)?d.exp:EXPS[Math.min(5,Math.max(0,parseInt(d.na)||0))][0];
@@ -1128,6 +1130,7 @@ body.somente-leitura::after { content: "👁️ SOMENTE VISUALIZAÇÃO"; positio
 const campanhaParam = urlParams.get('campanha') || (d.campanhasIds && d.campanhasIds[0]);
 
 if (campanhaParam) {
+    window.__campanhaPendente = campanhaParam;
     inicializarSistemaIniciativa(campanhaParam, firebase.auth().currentUser);
 }
         }
@@ -1347,13 +1350,15 @@ if (campanhaParam) {
         // ==========================================
 
     // ==========================================
-        // MOTOR COOPERATIVO DE INICIATIVA (V5.1)
+        // MOTOR COOPERATIVO DE INICIATIVA (V6)
+        // Combate liga/desliga: jogadores só veem a iniciativa com o combate ativo.
         // ==========================================
         let idDaCampanhaAtiva = null;
         let souMestreDestaCampanha = false;
         let opcoesDeCombatentes = [];
         let escutaCombateRealtime = null;
         let dragSourceIndex = null;
+        window.__ultimoCombate = {};
 
         if (!document.getElementById('pulse-anim')) {
             const style = document.createElement('style');
@@ -1362,38 +1367,83 @@ if (campanhaParam) {
             document.head.appendChild(style);
         }
 
+        const combateEstaAtivo = c => !!c && (c.ativo === true || (c.ativo === undefined && Array.isArray(c.ordem) && c.ordem.length > 0));
+        const ordenarIniciativa = arr => arr.sort((a, b) => ((parseInt(b.valor) || 0) - (parseInt(a.valor) || 0)) || ((parseInt(b.agi) || 0) - (parseInt(a.agi) || 0)) || ((parseInt(b.desempate) || 0) - (parseInt(a.desempate) || 0)));
+        const rolarD20 = () => 1 + Math.floor(Math.random() * 20);
+        const refCombate = () => db.collection("combates").doc(idDaCampanhaAtiva);
+        const escIni = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        async function mutarCombateAmeaca(fn) {
+            if (!idDaCampanhaAtiva) return;
+            try {
+                await db.runTransaction(async t => {
+                    const s = await t.get(refCombate());
+                    const atualC = s.exists ? JSON.parse(JSON.stringify(s.data())) : {};
+                    const up = fn(atualC);
+                    if (!up) return;
+                    if (s.exists) t.update(refCombate(), up); else t.set(refCombate(), up);
+                });
+            } catch (e) { console.log(e); alert("Não foi possível atualizar o combate. Tente de novo."); }
+        }
+        function inserirOrdenado(c, entrada) {
+            const ordemAnt = Array.isArray(c.ordem) ? c.ordem : [];
+            const idAtual = (ordemAnt[parseInt(c.turnoAtual) || 0] || {}).id;
+            const ordem = ordemAnt.filter(x => x.id !== entrada.id);
+            ordem.push(entrada); ordenarIniciativa(ordem);
+            let t = idAtual ? ordem.findIndex(x => x.id === idAtual) : 0; if (t < 0) t = 0;
+            return { ordem, turnoAtual: t, rodadaAtual: Math.max(1, parseInt(c.rodadaAtual) || 1) };
+        }
+
         function togglePainelIniciativa() {
             const painel = document.getElementById('painel-iniciativa-combate');
             if (painel) painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
         }
 
+        window.atualizarVisibilidadeCombate = function() {
+            const btn = document.getElementById('btn-toggle-iniciativa');
+            const painel = document.getElementById('painel-iniciativa-combate');
+            if (!btn || !idDaCampanhaAtiva) return;
+            const ativo = combateEstaAtivo(window.__ultimoCombate);
+            const mostrar = ativo || souMestreDestaCampanha;
+            btn.style.display = mostrar ? 'block' : 'none';
+            if (!mostrar && painel) painel.style.display = 'none';
+            const tg = document.getElementById('btn-combate-toggle');
+            if (tg) { tg.textContent = ativo ? '■ ENCERRAR COMBATE' : '⚔ INICIAR COMBATE'; tg.classList.toggle('ativo', ativo); }
+            const lm = document.getElementById('link-mesa-mestre');
+            if (lm) lm.href = 'mesa.html?campanha=' + encodeURIComponent(idDaCampanhaAtiva);
+        };
+
+        // chamada a cada atualização da ficha: só refaz o trabalho quando a campanha ou o usuário mudam
         async function inicializarSistemaIniciativa(campanhaId, usuarioLogado) {
             if (!campanhaId || !usuarioLogado) return;
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => inicializarSistemaIniciativa(campanhaId, usuarioLogado), { once: true }); return; }
+            const chave = campanhaId + '|' + usuarioLogado.uid;
+            if (window.__iniChave === chave) return;
+            window.__iniChave = chave;
             idDaCampanhaAtiva = campanhaId; 
-
-            document.getElementById('btn-toggle-iniciativa').style.display = 'block';
 
             const myUrlParams = new URLSearchParams(window.location.search);
             const minhaFichaId = myUrlParams.get('id');
-            if (minhaFichaId) {
-                const painelJog = document.getElementById('controles-jogador-iniciativa');
-                if (painelJog) painelJog.style.display = 'block';
-            }
+            const painelJog = document.getElementById('controles-jogador-iniciativa');
+            const painelMestre = document.getElementById('controles-mestre-iniciativa');
 
+            const aplicarPapel = (ehMestre) => {
+                souMestreDestaCampanha = !!ehMestre;
+                if (painelMestre) painelMestre.style.display = souMestreDestaCampanha ? 'block' : 'none';
+                if (painelJog) painelJog.style.display = (!souMestreDestaCampanha && minhaFichaId) ? 'block' : 'none';
+                window.atualizarVisibilidadeCombate();
+            };
+            aplicarPapel(false);
             try {
                 const campSnap = await db.collection("campanhas").where("codigo", "==", campanhaId).get();
+                let ehMestre = false;
                 if (!campSnap.empty) {
                     const dadosCamp = campSnap.docs[0].data();
                     const checarSuperAdmin = (usuarioLogado.email && usuarioLogado.email.toLowerCase() === "pedroacpr@gmail.com");
-                    
-                    if (dadosCamp.dono === usuarioLogado.uid || checarSuperAdmin) {
-                        souMestreDestaCampanha = true;
-                        document.getElementById('controles-mestre-iniciativa').style.display = 'block';
-                        const painelJog = document.getElementById('controles-jogador-iniciativa');
-                        if (painelJog) painelJog.style.display = 'none';
-                        carregarCombatentesDisponiveis();
-                    }
+                    ehMestre = (dadosCamp.dono === usuarioLogado.uid) || checarSuperAdmin;
                 }
+                aplicarPapel(ehMestre);
+                if (ehMestre) carregarCombatentesDisponiveis();
             } catch (e) { console.log("Erro ao validar mestre."); }
 
             const listaContainer = document.getElementById('container-lista-iniciativa');
@@ -1417,53 +1467,68 @@ if (campanhaParam) {
             if (escutaCombateRealtime) escutaCombateRealtime();
             escutaCombateRealtime = db.collection("combates").doc(campanhaId).onSnapshot(doc => {
                 if (!listaContainer) return;
+                const dados = doc.exists ? (doc.data() || {}) : {};
+                window.__ultimoCombate = dados;
+                const ativo = combateEstaAtivo(dados);
                 listaContainer.innerHTML = "";
 
                 let isMinhaVez = false;
                 let meuIndexNaOrdem = -1;
+                const ordem = Array.isArray(dados.ordem) ? dados.ordem : [];
+                const turnoAtual = parseInt(dados.turnoAtual) || 0;
+                const rodadaAtual = parseInt(dados.rodadaAtual) || 1;
 
-                if (doc.exists && doc.data().ordem && doc.data().ordem.length > 0) {
-                    const ordem = doc.data().ordem;
-                    const turnoAtual = doc.data().turnoAtual || 0;
-                    const rodadaAtual = doc.data().rodadaAtual || 1;
+                document.getElementById('display-rodada').innerText = ativo ? `RODADA ${rodadaAtual}` : 'INATIVO';
 
-                    document.getElementById('display-rodada').innerText = `RODADA ${rodadaAtual}`;
+                if (!ativo && souMestreDestaCampanha) {
+                    const aviso = document.createElement('div');
+                    aviso.style.cssText = "font-size:10px; color:var(--cor-geral); font-family:'Inter',sans-serif; letter-spacing:.04em; text-align:center; padding:2px 0 6px;";
+                    aviso.textContent = ordem.length ? 'PREPARANDO — oculto dos jogadores até iniciar.' : 'Combate inativo — os jogadores não veem a iniciativa.';
+                    listaContainer.appendChild(aviso);
+                }
 
+                if (ordem.length > 0) {
                     ordem.forEach((combatente, index) => {
-                        const isCurrentTurn = (index === turnoAtual);
+                        const isCurrentTurn = ativo && (index === turnoAtual);
                         
                         if (combatente.id === minhaFichaId) {
                             meuIndexNaOrdem = index;
                             if (isCurrentTurn) isMinhaVez = true;
                         }
 
-                        const bgCor = isCurrentTurn ? "var(--op-red)" : "var(--card-bg)";
+                        const aliado = combatente.tipo !== 'ameaca';
+                        const antAliado = index > 0 && ordem[index - 1].tipo !== 'ameaca';
+                        const proxAliado = index + 1 < ordem.length && ordem[index + 1].tipo !== 'ameaca';
+                        if (aliado && !antAliado && proxAliado) {
+                            const g = document.createElement('div');
+                            g.className = 'ini-grupo-aliados';
+                            g.textContent = 'ALIADOS · ordem livre entre si';
+                            listaContainer.appendChild(g);
+                        }
+
+                        const bgCor = isCurrentTurn ? "var(--op-red)" : (combatente.id === minhaFichaId ? "var(--card-hover)" : "var(--card-bg)");
                         const txtCor = isCurrentTurn ? "#fff" : "var(--op-ink)";
                         const borderCor = isCurrentTurn ? "var(--op-dark-red)" : "var(--card-border)";
 
                         const item = document.createElement('div');
                         item.className = 'draggable-item';
                         item.dataset.index = index;
-                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
+                        item.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; border: 1px ${isCurrentTurn ? 'solid' : 'dotted'} ${borderCor}; ${aliado ? 'border-left: 3px solid ' + (isCurrentTurn ? '#fff' : 'var(--san-purple)') + ';' : ''} background: ${bgCor}; color: ${txtCor}; font-size: 12px; border-radius: 2px; transition: background 0.2s, border 0.2s; user-select: none;`;
                         
                         if (souMestreDestaCampanha) {
                             item.draggable = true;
                             item.style.cursor = "grab";
-                            
-                            item.addEventListener('dragstart', (e) => { 
+                            item.addEventListener('dragstart', () => { 
                                 item.classList.add('dragging'); 
                                 item.style.opacity = "0.4"; 
                                 item.style.border = "1px dashed var(--op-red)";
                             });
-                            
                             item.addEventListener('dragend', () => { 
                                 item.classList.remove('dragging'); 
                                 item.style.opacity = "1"; 
-                                
                                 const currentList = [...listaContainer.querySelectorAll('.draggable-item')];
                                 const newIndex = currentList.indexOf(item);
                                 const oldIndex = parseInt(item.dataset.index);
-
                                 if (oldIndex !== newIndex && newIndex !== -1) {
                                     executarReordenacaoMestre(oldIndex, newIndex);
                                 } else {
@@ -1477,7 +1542,7 @@ if (campanhaParam) {
                         let botoesMestre = '';
                         if (souMestreDestaCampanha) {
                             if (index < ordem.length - 1 && combatente.valor === ordem[index+1].valor && combatente.agi === ordem[index+1].agi) {
-                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de Agilidade! Clique para inverter">🔃</span>`;
+                                botoesMestre += `<span style="cursor: pointer; font-size: 13px; margin-right: 6px;" onclick="desempatarIniciativa(${index})" title="Empate de valor e Agilidade (desempatado por 1d20). Clique para inverter">🔃</span>`;
                             }
                             botoesMestre += `<span style="color: ${isCurrentTurn ? '#fff' : 'var(--op-red)'}; cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 5px;" onclick="removerCombatenteIniciativa('${combatente.id}')">[X]</span>`;
                         }
@@ -1486,17 +1551,19 @@ if (campanhaParam) {
                         const txtValor = isCurrentTurn ? "#fff" : "var(--bg-paper)";
 
                         item.innerHTML = `
-                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${combatente.nome}</span>
+                            <span style="word-break: break-all; font-weight: bold;">${isCurrentTurn ? '▶ ' : ''}${index + 1}° ${icone} ${escIni(combatente.nome)}</span>
                             <div style="display: flex; align-items: center;">
                                 ${botoesMestre}
-                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${combatente.agi}">${combatente.valor}</span>
+                                <span style="font-family: 'Special Elite', monospace; background: ${bgValor}; color: ${txtValor}; padding: 2px 5px; font-size: 11px; border-radius: 2px; margin-left: 5px;" title="Agilidade Base: ${parseInt(combatente.agi) || 0}">${parseInt(combatente.valor) || 0}</span>
                             </div>
                         `;
                         listaContainer.appendChild(item);
                     });
                 } else {
-                    document.getElementById('display-rodada').innerText = `RODADA 0`;
-                    listaContainer.innerHTML = "<div style='text-align:center; font-size:11px; color:#888; padding:10px;'>Nenhum combate ativo.</div>";
+                    const vazio = document.createElement('div');
+                    vazio.style.cssText = "text-align:center; font-size:11px; color:#888; padding:10px;";
+                    vazio.textContent = ativo ? 'Combate iniciado — aguardando iniciativas.' : 'Nenhum combate ativo.';
+                    listaContainer.appendChild(vazio);
                 }
 
                 const btnToggle = document.getElementById('btn-toggle-iniciativa');
@@ -1507,30 +1574,27 @@ if (campanhaParam) {
                     btnToggle.style.color = "#fff";
                     btnToggle.style.borderColor = "var(--op-dark-red)";
                     btnToggle.style.animation = "pulseRed 1s infinite";
-                    btnToggle.innerText = "🚨 SUA VEZ! AJA!";
+                    btnToggle.innerText = "🚨 VEZ DESTA AMEAÇA!";
                 } else {
                     btnToggle.style.background = "var(--op-ink)";
                     btnToggle.style.color = "var(--bg-paper)";
                     btnToggle.style.borderColor = "var(--card-border)";
                     btnToggle.style.animation = "none";
-                    btnToggle.innerText = "⚔️ Iniciativa";
+                    btnToggle.innerText = ativo ? "⚔️ Iniciativa" : "⚔️ Combate";
                 }
 
-                // LIBERA A AMPULHETA PARA O JOGADOR A QUALQUER MOMENTO (desde que não seja o último)
                 if (btnAtrasar) {
-                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < (doc.data()?.ordem?.length || 0) - 1);
-                    if (podeAtrasar) {
-                        btnAtrasar.style.borderColor = "var(--op-red)";
-                        btnAtrasar.style.opacity = "1";
-                        btnAtrasar.style.pointerEvents = "auto";
-                    } else {
-                        btnAtrasar.style.borderColor = "var(--card-border)";
-                        btnAtrasar.style.opacity = "0.3";
-                        btnAtrasar.style.pointerEvents = "none";
-                    }
+                    const podeAtrasar = (meuIndexNaOrdem !== -1 && meuIndexNaOrdem < ordem.length - 1);
+                    btnAtrasar.style.borderColor = podeAtrasar ? "var(--op-red)" : "var(--card-border)";
+                    btnAtrasar.style.opacity = podeAtrasar ? "1" : "0.3";
+                    btnAtrasar.style.pointerEvents = podeAtrasar ? "auto" : "none";
                 }
+
+                window.atualizarVisibilidadeCombate();
             });
         }
+        // o usuário pode terminar de logar depois que a ficha carregou
+        firebase.auth().onAuthStateChanged(u => { if (u && window.__campanhaPendente) inicializarSistemaIniciativa(window.__campanhaPendente, u); });
 
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
@@ -1543,105 +1607,69 @@ if (campanhaParam) {
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
+        window.alternarCombateFicha = async function() {
+            if (!souMestreDestaCampanha || !idDaCampanhaAtiva) return;
+            const ativo = combateEstaAtivo(window.__ultimoCombate);
+            if (ativo) {
+                if (!confirm("Encerrar o combate? A ordem de iniciativa será limpa e o painel some para os jogadores.")) return;
+                await mutarCombateAmeaca(() => ({ ativo: false, ordem: [], turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {} }));
+            } else {
+                await mutarCombateAmeaca(c => ({ ativo: true, turnoAtual: 0, rodadaAtual: 1, reacoes: {}, morrendo: {}, ordem: Array.isArray(c.ordem) ? c.ordem : [] }));
+            }
+        };
+
         window.executarReordenacaoMestre = async function(origem, destino) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    const [combatenteMovido] = ordem.splice(origem, 1);
-                    ordem.splice(destino, 0, combatenteMovido);
-                    await docRef.update({ ordem: ordem, turnoAtual: 0 });
-                }
-            } catch (e) { console.log(e); }
+            await mutarCombateAmeaca(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem.slice() : [];
+                if (origem < 0 || origem >= ordem.length) return null;
+                const idAtual = (ordem[parseInt(c.turnoAtual) || 0] || {}).id;
+                const [movido] = ordem.splice(origem, 1);
+                ordem.splice(destino, 0, movido);
+                return { ordem: ordem, turnoAtual: Math.max(0, ordem.findIndex(x => x.id === idAtual)) };
+            });
         };
 
         window.atrasarMinhaVez = async function() {
-            const myUrlParams = new URLSearchParams(window.location.search);
-            const minhaFichaId = myUrlParams.get('id');
+            const minhaFichaId = new URLSearchParams(window.location.search).get('id');
             if (!minhaFichaId || !idDaCampanhaAtiva) return;
+            await mutarCombateAmeaca(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem.slice() : [];
+                let turno = parseInt(c.turnoAtual) || 0;
+                const meuIndex = ordem.findIndex(x => x.id === minhaFichaId);
+                if (meuIndex === -1 || meuIndex >= ordem.length - 1) return null;
+                const idDoTurnoAtual = ordem[turno] ? ordem[turno].id : null;
+                const temp = ordem[meuIndex]; ordem[meuIndex] = ordem[meuIndex + 1]; ordem[meuIndex + 1] = temp;
+                if (meuIndex !== turno && idDoTurnoAtual) turno = ordem.findIndex(x => x.id === idDoTurnoAtual);
+                return { ordem: ordem, turnoAtual: turno };
+            });
+        };
 
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    let turno = doc.data().turnoAtual || 0;
-
-                    const meuIndex = ordem.findIndex(c => c.id === minhaFichaId);
-
-                    if (meuIndex !== -1) {
-                        if (meuIndex >= ordem.length - 1) {
-                            alert("Você já é o último da ordem.");
-                            return;
-                        }
-
-                        let idDoTurnoAtual = ordem[turno] ? ordem[turno].id : null;
-
-                        // Troca de lugar com o cara logo abaixo na lista
-                        let temp = ordem[meuIndex];
-                        ordem[meuIndex] = ordem[meuIndex + 1];
-                        ordem[meuIndex + 1] = temp;
-
-                        // Garante que o turno não pule quem já estava jogando
-                        if (meuIndex !== turno && idDoTurnoAtual) {
-                            turno = ordem.findIndex(c => c.id === idDoTurnoAtual);
-                        }
-
-                        await docRef.update({ ordem: ordem, turnoAtual: turno });
-                    }
-                }
-            } catch (e) { console.log(e); }
+        // valores desta ameaça: 1d20 + AGI + Proatividade
+        function iniciativaDestaAmeaca() {
+            const agi = num('agi'), p = (PNPC || []).find(x => x.n === 'Proatividade'), pro = p ? (parseInt(p.v) || 0) : 0;
+            const dado = rolarD20();
+            return { dado, agi, pro, total: dado + agi + pro };
+        }
+        window.rolarIniciativaJogador = function() {
+            const r = iniciativaDestaAmeaca();
+            const inp = document.getElementById('input-minha-iniciativa');
+            if (inp) { inp.value = r.total; inp.dataset.dado = r.dado; inp.title = `d20 ${r.dado} + AGI ${r.agi} + Proatividade ${r.pro}`; }
         };
 
         window.enviarMinhaIniciativa = async function() {
             const inputVal = document.getElementById('input-minha-iniciativa');
             const valorInic = parseInt(inputVal.value);
-            const myUrlParams = new URLSearchParams(window.location.search);
-            const minhaFichaId = myUrlParams.get('id');
-
-            if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) {
-                alert("Insira um valor.");
-                return;
-            }
-
+            const minhaFichaId = new URLSearchParams(window.location.search).get('id');
+            if (isNaN(valorInic) || !minhaFichaId || !idDaCampanhaAtiva) { alert("Insira um valor (ou use 🎲)."); return; }
+            if (!combateEstaAtivo(window.__ultimoCombate) && !souMestreDestaCampanha) { alert("O mestre ainda não iniciou o combate."); return; }
             try {
                 inputVal.placeholder = "...";
-                let meuNome = "Desconhecido", minhaAgi = 0, meuTipo = "ficha";
-
-                let snap = await db.collection("fichas").doc(minhaFichaId).get();
-                if (snap.exists) {
-                    meuNome = snap.data().nome || "Persona";
-                    minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
-                } else {
-                    snap = await db.collection("ameacas").doc(minhaFichaId).get();
-                    if (snap.exists) {
-                        meuNome = snap.data().nome || "Entidade";
-                        minhaAgi = parseInt(snap.data().agi) || parseInt(snap.data().agilidade) || 0;
-                        meuTipo = "ameaca";
-                    } else { return; }
-                }
-
-                const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-                const doc = await docRef.get();
-                let ordemAtual = [], turnoSalvo = 0, rodadaSalva = 1;
-
-                if (doc.exists && doc.data().ordem) {
-                    ordemAtual = doc.data().ordem;
-                    turnoSalvo = doc.data().turnoAtual || 0;
-                    rodadaSalva = doc.data().rodadaAtual || 1;
-                }
-
-                ordemAtual = ordemAtual.filter(c => c.id !== minhaFichaId);
-                ordemAtual.push({ id: minhaFichaId, nome: meuNome, tipo: meuTipo, valor: valorInic, agi: minhaAgi });
-
-                ordemAtual.sort((a, b) => {
-                    if (b.valor !== a.valor) return b.valor - a.valor;
-                    return b.agi - a.agi;
-                });
-
-                await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
-                inputVal.value = "";
+                const snap = await db.collection("ameacas").doc(minhaFichaId).get();
+                if (!snap.exists) return;
+                const entrada = { id: minhaFichaId, nome: snap.data().nome || "Entidade", tipo: "ameaca", col: 'ameacas', valor: valorInic, agi: parseInt(snap.data().agi) || 0, desempate: rolarD20() };
+                if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+                await mutarCombateAmeaca(c => inserirOrdenado(c, entrada));
+                inputVal.value = ""; delete inputVal.dataset.dado;
                 inputVal.placeholder = "Ok!";
                 setTimeout(() => inputVal.placeholder = "Valor...", 1500);
             } catch (e) { inputVal.placeholder = "Valor..."; }
@@ -1655,98 +1683,95 @@ if (campanhaParam) {
                 const fichasSnap = await db.collection("fichas").where("campanhaId", "==", idDaCampanhaAtiva).get();
                 fichasSnap.forEach(doc => {
                     const d = doc.data();
-                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Persona", tipo: "ficha", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
+                    const p = (d.pericias || {}).Proatividade || {};
+                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Persona", tipo: d.isNpcAmeaca ? "ameaca" : "ficha", col: 'fichas', agi: parseInt(d.agi) || parseInt(d.agilidade) || 0, pro: (parseInt(p.treino) || 0) + (parseInt(p.bonus) || 0) });
                 });
                 const ameacasSnap = await db.collection("ameacas").where("campanhasIds", "array-contains", idDaCampanhaAtiva).get();
                 ameacasSnap.forEach(doc => {
                     const d = doc.data();
-                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", agi: parseInt(d.agi) || parseInt(d.agilidade) || 0 });
+                    const p = (d.pericias_npc || []).find(x => x.n === 'Proatividade');
+                    opcoesDeCombatentes.push({ id: doc.id, nome: d.nome || "Entidade", tipo: "ameaca", col: 'ameacas', agi: parseInt(d.agi) || parseInt(d.agilidade) || 0, pro: p ? (parseInt(p.v) || 0) : 0 });
                 });
                 select.innerHTML = '<option value="">Selecionar Combatente...</option>';
                 opcoesDeCombatentes.forEach(opt => {
                     const tag = opt.tipo === 'ameaca' ? '[🩸] ' : '[👤] ';
-                    select.innerHTML += `<option value="${opt.id}">${tag}${opt.nome} (AGI ${opt.agi})</option>`;
+                    select.innerHTML += `<option value="${opt.id}">${tag}${escIni(opt.nome)} (AGI ${opt.agi})</option>`;
                 });
+                const aberta = new URLSearchParams(window.location.search).get('id');
+                if (aberta && opcoesDeCombatentes.some(o => o.id === aberta)) select.value = aberta;   // já vem com esta ameaça selecionada
             } catch (e) {}
         }
+
+        window.rolarIniciativaMestre = function() {
+            const select = document.getElementById('select-ficha-combate');
+            const inputVal = document.getElementById('input-valor-iniciativa');
+            const info = opcoesDeCombatentes.find(o => o.id === select.value);
+            if (!info) { alert("Selecione um combatente para rolar."); return; }
+            const dado = rolarD20(), total = dado + info.agi + (info.pro || 0);
+            inputVal.value = total; inputVal.dataset.dado = dado;
+            inputVal.title = `d20 ${dado} + AGI ${info.agi} + Proatividade ${info.pro || 0}`;
+        };
 
         window.adicionarCombatenteIniciativa = async function() {
             const select = document.getElementById('select-ficha-combate');
             const inputVal = document.getElementById('input-valor-iniciativa');
             const idEscolhido = select.value;
             const valorInic = parseInt(inputVal.value);
-
             if (!idEscolhido || isNaN(valorInic)) return;
-            const combatenteInfo = opcoesDeCombatentes.find(o => o.id === idEscolhido);
-            if (!combatenteInfo) return;
-
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                let ordemAtual = [], turnoSalvo = 0, rodadaSalva = 1;
-                if (doc.exists && doc.data().ordem) {
-                    ordemAtual = doc.data().ordem;
-                    turnoSalvo = doc.data().turnoAtual || 0;
-                    rodadaSalva = doc.data().rodadaAtual || 1;
-                }
-                ordemAtual = ordemAtual.filter(c => c.id !== idEscolhido);
-                ordemAtual.push({ id: idEscolhido, nome: combatenteInfo.nome, tipo: combatenteInfo.tipo, valor: valorInic, agi: combatenteInfo.agi });
-                
-                ordemAtual.sort((a, b) => {
-                    if (b.valor !== a.valor) return b.valor - a.valor;
-                    return b.agi - a.agi;
-                });
-
-                await docRef.set({ ordem: ordemAtual, turnoAtual: turnoSalvo, rodadaAtual: rodadaSalva }, { merge: true });
-                inputVal.value = ""; select.value = "";
-            } catch (e) {}
+            const info = opcoesDeCombatentes.find(o => o.id === idEscolhido);
+            if (!info) return;
+            const entrada = { id: idEscolhido, nome: info.nome, tipo: info.tipo, col: info.col, valor: valorInic, agi: info.agi, desempate: rolarD20() };
+            if (inputVal.dataset.dado) entrada.dado = parseInt(inputVal.dataset.dado) || 0;
+            await mutarCombateAmeaca(c => inserirOrdenado(c, entrada));
+            inputVal.value = ""; delete inputVal.dataset.dado;
         };
 
         window.passarTurnoIniciativa = async function() {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordem = doc.data().ordem;
-                    let turno = doc.data().turnoAtual || 0;
-                    let rodada = doc.data().rodadaAtual || 1;
-                    turno++;
-                    if (turno >= ordem.length) { turno = 0; rodada++; }
-                    await docRef.update({ turnoAtual: turno, rodadaAtual: rodada });
-                }
-            } catch(e) {}
+            await mutarCombateAmeaca(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem : [];
+                if (!ordem.length) return null;
+                let turno = (parseInt(c.turnoAtual) || 0) + 1, rodada = parseInt(c.rodadaAtual) || 1;
+                const up = {};
+                if (turno >= ordem.length) { turno = 0; rodada++; up.reacoes = {}; }
+                up.turnoAtual = turno; up.rodadaAtual = rodada;
+                return up;
+            });
+        };
+
+        window.voltarTurnoIniciativa = async function() {
+            await mutarCombateAmeaca(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem : [];
+                if (!ordem.length) return null;
+                let turno = (parseInt(c.turnoAtual) || 0) - 1, rodada = parseInt(c.rodadaAtual) || 1;
+                if (turno < 0) { if (rodada > 1) { turno = ordem.length - 1; rodada--; } else turno = 0; }
+                return { turnoAtual: turno, rodadaAtual: rodada };
+            });
         };
 
         window.desempatarIniciativa = async function(index) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordemAtual = doc.data().ordem;
-                    let temp = ordemAtual[index];
-                    ordemAtual[index] = ordemAtual[index+1];
-                    ordemAtual[index+1] = temp;
-                    await docRef.update({ ordem: ordemAtual });
-                }
-            } catch (e) { console.log(e); }
+            await mutarCombateAmeaca(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem.slice() : [];
+                if (index < 0 || index + 1 >= ordem.length) return null;
+                const idAtual = (ordem[parseInt(c.turnoAtual) || 0] || {}).id;
+                const temp = ordem[index]; ordem[index] = ordem[index + 1]; ordem[index + 1] = temp;
+                return { ordem: ordem, turnoAtual: Math.max(0, ordem.findIndex(x => x.id === idAtual)) };
+            });
         };
 
         window.removerCombatenteIniciativa = async function(idCombatente) {
-            const docRef = db.collection("combates").doc(idDaCampanhaAtiva);
-            try {
-                const doc = await docRef.get();
-                if (doc.exists && doc.data().ordem) {
-                    let ordemAtual = doc.data().ordem;
-                    ordemAtual = ordemAtual.filter(c => c.id !== idCombatente);
-                    await docRef.set({ ordem: ordemAtual, turnoAtual: 0 }, { merge: true }); 
-                }
-            } catch (e) { console.log(e); }
+            await mutarCombateAmeaca(c => {
+                const ordem = Array.isArray(c.ordem) ? c.ordem : [];
+                const idAtual = (ordem[parseInt(c.turnoAtual) || 0] || {}).id;
+                const nova = ordem.filter(x => x.id !== idCombatente);
+                let t = nova.findIndex(x => x.id === idAtual);
+                if (t < 0) t = Math.min(parseInt(c.turnoAtual) || 0, Math.max(0, nova.length - 1));
+                return { ordem: nova, turnoAtual: t };
+            });
         };
 
         window.limparTodaIniciativa = async function() {
-            if (confirm("Deseja encerrar o combate atual?")) {
-                try { await db.collection("combates").doc(idDaCampanhaAtiva).delete(); } catch (e) {}
-            }
+            if (combateEstaAtivo(window.__ultimoCombate)) return window.alternarCombateFicha();
+            if (confirm("Limpar a ordem de iniciativa em preparo?")) await mutarCombateAmeaca(() => ({ ordem: [], turnoAtual: 0, rodadaAtual: 1 }));
         };
 
     
@@ -1789,26 +1814,34 @@ if (campanhaParam) {
         "Resiliência": { attr: "VON", tipo: "pessoal", desc: "Resistir a traumas mentais, manter a concentração e coragem em momentos de estresse." }
     };
     const templatesAtaques = { 
-        "BengalaEspada": { nome: "Bengala-Espada Oculta", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
-        "Dinamite": { nome: "Banana de Dinamite", dano: "4d6", tipo: "Fogo", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Escopeta": { nome: "Escopeta", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Espingardas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        // Livro v1.2 — Tabelas de Itens Expandidas (Apêndice)
+        "Soco": { nome: "Soco (Desarmado)", dano: "1d3+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
         "Faca Comum": { nome: "Faca Comum", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
         "Faca": { nome: "Faca Tática", dano: "1d4+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
-        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
-        "Fuzil": { nome: "Fuzil de Assalto", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
-        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo", municao: "5/5", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Longo" },
-        "Glock": { nome: "Glock", dano: "1d8", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Katana": { nome: "Katana", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Machado": { nome: "Machado de Incêndio", dano: "1d8+1", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "TacoBasebol": { nome: "Taco de Basebol", dano: "1d6+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "PeDeCabraArma": { nome: "Pé de Cabra", dano: "1d6", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 2, pericia: "Combate (Armas Leves)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "BengalaEspada": { nome: "Bengala-Espada", dano: "1d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Leve" },
+        "Machado": { nome: "Machado de Incêndio", dano: "1d6+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "MachadoLenhador": { nome: "Machado de Lenhador", dano: "1d8+FOR", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Marreta": { nome: "Marreta de Demolição", dano: "1d10+FOR", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
+        "Katana": { nome: "Katana Antiga", dano: "1d10", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Pesadas)", atributo: "AGI", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
         "Motosserra": { nome: "Motosserra", dano: "3d6", tipo: "Corte", alcance: "Corpo a corpo", municao: "Combustível", bonus: -1, pericia: "Combate (Armas Pesadas)", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Pesada" },
-        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
-        "Revolver": { nome: "Revólver .38", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "FacaRitual": { nome: "Adaga Obsidiana", dano: "1d4", tipo: "Corte", alcance: "Corpo a corpo", municao: "-", bonus: 1, pericia: "Combate (Armas Leves)", atributo: "AGI", pressao: 1, categoria: "Anômalo", classificacao: "Leve" },
+        "Taser": { nome: "Taser de Contato", dano: "1", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "Sinalizador": { nome: "Pistola Sinalizadora", dano: "1d6", tipo: "Fogo", alcance: "Curto", municao: "1/1", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Soco": { nome: "Soco (Ataque)", dano: "1+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
-        "SocoIngles": { nome: "Soco Inglês", dano: "1d4+DX", tipo: "Impacto", alcance: "Corpo a corpo", municao: "-", bonus: 0, pericia: "Briga", atributo: "FOR", pressao: 0, categoria: "Corpo a Corpo", classificacao: "Artes Marciais" },
+        "PistolaSilenciada": { nome: "Pistola Silenciada", dano: "1d6", tipo: "Balístico", alcance: "Curto", municao: "10/10", bonus: 1, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Revolver": { nome: "Revólver .38", dano: "1d8", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Glock": { nome: "Glock 19", dano: "1d10", tipo: "Balístico", alcance: "Curto", municao: "15/15", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "DesertEagle": { nome: "Desert Eagle", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "7/7", bonus: -1, pericia: "Balística (Pistolas)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
         "Submetralhadora": { nome: "Submetralhadora", dano: "2d6", tipo: "Balístico", alcance: "Curto", municao: "30/30", bonus: 0, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
-        "Taser": { nome: "Taser", dano: "1d4+Atordoado", tipo: "Eletricidade", alcance: "Curto", municao: "1/1", bonus: 2, pericia: "Balística (Pistolas)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" }
+        "Escopeta": { nome: "Calibre 12", dano: "3d6", tipo: "Balístico", alcance: "Curto", municao: "6/6", bonus: 0, pericia: "Balística (Espingardas)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Curto" },
+        "Besta": { nome: "Besta de Caça", dano: "1d10", tipo: "Perfurante", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Rifle": { nome: "Rifle de Caça", dano: "2d8", tipo: "Balístico", alcance: "Médio", municao: "1/1", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Fuzil": { nome: "AR-15", dano: "2d10", tipo: "Balístico", alcance: "Médio", municao: "30/30", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Metralhadora": { nome: "Metralhadora Ligeira", dano: "3d8", tipo: "Balístico", alcance: "Médio", municao: "100", bonus: -2, pericia: "Balística (Artilharia)", atributo: "FOR", pressao: 0, categoria: "À Distância", classificacao: "Médio" },
+        "Sniper": { nome: "Sniper", dano: "2d10+2", tipo: "Balístico", alcance: "Longo/Extremo", municao: "5/5", bonus: 0, pericia: "Balística (Rifles)", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Longo" },
+        "Dinamite": { nome: "Granada / Dinamite", dano: "4d6", tipo: "Fogo/Impacto", alcance: "Curto (Área)", municao: "1/1", bonus: 0, pericia: "Pontaria", atributo: "AGI", pressao: 0, categoria: "À Distância", classificacao: "Curto" }
     };
     const $=id=>document.getElementById(id);
     const esc=s=>String(s==null?'':s).replace(/"/g,'&quot;');
@@ -1823,6 +1856,7 @@ if (campanhaParam) {
     const PV_CRIATURA=(na,vig)=>12+8*na+2*vig;   // SUGESTÃO (livro ainda não define criaturas) - ajuste aqui
     const CONS=[[0,'Instintiva','Sem raciocínio: age por impulso. Só usa as perícias essenciais.'],[30,'Desenvolvida','Complexa, mas sem mente plenamente consciente. Pode ter perícias extras.'],[80,'Consciente','Raciocina, planeja e mente. Pode ter perícias extras, segredos e Juramento.']];
     const TIPOS={mundana:['👤 HUMANO COMUM','TRAÇOS E TALENTOS','PROFISSÃO / FACÇÃO'],ocultista:['🕯️ HUMANO PARANORMAL','TRAÇOS, TALENTOS E PODERES','CULTO / ORDEM / ORIGEM'],criatura:['🩸 ANOMALIA','HABILIDADES E COMPORTAMENTO','TIPO / DESCRIÇÃO CURTA']};
+    let CONDS=[];   // condições marcadas pela Mesa do Mestre
     let ACOES=[], HABS=[], RITS=[], FLUXO=[], tipoAtual='criatura', exp=0, PNPC=[], P={}, papel='hostil', perfil='', comp=-1, usaPE=false, modoCivil=false;
     const num=id=>parseInt($(id).value)||0;
     const nvl=()=>Math.min(5,Math.max(0,num('na')));
@@ -2355,7 +2389,7 @@ if (campanhaParam) {
         const cv=Math.min(100,Math.max(0,num('consciencia'))), gr=[...CONS].reverse().find(x=>cv>=x[0]);
         $('d-nome').innerText=val('nome')||'SEM NOME'; $('d-sub').innerText=val('tipo-criatura');
         const modelo=(ARQ[t]||{})[perfil], papelNome={hostil:'Hostil',neutro:'Neutro',aliado:'Aliado'}[papel]||'Hostil';
-        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+`<span>• ${categoriaFicha()}</span>`+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`);
+        $('d-tags').innerHTML=`<span class="d-tag-hl">${{mundana:'Humano comum',ocultista:'Humano paranormal',criatura:'Anomalia'}[t]}</span><span>• ${papelNome}</span>`+(modelo?`<span>• ${modelo.n}</span>`:'')+(arqAtivo()?`<span>• ${arqAtivo()}</span>`:'')+`<span>• ${categoriaFicha()}</span>`+(cri?`<span>• ${gr[1]} (${cv})</span>`:`<span>• EXP ${exp}%</span>`)+CONDS.map(c=>`<span class="d-tag-cond" title="Condição marcada na Mesa do Mestre">${H(c)}</span>`).join('');
         const ats=Object.keys(ATR).map(k=>`<span class="d-at"><b>${k}</b><i>${num(ATR[k])}</i></span>`).join('');
         $('d-corpo-a').innerHTML=civil?'':dSec('Atributos',`<div class="d-ats">${ats}</div>`);
         $('slot-rec').hidden=civil;
@@ -2401,27 +2435,32 @@ if (campanhaParam) {
 
     <div id="controles-jogador-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
         <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between;">
-            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button type="button" onclick="rolarIniciativaJogador()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade desta ameaça">🎲</button>
+            <input type="number" id="input-minha-iniciativa" placeholder="Valor..." oninput="delete this.dataset.dado" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
             <button onclick="enviarMinhaIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">Enviar</button>
             <button id="btn-atrasar-vez-jog" onclick="atrasarMinhaVez()" style="background: transparent; border: 1px solid var(--cor-geral); color: var(--op-ink); font-size: 12px; cursor: pointer; border-radius: 2px; width: 35px; height: 28px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;" title="Atrasar a Vez (Passar um combatente na frente)">⏳</button>
         </div>
     </div>
 
     <div id="controles-mestre-iniciativa" style="display: none; border-top: 1px dashed var(--card-border); padding-top: 8px; margin-top: 5px;">
+        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <button type="button" id="btn-combate-toggle" class="btn-combate-toggle" onclick="alternarCombateFicha()" title="Os jogadores só veem a iniciativa com o combate ativo">⚔ INICIAR COMBATE</button>
+            <a id="link-mesa-mestre" class="btn-link-mesa" href="mesa.html" title="Abrir a Mesa do Mestre (todas as fichas da campanha)">🗂 MESA</a>
+        </div>
         <select id="select-ficha-combate" style="width: 100%; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 11px; margin-bottom: 6px; outline: none; border-radius: 2px; height: 28px;"></select>
 
         <div style="display: flex; gap: 6px;">
-            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
-            <button id="btn-toggle-iniciativa" onclick="adicionarCombatenteIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
+            <input type="number" id="input-valor-iniciativa" placeholder="Inic..." oninput="delete this.dataset.dado" style="width: 65px; background: transparent; color: var(--op-ink); border: 1px dotted var(--card-border); padding: 5px; font-family: 'Courier Prime', monospace; font-size: 12px; text-align: center; border-radius: 2px; outline: none; height: 28px; box-sizing: border-box;">
+            <button type="button" onclick="rolarIniciativaMestre()" class="btn-ini-dado" title="Rolar 1d20 + AGI + Proatividade do selecionado">🎲</button>
+            <button onclick="adicionarCombatenteIniciativa()" style="flex: 1; background: var(--op-ink); color: var(--bg-paper); border: none; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase; height: 28px;">+ Incluir</button>
         </div>
 
-        <button onclick="passarTurnoIniciativa()" style="width: 100%; margin-top: 10px; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
+        <div style="display: flex; gap: 6px; margin-top: 10px;">
+        <button type="button" onclick="voltarTurnoIniciativa()" title="Voltar a vez" style="width: 34px; background: transparent; border: 1px dashed var(--card-border); color: var(--op-ink); cursor: pointer; border-radius: 2px;">⏪</button>
+        <button onclick="passarTurnoIniciativa()" style="flex: 1; background: var(--san-purple); color: #fff; border: none; padding: 6px; font-size: 11px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
             ⏩ PASSAR A VEZ
         </button>
-
-        <button onclick="limparTodaIniciativa()" style="width: 100%; margin-top: 6px; background: transparent; border: 1px dashed var(--op-red); color: var(--op-red); padding: 4px; font-size: 10px; font-family: 'Courier Prime', monospace; font-weight: bold; cursor: pointer; border-radius: 2px; text-transform: uppercase;">
-            🗑️ Encerrar Combate
-        </button>
+        </div>
     </div>
 </div>
     <!-- ======================================================================
@@ -2598,5 +2637,21 @@ if (campanhaParam) {
     renderDossie();
 })();
 </script>
+<style id="combate-v6-css">
+.btn-combate-toggle{ flex:1; height:28px; background:var(--op-ink); color:var(--bg-paper); border:1px solid var(--op-ink); font:700 11px 'Courier Prime',monospace; letter-spacing:1px; cursor:pointer; border-radius:2px; text-transform:uppercase; }
+.btn-combate-toggle.ativo{ background:transparent; color:var(--op-red); border:1px dashed var(--op-red); }
+body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--accent-gold); border-color:var(--accent-gold); }
+.btn-link-mesa{ display:inline-flex; align-items:center; justify-content:center; height:28px; padding:0 8px; border:1px dashed var(--card-border); color:var(--op-ink); text-decoration:none; font:700 10px 'Inter',sans-serif; letter-spacing:.06em; border-radius:2px; white-space:nowrap; }
+.btn-link-mesa:hover{ border-color:var(--op-ink); }
+.btn-ini-dado{ width:30px; height:28px; flex:0 0 30px; padding:0; background:transparent; border:1px dotted var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:13px; }
+.ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
+.d-tag-cond{ background:var(--op-ink); color:var(--bg-paper); padding:2px 6px; letter-spacing:.04em; }
+body.tema-escuro .d-tag-cond{ background:#222; color:var(--accent-gold); }
+/* aberta dentro da Mesa do Mestre */
+html.embed .voltar-btn, html.embed .btn-theme, html.embed #btn-toggle-iniciativa, html.embed #painel-iniciativa-combate{ display:none !important; }
+html.embed body{ padding:10px 8px !important; }
+html.embed .book-container{ margin-top:0 !important; }
+html.embed .btn-config{ top:6px; right:6px; }
+</style>
 </body>
 </html>
