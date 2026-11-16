@@ -815,6 +815,7 @@ if(new URLSearchParams(location.search).get("embed")==="1"){ document.documentEl
 
     <div class="card"><h4 id="tit-hab">Habilidades</h4>
         <div id="lista-habilidades"></div>
+        <button class="btn-add" onclick="abrirBancoHabilidades()" title="Traços, talentos, vínculos e especializações da lista dos jogadores">[+] DA LISTA</button>
         <button class="btn-add" onclick="addHabilidade()">[+] ADICIONAR</button>
         <button class="btn-add" onclick="colarHabilidadeClipboard()" title="Cola um traço, talento, vínculo ou especialização copiado na ficha de personagem">[ 📥 COLAR DA ÁREA DE TRANSFERÊNCIA ]</button></div>
 
@@ -1194,14 +1195,66 @@ if (campanhaParam) {
             if (!texto || !texto.trim()) return;
             let o; try { o = JSON.parse(texto.trim()); } catch (e) { alert("❌ O conteúdo copiado não é um formato válido."); return; }
             if (o.__tipo !== 'TALENTO_ARQUIVO' && o.__tipo !== 'PODER_ARQUIVO') { alert("❌ Copie um traço, talento, vínculo ou especialização na ficha de personagem e cole aqui."); return; }
-            const partes = [];
-            if (o.condicao) partes.push('Condição: ' + o.condicao);
-            if (o.efeito) partes.push('Efeito: ' + o.efeito);
-            if (o.descricao) partes.push(o.descricao);
-            const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca";
-            await db.collection("ameacas").doc(atual).collection(path).add({ nome: o.nome || "Habilidade", descricao: partes.join('\n\n'), custoPf: o.custoPf || "", custoPl: o.custoPl || "", custoAdicional: o.custoAdicional || "" });
+            await adicionarHabilidadeDe(o);
             alert(`✅ IMPORTADO COM SUCESSO!\n\n"${o.nome || 'Habilidade'}" foi adicionada às habilidades desta ameaça.`);
         } catch (e) { alert("Erro ao colar: " + e); }
+    }
+
+    // Traço/talento ou vínculo/especialização da ficha de personagem -> habilidade da ameaça
+    async function adicionarHabilidadeDe(o) {
+        const partes = [];
+        if (o.condicao) partes.push('Condição: ' + o.condicao);
+        if (o.efeito) partes.push('Efeito: ' + o.efeito);
+        if (o.descricao) partes.push(o.descricao);
+        const path = (isHexatombe || globalHexatombe) ? "hexa_habilidades_ameaca" : "habilidades_ameaca";
+        await db.collection("ameacas").doc(atual).collection(path).add({ nome: o.nome || "Habilidade", descricao: partes.join('\n\n'), custoPf: o.custoPf || "", custoPl: o.custoPl || "", custoAdicional: o.custoAdicional || "" });
+    }
+
+    // ---- listas da ficha de personagem (as mesmas que os jogadores usam no "+ LISTA") ----
+    // Lidas direto do ficha.html publicado: o que for exportado para o GitHub aparece aqui também.
+    let BANCO_FICHA = null, bancoFichaPromessa = null;
+    function extrairBanco(txt, nome) {
+        const m = txt.match(new RegExp('const\\s+' + nome + '\\s*=\\s*\\{'));
+        if (!m) return {};
+        const ini = m.index + m[0].length - 1;
+        let prof = 0, str = null;
+        for (let i = ini; i < txt.length; i++) {
+            const c = txt[i];
+            if (str) { if (c === '\\') { i++; continue; } if (c === str) str = null; continue; }
+            if (c === '"' || c === "'" || c === '`') { str = c; continue; }
+            if (c === '/' && txt[i + 1] === '/') { const nl = txt.indexOf('\n', i); i = nl < 0 ? txt.length : nl; continue; }
+            if (c === '/' && txt[i + 1] === '*') { const f = txt.indexOf('*/', i + 2); i = f < 0 ? txt.length : f + 1; continue; }
+            if (c === '{') prof++;
+            else if (c === '}' && --prof === 0) {
+                try { return Function('"use strict"; return (' + txt.slice(ini, i + 1) + ');')() || {}; }
+                catch (e) { console.warn('Lista ' + nome + ' ilegível', e); return {}; }
+            }
+        }
+        return {};
+    }
+    function carregarBancoFicha() {
+        if (BANCO_FICHA) return Promise.resolve(BANCO_FICHA);
+        if (!bancoFichaPromessa) bancoFichaPromessa = fetch('ficha.html', { cache: 'no-cache' })
+            .then(r => r.ok ? r.text() : '').catch(() => '')
+            .then(txt => {
+                const b = { tracos: extrairBanco(txt, 'templatesTracos'), espec: extrairBanco(txt, 'templatesEspecializacoes'), anomalias: extrairBanco(txt, 'templatesAnomalias'), ataques: extrairBanco(txt, 'templatesAtaques') };
+                if (txt) BANCO_FICHA = b; else bancoFichaPromessa = null;   // sem resposta: tenta de novo na próxima vez
+                return b;
+            });
+        return bancoFichaPromessa;
+    }
+    const custoHabTxt = o => [o.custoPf ? o.custoPf + ' PF' : '', o.custoPl ? o.custoPl + ' PL' : '', o.custoAdicional || ''].filter(Boolean).join(' + ');
+    const resumoTxt = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+    async function abrirBancoHabilidades() {
+        const b = await carregarBancoFicha();
+        const it = [];
+        Object.keys(b.tracos).forEach(k => { const o = b.tracos[k]; if (o && o.nome) it.push({ id: 't:' + k, t: H(o.nome), s: H(['Traço / Talento', custoHabTxt(o), resumoTxt(o.descricao, 90)].filter(Boolean).join(' · ')) }); });
+        Object.keys(b.espec).forEach(k => { const o = b.espec[k]; if (o && o.nome) it.push({ id: 'e:' + k, t: H(o.nome), s: H([o.tipoPoder === 'vinculo' ? 'Vínculo' : 'Especialização', o.elemento, custoHabTxt(o), resumoTxt(o.efeito || o.descricao, 90)].filter(Boolean).join(' · ')) }); });
+        if (!it.length) { alert('Não consegui ler a lista da ficha de personagem (ficha.html). Use [+] ADICIONAR ou o 📥 COLAR.'); return; }
+        it.sort((x, y) => x.t.localeCompare(y.t, 'pt'));
+        abrirPicker('TALENTOS E PODERES', it, true, [], async sel => {
+            for (const id of sel) { const o = (id[0] === 't' ? b.tracos : b.espec)[id.slice(2)]; if (o) await adicionarHabilidadeDe(o); }
+        });
     }
 
     // Copia a habilidade no mesmo formato dos traços/talentos da ficha de personagem (TALENTO_ARQUIVO)
@@ -1986,9 +2039,10 @@ if (campanhaParam) {
     const baseSk=p=>String(p||'').split(' (')[0];
     function calcTeste(o){ const sk=(PNPC.find(p=>p.n===baseSk(o.pericia))||{v:0}).v, at=ATR[o.atributo]?num(ATR[o.atributo]):0; return fmt(at+sk+(+o.bonus||0)); }
     const calcDano=d=>String(d||'').replace(/\+FOR/,()=>{const f=num('for');return f>=0?'+'+f:String(f);});
-    function abrirArmas(){
-        const it=[{id:'__novo',t:'✏️ Ataque em branco',s:'preencher manualmente'}].concat(Object.keys(templatesAtaques).sort((a,b)=>templatesAtaques[a].nome.localeCompare(templatesAtaques[b].nome)).map(k=>{const a=templatesAtaques[k];return{id:k,t:a.nome,s:`${a.dano} · ${a.tipo} · ${a.alcance}`};}));
-        abrirPicker('ARMAS E ATAQUES',it,false,[],id=>addAcao(id==='__novo'?null:templatesAtaques[id]));
+    async function abrirArmas(){
+        const banco=Object.assign({},(await carregarBancoFicha()).ataques,templatesAtaques);
+        const it=[{id:'__novo',t:'✏️ Ataque em branco',s:'preencher manualmente'}].concat(Object.keys(banco).filter(k=>banco[k]&&banco[k].nome).sort((a,b)=>banco[a].nome.localeCompare(banco[b].nome)).map(k=>{const a=banco[k];return{id:k,t:a.nome,s:`${a.dano} · ${a.tipo} · ${a.alcance}`};}));
+        abrirPicker('ARMAS E ATAQUES',it,false,[],id=>addAcao(id==='__novo'?null:banco[id]));
     }
     async function addAcao(a){
         const path=(isHexatombe||globalHexatombe)?'hexa_acoes':'acoes';
@@ -2327,18 +2381,20 @@ if (campanhaParam) {
     }
 
     // ---- banco de anomalias ----
-    function abrirBancoAnomalias() {
+    let BANCO_ANOM = {};
+    async function abrirBancoAnomalias() {
+        BANCO_ANOM = Object.assign({}, (await carregarBancoFicha()).anomalias, templatesAnomalias);
         const s = $('select-tpl-anomalia'); s.innerHTML = '';
-        Object.keys(templatesAnomalias).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = `${templatesAnomalias[k].nome} (${templatesAnomalias[k].elemento})`; s.appendChild(o); });
-        if (!s.options.length) $('preview-anomalia').innerText = 'Banco vazio — exporte rituais com [ 📋 GITHUB ] e cole em templatesAnomalias.'; else $('preview-anomalia').innerText = '';
+        Object.keys(BANCO_ANOM).filter(k => BANCO_ANOM[k] && BANCO_ANOM[k].nome).sort((a, b) => BANCO_ANOM[a].nome.localeCompare(BANCO_ANOM[b].nome, 'pt')).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = `${BANCO_ANOM[k].nome}${BANCO_ANOM[k].elemento ? ` (${BANCO_ANOM[k].elemento})` : ''}`; s.appendChild(o); });
+        if (!s.options.length) $('preview-anomalia').innerText = 'Lista vazia — nenhuma anomalia exportada ainda. Use [ 📋 GITHUB ] e cole em templatesAnomalias (na ficha de personagem ou aqui).'; else $('preview-anomalia').innerText = '';
         $('modal-tpl-anomalia').style.display = 'block';
     }
     function filtrarBancoAnomalias(inp) { const q = inp.value.toLowerCase(); [...$('select-tpl-anomalia').options].forEach(o => o.hidden = !o.textContent.toLowerCase().includes(q)); }
-    function previewAnomalia() { const d = templatesAnomalias[$('select-tpl-anomalia').value]; $('preview-anomalia').innerHTML = d ? `<strong>Elemento:</strong> ${H(d.elemento)}${d.preRequisitos ? '<br><strong>Pré-requisitos:</strong> ' + H(d.preRequisitos) : ''}<br><strong>Efeito:</strong> ${H(d.efeito || d.descricao)}` : ''; }
+    function previewAnomalia() { const d = BANCO_ANOM[$('select-tpl-anomalia').value]; $('preview-anomalia').innerHTML = d ? `<strong>Elemento:</strong> ${H(d.elemento)}${d.preRequisitos ? '<br><strong>Pré-requisitos:</strong> ' + H(d.preRequisitos) : ''}<br><strong>Efeito:</strong> ${H(d.efeito || d.descricao)}` : ''; }
     async function aplicarAnomalia() {
-        const k = $('select-tpl-anomalia').value; if (!k || !templatesAnomalias[k]) return;
+        const k = $('select-tpl-anomalia').value; if (!k || !BANCO_ANOM[k]) return;
         const ref = refRit().doc(); menusAbertos.add('rit-' + ref.id);
-        await ref.set(Object.assign({ primeiraExecucao: true }, templatesAnomalias[k])); $('modal-tpl-anomalia').style.display = 'none';
+        await ref.set(Object.assign({ primeiraExecucao: true }, BANCO_ANOM[k])); $('modal-tpl-anomalia').style.display = 'none';
     }
 
     // ---- copiar / colar entre fichas (mestres) e exportar para o site (super admin) ----
