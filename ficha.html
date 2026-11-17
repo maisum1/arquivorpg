@@ -2496,7 +2496,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
                 </div>
             </div>
 
-            <div class="stat-box"><label>DESLOCAMENTO</label><input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m / 6 q" style="font-size: 16px;"></div>
+            <div class="stat-box"><label>DESLOCAMENTO</label><input type="text" id="deslocamento-personagem" onchange="salvarFicha()" value="9 m" style="font-size: 16px;"></div>
         </div>
 
         <div class="status-container">
@@ -2611,19 +2611,13 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
             <button class="tab-btn" onclick="mudarAba('background')">PERFIL PSICOLÓGICO</button>
-            <button class="tab-btn" onclick="mudarAba('tracos')">TRAÇOS E ESPEC.</button>
+            <button class="tab-btn" onclick="mudarAba('tracos')" title="Traços, talentos, marcas da idade, vínculos e especializações">CARACTERÍSTICAS</button>
             <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
-            <button class="tab-btn" onclick="mudarAba('inventario')">INVENTÁRIO</button>
+            <button class="tab-btn" onclick="mudarAba('inventario')">ARQUIVO E ITENS</button>
             <button class="tab-btn" id="tab-anomalias" onclick="mudarAba('rituais')" style="display: none;">ANOMALIAS</button>
         </nav>
 
         <div id="aba-pericias" class="tab-content active" style="border: none; background: transparent; padding: 0;">
-            <div style="font-size: 10px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 0px; font-weight: bold; letter-spacing: 1px;">
-                <span style="color:var(--hp-red); font-size: 11px;">❖</span> POSSUI SUBPERÍCIAS
-            </div>
-             <div style="font-size: 7px; color: var(--cor-geral); font-family: 'Inter', sans-serif; text-align: center; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px;">
-                <span style="color:var(--hp-red); font-size: 11px;"> </span> (clique na perícia)
-            </div>
 
             <div id="banner-criacao-pericias" style="display: none; background: var(--card-bg); border: 1px dashed var(--op-ink); padding: 10px 15px; margin-bottom: 20px; border-radius: 2px; font-family: 'Courier Prime', monospace;">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -2732,16 +2726,29 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
             </div>
 
         <div id="aba-tracos" class="tab-content">
-            <div style="display: flex; gap: 15px; margin-bottom: 35px; border-bottom: 1px dotted var(--card-border); padding-bottom: 25px; flex-wrap: wrap;">
-                <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
-                    <div style="display:flex; gap:10px;"><button class="cris-btn" onclick="toggleElem('modal-tpl-traco')">+ LISTA</button><div class="cris-btn btn-criar" onclick="novaHabilidade()">+ CRIAR TRAÇO</div></div>
+            <div class="carac-sec">
+                <div class="carac-cab">
+                    <h3 class="section-header">TRAÇOS E TALENTOS</h3>
+                    <div class="carac-bts" id="bts-tracos"><button class="cris-btn" onclick="toggleElem('modal-tpl-traco')">+ LISTA</button><div class="cris-btn btn-criar" onclick="novaHabilidade()">+ CRIAR</div></div>
                 </div>
-                <div id="btn-group-espec" style="display:none; flex-direction:column; gap:5px; flex:1;">
-                    <div style="display:flex; gap:10px;"><button class="cris-btn" style="border-color:var(--hp-red); color:var(--hp-red);" onclick="toggleElem('modal-tpl-espec')">+ LISTA</button><div class="cris-btn btn-criar" onclick="novoPoder()" style="border-color: var(--hp-red); color: var(--hp-red);">+ CRIAR ESPEC.</div></div>
-                </div>
+                <div id="lista-habilidades"></div>
             </div>
-            <div style="margin-bottom: 40px;"><h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block;">TRAÇOS E TALENTOS</h3><div id="lista-habilidades"></div></div>
-            <div id="container-poderes" style="display:none;"><h3 class="section-header" style="margin-top: 0; margin-bottom: 20px; display: block; color: var(--hp-red) !important;">VÍNCULOS E ESPECIALIZAÇÕES</h3><div id="lista-poderes"></div></div>
+            <!-- só aparece a partir de 40 anos (Maduro: 1 marca · Idoso: 2) ou se a persona já tiver alguma marca -->
+            <div class="carac-sec" id="sec-marcas-idade" style="display:none;">
+                <div class="carac-cab">
+                    <h3 class="section-header">MARCAS DA IDADE <span class="carac-info" id="marcas-idade-info"></span></h3>
+                    <div class="carac-bts"><button class="cris-btn" id="btn-marcas-idade" onclick="toggleEscolhaMarcas()">+ MARCA</button></div>
+                </div>
+                <div class="marcas-escolha" id="escolha-marcas-idade" style="display:none;"></div>
+                <div id="lista-marcas-idade"></div>
+            </div>
+            <div class="carac-sec" id="container-poderes" style="display:none;">
+                <div class="carac-cab carac-poderes">
+                    <h3 class="section-header">VÍNCULOS E ESPECIALIZAÇÕES</h3>
+                    <div class="carac-bts" id="btn-group-espec" style="display:none;"><div class="carac-bts"><button class="cris-btn" style="border-color:var(--hp-red); color:var(--hp-red);" onclick="toggleElem('modal-tpl-espec')">+ LISTA</button><div class="cris-btn btn-criar" onclick="novoPoder()" style="border-color: var(--hp-red); color: var(--hp-red);">+ CRIAR</div></div></div>
+                </div>
+                <div id="lista-poderes"></div>
+            </div>
         </div>
 
         <div id="aba-rituais" class="tab-content">
@@ -2876,12 +2883,12 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
     "IdadePequeno": { nome: "Pequeno (Criança)", descricao: "Menoridade — obrigatório (9 a 13 anos). +2 em Furtividade, mas o limite de FOR e VIG é 1." },
     "IdadeIngenuo": { nome: "Ingênuo (Menoridade)", descricao: "Menoridade — obrigatório (9 a 17 anos). Ao escolher a Origem, qualquer bônus inicial de +3 se torna apenas +1." },
     "IdadeImpeto": { nome: "Ímpeto Juvenil (Adolescente)", descricao: "Menoridade — obrigatório (14 a 17 anos). +3 PF máximos: a confiança exagerada permite forçar o corpo um pouco mais antes de ceder." },
-    "MarcaCatarata": { nome: "Marca da Idade: Catarata", descricao: "Seus olhos já não são os mesmos. −2 em Percepção e ataques à distância." },
-    "MarcaArticulacoes": { nome: "Marca da Idade: Articulações Rígidas", descricao: "Suas articulações já não respondem como antes. Não pode utilizar a ação Disparada." },
-    "MarcaDistraido": { nome: "Marca da Idade: Distraído", descricao: "Você demora um pouco mais para perceber quando uma situação se altera ao redor. Fica Desprevenido na primeira rodada de todo combate e perde o primeiro turno em investigação." },
-    "MarcaTeimoso": { nome: "Marca da Idade: Teimoso", descricao: "Você prefere resolver tudo do seu jeito. Não pode receber benefícios da ação Ajudar." },
-    "MarcaSonoLeve": { nome: "Marca da Idade: Sono Leve", descricao: "Você raramente consegue uma noite realmente reparadora. Recupera apenas metade dos valores obtidos durante um descanso." },
-    "MarcaRabugento": { nome: "Marca da Idade: Rabugento", descricao: "Você tem dificuldade para lidar com as pessoas. −3 em testes de Persuasão." }
+    "MarcaCatarata": { marcaIdade: true, nome: "Marca da Idade: Catarata", descricao: "Seus olhos já não são os mesmos. −2 em Percepção e ataques à distância." },
+    "MarcaArticulacoes": { marcaIdade: true, nome: "Marca da Idade: Articulações Rígidas", descricao: "Suas articulações já não respondem como antes. Não pode utilizar a ação Disparada." },
+    "MarcaDistraido": { marcaIdade: true, nome: "Marca da Idade: Distraído", descricao: "Você demora um pouco mais para perceber quando uma situação se altera ao redor. Fica Desprevenido na primeira rodada de todo combate e perde o primeiro turno em investigação." },
+    "MarcaTeimoso": { marcaIdade: true, nome: "Marca da Idade: Teimoso", descricao: "Você prefere resolver tudo do seu jeito. Não pode receber benefícios da ação Ajudar." },
+    "MarcaSonoLeve": { marcaIdade: true, nome: "Marca da Idade: Sono Leve", descricao: "Você raramente consegue uma noite realmente reparadora. Recupera apenas metade dos valores obtidos durante um descanso." },
+    "MarcaRabugento": { marcaIdade: true, nome: "Marca da Idade: Rabugento", descricao: "Você tem dificuldade para lidar com as pessoas. −3 em testes de Persuasão." }
     };
     
     const templatesEspecializacoes = {};
@@ -2985,7 +2992,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
         };
         add('select-tpl-origem', templatesOrigens, t => t.nome);
         add('select-tpl-ataque', templatesAtaques, t => t.nome); // Nome limpo
-        add('select-tpl-traco', templatesTracos, t => t.nome);
+        add('select-tpl-traco', Object.fromEntries(Object.entries(templatesTracos).filter(([, t]) => !ehMarcaIdade(t))), t => t.nome);   // marcas da idade têm seção própria
         add('select-tpl-espec', templatesEspecializacoes, t => `${t.nome} (${t.elemento})`);
         add('select-tpl-anomalia', templatesAnomalias, t => `${t.nome} (${t.elemento})`);
         add('select-tpl-item', templatesInventario, t => t.nome);
@@ -3785,7 +3792,7 @@ let filtroSubAtualAtaques = 'Todos';
         let calcDeslocamentoQuadrados = Math.floor(calcDeslocamentoMetros / 1.5);
         const inputDeslocamento = document.getElementById('deslocamento-personagem');
         if (inputDeslocamento && document.activeElement !== inputDeslocamento) {
-            inputDeslocamento.value = `${calcDeslocamentoMetros} m / ${calcDeslocamentoQuadrados} q`;
+            inputDeslocamento.value = `${calcDeslocamentoMetros} m`;
         }
 
         if (typeof recalcularDefesas === 'function') recalcularDefesas(); 
@@ -4628,11 +4635,61 @@ let filtroSubAtualAtaques = 'Todos';
         }); 
     }
 
+    // ---------- MARCAS DA IDADE (livro: Maduro 40–59 = 1 marca · Idoso 60+ = 2) ----------
+    const SO_LEITURA_MARCAS = new URLSearchParams(window.location.search).get('view') === 'true';
+    function ehMarcaIdade(h) { return !!h && (h.marcaIdade === true || /^\s*marca da idade/i.test(h.nome || '')); }
+    function nomeMarca(n) { return String(n || '').replace(/^\s*marca da idade\s*:\s*/i, '').trim() || 'Marca'; }
+    function faixaIdade() {
+        const idade = parseInt(document.getElementById('idade-personagem')?.value);
+        if (isNaN(idade)) return { idade: null, limite: 0, rotulo: '' };
+        if (idade >= 60) return { idade, limite: 2, rotulo: 'Idoso' };
+        if (idade >= 40) return { idade, limite: 1, rotulo: 'Maduro' };
+        return { idade, limite: 0, rotulo: '' };
+    }
+    function atualizarSecaoMarcas() {
+        const sec = document.getElementById('sec-marcas-idade'); if (!sec) return;
+        const f = faixaIdade(), tem = (window.__marcasIdade || []).length;
+        sec.style.display = (f.limite || tem) ? 'block' : 'none';
+        const info = document.getElementById('marcas-idade-info');
+        if (info) info.textContent = f.limite ? `· ${f.rotulo} · ${tem}/${f.limite}` : (tem ? '· fora da faixa de idade' : '');
+        const btn = document.getElementById('btn-marcas-idade');
+        if (btn) btn.style.display = f.limite && !SO_LEITURA_MARCAS ? '' : 'none';
+        if (!f.limite) document.getElementById('escolha-marcas-idade').style.display = 'none';
+        if (document.getElementById('escolha-marcas-idade').style.display !== 'none') renderEscolhaMarcas();
+    }
+    window.toggleEscolhaMarcas = function() {
+        const box = document.getElementById('escolha-marcas-idade');
+        const abrir = box.style.display === 'none';
+        box.style.display = abrir ? 'grid' : 'none';
+        if (abrir) renderEscolhaMarcas();
+    };
+    function renderEscolhaMarcas() {
+        const box = document.getElementById('escolha-marcas-idade'); if (!box) return;
+        const tem = new Map((window.__marcasIdade || []).map(m => [m.nome.toLowerCase(), m.id]));
+        const f = faixaIdade();
+        box.innerHTML = Object.keys(templatesTracos).filter(k => ehMarcaIdade(templatesTracos[k])).map(k => {
+            const t = templatesTracos[k], nm = nomeMarca(t.nome), on = tem.has(nm.toLowerCase());
+            return `<button type="button" class="marca-op${on ? ' on' : ''}" onclick="alternarMarcaIdade('${k}')" title="${on ? 'Clique para remover' : 'Clique para escolher'}"><b>${on ? '✓ ' : ''}${nm}</b><small>${String(t.descricao || '').replace(/</g, '&lt;')}</small></button>`;
+        }).join('') + `<p class="marcas-nota">${f.limite ? `${f.rotulo}: escolha até ${f.limite} (opcional — em troca do +1 grau${f.limite > 1 ? ' e do talento extra' : ''}).` : ''}</p>`;
+    }
+    window.alternarMarcaIdade = async function(k) {
+        if (SO_LEITURA_MARCAS) return;
+        const t = templatesTracos[k]; if (!t) return;
+        const nm = nomeMarca(t.nome), ja = (window.__marcasIdade || []).find(m => m.nome.toLowerCase() === nm.toLowerCase());
+        const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades";
+        if (ja) { if (confirm(`Remover a marca "${nm}"?`)) await db.collection("fichas").doc(atual).collection(p).doc(ja.id).delete(); return; }
+        const f = faixaIdade(), qtd = (window.__marcasIdade || []).length;
+        if (f.limite && qtd >= f.limite && !confirm(`${f.rotulo} tem ${f.limite} marca(s) da idade. Adicionar mais uma mesmo assim (só com permissão do mestre)?`)) return;
+        await aplicarTemplate('habilidades', k);
+    };
+    document.addEventListener('input', e => { if (e.target && e.target.id === 'idade-personagem') atualizarSecaoMarcas(); });
+
     function fmtCustoTalento(h) { const f = (v, u) => { v = String(v == null ? '' : v).trim(); return v ? (/^\d+$/.test(v) ? v + ' ' + u : v) : ''; }; return [f(h.custoPf, 'PF'), f(h.custoPl, 'PL'), String(h.custoAdicional || '').trim()].filter(Boolean).join(' • '); }
     function carregarHabilidades() { 
         if(unsubHab) unsubHab(); const p = (isHexatombe || globalHexatombe) ? "hexa_habilidades" : "habilidades"; 
         unsubHab = db.collection("fichas").doc(atual).collection(p).onSnapshot(snap => { 
             const c = document.getElementById('lista-habilidades'); window.__habFq = []; c.innerHTML = ehMestreFicha() ? subBtnColar('habilidades') : ""; 
+            const cMarcas = document.getElementById('lista-marcas-idade'); if (cMarcas) cMarcas.innerHTML = ""; window.__marcasIdade = [];
             const isSuperAdmin = (firebase.auth().currentUser && firebase.auth().currentUser.email === "pedroacpr@gmail.com");
 
             snap.forEach(doc => { 
@@ -4640,13 +4697,16 @@ let filtroSubAtualAtaques = 'Todos';
                 const btnAdminCopy = isSuperAdmin ? `<button class="cris-btn" style="border-color:var(--san-purple); color:var(--san-purple); margin-right: 10px; font-weight: bold;" onclick="event.stopPropagation(); window.copiarTracoParaSite('${id}')">[ 📋 EXPORTAR PARA GITHUB ]</button>` : '';
                 const btnCopiar = subBtnCopiar('habilidades', id);
                 window.__habFq.push({ nome: h.nome || 'Traço', custo: fmtCustoTalento(h), desc: h.descricao || '' });
+                const ehMarca = ehMarcaIdade(h) && cMarcas;
+                if (ehMarca) window.__marcasIdade.push({ id, nome: nomeMarca(h.nome) });
+                const alvo = ehMarca ? cMarcas : c;
                 if (h.concluido !== false) {   // concluído: visualização simplificada
-                    c.innerHTML += subViewHTML({ col: 'habilidades', id, v: h, cor: 'var(--op-ink)', aberto: menusAbertos.has('sv-habilidades-' + id), extra: subBtnEditar('habilidades', id) + btnCopiar + btnAdminCopy });
+                    alvo.innerHTML += subViewHTML({ col: 'habilidades', id, v: ehMarca ? { ...h, nome: nomeMarca(h.nome) } : h, cor: 'var(--op-ink)', aberto: menusAbertos.has('sv-habilidades-' + id), extra: subBtnEditar('habilidades', id) + btnCopiar + btnAdminCopy });
                     return;
                 }
                 const btnConcluir = subBtnConcluir('habilidades', id);
 
-                c.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);">
+                alvo.innerHTML += `<div class="ritual-card" style="border-left-color: var(--card-border);">
                     <div class="card-header" onclick="toggleElem('hab-${id}')">
                         <span style="color:var(--op-ink); font-weight: 900;">${h.nome || 'Traço Indefinido'}</span>${fmtCustoTalento(h) ? `<span class="hab-custo-tag" style="font:700 10px 'Inter',sans-serif;letter-spacing:.06em;color:var(--op-red);margin-left:auto">${fmtCustoTalento(h)}</span>` : ''}
                     </div>
@@ -4661,6 +4721,7 @@ let filtroSubAtualAtaques = 'Todos';
                     </div>
                 </div>`; 
             }); 
+            atualizarSecaoMarcas();
         }); 
     }
 
@@ -7633,7 +7694,7 @@ let filtroSubAtualAtaques = 'Todos';
             topRit.appendChild(b);
         }
 
-        const topHab = document.querySelector('#aba-tracos > div:first-child > div:first-child > div:first-child');
+        const topHab = document.getElementById('bts-tracos');
         if (topHab && !document.getElementById('btn-colar-fixo-hab')) {
             const b = document.createElement('button');
             b.id = 'btn-colar-fixo-hab';
@@ -7758,11 +7819,12 @@ let filtroSubAtualAtaques = 'Todos';
                 <button type="button" id="btn-f-todas" class="arq-pill-btn active" onclick="window.setFiltroPericiasV2(false)">TODAS</button>
                 <button type="button" id="btn-f-treinadas" class="arq-pill-btn" onclick="window.setFiltroPericiasV2(true)">TREINADAS</button>
             </div>
+            <div class="pericias-legenda"><span>❖</span> POSSUI SUBPERÍCIAS<small>(clique na perícia)</small></div>
             <div class="pericias-toolbar-group">
                 <button type="button" id="btn-toggle-edit-per" class="arq-pill-btn" onclick="window.toggleModoEdicaoPericias()" title="Editar treinos e bônus">✎</button>
             </div>
         `;
-        abaPericias.insertBefore(toolbar, gridPericias);
+        abaPericias.insertBefore(toolbar, abaPericias.firstChild);   // filtros + legenda no topo; o banner de criação vem logo abaixo
     }
 
     window.setFiltroPericiasV2 = function(apenasTreinadas) {
@@ -9080,7 +9142,7 @@ let filtroSubAtualAtaques = 'Todos';
                     <div class="fq-op2-quicknav">
                         <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('pericias')" title="Perícias">🎯</button>
                         <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('combate')" title="Combate">⚔️</button>
-                        <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('tracos')" title="Traços e Especializações">❖</button>
+                        <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('tracos')" title="Características">❖</button>
                         <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('inventario')" title="Arquivo e Itens">🎒</button>
                         <button type="button" class="fq-op2-iconbtn" id="fq2-btn-anom" style="display:none;" onclick="window.fq2IrAba('rituais')" title="Anomalias">🕯️</button>
                     </div>
@@ -10513,6 +10575,45 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 .btn-ini-dado:hover{ border-color:var(--op-ink); }
 #controles-mestre-iniciativa button.btn-voltar-vez{ width:32px !important; height:28px !important; padding:0 !important; vertical-align:bottom !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; background:transparent; border:1px dashed var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:12px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
+
+/* ---- aba Características: cabeçalho de cada seção com os próprios botões ---- */
+.carac-sec{ margin-bottom:34px; }
+.carac-cab{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.carac-cab > .section-header{ flex:1 1 260px; margin:0 !important; display:block; }
+.carac-poderes > .section-header{ color:var(--hp-red) !important; }
+.carac-bts{ display:flex; gap:8px; align-items:center; }
+#btn-group-espec{ flex-direction:row !important; }
+.carac-info{ font:700 10px 'Inter',sans-serif; letter-spacing:.08em; text-transform:none; opacity:.75; margin-left:6px; }
+.marcas-escolha{ grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:6px; margin:0 0 14px; }
+.marca-op{ text-align:left; background:var(--card-bg); border:1px dashed var(--card-border); padding:8px 10px; cursor:pointer; color:var(--op-ink); display:flex; flex-direction:column; gap:3px; border-radius:2px; }
+.marca-op b{ font:900 12px 'Inter',sans-serif; letter-spacing:.04em; text-transform:uppercase; }
+.marca-op small{ font:11px/1.35 'Inter',sans-serif; color:var(--cor-geral); }
+.marca-op:hover{ border-color:var(--op-ink); }
+.marca-op.on{ border:1px solid var(--op-red); background:rgba(158,11,15,.07); }
+.marca-op.on b{ color:var(--op-red); }
+.marcas-nota{ grid-column:1/-1; margin:2px 0 0; font:10.5px 'Inter',sans-serif; color:var(--cor-geral); }
+body.somente-leitura .marca-op{ pointer-events:none; }
+
+/* ---- perícias: filtros e a legenda das subperícias na mesma linha ---- */
+.pericias-legenda{ flex:1 1 auto; text-align:center; font:700 10px 'Inter',sans-serif; letter-spacing:1px; color:var(--cor-geral); line-height:1.25; }
+.pericias-legenda span{ color:var(--hp-red); font-size:11px; }
+.pericias-legenda small{ display:block; font-size:7px; letter-spacing:1px; }
+@media (max-width:600px){ .pericias-legenda{ order:3; flex-basis:100%; } }
+
+/* ---- tablet (e notebook pequeno): atributos ao lado do cabeçalho e números numa linha só,
+        para estado, sequela e marcadores de cena caberem na primeira tela sem diminuir nada ---- */
+@media (min-width:700px) and (max-width:1200px){
+  #grid-container > section:first-of-type{ display:grid; grid-template-columns:minmax(0,1fr) 230px; column-gap:22px; align-items:center; }
+  #grid-container > section:first-of-type > *{ grid-column:1 / -1; }
+  #grid-container > section:first-of-type > .profile-flex{ grid-column:1; margin-bottom:12px !important; }
+  #grid-container > section:first-of-type > #sigilo-box{ grid-column:2; margin:0 auto 12px !important; }
+  #grid-container > section:first-of-type .mid-stats{ grid-template-columns:1fr 1.6fr 1fr !important; }
+  #grid-container > section:first-of-type .mid-stats > div:nth-child(3){ grid-column:auto !important; }
+}
+/* telas largas: o botão de voltar não precisa ocupar uma linha inteira */
+@media (min-width:1201px){
+  #grid-container > section:first-of-type > div:first-child{ margin-bottom:6px !important; }
+}
 /* ---- painel do jogador na cena: consulta + relógio de tensão ---- */
 #mesa-jog-dock{ display:none; position:fixed; left:14px; bottom:14px; z-index:9997; flex-direction:column; align-items:flex-start; gap:8px; max-width:calc(100vw - 28px); }
 #btn-consulta-jog{ background:var(--bg-paper); color:var(--op-ink); border:1px solid var(--op-ink); box-shadow:3px 3px 0 rgba(0,0,0,.3); padding:7px 11px; font:900 10px 'Inter',sans-serif; letter-spacing:.14em; cursor:pointer; }
