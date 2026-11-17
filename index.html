@@ -6,6 +6,9 @@
     <title>A.R.Q.U.I.V.O. - Hub</title>
     
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
     <meta name="theme-color" content="#dcd7cb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -780,7 +783,7 @@ body.tema-escuro .base-card .btn-open:hover {
             if (aba === 'ameacas') document.getElementById('btn-ameacas').classList.add('active');
             if (aba === 'npcs') document.getElementById('btn-npcs').classList.add('active');
             if (aba === 'campanhas') document.getElementById('btn-campanhas').classList.add('active');
-            if (aba === 'mestre') document.getElementById('btn-mestre').classList.add('active');
+            if (aba === 'mestre') { document.getElementById('btn-mestre').classList.add('active'); if (monitorPendente) carregarMonitorMestre(); }
         }
 
         function toggleRaioX() {
@@ -1045,7 +1048,7 @@ body.tema-escuro .base-card .btn-open:hover {
         
         let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${ctxPassado}')" title="Configurações">⚙️</button>`;
 
-        let img = d.portrait ? `<img src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz}); width: 100%; height: 100%; object-fit: cover; display: block;">` : '';
+        let img = d.portrait ? `<img decoding="async" loading="lazy" src="${d.portrait}" style="object-position: ${px}% ${py}%; transform: scale(${pz}); width: 100%; height: 100%; object-fit: cover; display: block;">` : '';
 
         let expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
         if (!globalRevelado && context !== 'monitor' && context !== 'raiox' && context !== 'campanha') {
@@ -1133,7 +1136,7 @@ body.tema-escuro .base-card .btn-open:hover {
                             
                             <div class="card-content">
                                 <div class="portrait-mini">
-                                    <img src="${docData.portrait || 'https://via.placeholder.com/100x130'}" style="object-position: ${docData.pX || 50}% ${docData.pY || 50}%; transform: scale(${docData.pZ || 1}); width: 100%; height: 100%; object-fit: cover;">
+                                    <img decoding="async" loading="lazy" src="${docData.portrait || 'https://via.placeholder.com/100x130'}" style="object-position: ${docData.pX || 50}% ${docData.pY || 50}%; transform: scale(${docData.pZ || 1}); width: 100%; height: 100%; object-fit: cover;">
                                 </div>
                                 <div class="card-info">
                                     <strong>${docData.nome || 'Sem Nome'}</strong>
@@ -1337,7 +1340,7 @@ body.tema-escuro .base-card .btn-open:hover {
 let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomeAmeaca}', 'ameaca', '${context}')" title="Configurações">⚙️</button>`;
             // ---------------------------------------
 
-            let img = d.portrait ? `<img src="${d.portrait}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">` : '';
+            let img = d.portrait ? `<img decoding="async" loading="lazy" src="${d.portrait}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">` : '';
             
             // ---- rótulos do card ----
             const cl = classificarAmeaca(d), tipo = d.tipoAmeaca || 'criatura', hx = d.hexatombe_data || {};
@@ -1377,8 +1380,10 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                 </div>`;
         }
 
+        let unsubListaAmeacas = null;
         function listarAmeacas(uid) {
-        db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
+        if (unsubListaAmeacas) unsubListaAmeacas();
+        unsubListaAmeacas = db.collection("ameacas").where("dono", "==", uid).onSnapshot(snap => {
             const divAmeacas = document.getElementById("lista-ameacas");
             const divNpcs = document.getElementById("lista-npcs");
             if (divAmeacas && !document.getElementById('wrapper-ameacas-puras')) {
@@ -1446,14 +1451,16 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
             }
         }
 
+        let unsubListaCampanhas = null;
         function listarCampanhas(uid) {
-            db.collection("campanhas").where("dono", "==", uid).onSnapshot(snap => {
-                const div = document.getElementById('lista-campanhas'); div.innerHTML = "";
+            if (unsubListaCampanhas) unsubListaCampanhas();
+            unsubListaCampanhas = db.collection("campanhas").where("dono", "==", uid).onSnapshot(snap => {
+                const div = document.getElementById('lista-campanhas'); let htmlCamp = "";
                 meusCodigosCampanha = [];
                 snap.forEach(doc => {
                     const c = doc.data();
                     meusCodigosCampanha.push(c.codigo);
-                    div.innerHTML += `
+                    htmlCamp += `
                         <div class="campanha-card base-card" onclick="abrirCampanhaView('${c.codigo}', '${c.nome}', '${doc.id}', ${c.ocultarNome || false})">
                             <div class="card-actions" style="top: 8px; right: 8px;">
                                 <button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${c.nome.replace(/'/g, "\\'")}', 'campanha', '${c.codigo}')" title="Configurações da Campanha">⚙️</button>
@@ -1464,6 +1471,7 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                             </div>
                         </div>`;
                 });
+                div.innerHTML = htmlCamp;
                 carregarMonitorMestre(); 
             });
         }
@@ -1574,7 +1582,7 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
                 ordenarDocs(snap).forEach(doc => { (doc.data().isNpcAmeaca ? transferidas : personas).push(doc); });
                 document.getElementById('cv-cnt-personas').innerText = personas.length;
                 if(!personas.length) { div.innerHTML = "<p style='font-size:12px; color:var(--cor-geral);'>Nenhum jogador vinculado a este código ainda.</p>"; }
-                personas.forEach(doc => { div.innerHTML += renderFichaMonitorCard(doc, 'campanha'); });
+                div.innerHTML += personas.map(doc => renderFichaMonitorCard(doc, 'campanha')).join('');
                 campPersonasAmeacaHtml = transferidas.map(doc => ({ nome: doc.data().nome, ts: tsData(doc.data().createdAt), html: renderFichaMonitorCard(doc, 'campanha') }));
                 renderCampanhaAmeacas();
             });
@@ -1607,32 +1615,43 @@ let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacit
         }
 
         let unsubMonitorFichas, unsubMonitorAmeacas;
+        let monitorChave = '', monitorPendente = false;
+        // O monitor só baixa algo quando a aba "Mestre" está aberta, e só as fichas das SUAS campanhas
+        // (antes baixava a coleção inteira de fichas do site a cada abertura do hub — pesado no celular).
         function carregarMonitorMestre() {
+            const aba = document.getElementById('hub-mestre');
+            const visivel = aba && aba.style.display !== 'none';
+            if (!visivel && !isXRayMode) { monitorPendente = true; return; }
+            monitorPendente = false;
+            const codigos = [...new Set((meusCodigosCampanha || []).filter(Boolean))].sort();
+            const chave = (isXRayMode ? 'raiox' : 'camp:' + codigos.join(','));
+            if (chave === monitorChave && unsubMonitorFichas) return;   // nada mudou: mantém a escuta atual
+            monitorChave = chave;
             if(unsubMonitorFichas) unsubMonitorFichas();
             if(unsubMonitorAmeacas) unsubMonitorAmeacas();
+            unsubMonitorFichas = null; unsubMonitorAmeacas = null;
 
             const divFichas = document.getElementById('monitor-fichas'); 
             const divAmeacas = document.getElementById('monitor-ameacas');
             divFichas.innerHTML = "";
             divAmeacas.innerHTML = "";
 
-            unsubMonitorFichas = db.collection("fichas").onSnapshot(snap => {
-                divFichas.innerHTML = "";
-                ordenarDocs(snap).forEach(doc => {
-                    const d = doc.data();
-                    let temPermissaoParaVer = false;
-                    
-                    if (isXRayMode) {
-                        temPermissaoParaVer = true;
-                    } else if (d.campanhaId && meusCodigosCampanha.includes(d.campanhaId)) {
-                        temPermissaoParaVer = true;
-                    }
-                    
-                    if (temPermissaoParaVer) {
-                        divFichas.innerHTML += renderFichaMonitorCard(doc, isXRayMode ? 'raiox' : 'monitor');
-                    }
-                });
-            });
+            const modo = isXRayMode ? 'raiox' : 'monitor';
+            const desenhar = docs => { divFichas.innerHTML = ordenarDocs({ docs }).map(doc => renderFichaMonitorCard(doc, modo)).join(''); };
+            if (isXRayMode) {
+                unsubMonitorFichas = db.collection("fichas").onSnapshot(snap => desenhar(snap.docs));
+            } else if (codigos.length) {
+                // consultas por campanha (o Firestore aceita até 30 códigos por "in")
+                const partes = {}, unsubs = [];
+                for (let k = 0; k < codigos.length; k += 30) {
+                    const lote = codigos.slice(k, k + 30), id = 'p' + k;
+                    unsubs.push(db.collection("fichas").where("campanhaId", "in", lote).onSnapshot(snap => {
+                        partes[id] = snap.docs;
+                        desenhar([].concat(...Object.values(partes)));
+                    }));
+                }
+                unsubMonitorFichas = () => unsubs.forEach(u => u());
+            }
 
             if (isXRayMode) {
                 unsubMonitorAmeacas = db.collection("ameacas").onSnapshot(snap => {
@@ -2159,7 +2178,7 @@ document.addEventListener('click', function() {
         let botoesAcao = `<button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="event.stopPropagation(); abrirOpcoesCard(event, '${doc.id}', '${nomePersona}', 'ficha-monitor', '${ctxPassado}')" title="Configurações">⚙️</button>`;
 
         let img = d.portrait
-            ? `<img src="${d.portrait}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">`
+            ? `<img decoding="async" loading="lazy" src="${d.portrait}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">`
             : '';
 
         let expInfo = `<span class="exp-tag">EXP ${d.nex || '5%'}</span>`;
@@ -2203,6 +2222,7 @@ document.addEventListener('click', function() {
     // Sobrescreve carregarFichasJogador para usar data-px, data-py, data-pz sem perder o valor 0 de pY!
     let unsubFichasFix = null;
     window.carregarFichasJogador = function(uid) {
+        window.__fichasJogadorUid = uid;
         if (unsubFichasFix) unsubFichasFix();
         unsubFichasFix = db.collection("fichas").where("dono", "==", uid).onSnapshot(snap => {
             const divFichas = document.getElementById('lista-fichas');
@@ -2215,7 +2235,7 @@ document.addEventListener('click', function() {
                 divAmeacas.innerHTML = `<div id="wrapper-ameacas-personas" style="display:contents;"></div><div id="wrapper-ameacas-puras" style="display:contents;"></div>`;
             }
             const personasAmeaca = [];
-            let count = 0;
+            let count = 0, htmlFichas = '';
 
             ordenarDocs(snap).forEach(doc => {
                 const docData = doc.data();
@@ -2231,14 +2251,14 @@ document.addEventListener('click', function() {
                     const py = (docData.pY !== undefined && docData.pY !== "") ? docData.pY : 50;
                     const pz = (docData.pZ !== undefined && docData.pZ !== "") ? docData.pZ : 1;
 
-                    divFichas.innerHTML += `
+                    htmlFichas += `
                         <div class="ficha-card base-card" id="card-${docId}">
                             <div class="card-actions" style="top: 8px; right: 8px;">
                                 <button class="btn-action-node" style="font-size: 16px; opacity: 1; padding: 0;" onclick="abrirOpcoesCard(event, '${docId}', '${docData.nome ? docData.nome.replace(/'/g, "\\'") : 'Persona'}', 'ficha', 'hub-proprio')" title="Configurações da Ficha">⚙️</button>
                             </div>
                             <div class="card-content">
                                 <div class="portrait-mini">
-                                    <img src="${docData.portrait || 'https://via.placeholder.com/100x130'}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">
+                                    <img decoding="async" loading="lazy" src="${docData.portrait || 'https://via.placeholder.com/100x130'}" data-px="${px}" data-py="${py}" data-pz="${pz}" onload="ajustarFotoHub(this)" style="position:absolute; left:0; top:0; width:100%; height:100%; object-fit:cover; display:block;">
                                 </div>
                                 <div class="card-info">
                                     <strong>${docData.nome || 'Sem Nome'}</strong>
@@ -2252,6 +2272,7 @@ document.addEventListener('click', function() {
                 }
             });
 
+            divFichas.innerHTML = htmlFichas;   // monta tudo de uma vez (antes refazia a lista inteira a cada card)
             hubPersonasHtml = personasAmeaca;
             renderHubAmeacas();
 
@@ -2263,7 +2284,7 @@ document.addEventListener('click', function() {
     // Caso o usuário já tenha logado antes do script inicializar, recarrega os cards imediatamente
     if (typeof auth !== 'undefined') {
         auth.onAuthStateChanged(u => {
-            if (u) setTimeout(() => window.carregarFichasJogador(u.uid), 180);
+            if (u && !window.__fichasJogadorUid) setTimeout(() => { if (window.__fichasJogadorUid !== u.uid) window.carregarFichasJogador(u.uid); }, 180);
         });
     }
 })();
