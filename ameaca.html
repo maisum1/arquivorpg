@@ -529,6 +529,9 @@ body:not(.modo-criacao) .f2{display:none}
 .pvctl{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:4px;height:100%}
 .pvctl .bar-btn{display:flex;align-items:center;justify-content:center;height:100%;padding:0 16px;font:400 24px/1 'Inter',sans-serif;opacity:.7;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;color:var(--op-ink)}
 .pvctl .bar-btn:active{opacity:1;transform:scale(1.12)}
+.pvctl .bar-btn{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.pvctl .bar-btn:focus:not(:focus-visible){outline:none}
+@media (hover:none),(pointer:coarse){.pvctl .bar-btn:hover{background:transparent!important;transform:none}}
 .pvctl .bar-btn:focus-visible{outline:2px solid var(--op-red);outline-offset:-2px}
 @media (hover:hover){.pvctl .bar-btn:hover{opacity:1;background:rgba(0,0,0,.12)}body.tema-escuro .pvctl .bar-btn:hover{background:rgba(255,255,255,.12)}}
 .pvctl input#mesa-n{width:48px!important;height:20px;box-sizing:border-box;margin:0;padding:0!important;text-align:center;font:bold 15px 'Special Elite',monospace!important;background:rgba(255,255,255,.4)!important;border:1px solid rgba(0,0,0,.35)!important;border-radius:0}
@@ -2123,7 +2126,7 @@ if (campanhaParam) {
     }
     function aplicaPV(s,ev){
         if(SOMENTE_LEITURA) return;
-        if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        if(ev){ ev.preventDefault(); ev.stopPropagation(); if(ev.currentTarget&&ev.currentTarget.blur) ev.currentTarget.blur(); }
         const campo=$('mesa-n'), n=Math.abs(parseInt(campo.value))||0;
         if(n){
             const at=num('pv-atual'), mx=num('pv-max');
