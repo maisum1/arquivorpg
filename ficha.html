@@ -5380,8 +5380,9 @@ let filtroSubAtualAtaques = 'Todos';
                     let ehMestre = false;
                     if (!campSnap.empty) {
                         const dadosCamp = campSnap.docs[0].data();
+                        const perspSim = localStorage.getItem('arquivo_perspectiva_sim') || 'padrao';   // visão simulada do criador: "admin" e "jogador" nunca mestram; "mestre" só se for o dono
                         const checarSuperAdmin = (usuarioLogado.email && usuarioLogado.email.toLowerCase() === "pedroacpr@gmail.com");
-                        ehMestre = (dadosCamp.dono === usuarioLogado.uid) || checarSuperAdmin;
+                        ehMestre = perspSim !== 'admin' && perspSim !== 'jogador' && ((dadosCamp.dono === usuarioLogado.uid) || (checarSuperAdmin && perspSim === 'padrao'));
                     }
                     window.__iniPapel = { chave: chavePapel, mestre: ehMestre };
                     aplicarPapelIniciativa(ehMestre);
@@ -10602,6 +10603,11 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 #controles-mestre-iniciativa button.btn-voltar-vez{ width:32px !important; height:28px !important; padding:0 !important; vertical-align:bottom !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; background:transparent; border:1px dashed var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:12px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
 
+/* ---- aba Anomalias marcada de vermelho, como o resto do que é paranormal ---- */
+#tab-anomalias{ color:var(--hp-red) !important; border-color:var(--hp-red) !important; }
+#tab-anomalias.active{ color:var(--hp-red) !important; border-color:var(--hp-red) !important; }
+/* com a faixa "VISÃO: ... [ × SAIR ]" no canto, a consulta e o relógio sobem para não ficar por baixo dela */
+body[data-perspectiva] #mesa-jog-dock{ bottom:48px !important; }
 /* ---- aba Traços: cabeçalho de cada seção com os próprios botões ---- */
 .carac-sec{ margin-bottom:34px; }
 .carac-cab{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
