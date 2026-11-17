@@ -882,8 +882,8 @@
             const c = snap.docs[0];
             CAMP = { id: c.id, ...c.data() };
             const email = (user.email || '').toLowerCase();
-            const simulandoJogador = localStorage.getItem('arquivo_perspectiva_sim') === 'jogador';
-            const ehMestre = !simulandoJogador && (CAMP.dono === user.uid || email === SUPER_ADMIN);
+            const perspSim = localStorage.getItem('arquivo_perspectiva_sim') || 'padrao';   // visão simulada: "admin" e "jogador" não mestram; "mestre" só se for o dono
+            const ehMestre = perspSim !== 'admin' && perspSim !== 'jogador' && (CAMP.dono === user.uid || (email === SUPER_ADMIN && perspSim === 'padrao'));
             if (!ehMestre) { bloquear('A Mesa é exclusiva do mestre desta campanha.'); return; }
             iniciarMesa();
         } catch (e) {
