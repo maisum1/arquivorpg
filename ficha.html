@@ -2611,7 +2611,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
         <nav class="tabs-nav">
             <button class="tab-btn active" onclick="mudarAba('pericias')">PERÍCIAS</button>
             <button class="tab-btn" onclick="mudarAba('background')">PERFIL PSICOLÓGICO</button>
-            <button class="tab-btn" onclick="mudarAba('tracos')" title="Traços, talentos, marcas da idade, vínculos e especializações">TRAÇOS E PODERES</button>
+            <button class="tab-btn" id="tab-tracos" onclick="mudarAba('tracos')" title="Traços, talentos e marcas da idade">TRAÇOS E TALENTOS</button>
             <button class="tab-btn" onclick="mudarAba('combate')">COMBATE</button>
             <button class="tab-btn" onclick="mudarAba('inventario')">INVENTÁRIO</button>
             <button class="tab-btn" id="tab-anomalias" onclick="mudarAba('rituais')" style="display: none;">ANOMALIAS</button>
@@ -3509,6 +3509,13 @@ let filtroSubAtualAtaques = 'Todos';
         }, 800); 
     }
     
+    // antes de despertar a aba não entrega nada; depois vira "Habilidades" (traços + vínculos e especializações)
+    function nomearAbaTracos(desperto) {
+        const b = document.getElementById('tab-tracos');
+        if (b) { b.textContent = desperto ? 'HABILIDADES' : 'TRAÇOS E TALENTOS'; b.title = desperto ? 'Traços, talentos, marcas da idade, vínculos e especializações' : 'Traços, talentos e marcas da idade'; }
+        const q = document.querySelector('.fq-op2-iconbtn[onclick*="fq2IrAba(\'tracos\')"]');
+        if (q) q.title = desperto ? 'Habilidades' : 'Traços e Talentos';
+    }
     function aplicarSegredosUI() {
         const rf = isRevelado || globalRevelado; const hf = isHexatombe || globalHexatombe; const ef = isExtremos || globalExtremos; const ref = isRestricao || globalRestricao;
         if (hf) document.body.classList.add('tema-hexatombe'); else document.body.classList.remove('tema-hexatombe');
@@ -3518,6 +3525,7 @@ let filtroSubAtualAtaques = 'Todos';
             document.getElementById('content-exposicao-real').style.display = 'flex'; document.getElementById('content-exposicao-fake').style.display = 'none'; document.getElementById('tab-anomalias').style.display = 'block';
             if(document.getElementById('btn-group-espec')) document.getElementById('btn-group-espec').style.display = 'flex';
             if(document.getElementById('container-poderes')) document.getElementById('container-poderes').style.display = 'block';
+            nomearAbaTracos(true);
             if (bgEnc) bgEnc.style.display = 'flex';
             document.getElementById('sigilo-box').classList.remove('brilho-sangue', 'brilho-restricao');
             if(nexStr === "100%" && ef) document.getElementById('sigilo-box').classList.add('brilho-sangue'); else if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao');
@@ -3527,6 +3535,7 @@ let filtroSubAtualAtaques = 'Todos';
             document.getElementById('tab-anomalias').style.display = 'none'; 
             if(document.getElementById('btn-group-espec')) document.getElementById('btn-group-espec').style.display = 'none';
             if(document.getElementById('container-poderes')) document.getElementById('container-poderes').style.display = 'none';
+            nomearAbaTracos(false);
             if (bgEnc) bgEnc.style.display = 'none';
             document.getElementById('sigilo-box').classList.remove('brilho-sangue');
             if (nexStr === "0%" && ref) document.getElementById('sigilo-box').classList.add('brilho-restricao'); else document.getElementById('sigilo-box').classList.remove('brilho-restricao');
@@ -9159,7 +9168,7 @@ let filtroSubAtualAtaques = 'Todos';
                     <div class="fq-op2-quicknav">
                         <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('pericias')" title="Perícias">🎯</button>
                         <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('combate')" title="Combate">⚔️</button>
-                        <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('tracos')" title="Traços e Poderes">❖</button>
+                        <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('tracos')" title="Traços e Talentos">❖</button>
                         <button type="button" class="fq-op2-iconbtn" onclick="window.fq2IrAba('inventario')" title="Inventário">🎒</button>
                         <button type="button" class="fq-op2-iconbtn" id="fq2-btn-anom" style="display:none;" onclick="window.fq2IrAba('rituais')" title="Anomalias">🕯️</button>
                     </div>
@@ -10593,7 +10602,7 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 #controles-mestre-iniciativa button.btn-voltar-vez{ width:32px !important; height:28px !important; padding:0 !important; vertical-align:bottom !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; background:transparent; border:1px dashed var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:12px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
 
-/* ---- aba Traços e Poderes: cabeçalho de cada seção com os próprios botões ---- */
+/* ---- aba Traços: cabeçalho de cada seção com os próprios botões ---- */
 .carac-sec{ margin-bottom:34px; }
 .carac-cab{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
 .carac-cab > .section-header{ flex:1 1 260px; margin:0 !important; display:block; }
