@@ -2579,7 +2579,7 @@ body.tema-hexatombe .fq-character img:not(.fq-cutout){mix-blend-mode:screen}
                         <span class="bar-btn" onclick="ajustar('pe', -1)">&lsaquo;</span>
                     </div>
                     <div>
-                        <input type="number" id="pe-atual" placeholder="0" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()"> 
+                        <input type="number" id="pe-atual" placeholder="0" min="0" onfocus="this.dataset.antes=this.value" oninput="atualizarStatusVisual('pe')" onchange="conferirFolegoDigitado(this); salvarFicha()"> 
                         <span style="margin: 0 2px;">/</span> 
                         <input type="number" id="pe-max" placeholder="0" oninput="atualizarStatusVisual('pe')" onchange="salvarFicha()">
                     </div>
@@ -3919,6 +3919,7 @@ let filtroSubAtualAtaques = 'Todos';
             let atualVal = parseInt(input.value) || 0;
             let novoVal = (atualVal === valor) ? valor - 1 : valor;
             novoVal = Math.max(0, Math.min(novoVal, maxVal));
+            if (inputId === 'pe-atual' && atualVal > 0 && novoVal === 0 && typeof somarExaustaoPorFolego === 'function') setTimeout(somarExaustaoPorFolego, 0);
 
             input.value = novoVal;
             input.dispatchEvent(new Event('change'));
@@ -4221,8 +4222,11 @@ let filtroSubAtualAtaques = 'Todos';
         const i = document.getElementById(`${t}-atual`); 
         const m = document.getElementById(`${t}-max`); 
         if(i && m) { 
-            let nV = (parseInt(i.value) || 0) + v; 
+            const antes = parseInt(i.value) || 0;
+            let nV = antes + v; 
+            if (t === 'pe') nV = Math.max(0, nV);   // Fôlego não fica negativo
             document.getElementById(`${t}-atual`).value = nV; 
+            if (t === 'pe' && antes > 0 && nV === 0) somarExaustaoPorFolego();
             atualizarStatusVisual(t); 
             
             clearTimeout(delaySalvarFicha);
@@ -4230,6 +4234,37 @@ let filtroSubAtualAtaques = 'Todos';
         } 
     }
     
+    // ---- Livro, "Zerando o Fôlego": ao chegar a 0 PF, +1 nível de Exaustão. Um 4º nível = Inconsciente. ----
+    function nivelExaustaoAtual() {
+        if (!window.isExaustaoActive) return 0;
+        let n = 0; for (let k = 1; k <= 3; k++) if (document.getElementById('ex-' + k)?.classList.contains('active')) n = k;
+        return n;
+    }
+    function avisoFolego(msg) {
+        let t = document.getElementById('aviso-folego');
+        if (!t) { t = document.createElement('div'); t.id = 'aviso-folego'; document.body.appendChild(t); }
+        t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 4500);
+    }
+    function somarExaustaoPorFolego() {
+        const n = nivelExaustaoAtual();
+        if (n >= 3) {
+            if (!(window.statusAcumulados || []).includes('Inconsciente')) adicionarStatus('Inconsciente');
+            avisoFolego('Fôlego zerado com Exaustão 3: o corpo cede e a persona cai Inconsciente.');
+            return;
+        }
+        if (!window.isExaustaoActive) toggleExaustao();   // liga já no nível 1
+        else marcarExaustao(n + 1);
+        avisoFolego(`Fôlego zerado: +1 nível de Exaustão (agora ${n + 1}). Sem habilidades que usam Fôlego até recuperar 1 PF.`);
+    }
+    // valor digitado direto no campo
+    window.conferirFolegoDigitado = function(el) {
+        const antes = parseInt(el.dataset.antes);
+        let v = parseInt(el.value) || 0;
+        if (v < 0) { v = 0; el.value = 0; atualizarStatusVisual('pe'); }
+        if (!isNaN(antes) && antes > 0 && v === 0) somarExaustaoPorFolego();
+        el.dataset.antes = v;   // se continuar editando sem sair do campo
+    };
+
     function estabilizarStatus(t) { 
         document.getElementById(`${t}-atual`).value = 1; 
         atualizarStatusVisual(t); 
@@ -10603,6 +10638,16 @@ body.tema-escuro .btn-combate-toggle:not(.ativo){ background:#222; color:var(--a
 #controles-mestre-iniciativa button.btn-voltar-vez{ width:32px !important; height:28px !important; padding:0 !important; vertical-align:bottom !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; background:transparent; border:1px dashed var(--card-border); color:var(--op-ink); cursor:pointer; border-radius:2px; font-size:12px; }
 .ini-grupo-aliados{ font:900 9px 'Inter',sans-serif; letter-spacing:.14em; color:var(--san-purple); margin:4px 0 -2px 2px; }
 
+
+/* ---- toque (tablet/celular): as setinhas não ficam "presas" destacadas depois do toque ---- */
+@media (hover:none), (pointer:coarse){
+  .bar-btn:hover, body.tema-escuro .bar-btn:hover, body.tema-hexatombe .bar-btn:hover{ background:transparent !important; transform:none !important; opacity:.6 !important; }
+  .bar-btn:active, body.tema-escuro .bar-btn:active, body.tema-hexatombe .bar-btn:active{ opacity:1 !important; transform:scale(1.1) !important; }
+}
+.bar-btn{ -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none; }
+#aviso-folego{ position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); z-index:10060; max-width:min(520px,92vw); background:var(--op-ink); color:var(--bg-paper); padding:9px 14px; font:700 12px/1.4 'Inter',sans-serif; box-shadow:4px 4px 0 rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; }
+#aviso-folego.on{ opacity:1; transform:translate(-50%,0); }
+body.tema-escuro #aviso-folego{ background:#222; color:var(--accent-gold); }
 /* ---- aba Anomalias marcada de vermelho, como o resto do que é paranormal ---- */
 #tab-anomalias{ color:var(--hp-red) !important; border-color:var(--hp-red) !important; }
 #tab-anomalias.active{ color:var(--hp-red) !important; border-color:var(--hp-red) !important; }
