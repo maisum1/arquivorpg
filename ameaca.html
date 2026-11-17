@@ -1493,8 +1493,9 @@ if (campanhaParam) {
                 let ehMestre = false;
                 if (!campSnap.empty) {
                     const dadosCamp = campSnap.docs[0].data();
+                    const perspSim = localStorage.getItem('arquivo_perspectiva_sim') || 'padrao';   // visão simulada do criador: "admin" e "jogador" nunca mestram; "mestre" só se for o dono
                     const checarSuperAdmin = (usuarioLogado.email && usuarioLogado.email.toLowerCase() === "pedroacpr@gmail.com");
-                    ehMestre = (dadosCamp.dono === usuarioLogado.uid) || checarSuperAdmin;
+                    ehMestre = perspSim !== 'admin' && perspSim !== 'jogador' && ((dadosCamp.dono === usuarioLogado.uid) || (checarSuperAdmin && perspSim === 'padrao'));
                 }
                 aplicarPapel(ehMestre);
                 if (ehMestre) carregarCombatentesDisponiveis();
