@@ -9478,6 +9478,7 @@ let filtroSubAtualAtaques = 'Todos';
             };
             const fmtAttrShape = (nome, v) => `<span class="fq-op2-shape attr ${dadoFq(v)}" title="${nome}">${v}</span>`;
             const fmtBonus = b => b ? `<span class="fq-op2-sk-bonus" title="Bônus somado">${b > 0 ? '+' + b : b}</span>` : '';
+            const fmtTot = (t, b) => `<span class="fq-op2-sk-totv">${fmtBonus(b)}${t >= 0 ? '+' + t : t}</span>`;
 
             nomesPericias.forEach(p => {
                 const inf = bancoPericias[p] || {};
@@ -9497,9 +9498,9 @@ let filtroSubAtualAtaques = 'Todos';
                                     ${fmtShape(tr)}
                                     <span class="fq-op2-sk-plus">+</span>
                                     ${fmtAttrShape(attrNome, attrValor)}
-                                    <span class="fq-op2-sk-attrname">${attrNome}</span>${fmtBonus(tot - tr - attrValor)}
+                                    <span class="fq-op2-sk-attrname">${attrNome}</span>
                                 </span>
-                                <span class="fq-op2-sk-tot">${tot >= 0 ? '+' + tot : tot}</span>
+                                <span class="fq-op2-sk-tot">${fmtTot(tot, tot - tr - attrValor)}</span>
                             </div>
                         `);
                     }
@@ -9530,9 +9531,9 @@ let filtroSubAtualAtaques = 'Todos';
                                         ${fmtShape(st)}
                                         <span class="fq-op2-sk-plus">+</span>
                                         ${fmtAttrShape(attrNome, attrValor)}
-                                        <span class="fq-op2-sk-attrname">${attrNome}</span>${fmtBonus(stot - st - attrValor)}
+                                        <span class="fq-op2-sk-attrname">${attrNome}</span>
                                     </span>
-                                    <span class="fq-op2-sk-tot">${stot >= 0 ? '+' + stot : stot}</span>
+                                    <span class="fq-op2-sk-tot">${fmtTot(stot, stot - st - attrValor)}</span>
                                 </div>
                             `);
                         }
@@ -10355,18 +10356,24 @@ body:has(#ficha-rapida.open) #painel-iniciativa-combate{
 <style id="fq-romanos">
 #ficha-rapida .fq-op2-shape.rom-longo{ font-size:6.5px; letter-spacing:-.4px; }
 /* símbolos dos dados: 0 = d4 … 5 = d20 (mesmo tamanho de antes) */
-#ficha-rapida .fq-op2-shape.d4{ clip-path:polygon(50% 3%, 99% 95%, 1% 95%); padding-top:3px; box-sizing:border-box; border-radius:0; }
+#ficha-rapida .fq-op2-shape.d4, #ficha-rapida .fq-op2-shape.d6, #ficha-rapida .fq-op2-shape.d8,
+#ficha-rapida .fq-op2-shape.d10, #ficha-rapida .fq-op2-shape.d12, #ficha-rapida .fq-op2-shape.d20{
+  display:inline-flex; align-items:center; justify-content:center; line-height:1; box-sizing:border-box; padding-top:1px; vertical-align:middle;
+}
+#ficha-rapida .fq-op2-shape.d4{ clip-path:polygon(50% 3%, 99% 95%, 1% 95%); padding-top:4px; border-radius:0; }
 #ficha-rapida .fq-op2-shape.d6{ clip-path:none; border-radius:2.5px; }
 #ficha-rapida .fq-op2-shape.d8{ clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-#ficha-rapida .fq-op2-shape.d10{ clip-path:polygon(50% 0%, 100% 38%, 84% 84%, 50% 100%, 16% 84%, 0% 38%); }
-/* os mais estreitos (d4, d8, d10) ganham 1px e letra menor para "II"/"III" caberem */
-#ficha-rapida .fq-op2-shape.d8, #ficha-rapida .fq-op2-shape.d10{ width:15px; height:15px; line-height:15px; margin:-.5px; }
+/* d10: losango largo de lados curtos (mais largo que alto), como no ícone de referência */
+#ficha-rapida .fq-op2-shape.d10{ width:16px; height:14px; margin:0 -1px; clip-path:polygon(50% 0%, 100% 40%, 100% 60%, 50% 100%, 0% 60%, 0% 40%); }
+/* o d8 é estreito: ganha 1px e letra menor para "II" caber */
+#ficha-rapida .fq-op2-shape.d8{ width:15px; height:15px; margin:-.5px; }
 #ficha-rapida .fq-op2-shape.rom-2.d4, #ficha-rapida .fq-op2-shape.rom-2.d8, #ficha-rapida .fq-op2-shape.rom-2.d10{ font-size:7px; letter-spacing:-.7px; }
 #ficha-rapida .fq-op2-shape.rom-longo.d4, #ficha-rapida .fq-op2-shape.rom-longo.d8, #ficha-rapida .fq-op2-shape.rom-longo.d10{ font-size:5.8px; letter-spacing:-.8px; }
 #ficha-rapida .fq-op2-shape.d12{ clip-path:polygon(50% 0%, 79.4% 9.5%, 97.6% 34.5%, 97.6% 65.5%, 79.4% 90.5%, 50% 100%, 20.6% 90.5%, 2.4% 65.5%, 2.4% 34.5%, 20.6% 9.5%); }
 #ficha-rapida .fq-op2-shape.d20{ clip-path:polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%); }
 /* bônus somado à perícia: pequeno, em vermelho, entre o atributo e o total */
-#ficha-rapida .fq-op2-sk-bonus{ font:700 7.5px/1 'Courier Prime',monospace; color:#b3171c; letter-spacing:-.2px; margin-left:-1px; white-space:nowrap; }
+#ficha-rapida .fq-op2-sk-totv{ position:relative; display:inline-block; }
+#ficha-rapida .fq-op2-sk-bonus{ position:absolute; right:100%; top:50%; transform:translateY(-50%); margin-right:3px; font:700 7.5px/1 'Courier Prime',monospace; color:#b3171c; letter-spacing:-.2px; white-space:nowrap; text-shadow:none; pointer-events:none; }
 body.tema-escuro #ficha-rapida .fq-op2-sk-bonus, body.tema-hexatombe #ficha-rapida .fq-op2-sk-bonus{ color:#e0565a; }
 </style>
 <style id="fix-legibilidade-atributo-e-descricoes">
