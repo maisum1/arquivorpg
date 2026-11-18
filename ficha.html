@@ -9469,11 +9469,15 @@ let filtroSubAtualAtaques = 'Todos';
         const skList = document.getElementById('fq2-skills-list');
         if (skList && typeof nomesPericias !== 'undefined') {
             const linhas = [];
+            // valor 0 a 5 = dado d4, d6, d8, d10, d12, d20 (perícia em romano, atributo em número)
+            const DADOS_FQ = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20'];
+            const dadoFq = v => DADOS_FQ[Math.max(0, Math.min(5, parseInt(v) || 0))];
             const fmtShape = tr => {
-                const cls = tr >= 5 ? 'dia' : (tr >= 3 ? 'sq' : 'tri');
                 const rom = ['0', 'I', 'II', 'III', 'IV', 'V'][tr] ?? tr;
-                return `<span class="fq-op2-shape ${cls}${String(rom).length >= 3 ? ' rom-longo' : ''}" title="Treino ${rom}">${rom}</span>`;
+                return `<span class="fq-op2-shape ${dadoFq(tr)}${String(rom).length >= 3 ? ' rom-longo' : (String(rom).length === 2 ? ' rom-2' : '')}" title="Treino ${rom}">${rom}</span>`;
             };
+            const fmtAttrShape = (nome, v) => `<span class="fq-op2-shape attr ${dadoFq(v)}" title="${nome}">${v}</span>`;
+            const fmtBonus = b => b ? `<span class="fq-op2-sk-bonus" title="Bônus somado">${b > 0 ? '+' + b : b}</span>` : '';
 
             nomesPericias.forEach(p => {
                 const inf = bancoPericias[p] || {};
@@ -9492,8 +9496,8 @@ let filtroSubAtualAtaques = 'Todos';
                                 <span class="fq-op2-sk-icons">
                                     ${fmtShape(tr)}
                                     <span class="fq-op2-sk-plus">+</span>
-                                    <span class="fq-op2-shape dia" title="${attrNome}">${attrValor}</span>
-                                    <span class="fq-op2-sk-attrname">${attrNome}</span>
+                                    ${fmtAttrShape(attrNome, attrValor)}
+                                    <span class="fq-op2-sk-attrname">${attrNome}</span>${fmtBonus(tot - tr - attrValor)}
                                 </span>
                                 <span class="fq-op2-sk-tot">${tot >= 0 ? '+' + tot : tot}</span>
                             </div>
@@ -9525,8 +9529,8 @@ let filtroSubAtualAtaques = 'Todos';
                                     <span class="fq-op2-sk-icons">
                                         ${fmtShape(st)}
                                         <span class="fq-op2-sk-plus">+</span>
-                                        <span class="fq-op2-shape dia" title="${attrNome}">${attrValor}</span>
-                                        <span class="fq-op2-sk-attrname">${attrNome}</span>
+                                        ${fmtAttrShape(attrNome, attrValor)}
+                                        <span class="fq-op2-sk-attrname">${attrNome}</span>${fmtBonus(stot - st - attrValor)}
                                     </span>
                                     <span class="fq-op2-sk-tot">${stot >= 0 ? '+' + stot : stot}</span>
                                 </div>
@@ -9541,7 +9545,7 @@ let filtroSubAtualAtaques = 'Todos';
                                 <span class="fq-op2-sk-icons">
                                     ${fmtShape(1)}
                                     <span class="fq-op2-sk-plus">+</span>
-                                    <span class="fq-op2-shape dia" title="${attrNome}">${attrValor}</span>
+                                    ${fmtAttrShape(attrNome, attrValor)}
                                     <span class="fq-op2-sk-attrname">${attrNome}</span>
                                 </span>
                                 <span class="fq-op2-sk-tot">${attrValor >= 0 ? '+' + attrValor : attrValor}</span>
@@ -10173,7 +10177,8 @@ html.fq-lock, html.fq-lock body{ overflow:hidden !important; }
   #ficha-rapida .fq-op2-sk-name.has-parent{ align-items:flex-start; }
   #ficha-rapida .fq-op2-sk-parent{ font-size:6.5px; }
   #ficha-rapida .fq-op2-sk-plus,
-  #ficha-rapida .fq-op2-sk-icons .fq-op2-shape.dia{ display:none; }
+  #ficha-rapida .fq-op2-sk-icons .fq-op2-shape.dia,
+  #ficha-rapida .fq-op2-sk-icons .fq-op2-shape.attr{ display:none; }
   #ficha-rapida .fq-op2-sk-icons{ gap:3px; }
   #ficha-rapida .fq-op2-sk-attrname{ width:auto; font-size:7px; }
   #ficha-rapida .fq-op2-sk-tot{ font-size:11.5px; }
@@ -10349,6 +10354,20 @@ body:has(#ficha-rapida.open) #painel-iniciativa-combate{
 </script>
 <style id="fq-romanos">
 #ficha-rapida .fq-op2-shape.rom-longo{ font-size:6.5px; letter-spacing:-.4px; }
+/* símbolos dos dados: 0 = d4 … 5 = d20 (mesmo tamanho de antes) */
+#ficha-rapida .fq-op2-shape.d4{ clip-path:polygon(50% 3%, 99% 95%, 1% 95%); padding-top:3px; box-sizing:border-box; border-radius:0; }
+#ficha-rapida .fq-op2-shape.d6{ clip-path:none; border-radius:2.5px; }
+#ficha-rapida .fq-op2-shape.d8{ clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+#ficha-rapida .fq-op2-shape.d10{ clip-path:polygon(50% 0%, 100% 38%, 84% 84%, 50% 100%, 16% 84%, 0% 38%); }
+/* os mais estreitos (d4, d8, d10) ganham 1px e letra menor para "II"/"III" caberem */
+#ficha-rapida .fq-op2-shape.d8, #ficha-rapida .fq-op2-shape.d10{ width:15px; height:15px; line-height:15px; margin:-.5px; }
+#ficha-rapida .fq-op2-shape.rom-2.d4, #ficha-rapida .fq-op2-shape.rom-2.d8, #ficha-rapida .fq-op2-shape.rom-2.d10{ font-size:7px; letter-spacing:-.7px; }
+#ficha-rapida .fq-op2-shape.rom-longo.d4, #ficha-rapida .fq-op2-shape.rom-longo.d8, #ficha-rapida .fq-op2-shape.rom-longo.d10{ font-size:5.8px; letter-spacing:-.8px; }
+#ficha-rapida .fq-op2-shape.d12{ clip-path:polygon(50% 0%, 79.4% 9.5%, 97.6% 34.5%, 97.6% 65.5%, 79.4% 90.5%, 50% 100%, 20.6% 90.5%, 2.4% 65.5%, 2.4% 34.5%, 20.6% 9.5%); }
+#ficha-rapida .fq-op2-shape.d20{ clip-path:polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%); }
+/* bônus somado à perícia: pequeno, em vermelho, entre o atributo e o total */
+#ficha-rapida .fq-op2-sk-bonus{ font:700 7.5px/1 'Courier Prime',monospace; color:#b3171c; letter-spacing:-.2px; margin-left:-1px; white-space:nowrap; }
+body.tema-escuro #ficha-rapida .fq-op2-sk-bonus, body.tema-hexatombe #ficha-rapida .fq-op2-sk-bonus{ color:#e0565a; }
 </style>
 <style id="fix-legibilidade-atributo-e-descricoes">
 /* Modo claro: sobre a marcação colorida (marrom/azul/vermelho) o atributo e o bônus ficavam escuros demais */
